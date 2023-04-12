@@ -35,49 +35,36 @@ public class ResourceOwnerVerifyProvider {
   private AuthService authService;
 
   public UserVerificationDTO provide(LoginDto loginDto)
-    throws HttpServerErrorException {
+      throws HttpServerErrorException {
     Optional<User> user;
     try {
-      user =
-        this.authService.verifyPassword(
-            loginDto.getUsername(),
-            loginDto.getPassword()
-          );
+      user = this.authService.verifyPassword(
+          loginDto.getUsername(),
+          loginDto.getPassword());
     } catch (Exception error) {
       log.error(null, error);
       user = userRepository.findOne(
-      UserSpecification.byUsername(loginDto.getUsername())
-    );
+          UserSpecification.byUsername(loginDto.getUsername()));
     }
     if (user.isEmpty()) {
       throw throwUnauthorizedException(AuthErrorKeys.INVALID_CREDENTIALS);
     }
-    Optional<UserTenant> userTenant =
-      this.userTenantRepository.findOne(
-          UserTenantSpecification.byUserIdTenantIdAndStatusNotIn(
+    Optional<UserTenant> userTenant = this.userTenantRepository.findOne(
+        UserTenantSpecification.byUserIdTenantIdAndStatusNotIn(
             user.get().getId(),
             user.get().getDefaultTenantId(),
-            Arrays.asList(UserStatus.REJECTED, UserStatus.INACTIVE)
-          )
-        );
+            Arrays.asList(UserStatus.REJECTED, UserStatus.INACTIVE)));
     if (userTenant.isEmpty()) {
       throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthenticateErrorKeys.USER_INACTIVE.toString()
-      );
+          HttpStatus.UNAUTHORIZED,
+          AuthenticateErrorKeys.USER_INACTIVE.toString());
     }
-    AuthClient client =
-      this.authClientRepository.findOne(
-          AuthClientSpecification.byClientId(loginDto.getClientId())
-        )
-        .orElseThrow(() ->
-          throwUnauthorizedException(AuthErrorKeys.CLIENT_INVALID)
-        );
+    AuthClient client = this.authClientRepository.findOne(
+        AuthClientSpecification.byClientId(loginDto.getClientId()))
+        .orElseThrow(() -> throwUnauthorizedException(AuthErrorKeys.CLIENT_INVALID));
     if (!user.get().getAuthClientIds().contains(client.getId())) {
       throw throwUnauthorizedException(AuthErrorKeys.CLIENT_INVALID);
-    } else if (
-      !Objects.equals(client.getClientSecret(), loginDto.getClientSecret())
-    ) {
+    } else if (!Objects.equals(client.getClientSecret(), loginDto.getClientSecret())) {
       throw throwUnauthorizedException(AuthErrorKeys.CLIENT_INVALID);
     } else {
       // for sonar
@@ -87,8 +74,7 @@ public class ResourceOwnerVerifyProvider {
 
   HttpServerErrorException throwUnauthorizedException(AuthErrorKeys errorKeys) {
     throw new HttpServerErrorException(
-      HttpStatus.UNAUTHORIZED,
-      errorKeys.toString()
-    );
+        HttpStatus.UNAUTHORIZED,
+        errorKeys.toString());
   }
 }

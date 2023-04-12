@@ -6,4 +6,5 @@ import com.sourcefuse.jarc.core.repositories.SoftDeletesRepository;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 
 public interface UserTenantRepository
-  extends SoftDeletesRepository<UserTenant, UUID> {}
+    extends SoftDeletesRepository<UserTenant, UUID> {
+}

@@ -48,129 +48,101 @@ public class AuthService {
   private final JwtTokenProvider jwtTokenProvider;
 
   public CodeResponse login(
-    LoginDto loginDto,
-    AuthClient authClient,
-    User user
-  ) {
-    UserTenant userTenant =
-      this.verifyClientUserLogin(loginDto, authClient, user);
+      LoginDto loginDto,
+      AuthClient authClient,
+      User user) {
+    UserTenant userTenant = this.verifyClientUserLogin(loginDto, authClient, user);
     Role role = roleRepository
-      .findById(userTenant.getRoleId())
-      .orElseThrow(() ->
-        new CommonRuntimeException(
-          HttpStatus.UNAUTHORIZED,
-          AuthenticateErrorKeys.UNPROCESSABLE_DATA.toString()
-        )
-      );
+        .findById(userTenant.getRoleId())
+        .orElseThrow(() -> new CommonRuntimeException(
+            HttpStatus.UNAUTHORIZED,
+            AuthenticateErrorKeys.UNPROCESSABLE_DATA.toString()));
     return this.authCodeGeneratorProvider.provide(
         user,
         userTenant,
         role,
-        authClient
-      );
+        authClient);
   }
 
   public JWTAuthResponse loginToken(
-    LoginDto loginDto,
-    AuthClient authClient,
-    User authUser
-  ) {
-    UserTenant userTenant =
-      this.verifyClientUserLogin(loginDto, authClient, authUser);
+      LoginDto loginDto,
+      AuthClient authClient,
+      User authUser) {
+    UserTenant userTenant = this.verifyClientUserLogin(loginDto, authClient, authUser);
     Role role = roleRepository
-      .findById(userTenant.getRoleId())
-      .orElseThrow(() ->
-        new CommonRuntimeException(
-          HttpStatus.UNAUTHORIZED,
-          AuthenticateErrorKeys.UNPROCESSABLE_DATA.toString()
-        )
-      );
+        .findById(userTenant.getRoleId())
+        .orElseThrow(() -> new CommonRuntimeException(
+            HttpStatus.UNAUTHORIZED,
+            AuthenticateErrorKeys.UNPROCESSABLE_DATA.toString()));
     return this.jwtTokenProvider.createJwt(
         authUser,
         userTenant,
         role,
-        authClient
-      );
+        authClient);
   }
 
   public Optional<User> verifyPassword(String username, String password) {
-    Optional<User> user =
-      userRepository.findOne(
-      UserSpecification.byUsername(username.toLowerCase())
-    );
+    Optional<User> user = userRepository.findOne(
+        UserSpecification.byUsername(username.toLowerCase()));
     if (user.isEmpty() || user.get().isDeleted()) {
       throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString()
-      );
+          HttpStatus.UNAUTHORIZED,
+          AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString());
     }
-    Optional<UserCredential> userCredential =
-      this.userCredentialRepository.findOne(  
-      UserCredentialSpecification.byUserId(user.get().getId()));
-      
-    if (
-      userCredential.isPresent() &&
-      (
-        userCredential.get().getPassword().isEmpty() ||
-        !Objects.equals(
-          userCredential.get().getAuthProvider(),
-          AuthProvider.INTERNAL.toString()
-        ) ||
-        !(BCrypt.checkpw(password, userCredential.get().getPassword()))
-      )
-    ) {
+    Optional<UserCredential> userCredential = this.userCredentialRepository.findOne(
+        UserCredentialSpecification.byUserId(user.get().getId()));
+
+    if (userCredential.isPresent() &&
+        (userCredential.get().getPassword().isEmpty() ||
+            !Objects.equals(
+                userCredential.get().getAuthProvider(),
+                AuthProvider.INTERNAL.toString())
+            ||
+            !(BCrypt.checkpw(password, userCredential.get().getPassword())))) {
       log.error("User credentials not found in DB or is invalid");
       throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.INVALID_CREDENTIALS.toString()
-      );
+          HttpStatus.UNAUTHORIZED,
+          AuthErrorKeys.INVALID_CREDENTIALS.toString());
     } else {
       return user;
     }
   }
 
   public UserTenant verifyClientUserLogin(
-    LoginDto req,
-    AuthClient client,
-    User user
-  ) {
+      LoginDto req,
+      AuthClient client,
+      User user) {
     User currentUser = user;
 
     Optional<UserTenant> userTenant = userTenantRepository.findOne(
-      UserTenantSpecification.byUserId(currentUser.getId())
-    );
+        UserTenantSpecification.byUserId(currentUser.getId()));
     if (userTenant.isEmpty()) {
       throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString()
-      );
+          HttpStatus.UNAUTHORIZED,
+          AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString());
     }
     UserStatus userStatus = userTenant.get().getStatus();
 
     if (currentUser.getAuthClientIds().isEmpty()) {
       log.error("No allowed auth clients found for this user in DB");
       throw new HttpServerErrorException(
-        HttpStatus.UNPROCESSABLE_ENTITY,
-        AuthErrorKeys.CLIENT_USER_MISSING.toString()
-      );
+          HttpStatus.UNPROCESSABLE_ENTITY,
+          AuthErrorKeys.CLIENT_USER_MISSING.toString());
     } else if (!StringUtils.hasLength(req.getClientSecret())) {
       log.error("client secret key missing from request object");
       throw new HttpServerErrorException(
-        HttpStatus.BAD_REQUEST,
-        AuthErrorKeys.CLIENT_SECRET_MISSING.toString()
-      );
+          HttpStatus.BAD_REQUEST,
+          AuthErrorKeys.CLIENT_SECRET_MISSING.toString());
     } else if (!currentUser.getAuthClientIds().contains(client.getId())) {
       log.error("User is not allowed to access client id passed in request");
       throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.CLIENT_INVALID.toString()
-      );
+          HttpStatus.UNAUTHORIZED,
+          AuthErrorKeys.CLIENT_INVALID.toString());
     } else if (userStatus == UserStatus.REGISTERED) {
       log.error("User is in registered state");
       throw new HttpServerErrorException(
-        HttpStatus.BAD_REQUEST,
-        "User not active yet"
-      );
+          HttpStatus.BAD_REQUEST,
+          "User not active yet");
     } else {
       // for sonar
     }

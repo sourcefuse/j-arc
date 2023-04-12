@@ -22,27 +22,22 @@ public class KeycloakPreVerifyProvider {
   private final UserTenantRepository userTenantRepository;
 
   public Optional<User> provide(User user, KeycloakUserDTO keycloakUserDTO) {
-    if (
-      !user.getFirstName().equals(keycloakUserDTO.getGivenName()) ||
-      !user.getLastName().equals(keycloakUserDTO.getFamilyName()) ||
-      !user.getUsername().equals(keycloakUserDTO.getPreferredUsername()) ||
-      !user.getEmail().equals(keycloakUserDTO.getEmail())
-    ) {
+    if (!user.getFirstName().equals(keycloakUserDTO.getGivenName()) ||
+        !user.getLastName().equals(keycloakUserDTO.getFamilyName()) ||
+        !user.getUsername().equals(keycloakUserDTO.getPreferredUsername()) ||
+        !user.getEmail().equals(keycloakUserDTO.getEmail())) {
       user.setUsername(keycloakUserDTO.getPreferredUsername());
       user.setFirstName(keycloakUserDTO.getGivenName());
       user.setLastName(keycloakUserDTO.getFamilyName());
       user.setEmail(keycloakUserDTO.getEmail());
       this.userRepository.save(user);
     }
-    Optional<UserTenant> userTenant =
-      this.userTenantRepository.findOne(
-          UserTenantSpecification.byUserId(user.getId())
-        );
+    Optional<UserTenant> userTenant = this.userTenantRepository.findOne(
+        UserTenantSpecification.byUserId(user.getId()));
     if (userTenant.isEmpty()) {
       throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.INVALID_CREDENTIALS.toString()
-      );
+          HttpStatus.UNAUTHORIZED,
+          AuthErrorKeys.INVALID_CREDENTIALS.toString());
     }
     if (userTenant.get().getStatus() == UserStatus.REGISTERED) {
       userTenant.get().setStatus(UserStatus.ACTIVE);

@@ -17,16 +17,13 @@ public class AuthCodeGeneratorProvider {
   private final JwtTokenProvider jwtTokenProvider;
 
   public CodeResponse provide(
-    User user,
-    UserTenant userTenant,
-    Role role,
-    AuthClient authClient
-  ) {
-    JWTAuthResponse jwtAuthResponse =
-      this.jwtTokenProvider.createJwt(user, userTenant, role, authClient);
+      User user,
+      UserTenant userTenant,
+      Role role,
+      AuthClient authClient) {
+    JWTAuthResponse jwtAuthResponse = this.jwtTokenProvider.createJwt(user, userTenant, role, authClient);
     String code = String.valueOf(
-      this.codeWriterProvider.provide(jwtAuthResponse.getAccessToken())
-    );
+        this.codeWriterProvider.provide(jwtAuthResponse.getAccessToken()));
     CodeResponse codeResponse = new CodeResponse();
     codeResponse.setCode(code);
 

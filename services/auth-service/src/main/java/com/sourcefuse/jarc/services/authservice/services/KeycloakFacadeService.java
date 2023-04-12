@@ -49,15 +49,13 @@ public class KeycloakFacadeService {
     map.add("grant_type", "authorization_code");
 
     HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(
-      map,
-      headers
-    );
+        map,
+        headers);
     RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<KeycloakAuthResponse> response = restTemplate.postForEntity(
-      keycloakTokenEndpoint,
-      request,
-      KeycloakAuthResponse.class
-    );
+        keycloakTokenEndpoint,
+        request,
+        KeycloakAuthResponse.class);
     return response.getBody();
   }
 
@@ -67,11 +65,10 @@ public class KeycloakFacadeService {
     headers.setBearerAuth(accessToken);
     HttpEntity<KeycloakUserDTO> request = new HttpEntity<>(headers);
     ResponseEntity<KeycloakUserDTO> response = restTemplate.exchange(
-      keycloakUserInfoEndpoint,
-      HttpMethod.GET,
-      request,
-      KeycloakUserDTO.class
-    );
+        keycloakUserInfoEndpoint,
+        HttpMethod.GET,
+        request,
+        KeycloakUserDTO.class);
     return response.getBody();
   }
 }

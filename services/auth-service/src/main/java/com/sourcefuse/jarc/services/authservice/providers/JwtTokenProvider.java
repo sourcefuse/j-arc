@@ -50,15 +50,15 @@ public class JwtTokenProvider {
     Date currentDate = new Date();
     Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
     Claims claims = Jwts
-      .claims()
-      .setSubject(currentUser.getUsername());
+        .claims()
+        .setSubject(currentUser.getUsername());
     claims.put(AuthConstants.CURRENT_USER_KEY, currentUser);
     return new CustomJwtBuilder()
-      .setClaims(claims)
-      .setIssuedAt(currentDate)
-      .setExpiration(expireDate)
-      .signWith(key())
-      .compact();
+        .setClaims(claims)
+        .setIssuedAt(currentDate)
+        .setExpiration(expireDate)
+        .signWith(key())
+        .compact();
   }
 
   private Key key() {
@@ -66,14 +66,12 @@ public class JwtTokenProvider {
   }
 
   public JWTAuthResponse createJwt(
-    User user,
-    UserTenant userTenant,
-    Role role,
-    AuthClient authClient
-  ) {
+      User user,
+      UserTenant userTenant,
+      Role role,
+      AuthClient authClient) {
     try {
-      CurrentUser currentUser =
-        this.jwtPayloadProvider.provide(user, userTenant, role);
+      CurrentUser currentUser = this.jwtPayloadProvider.provide(user, userTenant, role);
       String accessToken = this.generateToken(currentUser);
       String refreshToken = UUID.randomUUID().toString();
 
@@ -86,13 +84,12 @@ public class JwtTokenProvider {
       refreshTokenRedis.setExternalRefreshToken(refreshToken);
       refreshTokenRedis.setId(refreshToken);
       redisTemplate
-        .opsForValue()
-        .set(
-          refreshToken,
-          refreshTokenRedis,
-          authClient.getRefreshTokenExpiration(),
-          TimeUnit.SECONDS
-        );
+          .opsForValue()
+          .set(
+              refreshToken,
+              refreshTokenRedis,
+              authClient.getRefreshTokenExpiration(),
+              TimeUnit.SECONDS);
       JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
       jwtAuthResponse.setAccessToken(accessToken);
       jwtAuthResponse.setTokenType("Bearer");
@@ -100,11 +97,10 @@ public class JwtTokenProvider {
       jwtAuthResponse.setRefreshToken(refreshToken);
       return jwtAuthResponse;
     } catch (Exception e) {
-      log.error(null,e);
+      log.error(null, e);
       throw new CommonRuntimeException(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        "Error while generating JWT token"
-      );
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          "Error while generating JWT token");
     }
   }
 

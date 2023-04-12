@@ -17,10 +17,8 @@ public class ClientPasswordVerifyProvider {
   public AuthClient value(String clientId, String clientSecret) {
     return this.authClientRepository.findOne(
         AuthClientSpecification.byClientIdAndClientSecret(
-          clientId,
-          clientSecret
-        )
-      )
-      .orElse(null);
+            clientId,
+            clientSecret))
+        .orElse(null);
   }
 }

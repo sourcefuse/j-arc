@@ -28,23 +28,18 @@ public class KeycloakSignupProvider {
   private final RoleRepository roleRepository;
 
   public Optional<User> provide(KeycloakUserDTO keycloakUserDTO) {
-    Optional<Tenant> tenant =
-      this.tenantRepository.findOne(TenantSpecification.byKey("master"));
+    Optional<Tenant> tenant = this.tenantRepository.findOne(TenantSpecification.byKey("master"));
     if (tenant.isEmpty()) {
       throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.INVALID_CREDENTIALS.toString()
-      );
+          HttpStatus.UNAUTHORIZED,
+          AuthErrorKeys.INVALID_CREDENTIALS.toString());
     }
-    Optional<Role> defaultRole =
-      this.roleRepository.findOne(
-          RoleSpecification.byRoleType(RoleKey.DEFAULT)
-        );
+    Optional<Role> defaultRole = this.roleRepository.findOne(
+        RoleSpecification.byRoleType(RoleKey.DEFAULT));
     if (defaultRole.isEmpty()) {
       throw new HttpServerErrorException(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        "Role not found"
-      );
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          "Role not found");
     }
     User userToCreate = new User();
     userToCreate.setUsername(keycloakUserDTO.getPreferredUsername());

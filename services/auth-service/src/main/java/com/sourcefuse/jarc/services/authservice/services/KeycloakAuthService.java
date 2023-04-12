@@ -42,58 +42,42 @@ public class KeycloakAuthService {
   private final RoleRepository roleRepository;
 
   public CodeResponse login(String code, AuthClient authClient) {
-    KeycloakAuthResponse keycloakAuthResponse =
-      this.keycloakFacadeService.keycloakAuthByCode(code);
-    KeycloakUserDTO keycloakUserDTO =
-      this.keycloakFacadeService.getKeycloakUserProfile(
-          keycloakAuthResponse.getAccessToken()
-        );
+    KeycloakAuthResponse keycloakAuthResponse = this.keycloakFacadeService.keycloakAuthByCode(code);
+    KeycloakUserDTO keycloakUserDTO = this.keycloakFacadeService.getKeycloakUserProfile(
+        keycloakAuthResponse.getAccessToken());
     String usernameOrEmail = keycloakUserDTO.getEmail();
     User user = this.getUserBy(usernameOrEmail, keycloakUserDTO);
-    UserCredential userCredential =
-      this.userCredentialRepository.findOne(
-          UserCredentialSpecification.byUserId(user.getId())
-        )
+    UserCredential userCredential = this.userCredentialRepository.findOne(
+        UserCredentialSpecification.byUserId(user.getId()))
         .orElseThrow(this::throwUserVerificationFailed);
-    if (
-      !userCredential
+    if (!userCredential
         .getAuthProvider()
         .equals(AuthProvider.KEYCLOAK.toString()) ||
-      (
-        !userCredential
-          .getAuthId()
-          .equals(keycloakUserDTO.getPreferredUsername())
-      )
-    ) {
+        (!userCredential
+            .getAuthId()
+            .equals(keycloakUserDTO.getPreferredUsername()))) {
       throw throwUserVerificationFailed();
     }
     this.keycloakPostVerifyProvider.provide(keycloakUserDTO, user);
-    UserTenant userTenant =
-      this.userTenantRepository.findOne(
-          UserTenantSpecification.byUserId(user.getId())
-        )
+    UserTenant userTenant = this.userTenantRepository.findOne(
+        UserTenantSpecification.byUserId(user.getId()))
         .orElseThrow(this::throwUserVerificationFailed);
 
-    Role role =
-      this.roleRepository.findById(userTenant.getRoleId())
+    Role role = this.roleRepository.findById(userTenant.getRoleId())
         .orElseThrow(this::throwUserVerificationFailed);
 
     return authCodeGeneratorProvider.provide(
-      user,
-      userTenant,
-      role,
-      authClient
-    );
+        user,
+        userTenant,
+        role,
+        authClient);
   }
 
   User getUserBy(String usernameOrEmail, KeycloakUserDTO keycloakUserDTO) {
-    Optional<User> user =
-      this.userRepository.findOne(
-          UserSpecification.byUserNameOrEmail(usernameOrEmail)
-        );
+    Optional<User> user = this.userRepository.findOne(
+        UserSpecification.byUserNameOrEmail(usernameOrEmail));
     if (user.isPresent()) {
-      user =
-        this.keycloakPreVerifyProvider.provide(user.get(), keycloakUserDTO);
+      user = this.keycloakPreVerifyProvider.provide(user.get(), keycloakUserDTO);
     } else {
       user = this.keycloakSignupProvider.provide(keycloakUserDTO);
     }
@@ -105,8 +89,7 @@ public class KeycloakAuthService {
 
   HttpServerErrorException throwUserVerificationFailed() {
     return new HttpServerErrorException(
-      HttpStatus.UNAUTHORIZED,
-      AuthErrorKeys.USER_VERIFICATION_FAILED.toString()
-    );
+        HttpStatus.UNAUTHORIZED,
+        AuthErrorKeys.USER_VERIFICATION_FAILED.toString());
   }
 }

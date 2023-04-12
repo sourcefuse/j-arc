@@ -27,6 +27,6 @@ public class JwtPayloadProvider {
     currentUser.setDefaultTenantId(user.getDefaultTenantId());
     currentUser.setRoleType(role.getRoleType());
     return currentUser;
-  
+
   }
 }
