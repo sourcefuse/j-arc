@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# regex for a conventional commit
+regex="^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z \-]+\))?!?: .+$"
+
+# get the commit message
+commit_message=$(cat "$1")
+
+if [[ "$commit_message" =~ $regex ]]; then
+   echo "Commit message meets Conventional Commit standards..."
+   exit 0
+fi
+
+echo "The commit message does not meet the Conventional Commit standard"
+echo "An example of a valid message is: "
+echo "  feat(login): add the 'remember me' button"
+echo "More details at: https://www.conventionalcommits.org/en/v1.0.0/#summary"
+exit 1
