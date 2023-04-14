@@ -221,14 +221,6 @@ public class AuthService {
   public UserStatus verifyClientUserLogin(LoginDto req, AuthClient client, User user) {
     User currentUser = user;
 
-    // if (client) {
-    // this.logger.error('Auth client not found or invalid');
-    // throw new HttpErrors.Unauthorized(AuthErrorKeys.ClientInvalid);
-    // }
-    // if (!currentUser) {
-    // this.logger.error('Auth user not found or invalid');
-    // throw new HttpErrors.Unauthorized(AuthErrorKeys.InvalidCredentials);
-    // }
     Optional<UserTenant> userTenant = userTenantRepository.findUserTenantByUserId(
         currentUser.getId());
     UserStatus userStatus = userTenant.get().getStatus();

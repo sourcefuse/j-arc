@@ -28,7 +28,6 @@ public class JwtTokenProvider {
   @Value("${app-jwt-expiration-milliseconds}")
   private long jwtExpirationDate;
 
-  // generate JWT token
   public String generateToken(User user) {
     String username = user.getUsername();
     CurrentUser currentUser = new CurrentUser(user);
@@ -37,7 +36,7 @@ public class JwtTokenProvider {
 
     Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
     Claims claims = Jwts.claims().setSubject(username);
-    claims.put(Constants.CURRENT_USER_KEY, currentUser);
+    claims.put(Constants.currentUserKey, currentUser);
     return Jwts
         .builder()
         .setClaims(claims)
@@ -51,7 +50,6 @@ public class JwtTokenProvider {
     return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
   }
 
-  // get username from Jwt token
   public CurrentUser getUserDetails(String token) {
     Claims claims = Jwts
         .parserBuilder()
@@ -59,12 +57,11 @@ public class JwtTokenProvider {
         .build()
         .parseClaimsJws(token)
         .getBody();
-    Object userObject = claims.get(Constants.CURRENT_USER_KEY);
+    Object userObject = claims.get(Constants.currentUserKey);
     ObjectMapper mapper = new ObjectMapper();
     return mapper.convertValue(userObject, CurrentUser.class);
   }
 
-  // validate Jwt token
   public boolean validateToken(String token) {
     try {
       Jwts.parserBuilder().setSigningKey(key()).build().parse(token);

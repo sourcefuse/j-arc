@@ -1,5 +1,8 @@
 package com.sourcefuse.jarc.services.authservice;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class Constants {
-    public static String CURRENT_USER_KEY = "current-user";
+    public static final String currentUserKey = "current-user";
 }

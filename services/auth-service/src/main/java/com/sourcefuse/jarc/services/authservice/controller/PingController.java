@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PingController {
 
   @GetMapping("/ping")
-  // @RolesAllowed("user")
   public String ping() {
     return "Pong!";
   }
