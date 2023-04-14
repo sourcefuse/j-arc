@@ -1,0 +1,23 @@
+{
+  "name": "root",
+  "description": "This is the root package and will never be served via a web server",
+  "private": true,
+  "scripts": {
+    "test": "",
+    "commit": "./node_modules/cz-customizable/standalone.js"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.6.1",
+    "@commitlint/config-conventional": "^17.6.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "commitizen": "^4.2.4",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.1",
+    "prettier": "^2.8.7"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-customizable"
+    }
+  }
+}
