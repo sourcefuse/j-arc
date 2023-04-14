@@ -6,10 +6,11 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sourcefuse.jarc.services.authservice.Constants;
 import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.models.User;
-
+import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -30,19 +31,20 @@ public class JwtTokenProvider {
   // generate JWT token
   public String generateToken(User user) {
     String username = user.getUsername();
+    CurrentUser currentUser = new CurrentUser(user);
 
     Date currentDate = new Date();
 
     Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
-
-    String token = Jwts
+    Claims claims = Jwts.claims().setSubject(username);
+    claims.put(Constants.CURRENT_USER_KEY, currentUser);
+    return Jwts
         .builder()
-        .setSubject(username)
+        .setClaims(claims)
         .setIssuedAt(new Date())
         .setExpiration(expireDate)
         .signWith(key())
         .compact();
-    return token;
   }
 
   private Key key() {
@@ -50,15 +52,16 @@ public class JwtTokenProvider {
   }
 
   // get username from Jwt token
-  public String getUsername(String token) {
+  public CurrentUser getUserDetails(String token) {
     Claims claims = Jwts
         .parserBuilder()
         .setSigningKey(key())
         .build()
         .parseClaimsJws(token)
         .getBody();
-    String username = claims.getSubject();
-    return username;
+    Object userObject = claims.get(Constants.CURRENT_USER_KEY);
+    ObjectMapper mapper = new ObjectMapper();
+    return mapper.convertValue(userObject, CurrentUser.class);
   }
 
   // validate Jwt token

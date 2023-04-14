@@ -13,7 +13,6 @@ import com.sourcefuse.jarc.services.authservice.enums.AuthenticateErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.UserStatus;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.User;
-import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 import com.sourcefuse.jarc.services.authservice.payload.LoginDto;
 import com.sourcefuse.jarc.services.authservice.payload.UserVerificationDTO;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
@@ -38,11 +37,6 @@ public class ResourceOwnerVerifyProvider {
     try {
       user = this.authService.verifyPassword(loginDto.getUsername(), loginDto.getPassword());
     } catch (Exception error) {
-      // TODO
-      // const otp: Otp = await this.otpRepository.get(username);
-      // if (!otp || otp.otp !== password) {
-      // throw new HttpErrors.Unauthorized(AuthErrorKeys.InvalidCredentials);
-      // }
       user = this.userRepository.findUserByUsername(loginDto.getUsername());
       if (user.isEmpty()) {
         throw new HttpServerErrorException(
@@ -58,7 +52,7 @@ public class ResourceOwnerVerifyProvider {
             HttpStatus.UNAUTHORIZED,
             AuthenticateErrorKeys.UserInactive.label));
 
-    AuthClient client = this.authClientRepository.findAuthClientByClientId(loginDto.getClient_id())
+    AuthClient client = this.authClientRepository.findAuthClientByClientId(loginDto.getClientId())
         .orElseThrow(() -> new HttpServerErrorException(
             HttpStatus.UNAUTHORIZED,
             AuthErrorKeys.ClientInvalid.label));
@@ -67,7 +61,7 @@ public class ResourceOwnerVerifyProvider {
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
           AuthErrorKeys.ClientInvalid.label);
-    } else if (!Objects.equals(client.getClientSecret(), loginDto.getClient_secret())) {
+    } else if (!Objects.equals(client.getClientSecret(), loginDto.getClientSecret())) {
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
           AuthErrorKeys.ClientVerificationFailed.label);

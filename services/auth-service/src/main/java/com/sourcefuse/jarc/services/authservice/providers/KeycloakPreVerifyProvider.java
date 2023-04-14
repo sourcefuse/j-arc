@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
-
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.UserStatus;
 import com.sourcefuse.jarc.services.authservice.models.User;
@@ -34,10 +33,12 @@ public class KeycloakPreVerifyProvider {
     User user = optionalUser.get();
     if (user.getFirstName() != keycloakUserDTO.getGiven_name() ||
         user.getLastName() != keycloakUserDTO.getFamily_name() ||
-        user.getUsername() != keycloakUserDTO.getPreferred_username()) {
+        user.getUsername() != keycloakUserDTO.getPreferred_username() ||
+        user.getEmail() != keycloakUserDTO.getEmail()) {
       user.setUsername(keycloakUserDTO.getPreferred_username());
       user.setFirstName(keycloakUserDTO.getGiven_name());
       user.setLastName(keycloakUserDTO.getFamily_name());
+      user.setEmail(keycloakUserDTO.getEmail());
       this.userRepository.save(user);
     }
     Optional<UserTenant> userTenant = this.userTenantRepository.findUserTenantByUserId(user.getId());

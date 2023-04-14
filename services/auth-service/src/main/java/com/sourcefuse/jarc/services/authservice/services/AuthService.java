@@ -5,8 +5,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -14,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpServerErrorException;
-
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
 import com.sourcefuse.jarc.services.authservice.enums.AuthenticateErrorKeys;
@@ -40,8 +37,8 @@ import com.sourcefuse.jarc.services.authservice.repositories.TenantRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserCredentialRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
-
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Service
@@ -79,9 +76,7 @@ public class AuthService {
 
   public String login(LoginDto loginDto, AuthClient authClient, User authUser) {
     this.verifyClientUserLogin(loginDto, authClient, authUser);
-    String token = this.authCodeGeneratorProvider.provide(authUser);
-
-    return token;
+    return this.authCodeGeneratorProvider.provide(authUser);
   }
 
   public User register(RegisterDto registerDto) {
@@ -193,12 +188,11 @@ public class AuthService {
       UUID userId,
       UUID roleId,
       UUID tenantId) {
-    // User savedUser = userRepository.save(user);
     UserTenant userTenant = new UserTenant();
     userTenant.setRoleId(roleId);
     userTenant.setStatus(status);
     userTenant.setTenantId(tenantId);
-    userTenant.setUserId(user.getId());
+    userTenant.setUserId(userId);
     userTenantRepository.save(userTenant);
     return userTenant;
   }
@@ -244,7 +238,7 @@ public class AuthService {
       throw new HttpServerErrorException(
           HttpStatus.UNPROCESSABLE_ENTITY,
           AuthErrorKeys.ClientUserMissing.label);
-    } else if (!StringUtils.hasLength(req.getClient_secret())) {
+    } else if (!StringUtils.hasLength(req.getClientSecret())) {
       log.error("client secret key missing from request object");
       throw new HttpServerErrorException(
           HttpStatus.BAD_REQUEST,

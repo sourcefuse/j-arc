@@ -29,19 +29,6 @@ public class KeycloakSignupProvider {
   private final RoleRepository roleRepository;
 
   public Optional<User> provide(KeycloakUserDTO keycloakUserDTO) {
-    // TODO
-    // const allowedDomains = process.env.AUTO_SIGNUP_DOMAINS ?? '*';
-    // if (allowedDomains !== '*') {
-    // const allowedDomainList = allowedDomains.split(',');
-    // const profileDomain = profile.email.split('@')[1];
-    // if (!allowedDomainList.includes(profileDomain)) {
-    // this.logger.error('Email domain not allowed for auto sign up !');
-    // throw new HttpErrors.Unauthorized(AuthErrorKeys.InvalidCredentials);
-    // }
-    // }
-    //
-    // const defaultRole =
-    // await this.userOpsService.findRoleToAssignForKeycloakUser(profile);
     Optional<Tenant> tenant = this.tenantRepository.findByKey("master");
     Optional<Role> defaultRole = this.roleRepository.findByRoleType(RoleKey.Default.label);
     if (tenant.isEmpty()) {
@@ -59,6 +46,7 @@ public class KeycloakSignupProvider {
     userToCreate.setUsername(keycloakUserDTO.getPreferred_username());
     userToCreate.setFirstName(keycloakUserDTO.getGiven_name());
     userToCreate.setLastName(keycloakUserDTO.getFamily_name());
+    userToCreate.setEmail(keycloakUserDTO.getEmail());
 
     RegisterDto registerDto = new RegisterDto();
     registerDto.setAuthProvider(AuthProvider.KEYCLOAK);
