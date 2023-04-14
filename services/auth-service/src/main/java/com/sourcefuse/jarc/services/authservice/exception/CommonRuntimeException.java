@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 
 public class CommonRuntimeException extends RuntimeException {
 
-  private HttpStatus status;
-  private String message;
+  private final HttpStatus status;
+  private final String message;
 
   public CommonRuntimeException(HttpStatus status, String message) {
     this.status = status;

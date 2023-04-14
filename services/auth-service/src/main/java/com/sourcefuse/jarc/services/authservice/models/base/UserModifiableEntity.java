@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserModifiableEntity
-    extends com.sourcefuse.jarc.services.authservice.models.base.BaseEntity {
+    extends BaseEntity {
 
   String createdBy;
   String modifiedBy;

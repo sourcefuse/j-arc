@@ -31,8 +31,8 @@ public class AuthController {
   @PostMapping(value = { "/login" })
   public ResponseEntity<CodeResponse> login(@RequestBody LoginDto loginDto) {
     AuthClient client = this.clientPasswordVerifyProvider.value(
-        loginDto.getClient_id(),
-        loginDto.getClient_secret());
+        loginDto.getClientId(),
+        loginDto.getClientSecret());
     UserVerificationDTO userVerificationDTO = this.resourceOwnerVerifyProvider.provide(loginDto);
 
     String code = authService.login(loginDto, client, userVerificationDTO.getAuthUser());
