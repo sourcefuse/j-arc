@@ -9,8 +9,9 @@
   "devDependencies": {
     "@commitlint/cli": "^17.6.1",
     "@commitlint/config-conventional": "^17.6.1",
-    "cz-conventional-changelog": "^3.3.0",
     "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
+    "cz-customizable": "^7.0.0",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.1",
     "prettier": "^2.8.7"
