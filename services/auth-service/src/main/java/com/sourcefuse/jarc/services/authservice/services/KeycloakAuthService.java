@@ -5,9 +5,12 @@ import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
+
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
+import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserCredential;
+import com.sourcefuse.jarc.services.authservice.payload.CodeResponse;
 import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakAuthResponse;
 import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakUserDTO;
 import com.sourcefuse.jarc.services.authservice.providers.AuthCodeGeneratorProvider;
@@ -16,6 +19,7 @@ import com.sourcefuse.jarc.services.authservice.providers.KeycloakPreVerifyProvi
 import com.sourcefuse.jarc.services.authservice.providers.KeycloakSignupProvider;
 import com.sourcefuse.jarc.services.authservice.repositories.UserCredentialRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
+
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -30,7 +34,7 @@ public class KeycloakAuthService {
   private final KeycloakSignupProvider keycloakSignupProvider;
   private final AuthCodeGeneratorProvider authCodeGeneratorProvider;
 
-  public String login(String code) {
+  public CodeResponse login(String code, AuthClient authClient) {
     KeycloakAuthResponse keycloakAuthResponse = this.keycloakFacadeService.keycloakAuthByCode(code);
     KeycloakUserDTO keycloakUserDTO = this.keycloakFacadeService.getKeycloakUserProfile(
         keycloakAuthResponse.getAccess_token());
@@ -49,17 +53,13 @@ public class KeycloakAuthService {
     Optional<UserCredential> userCredential = this.userCredentialRepository.findByUserId(user.get().getId());
     if (userCredential.isEmpty() ||
         !userCredential.get().getAuthProvider().equals("keycloak") ||
-        (
-        // TODO Test this below line
-        userCredential.get().getAuthId() != keycloakUserDTO.getSub() &&
-            !userCredential.get().getAuthId().equals(keycloakUserDTO.getPreferred_username()))) {
+        (!userCredential.get().getAuthId().equals(keycloakUserDTO.getPreferred_username()))) {
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
           AuthErrorKeys.UserVerificationFailed.label);
     }
 
     this.keycloakPostVerifyProvider.provide(keycloakUserDTO, user);
-
-    return authCodeGeneratorProvider.provide(user.get());
+    return authCodeGeneratorProvider.provide(user.get(), authClient);
   }
 }

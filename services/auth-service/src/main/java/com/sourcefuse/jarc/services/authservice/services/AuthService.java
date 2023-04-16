@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpServerErrorException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
 import com.sourcefuse.jarc.services.authservice.enums.AuthenticateErrorKeys;
@@ -20,23 +22,32 @@ import com.sourcefuse.jarc.services.authservice.enums.UserStatus;
 import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.JwtTokenRedis;
+import com.sourcefuse.jarc.services.authservice.models.RefreshTokenRedis;
+import com.sourcefuse.jarc.services.authservice.models.RevokedTokenRedis;
 import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.Tenant;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserCredential;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 import com.sourcefuse.jarc.services.authservice.payload.AuthTokenRequest;
+import com.sourcefuse.jarc.services.authservice.payload.CodeResponse;
 import com.sourcefuse.jarc.services.authservice.payload.JWTAuthResponse;
 import com.sourcefuse.jarc.services.authservice.payload.LoginDto;
+import com.sourcefuse.jarc.services.authservice.payload.RefreshTokenDTO;
 import com.sourcefuse.jarc.services.authservice.payload.RegisterDto;
 import com.sourcefuse.jarc.services.authservice.providers.AuthCodeGeneratorProvider;
+import com.sourcefuse.jarc.services.authservice.providers.JwtTokenProvider;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
-import com.sourcefuse.jarc.services.authservice.repositories.JwtTokenRedisRepository;
+import com.sourcefuse.jarc.services.authservice.repositories.JwtTokenCodeRedisRepository;
+import com.sourcefuse.jarc.services.authservice.repositories.RefreshTokenRepository;
+import com.sourcefuse.jarc.services.authservice.repositories.RevokedTokenRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.TenantRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserCredentialRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
+import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,28 +66,58 @@ public class AuthService {
   private final UserCredentialRepository userCredentialRepository;
   private final UserTenantRepository userTenantRepository;
   private final AuthCodeGeneratorProvider authCodeGeneratorProvider;
-  private final JwtTokenRedisRepository jwtTokenRedisRepository;
+  private final JwtTokenCodeRedisRepository jwtTokenCodeRedisRepository;
+  private final JwtTokenProvider jwtTokenProvider;
+  private final RefreshTokenRepository refreshTokenRepository;
+  private final RevokedTokenRepository revokedTokenRepository;
 
   public JWTAuthResponse getTokenByCode(AuthTokenRequest authTokenRequest) {
-    this.authClientRepository.findAuthClientByClientId(authTokenRequest.getClientId())
+    AuthClient authClient = this.authClientRepository.findAuthClientByClientId(authTokenRequest.getClientId())
         .orElseThrow(() -> new CommonRuntimeException(
             HttpStatus.UNAUTHORIZED,
             AuthErrorKeys.ClientInvalid.label));
-    JwtTokenRedis jwtTokenObject = this.jwtTokenRedisRepository.findById(authTokenRequest.getCode())
+    JwtTokenRedis jwtTokenObject = this.jwtTokenCodeRedisRepository.findById(authTokenRequest.getCode())
         .orElseThrow(() -> new CommonRuntimeException(
             HttpStatus.UNAUTHORIZED,
             AuthenticateErrorKeys.TokenRevoked.label));
-    JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
-    jwtAuthResponse.setAccessToken(jwtTokenObject.getToken());
-    jwtAuthResponse.setTokenType("Bearer");
-    // jwtAuthResponse.setExpiresIn(jwtTokenObject.getExpiresIn());
-    // jwtAuthResponse.setRefreshToken(jwtTokenObject.getRefreshToken());
-    return jwtAuthResponse;
+    CurrentUser currentUser = jwtTokenProvider.getUserDetails(jwtTokenObject.getToken());
+
+    return this.jwtTokenProvider.createJwt(currentUser.getUser(), authClient);
   }
 
-  public String login(LoginDto loginDto, AuthClient authClient, User authUser) {
+  public CodeResponse login(LoginDto loginDto, AuthClient authClient, User authUser) {
     this.verifyClientUserLogin(loginDto, authClient, authUser);
-    return this.authCodeGeneratorProvider.provide(authUser);
+    return this.authCodeGeneratorProvider.provide(authUser, authClient);
+  }
+
+  public JWTAuthResponse loginToken(LoginDto loginDto, AuthClient authClient, User authUser) {
+    this.verifyClientUserLogin(loginDto, authClient, authUser);
+    return this.jwtTokenProvider.createJwt(authUser, authClient);
+  }
+
+  public JWTAuthResponse refreshToken(String authorizationHeader, RefreshTokenDTO refreshTokenDTO) {
+    RefreshTokenRedis refreshTokenRedis = refreshTokenRepository.findById(refreshTokenDTO.getRefreshToken().toString())
+        .orElseThrow(() -> new HttpServerErrorException(
+            HttpStatus.UNAUTHORIZED,
+            AuthErrorKeys.TokenExpired.label));
+
+    RefreshTokenRedis refreshTokenRedis2 = new ObjectMapper().convertValue(refreshTokenRedis, RefreshTokenRedis.class);
+    AuthClient client = authClientRepository.findAuthClientByClientId(refreshTokenRedis2.getClientId())
+        .orElseThrow(() -> new HttpServerErrorException(
+            HttpStatus.UNAUTHORIZED,
+            AuthErrorKeys.ClientInvalid.label));
+    String accessToken = authorizationHeader.split(" ")[1];
+    if (!accessToken.equals(refreshTokenRedis.getExternalAuthToken())) {
+      throw new HttpServerErrorException(
+          HttpStatus.UNAUTHORIZED,
+          AuthErrorKeys.TokenInvalid.label);
+    }
+    revokedTokenRepository.save(new RevokedTokenRedis(accessToken, accessToken));
+    refreshTokenRepository.delete(refreshTokenRedis);
+    User user = userRepository.findById(refreshTokenRedis.getUserId()).orElseThrow(() -> new HttpServerErrorException(
+        HttpStatus.UNAUTHORIZED,
+        AuthenticateErrorKeys.UserDoesNotExist.label));
+    return jwtTokenProvider.createJwt(user, client);
   }
 
   public User register(RegisterDto registerDto) {
