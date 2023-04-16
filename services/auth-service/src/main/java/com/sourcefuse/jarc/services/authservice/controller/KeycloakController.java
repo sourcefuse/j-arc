@@ -27,7 +27,6 @@ public class KeycloakController {
 
   @Value("${app.keycloak.redirect-url}")
   String redirectUrl;
-
   @Value("${app.keycloak.client-id}")
   String clientId;
 
