@@ -6,8 +6,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import com.sourcefuse.jarc.services.authservice.security.JwtAuthenticationEntryPoint;
 import com.sourcefuse.jarc.services.authservice.security.JwtAuthenticationFilter;
+
 import lombok.AllArgsConstructor;
 
 @Configuration
@@ -20,14 +22,14 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    // TODO use from env
-    http
-        .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers("/auth/**", "/keycloak/**","/ping")
-            .permitAll()
-            .anyRequest()
-            .authenticated())
-        .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint));
+    // http
+    // .authorizeHttpRequests(authorize -> authorize
+    // .requestMatchers("/auth/**", "/keycloak/**", "/ping")
+    // .permitAll()
+    // .anyRequest()
+    // .authenticated())
+    // .exceptionHandling(exception ->
+    // exception.authenticationEntryPoint(authenticationEntryPoint));
     http.cors().and().csrf().disable();
 
     http.addFilterBefore(
@@ -35,6 +37,5 @@ public class SecurityConfig {
         UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
-
 
 }

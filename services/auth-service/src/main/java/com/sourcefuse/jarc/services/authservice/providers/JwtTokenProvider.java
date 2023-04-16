@@ -2,6 +2,7 @@ package com.sourcefuse.jarc.services.authservice.providers;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,11 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.services.authservice.Constants;
 import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
+import com.sourcefuse.jarc.services.authservice.models.AuthClient;
+import com.sourcefuse.jarc.services.authservice.models.RefreshTokenRedis;
 import com.sourcefuse.jarc.services.authservice.models.User;
+import com.sourcefuse.jarc.services.authservice.payload.JWTAuthResponse;
+import com.sourcefuse.jarc.services.authservice.repositories.RefreshTokenRepository;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -18,7 +23,10 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
 
@@ -28,14 +36,13 @@ public class JwtTokenProvider {
   @Value("${app-jwt-expiration-milliseconds}")
   private long jwtExpirationDate;
 
-  public String generateToken(User user) {
-    String username = user.getUsername();
-    CurrentUser currentUser = new CurrentUser(user);
+  private final JwtPayloadProvider jwtPayloadProvider;
+  private final RefreshTokenRepository refreshTokenRepository;
 
+  private String generateToken(CurrentUser currentUser) {
     Date currentDate = new Date();
-
     Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
-    Claims claims = Jwts.claims().setSubject(username);
+    Claims claims = Jwts.claims().setSubject(currentUser.getUser().getUsername());
     claims.put(Constants.currentUserKey, currentUser);
     return Jwts
         .builder()
@@ -48,6 +55,30 @@ public class JwtTokenProvider {
 
   private Key key() {
     return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+  }
+
+  public JWTAuthResponse createJwt(User user, AuthClient authClient) {
+    CurrentUser currentUser = this.jwtPayloadProvider.provide(user);
+    String accessToken = this.generateToken(currentUser);
+    String refreshToken = UUID.randomUUID().toString();
+
+    RefreshTokenRedis refreshTokenRedis = new RefreshTokenRedis();
+
+    refreshTokenRedis.setClientId(authClient.getClientId());
+    refreshTokenRedis.setUserId(user.getId());
+    refreshTokenRedis.setUsername(user.getUsername());
+    refreshTokenRedis.setExternalAuthToken(accessToken);
+    refreshTokenRedis.setExternalRefreshToken(refreshToken);
+    refreshTokenRedis.setId(refreshToken);
+
+    refreshTokenRepository.save(refreshTokenRedis);
+
+    JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
+    jwtAuthResponse.setAccessToken(accessToken);
+    jwtAuthResponse.setTokenType("Bearer");
+    jwtAuthResponse.setExpires(new Date().getTime() + jwtExpirationDate);
+    jwtAuthResponse.setRefreshToken(refreshToken);
+    return jwtAuthResponse;
   }
 
   public CurrentUser getUserDetails(String token) {
