@@ -34,50 +34,36 @@ public class RoleUserTenantController {
     private final CommonUtils<UserTenant> commonUtils;
 
     @PostMapping("{id}" + "${api.roles.user-tenant.context.url}")
-    public ResponseEntity<Object> createRole(@Valid @RequestBody UserTenant userTenant, @PathVariable("id") UUID id) {
+    public ResponseEntity<Object> createRole(@Valid @RequestBody UserTenant userTenant, @PathVariable("id") UUID id) throws ApiPayLoadException {
         log.info(" :::::::::::: Creating Roles User Tenant Apis consumed :::::::::::;;;");
 
-        try {
-            Role role = roleService.findById(id).get();
-            userTenant.setRoleId(role.getId());
-            // log.info(role.toString());
-            role.getUserTenants().add(userTenant);
-            // log.info(userTenant.toString());
-            UserTenant savedUserRole = roleUserTenantService.save(userTenant);
-            return new ResponseEntity<>(savedUserRole, HttpStatus.CREATED);
 
-        } catch (ApiPayLoadException exp) {
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", exp.getErrMsg()), HttpStatus.OK);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()), HttpStatus.EXPECTATION_FAILED);
-        }
+        Role role = roleService.findById(id).get();
+        userTenant.setRoleId(role.getId());
+        // log.info(role.toString());
+        role.getUserTenants().add(userTenant);
+        // log.info(userTenant.toString());
+        UserTenant savedUserRole = roleUserTenantService.save(userTenant);
+        return new ResponseEntity<>(savedUserRole, HttpStatus.CREATED);
 
     }
 
     @GetMapping("{id}" + "${api.roles.user-tenant.context.url}")
     public ResponseEntity<Object> getAllUsTenantByRole(@PathVariable("id") UUID id) {
-        try {
-            log.info("::::::::::::: Fetch Role has many UserTenant :::::::::::::;");
-            List<UserTenant> LUsTenant = roleUserTenantService.findUserTenantsByRoleId(id);
-            return new ResponseEntity<Object>(LUsTenant, HttpStatus.OK);
-        } catch (Exception ex) {
-            ex.getStackTrace();
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()), HttpStatus.EXPECTATION_FAILED);
-        }
+
+        log.info("::::::::::::: Fetch Role has many UserTenant :::::::::::::;");
+        List<UserTenant> LUsTenant = roleUserTenantService.findUserTenantsByRoleId(id);
+        return new ResponseEntity<Object>(LUsTenant, HttpStatus.OK);
     }
 
     @GetMapping("{id}" + "${api.roles.user-tenant.count.context.url}")
     public ResponseEntity<Object> countUserTenantByRole(@PathVariable("id") UUID id) {
-        try {
-            log.info("::::::::::::: User tenant count for specified role id :::::::::::::;");
-            List<UserTenant> LUsTenant = roleUserTenantService.findUserTenantsByRoleId(id);
 
-            return new ResponseEntity<Object>(new Count((long) LUsTenant.size()), HttpStatus.OK);
-        } catch (Exception ex) {
-            ex.getStackTrace();
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()), HttpStatus.EXPECTATION_FAILED);
-        }
+        log.info("::::::::::::: User tenant count for specified role id :::::::::::::;");
+        List<UserTenant> LUsTenant = roleUserTenantService.findUserTenantsByRoleId(id);
+
+        return new ResponseEntity<Object>(new Count((long) LUsTenant.size()), HttpStatus.OK);
+
     }
 
     @PatchMapping("{id}" + "${api.roles.user-tenant.context.url}")
@@ -99,15 +85,13 @@ public class RoleUserTenantController {
         } else {
             log.error(" :::::::::::::: No Role exits ::::::::::::::");
         }
-
-
         return new ResponseEntity<Count>(new Count(count), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}" + "${api.roles.user-tenant.context.url}")
     public ResponseEntity<Object> deleteRolesById(@PathVariable("id") UUID id) {
         log.info("::::::::::::: Role User Tenant Delete rest Apis consumed :::::::::::::;");
-        Count count=roleUserTenantService.DeleteUserTenantsByRoleId(id);
+        Count count = roleUserTenantService.DeleteUserTenantsByRoleId(id);
         return new ResponseEntity<Object>(count, HttpStatus.OK);
     }
 

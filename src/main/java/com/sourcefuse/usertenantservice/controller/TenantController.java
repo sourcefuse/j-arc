@@ -9,6 +9,7 @@ import com.sourcefuse.usertenantservice.exceptions.GenericRespBuilder;
 import com.sourcefuse.usertenantservice.service.TenantService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,15 +33,11 @@ public class TenantController {
 
     @PostMapping("")
     public ResponseEntity<Object> createTenants(@Valid @RequestBody Tenant tenant) {
-        try {
+
             log.info("::::::::::::: Tenant create rest Apis consumed :::::::::::::;");
             tenant.setStatus(TenantStatus.ACTIVE);
             Tenant savedTenant = tenantService.save(tenant);
             return new ResponseEntity<Object>(savedTenant, HttpStatus.CREATED);
-        } catch (Exception ex) {
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
     }
 
     /**
@@ -48,15 +45,10 @@ public class TenantController {
      */
     @GetMapping(value = {"${api.upi2.count.tenants}"})
     public ResponseEntity<Object> countTenants() {
-        try {
             log.info("::::::::::::: Tenant count rest Apis consumed :::::::::::::;");
             Count count = new Count();
             count.setCount(tenantService.count());
             return new ResponseEntity<Object>(count, HttpStatus.OK);
-        } catch (Exception ex) {
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
     }
 
     /**
@@ -64,14 +56,9 @@ public class TenantController {
      */
     @GetMapping("")
     public ResponseEntity<Object> fetchAllTenants() {
-        try {
             log.info("::::::::::::: Tenant  Rest Apis consumed to get total Tenants present:::::::::::::;");
             List<Tenant> TenantList = tenantService.findAll();
             return new ResponseEntity<Object>(TenantList, HttpStatus.OK);
-        } catch (Exception ex) {
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
     }
 
     /**
@@ -96,54 +83,37 @@ public class TenantController {
         } else {
             log.error(" :::::::::::::: No tenants exits ::::::::::::::");
         }
-
-
         return new ResponseEntity<Count>(new Count(count), HttpStatus.OK);
     }
 
     /**
      * Need to discuss about query parameter doubt
      */
+
     @GetMapping("{id}")
-    public ResponseEntity<Object> fetchTenantByID(@PathVariable("id") UUID id) {
-        try {
+    public ResponseEntity<Object> fetchTenantByID(@PathVariable("id") UUID id) throws ApiPayLoadException {
+
             log.info("::::::::::::: Fetch Tenant  rest Apis consumed based on id:::::::::::::;");
             Tenant savedTenant = tenantService.findById(id).get();
             return new ResponseEntity<Object>(savedTenant, HttpStatus.OK);
-        } catch (ApiPayLoadException exp) {
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", exp.getErrMsg()),
-                    HttpStatus.OK);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
     }
 
+
     @PatchMapping("{id}")
-    public ResponseEntity<Object> updateTenantsById(@PathVariable("id") UUID id, @RequestBody Tenant tenant) {
-        try {
+    public ResponseEntity<Object> updateTenantsById(@PathVariable("id") UUID id, @RequestBody Tenant tenant) throws ApiPayLoadException {
             log.info("Tenant update rest Apis consumed based on id ");
             Tenant updateTenant = tenantService.findById(id).get();
             log.info(updateTenant.toString());
 
             tenantService.update(tenant, updateTenant);
             return new ResponseEntity<Object>("Tenant PATCH success", HttpStatus.NO_CONTENT);
-        } catch (ApiPayLoadException exp) {
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", exp.getErrMsg()),
-                    HttpStatus.OK);
-        } catch (Exception ex) {
 
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
     }
 
     @DeleteMapping("")
     public ResponseEntity<String> deleteTenantsById(@PathVariable("id") String id) {
         log.info("::::::::::::: Tenant Delete rest Apis consumed :::::::::::::;");
         tenantService.deleteById(id);
-
         return new ResponseEntity<String>("Tenant DELETE success", HttpStatus.NO_CONTENT);
     }
 

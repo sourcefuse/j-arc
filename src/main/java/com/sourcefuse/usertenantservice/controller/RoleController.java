@@ -39,28 +39,19 @@ public class RoleController {
 
     @GetMapping(value = {"${api.upi2.count.roles}"})
     public ResponseEntity<Object> count() {
-        try {
-            log.info("::::::::::::: Roles count rest Apis consumed :::::::::::::;");
-            Count count = new Count();
-            count.setCount(roleService.count());
-            return new ResponseEntity<Object>(count, HttpStatus.OK);
-        } catch (Exception ex) {
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
+
+        log.info("::::::::::::: Roles count rest Apis consumed :::::::::::::;");
+        Count count = new Count();
+        count.setCount(roleService.count());
+        return new ResponseEntity<Object>(count, HttpStatus.OK);
     }
 
     @GetMapping("")
     public ResponseEntity<Object> getAllRoles() {
-        try {
-            log.info("::::::::::::: Roles  Rest Apis consumed to get total Roles present:::::::::::::;");
-            List<Role> role = roleService.findAll();
-            return new ResponseEntity<Object>(role, HttpStatus.OK);
-        } catch (Exception ex) {
-            ex.getStackTrace();
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
+
+        log.info("::::::::::::: Roles  Rest Apis consumed to get total Roles present:::::::::::::;");
+        List<Role> role = roleService.findAll();
+        return new ResponseEntity<Object>(role, HttpStatus.OK);
     }
 
     @PatchMapping("")
@@ -82,61 +73,37 @@ public class RoleController {
         } else {
             log.error(" :::::::::::::: No Role exits ::::::::::::::");
         }
-
-
         return new ResponseEntity<Count>(new Count(count), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Object> getRoleByID(@PathVariable("id") UUID id) {
-        try {
-            log.info("::::::::::::: Role Tenant  rest Apis consumed based on id:::::::::::::;");
-            Role role = roleService.findById(id).get();
-            return new ResponseEntity<Object>(role, HttpStatus.OK);
-        } catch (ApiPayLoadException exp) {
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", exp.getErrMsg()),
-                    HttpStatus.OK);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
+    public ResponseEntity<Object> getRoleByID(@PathVariable("id") UUID id) throws ApiPayLoadException {
+
+        log.info("::::::::::::: Role Tenant  rest Apis consumed based on id:::::::::::::;");
+        Role role = roleService.findById(id).get();
+        return new ResponseEntity<Object>(role, HttpStatus.OK);
     }
 
 
     @PatchMapping("{id}")
-    public ResponseEntity<Object> updateRoleById(@PathVariable("id") UUID id, @RequestBody Role role) {
-        try {
-            log.info("Role update rest Apis consumed based on id ");
-            Role updaterole = roleService.findById(id).get();
-            //  updateTenant.setAddress(tenant.getAddress());
-            log.info(updaterole.toString());
+    public ResponseEntity<Object> updateRoleById(@PathVariable("id") UUID id, @RequestBody Role role) throws ApiPayLoadException {
 
-            roleService.update(role, updaterole);
-            return new ResponseEntity<Object>("Role PATCH success", HttpStatus.NO_CONTENT);
-        } catch (ApiPayLoadException exp) {
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", exp.getErrMsg()),
-                    HttpStatus.OK);
-        } catch (Exception ex) {
+        log.info("Role update rest Apis consumed based on id ");
+        Role updaterole = roleService.findById(id).get();
+        //  updateTenant.setAddress(tenant.getAddress());
+        log.info(updaterole.toString());
 
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
+        roleService.update(role, updaterole);
+        return new ResponseEntity<Object>("Role PATCH success", HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("{id}")
     public ResponseEntity<Object> replaceRoleById(@PathVariable("id") UUID id, @RequestBody Role role) {
-        try {
-            log.info(" ::::: Role  rest Apis consumed  to update all the records against ID ::::");
-            role.setId(id);
-            roleService.save(role);
-            return new ResponseEntity<Object>("Role PUT success", HttpStatus.NO_CONTENT);
 
-        } catch (Exception ex) {
-
-            return new ResponseEntity<Object>(genericRespBuilder.buildGenerResp("", ex.getMessage()),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
+        log.info(" ::::: Role  rest Apis consumed  to update all the records against ID ::::");
+        role.setId(id);
+        roleService.save(role);
+        return new ResponseEntity<Object>("Role PUT success", HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("")
