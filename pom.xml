@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.sourcefuse</groupId>
-    <artifactId>userintentservice</artifactId>
+    <artifactId>usertenantservice</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>User Intent Service</name>
     <description>Service to handle Intent management</description>
