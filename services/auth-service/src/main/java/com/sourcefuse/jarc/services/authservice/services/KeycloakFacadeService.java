@@ -27,10 +27,8 @@ public class KeycloakFacadeService {
 
   @Value("${app.keycloak.redirect-url}")
   private String redirectUrl;
-
   @Value("${app.keycloak.client-id}")
   private String clientId;
-
   @Value("${app.keycloak.client-secret}")
   private String clientSecret;
 
