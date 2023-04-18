@@ -23,15 +23,12 @@ public class KeycloakFacadeService {
   private String keycloakUserInfoEndpoint;
   @Value("${app.keycloak.redirect-url}")
   private String redirectUrl;
-
   @Value("${app.keycloak.client-id}")
   private String clientId;
-
   @Value("${app.keycloak.client-secret}")
   private String clientSecret;
   @Value("${app.keycloak.keycloak-url}")
   private String keycloakUrl;
-
 
   public KeycloakAuthResponse keycloakAuthByCode(String code) {
 
@@ -61,7 +58,7 @@ public class KeycloakFacadeService {
     headers.setBearerAuth(accessToken);
     HttpEntity request = new HttpEntity(headers);
     ResponseEntity<KeycloakUserDTO> response = restTemplate.exchange(
-            keycloakUserInfoEndpoint,
+        keycloakUserInfoEndpoint,
         HttpMethod.GET,
         request,
         KeycloakUserDTO.class);
