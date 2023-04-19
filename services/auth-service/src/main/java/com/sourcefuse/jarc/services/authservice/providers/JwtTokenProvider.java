@@ -3,10 +3,13 @@ package com.sourcefuse.jarc.services.authservice.providers;
 import java.security.Key;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.services.authservice.Constants;
 import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
@@ -14,8 +17,8 @@ import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.RefreshTokenRedis;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.payload.JWTAuthResponse;
-import com.sourcefuse.jarc.services.authservice.repositories.RefreshTokenRepository;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -23,7 +26,6 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class JwtTokenProvider {
   private long jwtExpirationDate;
 
   private final JwtPayloadProvider jwtPayloadProvider;
-  private final RefreshTokenRepository refreshTokenRepository;
+  private final RedisTemplate<String, Object> redisTemplate;
 
   private String generateToken(CurrentUser currentUser) {
     Date currentDate = new Date();
@@ -70,9 +72,8 @@ public class JwtTokenProvider {
     refreshTokenRedis.setExternalAuthToken(accessToken);
     refreshTokenRedis.setExternalRefreshToken(refreshToken);
     refreshTokenRedis.setId(refreshToken);
-
-    refreshTokenRepository.save(refreshTokenRedis);
-
+    redisTemplate.opsForValue().set(refreshToken, refreshTokenRedis, authClient.getRefreshTokenExpiration(),
+        TimeUnit.SECONDS);
     JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
     jwtAuthResponse.setAccessToken(accessToken);
     jwtAuthResponse.setTokenType("Bearer");
