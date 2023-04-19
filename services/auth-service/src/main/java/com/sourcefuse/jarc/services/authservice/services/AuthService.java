@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,9 +41,6 @@ import com.sourcefuse.jarc.services.authservice.payload.RegisterDto;
 import com.sourcefuse.jarc.services.authservice.providers.AuthCodeGeneratorProvider;
 import com.sourcefuse.jarc.services.authservice.providers.JwtTokenProvider;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
-import com.sourcefuse.jarc.services.authservice.repositories.JwtTokenCodeRedisRepository;
-import com.sourcefuse.jarc.services.authservice.repositories.RefreshTokenRepository;
-import com.sourcefuse.jarc.services.authservice.repositories.RevokedTokenRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.TenantRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserCredentialRepository;
@@ -66,20 +66,16 @@ public class AuthService {
   private final UserCredentialRepository userCredentialRepository;
   private final UserTenantRepository userTenantRepository;
   private final AuthCodeGeneratorProvider authCodeGeneratorProvider;
-  private final JwtTokenCodeRedisRepository jwtTokenCodeRedisRepository;
   private final JwtTokenProvider jwtTokenProvider;
-  private final RefreshTokenRepository refreshTokenRepository;
-  private final RevokedTokenRepository revokedTokenRepository;
+  private final RedisTemplate<String, Object> redisTemplate;
 
   public JWTAuthResponse getTokenByCode(AuthTokenRequest authTokenRequest) {
     AuthClient authClient = this.authClientRepository.findAuthClientByClientId(authTokenRequest.getClientId())
         .orElseThrow(() -> new CommonRuntimeException(
             HttpStatus.UNAUTHORIZED,
             AuthErrorKeys.ClientInvalid.label));
-    JwtTokenRedis jwtTokenObject = this.jwtTokenCodeRedisRepository.findById(authTokenRequest.getCode())
-        .orElseThrow(() -> new CommonRuntimeException(
-            HttpStatus.UNAUTHORIZED,
-            AuthenticateErrorKeys.TokenRevoked.label));
+    JwtTokenRedis jwtTokenObject = (JwtTokenRedis) this.redisTemplate.opsForValue().get(authTokenRequest.getCode());
+
     CurrentUser currentUser = jwtTokenProvider.getUserDetails(jwtTokenObject.getToken());
 
     return this.jwtTokenProvider.createJwt(currentUser.getUser(), authClient);
@@ -96,10 +92,8 @@ public class AuthService {
   }
 
   public JWTAuthResponse refreshToken(String authorizationHeader, RefreshTokenDTO refreshTokenDTO) {
-    RefreshTokenRedis refreshTokenRedis = refreshTokenRepository.findById(refreshTokenDTO.getRefreshToken().toString())
-        .orElseThrow(() -> new HttpServerErrorException(
-            HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.TokenExpired.label));
+    RefreshTokenRedis refreshTokenRedis = (RefreshTokenRedis) this.redisTemplate.opsForValue()
+        .get(refreshTokenDTO.getRefreshToken().toString());
 
     RefreshTokenRedis refreshTokenRedis2 = new ObjectMapper().convertValue(refreshTokenRedis, RefreshTokenRedis.class);
     AuthClient client = authClientRepository.findAuthClientByClientId(refreshTokenRedis2.getClientId())
@@ -112,12 +106,17 @@ public class AuthService {
           HttpStatus.UNAUTHORIZED,
           AuthErrorKeys.TokenInvalid.label);
     }
-    revokedTokenRepository.save(new RevokedTokenRedis(accessToken, accessToken));
-    refreshTokenRepository.delete(refreshTokenRedis);
+    this.setWithTtl(accessToken, new RevokedTokenRedis(accessToken, accessToken), client.getRefreshTokenExpiration());
+    this.redisTemplate.delete(refreshTokenRedis.getId());
     User user = userRepository.findById(refreshTokenRedis.getUserId()).orElseThrow(() -> new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
         AuthenticateErrorKeys.UserDoesNotExist.label));
     return jwtTokenProvider.createJwt(user, client);
+  }
+
+  public void setWithTtl(String key, Object value, long ttl) {
+    ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+    ops.set(key, value, ttl, TimeUnit.SECONDS);
   }
 
   public User register(RegisterDto registerDto) {
