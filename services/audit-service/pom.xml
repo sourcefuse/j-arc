@@ -6,7 +6,7 @@
 		<groupId>com.sourcefuse</groupId>
 	    <artifactId>jarc</artifactId>
 	    <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../../</relativePath>
+        <relativePath>../../pom.xml</relativePath>
 	</parent>
 	<groupId>com.sourcefuse.jarc.services</groupId>
 	<artifactId>audit-service</artifactId>
@@ -65,6 +65,7 @@
 			<artifactId>micrometer-registry-prometheus</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -90,6 +91,12 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+		    <groupId>com.google.code.gson</groupId>
+		    <artifactId>gson</artifactId>
+		</dependency>
+		
         <dependency>
             <groupId>com.sourcefuse.jarc</groupId>
 	        <artifactId>jarc-core</artifactId>
