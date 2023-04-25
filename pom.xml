@@ -24,6 +24,7 @@
 		<module>services/auth-service</module>
 		<module>services/feature-toggle-service</module>
 		<module>services/user-tenant-service</module>
+		<module>example/authentication-audit</module>
 	</modules>
 
 	<build>
