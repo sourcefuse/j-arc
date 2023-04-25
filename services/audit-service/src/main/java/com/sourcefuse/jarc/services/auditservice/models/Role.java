@@ -2,7 +2,7 @@ package com.sourcefuse.jarc.services.auditservice.models;
 
 import java.util.UUID;
 
-import com.sourcefuse.jarc.services.auditservice.entity.listener.AuditLogEntityListener;
+import com.sourcefuse.jarc.services.auditservice.audit.entitylistener.AuditLogEntityListener;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;

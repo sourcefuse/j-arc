@@ -1,9 +1,9 @@
-package com.sourcefuse.jarc.services.auditservice.entity.listener;
+package com.sourcefuse.jarc.services.auditservice.audit.entitylistener;
 
 import com.google.gson.Gson;
 import com.sourcefuse.jarc.services.auditservice.models.BaseModel;
 import com.sourcefuse.jarc.services.auditservice.constants.Constants.AuditActions;
-import com.sourcefuse.jarc.services.auditservice.models.AuditLog;
+import com.sourcefuse.jarc.services.auditservice.audit.models.AuditLog;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PostPersist;

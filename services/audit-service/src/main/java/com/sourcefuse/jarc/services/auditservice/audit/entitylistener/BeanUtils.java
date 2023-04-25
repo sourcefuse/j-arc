@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.auditservice.entity.listener;
+package com.sourcefuse.jarc.services.auditservice.audit.entitylistener;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

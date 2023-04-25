@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import com.sourcefuse.jarc.services.auditservice.entity.listener.AuditLogEntityListener;
+import com.sourcefuse.jarc.services.auditservice.audit.entitylistener.AuditLogEntityListener;
 
 @Getter
 @Setter
