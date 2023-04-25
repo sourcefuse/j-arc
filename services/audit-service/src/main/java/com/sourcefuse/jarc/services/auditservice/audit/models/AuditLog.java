@@ -27,7 +27,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @Entity
-@Table(name = "audit_log", schema = "main")
+@Table(name = "audit_log", schema = "logs")
 public class AuditLog {
 
 	@Id
@@ -47,7 +47,7 @@ public class AuditLog {
 
 	private UUID entityId;
 
-	private String actor;
+	private UUID actor;
 	
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(columnDefinition = "jsonb")

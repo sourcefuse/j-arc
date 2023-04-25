@@ -29,7 +29,7 @@ public class AuditLogService {
 			auditLog.setBefore(before);
 			auditLog.setAfter(action.toString().contains("DELETE") ? null : new Gson().toJson(entity));
 			auditLog.setEntityId(entity.getId());
-			auditLog.setActor("");
+//			auditLog.setActor("");
 			log.info("::: audit Log {}", auditLog.toString());
 			em.persist(auditLog);
 			em.getTransaction().commit();
@@ -54,7 +54,7 @@ public class AuditLogService {
 					auditLog.setBefore(entity.getValue() != null ? entity.getValue() : null);
 					auditLog.setAfter(null);
 					auditLog.setEntityId((UUID) entity.getKey());
-					auditLog.setActor("");
+//					auditLog.setActor("");
 					em.persist(auditLog);
 				}
 			} else {
@@ -66,7 +66,7 @@ public class AuditLogService {
 					auditLog.setBefore(userMap.get(entity.getId()) != null ? userMap.get(entity.getId()) : null);
 					auditLog.setAfter(new Gson().toJson(entity));
 					auditLog.setEntityId(entity.getId());
-					auditLog.setActor("");
+//					auditLog.setActor("");
 					em.persist(auditLog);
 				}
 			}

@@ -15,24 +15,24 @@ import lombok.Setter;
 import lombok.ToString;
 
 import com.sourcefuse.jarc.services.auditservice.audit.entitylistener.AuditLogEntityListener;
-
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "tenant", schema = "main")
+//
+//@Getter
+//@Setter
+//@ToString
+//@NoArgsConstructor
+//@AllArgsConstructor
+//@Entity
+//@Table(name = "tenant", schema = "main")
 @EntityListeners(AuditLogEntityListener.class)
 public class Tenant implements BaseModel {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	private UUID id;
-
-	String name;
-
-	String permissons;
+//	@Id
+//	@GeneratedValue(strategy = GenerationType.UUID)
+//	private UUID id;
+//
+//	String name;
+//
+//	String permissons;
 
 
 }

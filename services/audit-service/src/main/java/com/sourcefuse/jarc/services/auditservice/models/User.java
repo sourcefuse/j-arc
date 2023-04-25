@@ -12,23 +12,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "user", schema = "main")
+//
+//@Getter
+//@Setter
+//@ToString
+//@NoArgsConstructor
+//@AllArgsConstructor
+//@Entity
+//@Table(name = "user", schema = "main")
 public class User extends UserModifiableEntity implements BaseModel {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	private UUID id;
-
-	String firstName;
-
-	String LastName;
+//	@Id
+//	@GeneratedValue(strategy = GenerationType.UUID)
+//	private UUID id;
+//
+//	String firstName;
+//
+//	String LastName;
 
 
 }

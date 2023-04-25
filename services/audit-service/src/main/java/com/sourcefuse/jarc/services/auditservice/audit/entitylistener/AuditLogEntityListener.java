@@ -1,5 +1,7 @@
 package com.sourcefuse.jarc.services.auditservice.audit.entitylistener;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.google.gson.Gson;
 import com.sourcefuse.jarc.services.auditservice.models.BaseModel;
 import com.sourcefuse.jarc.services.auditservice.constants.Constants.AuditActions;
@@ -10,6 +12,8 @@ import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostRemove;
 import jakarta.persistence.PostUpdate;
 import lombok.extern.slf4j.Slf4j;
+import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
+
 
 @Slf4j
 public class AuditLogEntityListener<T extends BaseModel> {
@@ -51,6 +55,7 @@ public class AuditLogEntityListener<T extends BaseModel> {
 				after = null;
 			}
 			em.getTransaction().begin();
+			CurrentUser currentUser = (CurrentUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			AuditLog auditLog = new AuditLog();
 			auditLog.setAction(action);
 			auditLog.setActedAt(entity.getTableName());
@@ -58,7 +63,7 @@ public class AuditLogEntityListener<T extends BaseModel> {
 			auditLog.setBefore(before);
 			auditLog.setAfter(after);
 			auditLog.setEntityId(entity.getId());
-			auditLog.setActor("");
+			auditLog.setActor(currentUser.getUser().getId());
 			log.info("::: audit Log {}", auditLog.toString());
 			em.persist(auditLog);
 			em.getTransaction().commit();
