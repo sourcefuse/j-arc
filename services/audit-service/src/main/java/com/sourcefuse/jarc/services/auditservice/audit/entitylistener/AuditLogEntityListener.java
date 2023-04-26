@@ -67,8 +67,10 @@ public class AuditLogEntityListener<T extends BaseModel> {
 			log.info("::: audit Log {}", auditLog.toString());
 			em.persist(auditLog);
 			em.getTransaction().commit();
+			em.close();
 		} catch (Exception e) {
 			log.error("::: Something went wrong while saving the audit logs {}", e);
+		}finally {
 		}
 
 	}

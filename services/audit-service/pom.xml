@@ -91,12 +91,15 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
 		<dependency>
 		    <groupId>com.google.code.gson</groupId>
 		    <artifactId>gson</artifactId>
 		</dependency>
-		
+        <dependency>
+			<groupId>com.sourcefuse.jarc.services</groupId>
+			<artifactId>auth-service</artifactId>
+	        <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>com.sourcefuse.jarc</groupId>
 	        <artifactId>jarc-core</artifactId>
