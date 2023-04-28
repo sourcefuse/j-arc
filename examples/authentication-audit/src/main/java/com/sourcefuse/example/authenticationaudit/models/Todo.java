@@ -2,8 +2,10 @@ package com.sourcefuse.example.authenticationaudit.models;
 
 import java.util.UUID;
 
+import org.hibernate.annotations.SQLDelete;
+
 import com.sourcefuse.jarc.services.auditservice.audit.entitylistener.AuditLogEntityListener;
-import com.sourcefuse.jarc.services.auditservice.models.BaseModel;
+import com.sourcefuse.jarc.services.auditservice.models.UserModifiableEntity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -25,7 +27,8 @@ import lombok.ToString;
 @Entity
 @Table(name = "todo", schema = "main")
 @EntityListeners(AuditLogEntityListener.class)
-public class Todo implements BaseModel {
+//@SQLDelete(sql = "update main.todo set deleted = true where id = ?")
+public class Todo extends UserModifiableEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)

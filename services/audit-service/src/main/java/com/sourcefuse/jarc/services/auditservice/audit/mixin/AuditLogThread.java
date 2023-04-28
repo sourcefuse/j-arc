@@ -3,13 +3,13 @@ package com.sourcefuse.jarc.services.auditservice.audit.mixin;
 import java.util.Map;
 
 import com.sourcefuse.jarc.services.auditservice.constants.Constants.AuditActions;
-import com.sourcefuse.jarc.services.auditservice.models.BaseModel;
+import com.sourcefuse.jarc.services.auditservice.models.BaseEntity;
 
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AuditLogThread<T extends BaseModel, ID> extends Thread {
+public class AuditLogThread<T extends BaseEntity, ID> extends Thread {
 //implements ApplicationContextAware{
 	private EntityManager em;
 	private AuditActions action;

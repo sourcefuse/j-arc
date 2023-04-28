@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.Async;
 import com.google.gson.Gson;
 import com.sourcefuse.jarc.services.auditservice.constants.Constants.AuditActions;
 import com.sourcefuse.jarc.services.auditservice.audit.models.AuditLog;
-import com.sourcefuse.jarc.services.auditservice.models.BaseModel;
+import com.sourcefuse.jarc.services.auditservice.models.BaseEntity;
 
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AuditLogService {
 	@Async
-	public static <T extends BaseModel, ID> void saveAuditLog(EntityManager em, AuditActions action, String before,
+	public static <T extends BaseEntity, ID> void saveAuditLog(EntityManager em, AuditActions action, String before,
 			T entity) {
 		try {
 			em.getTransaction().begin();
@@ -41,7 +41,7 @@ public class AuditLogService {
 	}
 
 	@Async
-	public static <T extends BaseModel, ID> void saveAuditLogs(EntityManager em, AuditActions action,
+	public static <T extends BaseEntity, ID> void saveAuditLogs(EntityManager em, AuditActions action,
 			Map<ID, String> userMap, Iterable<T> entities) {
 		try {
 			em.getTransaction().begin();

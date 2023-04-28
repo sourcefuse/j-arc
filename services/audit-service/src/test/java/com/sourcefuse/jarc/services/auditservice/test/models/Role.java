@@ -3,7 +3,7 @@ package com.sourcefuse.jarc.services.auditservice.test.models;
 import java.util.UUID;
 
 import com.sourcefuse.jarc.services.auditservice.audit.entitylistener.AuditLogEntityListener;
-import com.sourcefuse.jarc.services.auditservice.models.BaseModel;
+import com.sourcefuse.jarc.services.auditservice.models.UserModifiableEntity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -25,7 +25,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "roles", schema = "main")
 @EntityListeners(AuditLogEntityListener.class)
-public class Role implements BaseModel {
+public class Role extends UserModifiableEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)

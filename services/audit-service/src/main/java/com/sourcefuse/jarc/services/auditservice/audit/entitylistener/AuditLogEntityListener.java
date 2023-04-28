@@ -3,8 +3,8 @@ package com.sourcefuse.jarc.services.auditservice.audit.entitylistener;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.google.gson.Gson;
-import com.sourcefuse.jarc.services.auditservice.models.BaseModel;
 import com.sourcefuse.jarc.services.auditservice.constants.Constants.AuditActions;
+import com.sourcefuse.jarc.services.auditservice.models.BaseEntity;
 import com.sourcefuse.jarc.services.auditservice.audit.models.AuditLog;
 
 import jakarta.persistence.EntityManager;
@@ -14,9 +14,8 @@ import jakarta.persistence.PostUpdate;
 import lombok.extern.slf4j.Slf4j;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 
-
 @Slf4j
-public class AuditLogEntityListener<T extends BaseModel> {
+public class AuditLogEntityListener<T extends BaseEntity> {
 
 	@PostPersist
 	public void onPersist(T target) {
@@ -35,7 +34,7 @@ public class AuditLogEntityListener<T extends BaseModel> {
 
 	private EntityManager getEntityManager() throws Exception {
 		EntityManager em = BeanUtils.getBean(EntityManager.class);
-		if(em == null) {
+		if (em == null) {
 			throw new Exception("Entity Manager is null can not proceed to save audit log");
 		}
 		return em.getEntityManagerFactory().createEntityManager();
@@ -55,7 +54,8 @@ public class AuditLogEntityListener<T extends BaseModel> {
 				after = null;
 			}
 			em.getTransaction().begin();
-			CurrentUser currentUser = (CurrentUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			CurrentUser currentUser = (CurrentUser) SecurityContextHolder.getContext().getAuthentication()
+					.getPrincipal();
 			AuditLog auditLog = new AuditLog();
 			auditLog.setAction(action);
 			auditLog.setActedAt(entity.getTableName());
@@ -70,7 +70,7 @@ public class AuditLogEntityListener<T extends BaseModel> {
 			em.close();
 		} catch (Exception e) {
 			log.error("::: Something went wrong while saving the audit logs {}", e);
-		}finally {
+		} finally {
 		}
 
 	}

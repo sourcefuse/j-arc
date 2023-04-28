@@ -13,11 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.sourcefuse.jarc.services.auditservice.constants.Constants.AuditActions;
-import com.sourcefuse.jarc.services.auditservice.models.BaseModel;
+import com.sourcefuse.jarc.services.auditservice.models.BaseEntity;
 
 import jakarta.persistence.EntityManager;
 
-public class AuditLogRepositoryMixin<T extends BaseModel, ID> extends SimpleJpaRepository<T, ID>
+public class AuditLogRepositoryMixin<T extends BaseEntity, ID> extends SimpleJpaRepository<T, ID>
 		implements AuditLogRepository<T, ID> {
 
 	private EntityManager em;
@@ -234,4 +234,18 @@ public class AuditLogRepositoryMixin<T extends BaseModel, ID> extends SimpleJpaR
 
 		new AuditLogThread<T, ID>(em, AuditActions.DELETE_ALL_IN_BATCH, userMap, entities).start();
 	}
+	
+//	@Transactional
+//	@SuppressWarnings("unchecked")
+//	public void softDeleteById(ID id) throws Exception {
+//
+//		T entity = findById(id).orElse(null);
+//		if(entity == null) {
+//			throw new Exception("Entity for given id not found");
+//		}
+//		entity.setDeleted(true);
+//		super.deleteAllInBatch();
+//		
+//		super.save(entity);
+//	}
 }

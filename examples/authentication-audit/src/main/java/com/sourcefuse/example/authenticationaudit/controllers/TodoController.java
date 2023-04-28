@@ -65,12 +65,28 @@ public class TodoController {
 		this.todoRepository.saveAll(todos);
 		return "Todos are saved successfully";
 	}
-	
+
+	@GetMapping("/delete")
+	@PreAuthorize("isAuthenticated()")
+	public String deleteTodo() {
+		try {
+			System.out.println("started to Save the Todo");
+			Todo todo = this.todoRepository.findAllActive().iterator().next();
+			this.todoRepository.softDelete(todo.getId());
+//			this.todoRepository.deleteById(todo.getId());
+			System.out.println("Saved the user");
+			return "Authorized to access!";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "error";
+		}
+	}
+
 	@GetMapping("")
 	public String getAllTenant() {
 		System.out.println("started to Update the Todo");
 		List<String> todos = new ArrayList<String>();
-		this.todoRepository.findAll().forEach(todo-> todos.add(todo.toString()));
+		this.todoRepository.findAll().forEach(todo -> todos.add(todo.toString()));
 
 		return todos.toString();
 	}
