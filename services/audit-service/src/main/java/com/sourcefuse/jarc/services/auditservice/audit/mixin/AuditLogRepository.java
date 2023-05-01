@@ -5,7 +5,8 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 import com.sourcefuse.jarc.services.auditservice.models.BaseEntity;
 
+
 @NoRepositoryBean
 public interface AuditLogRepository<T extends BaseEntity, ID> extends JpaRepository<T, ID> {
-//	public void softDeleteById(ID id) throws Exception; 
+
 }
