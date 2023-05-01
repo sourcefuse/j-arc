@@ -44,12 +44,12 @@ public class SoftDeletesRepositoryImpl<T extends BaseEntity, ID extends Serializ
 		this.entityInformation = entityInformation;
 	}
 
-	public Iterable<T> findAllActive() {
+	public List<T> findAllActive() {
 		return super.findAll(notDeleted());
 	}
 
 	@Override
-	public Iterable<T> findAllActive(Sort sort) {
+	public List<T> findAllActive(Sort sort) {
 		return super.findAll(notDeleted(), sort);
 	}
 
@@ -59,7 +59,7 @@ public class SoftDeletesRepositoryImpl<T extends BaseEntity, ID extends Serializ
 	}
 
 	@Override
-	public Iterable<T> findAllActive(Iterable<ID> ids) {
+	public List<T> findAllActive(Iterable<ID> ids) {
 		if (ids == null || !ids.iterator().hasNext())
 			return Collections.emptyList();
 
@@ -68,7 +68,7 @@ public class SoftDeletesRepositoryImpl<T extends BaseEntity, ID extends Serializ
 			List<T> results = new ArrayList<T>();
 
 			for (ID id : ids) {
-				T entity = findOneActive(id).orElse(null);
+				T entity = findActiveById(id).orElse(null);
 				if (entity == null)
 					results.add(entity);
 			}
@@ -77,13 +77,14 @@ public class SoftDeletesRepositoryImpl<T extends BaseEntity, ID extends Serializ
 		}
 
 		ByIdsSpecification<T> specification = new ByIdsSpecification<T>(entityInformation);
-		TypedQuery<T> query = getQuery(Specification.where(specification).and(notDeleted()), (Sort) null);
+		TypedQuery<T> query = getQuery(Specification.where(specification).and(notDeleted()),
+				Sort.by(Sort.Direction.ASC, "id"));
 
 		return query.setParameter(specification.parameter, ids).getResultList();
 	}
 
 	@Override
-	public Optional<T> findOneActive(ID id) {
+	public Optional<T> findActiveById(ID id) {
 		return super.findOne(
 				Specification.where(new ByIdSpecification<T, ID>(entityInformation, id)).and(notDeleted()));
 	}
@@ -120,7 +121,7 @@ public class SoftDeletesRepositoryImpl<T extends BaseEntity, ID extends Serializ
 	public void softDeleteById(ID id) {
 		Assert.notNull(id, "The given id must not be null!");
 
-		T entity = findOneActive(id).orElse(null);
+		T entity = findActiveById(id).orElse(null);
 
 		if (entity == null)
 			throw new EmptyResultDataAccessException(
@@ -144,7 +145,7 @@ public class SoftDeletesRepositoryImpl<T extends BaseEntity, ID extends Serializ
 	@Override
 	public boolean existsActive(ID id) {
 		Assert.notNull(id, "The entity must not be null!");
-		return findOneActive(id) != null ? true : false;
+		return findActiveById(id).orElse(null) != null ? true : false;
 	}
 
 	private static final class ByIdSpecification<T, ID> implements Specification<T> {
