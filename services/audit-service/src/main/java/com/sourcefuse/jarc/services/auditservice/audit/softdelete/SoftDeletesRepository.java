@@ -26,7 +26,7 @@ public interface SoftDeletesRepository<T extends BaseEntity, ID extends Serializ
 	Optional<T> findOneActive(ID id);
 
 	@Modifying
-	void softDelete(ID id);
+	void softDeleteById(ID id);
 
 	@Modifying
 	void softDelete(T entity);

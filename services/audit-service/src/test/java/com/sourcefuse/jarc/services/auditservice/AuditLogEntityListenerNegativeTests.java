@@ -1,6 +1,5 @@
 package com.sourcefuse.jarc.services.auditservice;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -16,6 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.sourcefuse.jarc.services.auditservice.audit.models.AuditLog;
+import com.sourcefuse.jarc.services.auditservice.audit.softdelete.SoftDeletesRepositoryImpl;
 import com.sourcefuse.jarc.services.auditservice.test.models.Role;
 import com.sourcefuse.jarc.services.auditservice.test.repositories.RoleRepository;
 
@@ -24,7 +24,7 @@ import jakarta.persistence.PersistenceContext;
 
 @SpringBootTest
 @ComponentScan({ "com.sourcefuse.jarc.services.auditservice" })
-@EnableJpaRepositories
+@EnableJpaRepositories(repositoryBaseClass = SoftDeletesRepositoryImpl.class)
 public class AuditLogEntityListenerNegativeTests {
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -41,7 +41,7 @@ public class AuditLogEntityListenerNegativeTests {
 	public void waitAfterTest() throws InterruptedException {
 		TimeUnit.MILLISECONDS.sleep(500);
 	}
-	
+
 	/**
 	 * should not save AuditLog when Role is saved since authentication is not
 	 * exists
@@ -107,6 +107,30 @@ public class AuditLogEntityListenerNegativeTests {
 
 		List<Role> roles = this.roleRepository.findAll();
 		assertEquals(roles.size(), 0);
+
+		List<AuditLog> auditLogs = entityManager
+				.createQuery("Select a from AuditLog a order by a.actedOn desc", AuditLog.class).getResultList();
+
+		assertEquals(auditLogs.size(), 0);
+	}
+
+	@Test
+	void shouldSaveAuditLogWhenRoleIsSoftDeleted() {
+		Role role = new Role();
+		role.setName("ABC");
+		role.setPermissons("XYZ");
+		role = this.roleRepository.save(role);
+		List<Role> roles = this.roleRepository.findAll();
+		assertEquals(roles.size(), 1);
+		System.out.println(roles.size() == 1);
+		try {
+			this.roleRepository.softDeleteById(role.getId());
+		}catch(Exception e) {
+			assertEquals(e.getMessage(), "Forbidden :: User is not Authenticated");
+		}
+
+		roles = this.roleRepository.findAll();
+		assertEquals(roles.size(), 1);
 
 		List<AuditLog> auditLogs = entityManager
 				.createQuery("Select a from AuditLog a order by a.actedOn desc", AuditLog.class).getResultList();

@@ -1,5 +1,7 @@
 package com.sourcefuse.jarc.services.auditservice.audit.entitylistener;
 
+import java.util.Date;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.google.gson.Gson;
@@ -24,7 +26,11 @@ public class AuditLogEntityListener<T extends BaseEntity> {
 
 	@PostUpdate
 	public void onUpdate(T target) {
-		this.saveAuditLog(AuditActions.UPDATE, target);
+		if (!target.isDeleted()) {
+			this.saveAuditLog(AuditActions.UPDATE, target);
+		} else {
+			this.saveAuditLog(AuditActions.DELETE, target);
+		}
 	}
 
 	@PostRemove

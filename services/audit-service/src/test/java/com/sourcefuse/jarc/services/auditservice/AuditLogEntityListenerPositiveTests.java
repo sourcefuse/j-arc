@@ -17,6 +17,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.sourcefuse.jarc.services.auditservice.audit.models.AuditLog;
+import com.sourcefuse.jarc.services.auditservice.audit.softdelete.SoftDeletesRepositoryImpl;
 import com.sourcefuse.jarc.services.auditservice.constants.Constants.AuditActions;
 import com.sourcefuse.jarc.services.auditservice.test.models.Role;
 import com.sourcefuse.jarc.services.auditservice.test.repositories.RoleRepository;
@@ -26,11 +27,10 @@ import jakarta.persistence.PersistenceContext;
 
 @SpringBootTest
 @ComponentScan({ "com.sourcefuse.jarc.services.auditservice" })
-@EnableJpaRepositories
+@EnableJpaRepositories(repositoryBaseClass = SoftDeletesRepositoryImpl.class)
 public class AuditLogEntityListenerPositiveTests {
 	@PersistenceContext
 	private EntityManager entityManager;
-
 	@Autowired
 	RoleRepository roleRepository;
 
@@ -112,6 +112,33 @@ public class AuditLogEntityListenerPositiveTests {
 
 		List<Role> roles = this.roleRepository.findAll();
 		assertEquals(roles.size(), 0);
+
+		List<AuditLog> auditLogs = entityManager
+				.createQuery("Select a from AuditLog a order by a.actedOn desc", AuditLog.class).getResultList();
+
+		assertEquals(auditLogs.size(), 2);
+		assertEquals(auditLogs.get(0).getAction(), AuditActions.DELETE);
+		assertEquals(auditLogs.get(0).getEntityId(), role.getId());
+		assertEquals(auditLogs.get(0).getActedAt(), role.getTableName());
+		assertEquals(auditLogs.get(0).getActionKey(), "Role_Logs");
+		assertNull(auditLogs.get(0).getAfter());
+		assertNotNull(auditLogs.get(0).getBefore());
+		assertEquals(TestConstants.mockUserId, auditLogs.get(0).getActor());
+	}
+	
+	@Test
+	void shouldSaveAuditLogWhenRoleIsSoftDeleted() {
+		Role role = new Role();
+		role.setName("ABC");
+		role.setPermissons("XYZ");
+		role = this.roleRepository.save(role);
+		this.roleRepository.softDeleteById(role.getId());
+
+		List<Role> roles = this.roleRepository.findAll();
+		assertEquals(roles.size(), 1);
+		assertEquals(roles.get(0).isDeleted(), true);
+		assertNotNull(roles.get(0).getDeletedOn());
+		assertNotNull(roles.get(0).getDeletedBy());
 
 		List<AuditLog> auditLogs = entityManager
 				.createQuery("Select a from AuditLog a order by a.actedOn desc", AuditLog.class).getResultList();

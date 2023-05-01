@@ -72,7 +72,7 @@ public class TodoController {
 		try {
 			System.out.println("started to Save the Todo");
 			Todo todo = this.todoRepository.findAllActive().iterator().next();
-			this.todoRepository.softDelete(todo.getId());
+			this.todoRepository.softDeleteById(todo.getId());
 //			this.todoRepository.deleteById(todo.getId());
 			System.out.println("Saved the user");
 			return "Authorized to access!";

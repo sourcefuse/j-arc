@@ -117,7 +117,7 @@ public class SoftDeletesRepositoryImpl<T extends BaseEntity, ID extends Serializ
 
 	@Override
 	@Transactional
-	public void softDelete(ID id) {
+	public void softDeleteById(ID id) {
 		Assert.notNull(id, "The given id must not be null!");
 
 		T entity = findOneActive(id).orElse(null);
