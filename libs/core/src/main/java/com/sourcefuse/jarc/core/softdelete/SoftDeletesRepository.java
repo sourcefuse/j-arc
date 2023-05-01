@@ -1,6 +1,7 @@
 package com.sourcefuse.jarc.core.softdelete;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -15,15 +16,15 @@ import com.sourcefuse.jarc.core.models.base.BaseEntity;
 @NoRepositoryBean
 public interface SoftDeletesRepository<T extends BaseEntity, ID extends Serializable> extends JpaRepository<T, ID> {
 
-	Iterable<T> findAllActive();
+	List<T> findAllActive();
 
-	Iterable<T> findAllActive(Sort sort);
+	List<T> findAllActive(Sort sort);
 
 	Page<T> findAllActive(Pageable pageable);
 
-	Iterable<T> findAllActive(Iterable<ID> ids);
+	List<T> findAllActive(Iterable<ID> ids);
 
-	Optional<T> findOneActive(ID id);
+	Optional<T> findActiveById(ID id);
 
 	@Modifying
 	void softDeleteById(ID id);
