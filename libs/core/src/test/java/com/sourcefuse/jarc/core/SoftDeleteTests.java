@@ -2,6 +2,7 @@ package com.sourcefuse.jarc.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -229,12 +230,12 @@ public class SoftDeleteTests {
 	}
 
 	/**
-	 * Test that a deleted entity is not returned in findAllActive by Id's 
+	 * Test that a deleted entity is not returned in findAllActive by Id's
 	 */
 	@Test
 	void deletedEntityShouldNotBePartOfFindAllActiveByIds() {
 		this.roleRepository.softDelete(userRole);
-		List<UUID> roleIds=  new ArrayList<UUID>();
+		List<UUID> roleIds = new ArrayList<UUID>();
 		roleIds.add(adminRole.getId());
 		roleIds.add(tempRole.getId());
 		roleIds.add(userRole.getId());
@@ -255,4 +256,32 @@ public class SoftDeleteTests {
 		assertThat(result).isFalse();
 	}
 
+	/**
+	 * Test that a entity active count is different from entity total count
+	 */
+	@Test
+	void entityActiveCountAndEntityCountShouldBeDifferent() {
+		this.roleRepository.softDelete(tempRole);
+		long totalActiveEntities = this.roleRepository.countActive();
+		long totalEntities = this.roleRepository.count();
+
+		assertNotEquals(totalActiveEntities, totalEntities);
+		assertEquals(totalActiveEntities, 2);
+		assertEquals(totalEntities, 3);
+	}
+
+	/**
+	 * Test that a deleted entity can be restored
+	 */
+	@Test
+	void deletedEntityShouldBeRestorable() {
+		this.roleRepository.softDelete(tempRole);
+		
+		tempRole.setDeleted(false);
+		this.roleRepository.save(tempRole);
+		
+		boolean result = this.roleRepository.existsActive(tempRole.getId());
+
+		assertThat(result).isTrue();
+	}
 }
