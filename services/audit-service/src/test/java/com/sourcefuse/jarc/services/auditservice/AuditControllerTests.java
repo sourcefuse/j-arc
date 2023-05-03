@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.sourcefuse.jarc.core.constants.Constants.AuditActions;
 import com.sourcefuse.jarc.services.auditservice.models.AuditLog;
 import com.sourcefuse.jarc.services.auditservice.repositories.AuditLogRepository;
@@ -160,7 +162,7 @@ public class AuditControllerTests {
 				new TypeReference<List<AuditLog>>() {
 				});
 
-		assertEquals(objectMapper.writeValueAsString(responseAuditLogs),
+		assertEquals(this.sanitizeJsonbString(objectMapper.writeValueAsString(responseAuditLogs)),
 				objectMapper.writeValueAsString(Arrays.asList(auditLog1, auditLog2)));
 	}
 
@@ -172,7 +174,7 @@ public class AuditControllerTests {
 
 		AuditLog responseAuditLog = objectMapper.readValue(actualResponseBody, AuditLog.class);
 
-		assertEquals(objectMapper.writeValueAsString(responseAuditLog), objectMapper.writeValueAsString(auditLog1));
+		assertEquals(this.sanitizeJsonbString(new Gson().toJson(responseAuditLog)), new Gson().toJson(auditLog1));
 	}
 
 	public void clearTables() {
@@ -180,7 +182,7 @@ public class AuditControllerTests {
 		System.out.println("reps");
 		em.getTransaction().begin();
 		try {
-			em.createNativeQuery("TRUNCATE TABLE main.audit_logs cascade;").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE main.audit_logs;").executeUpdate();
 			em.getTransaction().commit();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -243,4 +245,28 @@ public class AuditControllerTests {
 		auditLog.setActionGroup("Role");
 	}
 
+	/**
+	 * in case of h2 db it does not have jsonb so it format changes in jsonb column
+	 * 
+	 * @throws JSONException
+	 */
+	private String sanitizeJsonbString(String jsonB) throws JSONException {
+		if (jsonB != null && this.isH2DB()) {
+			jsonB = jsonB.replace("\\\\\\", "\\");
+			jsonB = jsonB.replace("}\\\"", "}");
+			jsonB = jsonB.replace("\\\"{", "{");
+		}
+		return jsonB;
+	}
+
+	private Boolean isH2DB() {
+
+		String databaseProductName = entityManager.unwrap(org.hibernate.Session.class)
+				.doReturningWork(conn -> conn.getMetaData().getDatabaseProductName());
+		if ("H2".equals(databaseProductName)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
