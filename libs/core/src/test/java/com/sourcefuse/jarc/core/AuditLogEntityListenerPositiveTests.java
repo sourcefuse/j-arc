@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.sourcefuse.jarc.core.constants.Constants.AuditActions;
@@ -64,7 +65,7 @@ public class AuditLogEntityListenerPositiveTests {
 		assertEquals(auditLogs.size(), 1);
 		assertEquals(auditLogs.get(0).getAction(), AuditActions.SAVE);
 		assertEquals(auditLogs.get(0).getEntityId(), role.getId());
-		assertEquals(auditLogs.get(0).getActedAt(), role.getTableName());
+		assertEquals(auditLogs.get(0).getActedOn(), role.getTableName());
 		assertEquals(auditLogs.get(0).getActionKey(), "Role_Logs");
 		assertNull(auditLogs.get(0).getBefore());
 		assertNotNull(auditLogs.get(0).getAfter());
@@ -94,13 +95,21 @@ public class AuditLogEntityListenerPositiveTests {
 				.createQuery("Select a from AuditLog a order by a.actedOn desc", AuditLog.class).getResultList();
 
 		assertEquals(auditLogs.size(), 2);
-		assertEquals(auditLogs.get(0).getAction(), AuditActions.UPDATE);
-		assertEquals(auditLogs.get(0).getEntityId(), role.getId());
-		assertEquals(auditLogs.get(0).getActedAt(), role.getTableName());
-		assertEquals(auditLogs.get(0).getActionKey(), "Role_Logs");
-		assertNotNull(auditLogs.get(0).getBefore());
-		assertNotNull(auditLogs.get(0).getAfter());
-		assertEquals(TestConstants.mockUserId, auditLogs.get(0).getActor());
+
+		AuditLog saveRoleauditLog = auditLogs.stream().filter(aLog -> aLog.getAction().equals(AuditActions.SAVE))
+				.findFirst().orElse(null);
+		assertNotNull(saveRoleauditLog);
+
+		AuditLog updateRoleauditLog = auditLogs.stream().filter(aLog -> aLog.getAction().equals(AuditActions.UPDATE))
+				.findFirst().orElse(null);
+		assertNotNull(updateRoleauditLog);
+
+		assertEquals(updateRoleauditLog.getEntityId(), role.getId());
+		assertEquals(updateRoleauditLog.getActedOn(), role.getTableName());
+		assertEquals(updateRoleauditLog.getActionKey(), "Role_Logs");
+		assertNotNull(updateRoleauditLog.getBefore());
+		assertNotNull(updateRoleauditLog.getAfter());
+		assertEquals(TestConstants.mockUserId, updateRoleauditLog.getActor());
 	}
 
 	@Test
@@ -118,13 +127,21 @@ public class AuditLogEntityListenerPositiveTests {
 				.createQuery("Select a from AuditLog a order by a.actedOn desc", AuditLog.class).getResultList();
 
 		assertEquals(auditLogs.size(), 2);
-		assertEquals(auditLogs.get(0).getAction(), AuditActions.DELETE);
-		assertEquals(auditLogs.get(0).getEntityId(), role.getId());
-		assertEquals(auditLogs.get(0).getActedAt(), role.getTableName());
-		assertEquals(auditLogs.get(0).getActionKey(), "Role_Logs");
-		assertNull(auditLogs.get(0).getAfter());
-		assertNotNull(auditLogs.get(0).getBefore());
-		assertEquals(TestConstants.mockUserId, auditLogs.get(0).getActor());
+
+		AuditLog saveRoleauditLog = auditLogs.stream().filter(aLog -> aLog.getAction().equals(AuditActions.SAVE))
+				.findFirst().orElse(null);
+		assertNotNull(saveRoleauditLog);
+
+		AuditLog deleteRoleauditLog = auditLogs.stream().filter(aLog -> aLog.getAction().equals(AuditActions.DELETE))
+				.findFirst().orElse(null);
+		assertNotNull(deleteRoleauditLog);
+
+		assertEquals(deleteRoleauditLog.getEntityId(), role.getId());
+		assertEquals(deleteRoleauditLog.getActedOn(), role.getTableName());
+		assertEquals(deleteRoleauditLog.getActionKey(), "Role_Logs");
+		assertNull(deleteRoleauditLog.getAfter());
+		assertNotNull(deleteRoleauditLog.getBefore());
+		assertEquals(TestConstants.mockUserId, deleteRoleauditLog.getActor());
 	}
 
 	@Test
@@ -145,13 +162,21 @@ public class AuditLogEntityListenerPositiveTests {
 				.createQuery("Select a from AuditLog a order by a.actedOn desc", AuditLog.class).getResultList();
 
 		assertEquals(auditLogs.size(), 2);
-		assertEquals(auditLogs.get(0).getAction(), AuditActions.DELETE);
-		assertEquals(auditLogs.get(0).getEntityId(), role.getId());
-		assertEquals(auditLogs.get(0).getActedAt(), role.getTableName());
-		assertEquals(auditLogs.get(0).getActionKey(), "Role_Logs");
-		assertNull(auditLogs.get(0).getAfter());
-		assertNotNull(auditLogs.get(0).getBefore());
-		assertEquals(TestConstants.mockUserId, auditLogs.get(0).getActor());
+
+		AuditLog saveRoleauditLog = auditLogs.stream().filter(aLog -> aLog.getAction().equals(AuditActions.SAVE))
+				.findFirst().orElse(null);
+		assertNotNull(saveRoleauditLog);
+
+		AuditLog deletedRoleauditLog = auditLogs.stream().filter(aLog -> aLog.getAction().equals(AuditActions.DELETE))
+				.findFirst().orElse(null);
+		assertNotNull(deletedRoleauditLog);
+
+		assertEquals(deletedRoleauditLog.getEntityId(), role.getId());
+		assertEquals(deletedRoleauditLog.getActedOn(), role.getTableName());
+		assertEquals(deletedRoleauditLog.getActionKey(), "Role_Logs");
+		assertNull(deletedRoleauditLog.getAfter());
+		assertNotNull(deletedRoleauditLog.getBefore());
+		assertEquals(TestConstants.mockUserId, deletedRoleauditLog.getActor());
 	}
 
 }
