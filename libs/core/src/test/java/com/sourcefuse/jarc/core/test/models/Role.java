@@ -3,7 +3,7 @@ package com.sourcefuse.jarc.core.test.models;
 import java.util.UUID;
 
 import com.sourcefuse.jarc.core.entitylisteners.AuditLogEntityListener;
-import com.sourcefuse.jarc.core.models.base.BaseEntity;
+import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -25,7 +25,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "roles", schema = "main")
 @EntityListeners(AuditLogEntityListener.class)
-public class Role extends BaseEntity {
+public class Role extends SoftDeleteEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)

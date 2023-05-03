@@ -7,6 +7,7 @@ import com.sourcefuse.jarc.core.awares.ApplicationAwareBeanUtils;
 import com.sourcefuse.jarc.core.constants.Constants.AuditActions;
 import com.sourcefuse.jarc.core.models.audit.AuditLog;
 import com.sourcefuse.jarc.core.models.base.BaseEntity;
+import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 
 import jakarta.persistence.EntityManager;
@@ -25,10 +26,15 @@ public class AuditLogEntityListener<T extends BaseEntity> {
 
 	@PostUpdate
 	public void onUpdate(T target) {
-		if (!target.isDeleted()) {
-			this.saveAuditLog(AuditActions.UPDATE, target);
+		if (target instanceof SoftDeleteEntity) {
+			SoftDeleteEntity softDeletedEntity = (SoftDeleteEntity) target;
+			if (!softDeletedEntity.isDeleted()) {
+				this.saveAuditLog(AuditActions.UPDATE, target);
+			} else {
+				this.saveAuditLog(AuditActions.DELETE, target);
+			}
 		} else {
-			this.saveAuditLog(AuditActions.DELETE, target);
+			this.saveAuditLog(AuditActions.UPDATE, target);
 		}
 	}
 
@@ -63,7 +69,7 @@ public class AuditLogEntityListener<T extends BaseEntity> {
 					.getPrincipal();
 			AuditLog auditLog = new AuditLog();
 			auditLog.setAction(action);
-			auditLog.setActedAt(entity.getTableName());
+			auditLog.setActedOn(entity.getTableName());
 			auditLog.setActionKey(entity.getClass().getSimpleName() + "_Logs");
 			auditLog.setBefore(before);
 			auditLog.setAfter(after);

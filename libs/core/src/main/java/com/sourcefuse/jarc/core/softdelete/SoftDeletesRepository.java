@@ -11,10 +11,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.NoRepositoryBean;
 
-import com.sourcefuse.jarc.core.models.base.BaseEntity;
+import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 
 @NoRepositoryBean
-public interface SoftDeletesRepository<T extends BaseEntity, ID extends Serializable> extends JpaRepository<T, ID> {
+public interface SoftDeletesRepository<T extends SoftDeleteEntity, ID extends Serializable> extends JpaRepository<T, ID> {
 
 	List<T> findAllActive();
 

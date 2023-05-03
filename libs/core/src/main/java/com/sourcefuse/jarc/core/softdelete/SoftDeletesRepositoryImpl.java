@@ -17,7 +17,7 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.sourcefuse.jarc.core.models.base.BaseEntity;
+import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -28,7 +28,7 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
-public class SoftDeletesRepositoryImpl<T extends BaseEntity, ID extends Serializable> extends SimpleJpaRepository<T, ID>
+public class SoftDeletesRepositoryImpl<T extends SoftDeleteEntity, ID extends Serializable> extends SimpleJpaRepository<T, ID>
 		implements SoftDeletesRepository<T, ID> {
 
 	private final JpaEntityInformation<T, ?> entityInformation;

@@ -34,21 +34,25 @@ public class AuditLog {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
+	@Column(name = "action", nullable = false)
 	private AuditActions action;
 
-	@Column(name = "acted_at")
-	private String actedAt;
-
-	@Column(name = "acted_on")
+	@Column(name = "acted_at", nullable = false)
 	@CreationTimestamp
-	private Date actedOn;
+	private Date actedAt;
 
+	@Column(name = "acted_on", nullable = false)
+	private String actedOn;
+
+	@Column(name = "action_key", nullable = false)
 	private String actionKey;
 
+	@Column(name = "entity_id", nullable = false)
 	private UUID entityId;
 
+	@Column(name = "actor", nullable = false)
 	private UUID actor;
-	
+
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(columnDefinition = "jsonb")
 	private String before;

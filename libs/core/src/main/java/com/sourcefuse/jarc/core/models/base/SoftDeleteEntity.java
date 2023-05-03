@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @MappedSuperclass
 @EntityListeners(SoftDeleteEntityListner.class)
-public abstract class SoftDeleteEntity {
+public abstract class SoftDeleteEntity extends BaseEntity {
 
 	@Column(columnDefinition = "boolean default false")
 	boolean deleted;
