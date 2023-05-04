@@ -60,7 +60,7 @@ public class AuditControllerTests {
 	public void testCreateAuditLog() throws Exception {
 		this.mockMvc.perform(
 				post("/audit_logs").contentType("application/json").content(objectMapper.writeValueAsString(auditLog)))
-				.andExpect(status().isOk());
+				.andExpect(status().isCreated());
 	}
 
 	@Test
@@ -175,6 +175,11 @@ public class AuditControllerTests {
 		AuditLog responseAuditLog = objectMapper.readValue(actualResponseBody, AuditLog.class);
 
 		assertEquals(this.sanitizeJsonbString(new Gson().toJson(responseAuditLog)), new Gson().toJson(auditLog1));
+	}
+
+	@Test
+	public void testGetAuditLogByIdForInvalidId() throws Exception {
+		this.mockMvc.perform(get("/audit_logs/" + UUID.randomUUID())).andExpect(status().isNotFound());
 	}
 
 	public void clearTables() {
