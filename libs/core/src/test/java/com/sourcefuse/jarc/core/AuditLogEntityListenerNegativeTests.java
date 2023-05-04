@@ -3,9 +3,15 @@ package com.sourcefuse.jarc.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import com.sourcefuse.jarc.core.constants.TestConstants;
+import com.sourcefuse.jarc.core.models.audit.AuditLog;
+import com.sourcefuse.jarc.core.softdelete.SoftDeletesRepositoryImpl;
+import com.sourcefuse.jarc.core.test.models.Role;
+import com.sourcefuse.jarc.core.test.repositories.RoleRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,129 +20,133 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.sourcefuse.jarc.core.constants.TestConstants;
-import com.sourcefuse.jarc.core.models.audit.AuditLog;
-import com.sourcefuse.jarc.core.softdelete.SoftDeletesRepositoryImpl;
-import com.sourcefuse.jarc.core.test.repositories.RoleRepository;
-import com.sourcefuse.jarc.core.test.models.Role;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 @SpringBootTest
 @ComponentScan({ "com.sourcefuse.jarc.core" })
 @EnableJpaRepositories(repositoryBaseClass = SoftDeletesRepositoryImpl.class)
 public class AuditLogEntityListenerNegativeTests {
-	@PersistenceContext
-	private EntityManager entityManager;
 
-	@Autowired
-	RoleRepository roleRepository;
+  @PersistenceContext
+  private EntityManager entityManager;
 
-	@BeforeEach
-	void clearUserAndAuditLog() {
-		TestConstants.clearTables(entityManager);
-	}
+  @Autowired
+  RoleRepository roleRepository;
 
-	@AfterEach
-	public void waitAfterTest() throws InterruptedException {
-		TimeUnit.MILLISECONDS.sleep(500);
-	}
+  @BeforeEach
+  void clearUserAndAuditLog() {
+    TestConstants.clearTables(entityManager);
+  }
 
-	/**
-	 * should not save AuditLog when Role is saved since authentication is not
-	 * exists
-	 */
-	@Test
-	void shouldNotSaveAuditLogWhenRoleIsSaved() {
-		Role role = new Role();
-		role.setName("ABC");
-		role.setPermissons("XYZ");
-		role = this.roleRepository.save(role);
-		List<Role> roles = this.roleRepository.findAll();
-		assertEquals(roles.size(), 1);
-		assertEquals(role.getId(), roles.get(0).getId());
-		assertEquals(role.getName(), roles.get(0).getName());
-		assertEquals(role.getPermissons(), roles.get(0).getPermissons());
+  @AfterEach
+  public void waitAfterTest() throws InterruptedException {
+    TimeUnit.MILLISECONDS.sleep(500);
+  }
 
-		List<AuditLog> auditLogs = entityManager.createQuery("Select a from AuditLog a", AuditLog.class)
-				.getResultList();
+  /**
+   * should not save AuditLog when Role is saved since authentication is not
+   * exists
+   */
+  @Test
+  void shouldNotSaveAuditLogWhenRoleIsSaved() {
+    Role role = new Role();
+    role.setName("ABC");
+    role.setPermissons("XYZ");
+    role = this.roleRepository.save(role);
+    List<Role> roles = this.roleRepository.findAll();
+    assertEquals(roles.size(), 1);
+    assertEquals(role.getId(), roles.get(0).getId());
+    assertEquals(role.getName(), roles.get(0).getName());
+    assertEquals(role.getPermissons(), roles.get(0).getPermissons());
 
-		assertEquals(auditLogs.size(), 0);
-	}
+    List<AuditLog> auditLogs = entityManager
+      .createQuery("Select a from AuditLog a", AuditLog.class)
+      .getResultList();
 
-	/**
-	 * should not save AuditLog when Role is updated since authentication is not
-	 * exists
-	 */
-	@Test
-	void shouldNotSaveAuditLogWhenRoleIsUpdated() {
-		String oldName = "oldName", updatedName = "updatedName";
-		Role role = new Role();
-		role.setName(oldName);
-		role.setPermissons("XYZ");
-		role = this.roleRepository.save(role);
+    assertEquals(auditLogs.size(), 0);
+  }
 
-		role.setName(updatedName);
-		role = this.roleRepository.save(role);
+  /**
+   * should not save AuditLog when Role is updated since authentication is not
+   * exists
+   */
+  @Test
+  void shouldNotSaveAuditLogWhenRoleIsUpdated() {
+    String oldName = "oldName", updatedName = "updatedName";
+    Role role = new Role();
+    role.setName(oldName);
+    role.setPermissons("XYZ");
+    role = this.roleRepository.save(role);
 
-		List<Role> roles = this.roleRepository.findAll();
-		assertEquals(roles.size(), 1);
-		assertEquals(role.getId(), roles.get(0).getId());
-		assertEquals(role.getName(), roles.get(0).getName());
-		assertEquals(updatedName, roles.get(0).getName());
-		assertNotEquals(oldName, roles.get(0).getName());
-		assertEquals(role.getPermissons(), roles.get(0).getPermissons());
+    role.setName(updatedName);
+    role = this.roleRepository.save(role);
 
-		List<AuditLog> auditLogs = entityManager
-				.createQuery("Select a from AuditLog a order by a.actedOn desc", AuditLog.class).getResultList();
+    List<Role> roles = this.roleRepository.findAll();
+    assertEquals(roles.size(), 1);
+    assertEquals(role.getId(), roles.get(0).getId());
+    assertEquals(role.getName(), roles.get(0).getName());
+    assertEquals(updatedName, roles.get(0).getName());
+    assertNotEquals(oldName, roles.get(0).getName());
+    assertEquals(role.getPermissons(), roles.get(0).getPermissons());
 
-		assertEquals(auditLogs.size(), 0);
-	}
+    List<AuditLog> auditLogs = entityManager
+      .createQuery(
+        "Select a from AuditLog a order by a.actedOn desc",
+        AuditLog.class
+      )
+      .getResultList();
 
-	/**
-	 * should not save AuditLog when Role is deleted since authentication is not
-	 * exists
-	 */
-	@Test
-	void shouldNotSaveAuditLogWhenRoleIsDeleted() {
-		Role role = new Role();
-		role.setName("ABC");
-		role.setPermissons("XYZ");
-		role = this.roleRepository.save(role);
-		this.roleRepository.deleteById(role.getId());
+    assertEquals(auditLogs.size(), 0);
+  }
 
-		List<Role> roles = this.roleRepository.findAll();
-		assertEquals(roles.size(), 0);
+  /**
+   * should not save AuditLog when Role is deleted since authentication is not
+   * exists
+   */
+  @Test
+  void shouldNotSaveAuditLogWhenRoleIsDeleted() {
+    Role role = new Role();
+    role.setName("ABC");
+    role.setPermissons("XYZ");
+    role = this.roleRepository.save(role);
+    this.roleRepository.deleteById(role.getId());
 
-		List<AuditLog> auditLogs = entityManager
-				.createQuery("Select a from AuditLog a order by a.actedOn desc", AuditLog.class).getResultList();
+    List<Role> roles = this.roleRepository.findAll();
+    assertEquals(roles.size(), 0);
 
-		assertEquals(auditLogs.size(), 0);
-	}
+    List<AuditLog> auditLogs = entityManager
+      .createQuery(
+        "Select a from AuditLog a order by a.actedOn desc",
+        AuditLog.class
+      )
+      .getResultList();
 
-	@Test
-	void shouldSaveAuditLogWhenRoleIsSoftDeleted() {
-		Role role = new Role();
-		role.setName("ABC");
-		role.setPermissons("XYZ");
-		role = this.roleRepository.save(role);
-		List<Role> roles = this.roleRepository.findAll();
-		assertEquals(roles.size(), 1);
-		System.out.println(roles.size() == 1);
-		try {
-			this.roleRepository.softDeleteById(role.getId());
-		} catch (Exception e) {
-			assertEquals(e.getMessage(), "Forbidden :: User is not Authenticated");
-		}
+    assertEquals(auditLogs.size(), 0);
+  }
 
-		roles = this.roleRepository.findAll();
-		assertEquals(roles.size(), 1);
+  @Test
+  void shouldSaveAuditLogWhenRoleIsSoftDeleted() {
+    Role role = new Role();
+    role.setName("ABC");
+    role.setPermissons("XYZ");
+    role = this.roleRepository.save(role);
+    List<Role> roles = this.roleRepository.findAll();
+    assertEquals(roles.size(), 1);
+    System.out.println(roles.size() == 1);
+    try {
+      this.roleRepository.softDeleteById(role.getId());
+    } catch (Exception e) {
+      assertEquals(e.getMessage(), "Forbidden :: User is not Authenticated");
+    }
 
-		List<AuditLog> auditLogs = entityManager
-				.createQuery("Select a from AuditLog a order by a.actedOn desc", AuditLog.class).getResultList();
+    roles = this.roleRepository.findAll();
+    assertEquals(roles.size(), 1);
 
-		assertEquals(auditLogs.size(), 0);
-	}
+    List<AuditLog> auditLogs = entityManager
+      .createQuery(
+        "Select a from AuditLog a order by a.actedOn desc",
+        AuditLog.class
+      )
+      .getResultList();
 
+    assertEquals(auditLogs.size(), 0);
+  }
 }

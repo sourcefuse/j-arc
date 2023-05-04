@@ -1,15 +1,13 @@
 package com.sourcefuse.jarc.core.test.models;
 
+import com.sourcefuse.jarc.core.models.base.BaseEntity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
-import com.sourcefuse.jarc.core.models.base.BaseEntity;
-
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -21,7 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class User extends BaseEntity{
+public class User extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

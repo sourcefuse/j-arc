@@ -1,11 +1,19 @@
 package com.sourcefuse.jarc.core.softdelete;
 
+import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.ParameterExpression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,186 +25,210 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
+public class SoftDeletesRepositoryImpl<
+  T extends SoftDeleteEntity, ID extends Serializable
+>
+  extends SimpleJpaRepository<T, ID>
+  implements SoftDeletesRepository<T, ID> {
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.ParameterExpression;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+  private final JpaEntityInformation<T, ?> entityInformation;
+  private static final String DELETED_FIELD = "deleted";
 
-public class SoftDeletesRepositoryImpl<T extends SoftDeleteEntity, ID extends Serializable> extends SimpleJpaRepository<T, ID>
-		implements SoftDeletesRepository<T, ID> {
+  public SoftDeletesRepositoryImpl(Class<T> domainClass, EntityManager em) {
+    super(domainClass, em);
+    this.entityInformation =
+      JpaEntityInformationSupport.getEntityInformation(domainClass, em);
+  }
 
-	private final JpaEntityInformation<T, ?> entityInformation;
-	private static final String DELETED_FIELD = "deleted";
+  public SoftDeletesRepositoryImpl(
+    JpaEntityInformation<T, ?> entityInformation,
+    EntityManager entityManager
+  ) {
+    super(entityInformation, entityManager);
+    this.entityInformation = entityInformation;
+  }
 
-	public SoftDeletesRepositoryImpl(Class<T> domainClass, EntityManager em) {
-		super(domainClass, em);
-		this.entityInformation = JpaEntityInformationSupport.getEntityInformation(domainClass, em);
-	}
+  public List<T> findAllActive() {
+    return super.findAll(notDeleted());
+  }
 
-	public SoftDeletesRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
-		super(entityInformation, entityManager);
-		this.entityInformation = entityInformation;
-	}
+  @Override
+  public List<T> findAllActive(Sort sort) {
+    return super.findAll(notDeleted(), sort);
+  }
 
-	public List<T> findAllActive() {
-		return super.findAll(notDeleted());
-	}
+  @Override
+  public Page<T> findAllActive(Pageable pageable) {
+    return super.findAll(notDeleted(), pageable);
+  }
 
-	@Override
-	public List<T> findAllActive(Sort sort) {
-		return super.findAll(notDeleted(), sort);
-	}
+  @Override
+  public List<T> findAllActive(Iterable<ID> ids) {
+    if (
+      ids == null || !ids.iterator().hasNext()
+    ) return Collections.emptyList();
 
-	@Override
-	public Page<T> findAllActive(Pageable pageable) {
-		return super.findAll(notDeleted(), pageable);
-	}
+    if (entityInformation.hasCompositeId()) {
+      List<T> results = new ArrayList<T>();
 
-	@Override
-	public List<T> findAllActive(Iterable<ID> ids) {
-		if (ids == null || !ids.iterator().hasNext())
-			return Collections.emptyList();
+      for (ID id : ids) {
+        T entity = findActiveById(id).orElse(null);
+        if (entity == null) results.add(entity);
+      }
 
-		if (entityInformation.hasCompositeId()) {
+      return results;
+    }
 
-			List<T> results = new ArrayList<T>();
+    ByIdsSpecification<T> specification = new ByIdsSpecification<T>(
+      entityInformation
+    );
+    TypedQuery<T> query = getQuery(
+      Specification.where(specification).and(notDeleted()),
+      Sort.by(Sort.Direction.ASC, "id")
+    );
 
-			for (ID id : ids) {
-				T entity = findActiveById(id).orElse(null);
-				if (entity == null)
-					results.add(entity);
-			}
+    return query.setParameter(specification.parameter, ids).getResultList();
+  }
 
-			return results;
-		}
+  @Override
+  public Optional<T> findActiveById(ID id) {
+    return super.findOne(
+      Specification
+        .where(new ByIdSpecification<T, ID>(entityInformation, id))
+        .and(notDeleted())
+    );
+  }
 
-		ByIdsSpecification<T> specification = new ByIdsSpecification<T>(entityInformation);
-		TypedQuery<T> query = getQuery(Specification.where(specification).and(notDeleted()),
-				Sort.by(Sort.Direction.ASC, "id"));
+  @Override
+  @Transactional
+  public void softDelete(Iterable<? extends T> entities) {
+    Assert.notNull(entities, "The given Iterable of entities not be null!");
+    for (T entity : entities) softDelete(entity);
+  }
 
-		return query.setParameter(specification.parameter, ids).getResultList();
-	}
+  @Override
+  @Transactional
+  public void softDeleteAll() {
+    for (T entity : findAllActive()) softDelete(entity);
+  }
 
-	@Override
-	public Optional<T> findActiveById(ID id) {
-		return super.findOne(
-				Specification.where(new ByIdSpecification<T, ID>(entityInformation, id)).and(notDeleted()));
-	}
+  //	@Override
+  //	@Transactional
+  //	public void scheduleSoftDelete(ID id) {
+  //		softDelete(id);
+  //	}
+  //
+  //	@Override
+  //	@Transactional
+  //	public void scheduleSoftDelete(T entity) {
+  //		softDelete(entity);
+  //	}
 
-	@Override
-	@Transactional
-	public void softDelete(Iterable<? extends T> entities) {
-		Assert.notNull(entities, "The given Iterable of entities not be null!");
-		for (T entity : entities)
-			softDelete(entity);
-	}
+  @Override
+  @Transactional
+  public void softDeleteById(ID id) {
+    Assert.notNull(id, "The given id must not be null!");
 
-	@Override
-	@Transactional
-	public void softDeleteAll() {
-		for (T entity : findAllActive())
-			softDelete(entity);
-	}
+    T entity = findActiveById(id).orElse(null);
 
-//	@Override
-//	@Transactional
-//	public void scheduleSoftDelete(ID id) {
-//		softDelete(id);
-//	}
-//
-//	@Override
-//	@Transactional
-//	public void scheduleSoftDelete(T entity) {
-//		softDelete(entity);
-//	}
+    if (entity == null) throw new EmptyResultDataAccessException(
+      String.format(
+        "No %s entity with id %s exists!",
+        entityInformation.getJavaType(),
+        id
+      ),
+      1
+    );
 
-	@Override
-	@Transactional
-	public void softDeleteById(ID id) {
-		Assert.notNull(id, "The given id must not be null!");
+    softDelete(entity);
+  }
 
-		T entity = findActiveById(id).orElse(null);
+  @Override
+  @Transactional
+  public void softDelete(T entity) {
+    Assert.notNull(entity, "The entity must not be null!");
+    entity.setDeleted(true);
+    super.save(entity);
+  }
 
-		if (entity == null)
-			throw new EmptyResultDataAccessException(
-					String.format("No %s entity with id %s exists!", entityInformation.getJavaType(), id), 1);
+  public long countActive() {
+    return super.count(notDeleted());
+  }
 
-		softDelete(entity);
-	}
+  @Override
+  public boolean existsActive(ID id) {
+    Assert.notNull(id, "The entity must not be null!");
+    return findActiveById(id).orElse(null) != null ? true : false;
+  }
 
-	@Override
-	@Transactional
-	public void softDelete(T entity) {
-		Assert.notNull(entity, "The entity must not be null!");
-		entity.setDeleted(true);
-		super.save(entity);
-	}
+  private static final class ByIdSpecification<T, ID>
+    implements Specification<T> {
 
-	public long countActive() {
-		return super.count(notDeleted());
-	}
+    private static final long serialVersionUID = 1L;
+    private final JpaEntityInformation<T, ?> entityInformation;
+    private final ID id;
 
-	@Override
-	public boolean existsActive(ID id) {
-		Assert.notNull(id, "The entity must not be null!");
-		return findActiveById(id).orElse(null) != null ? true : false;
-	}
+    public ByIdSpecification(
+      JpaEntityInformation<T, ?> entityInformation,
+      ID id
+    ) {
+      this.entityInformation = entityInformation;
+      this.id = id;
+    }
 
-	private static final class ByIdSpecification<T, ID> implements Specification<T> {
+    @Override
+    public Predicate toPredicate(
+      Root<T> root,
+      CriteriaQuery<?> query,
+      CriteriaBuilder cb
+    ) {
+      return cb.equal(
+        root.<ID>get(entityInformation.getIdAttribute().getName()),
+        id
+      );
+    }
+  }
 
-		private static final long serialVersionUID = 1L;
-		private final JpaEntityInformation<T, ?> entityInformation;
-		private final ID id;
+  @SuppressWarnings("rawtypes")
+  private static final class ByIdsSpecification<T> implements Specification<T> {
 
-		public ByIdSpecification(JpaEntityInformation<T, ?> entityInformation, ID id) {
-			this.entityInformation = entityInformation;
-			this.id = id;
-		}
+    private static final long serialVersionUID = 1L;
 
-		@Override
-		public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-			return cb.equal(root.<ID>get(entityInformation.getIdAttribute().getName()), id);
-		}
-	}
+    private final JpaEntityInformation<T, ?> entityInformation;
 
-	@SuppressWarnings("rawtypes")
-	private static final class ByIdsSpecification<T> implements Specification<T> {
+    ParameterExpression<Iterable> parameter;
 
-		private static final long serialVersionUID = 1L;
+    public ByIdsSpecification(JpaEntityInformation<T, ?> entityInformation) {
+      this.entityInformation = entityInformation;
+    }
 
-		private final JpaEntityInformation<T, ?> entityInformation;
+    @Override
+    public Predicate toPredicate(
+      Root<T> root,
+      CriteriaQuery<?> query,
+      CriteriaBuilder cb
+    ) {
+      Path<?> path = root.get(entityInformation.getIdAttribute());
+      parameter = cb.parameter(Iterable.class);
+      return path.in(parameter);
+    }
+  }
 
-		ParameterExpression<Iterable> parameter;
+  private static final class IsNotDeleted<T> implements Specification<T> {
 
-		public ByIdsSpecification(JpaEntityInformation<T, ?> entityInformation) {
-			this.entityInformation = entityInformation;
-		}
+    private static final long serialVersionUID = 1L;
 
-		@Override
-		public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-			Path<?> path = root.get(entityInformation.getIdAttribute());
-			parameter = cb.parameter(Iterable.class);
-			return path.in(parameter);
-		}
-	}
+    @Override
+    public Predicate toPredicate(
+      Root<T> root,
+      CriteriaQuery<?> query,
+      CriteriaBuilder cb
+    ) {
+      return cb.isFalse(root.<Boolean>get(DELETED_FIELD));
+    }
+  }
 
-	private static final class IsNotDeleted<T> implements Specification<T> {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-			return cb.isFalse(root.<Boolean>get(DELETED_FIELD));
-		}
-	}
-
-	private static final <T> Specification<T> notDeleted() {
-		return Specification.where(new IsNotDeleted<T>());
-	}
-
+  private static final <T> Specification<T> notDeleted() {
+    return Specification.where(new IsNotDeleted<T>());
+  }
 }

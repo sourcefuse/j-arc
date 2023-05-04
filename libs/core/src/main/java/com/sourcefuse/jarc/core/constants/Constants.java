@@ -2,24 +2,24 @@ package com.sourcefuse.jarc.core.constants;
 
 public class Constants {
 
-	public static enum AuditActions {
-	    SAVE("SAVE"),
-	    UPDATE("UPDATE"),
-	    DELETE("DELETE");
-	    
-	    private final String name;
+  public static enum AuditActions {
+    SAVE("SAVE"),
+    UPDATE("UPDATE"),
+    DELETE("DELETE");
 
-	    private AuditActions(String value) {
-	        this.name = value;
-	    }
+    private final String name;
 
-	    public String value() {
-	        return this.name;
-	    }
+    private AuditActions(String value) {
+      this.name = value;
+    }
 
-	    @Override
-	    public String toString() {
-	        return name;
-	    }
-	}
+    public String value() {
+      return this.name;
+    }
+
+    @Override
+    public String toString() {
+      return name;
+    }
+  }
 }
