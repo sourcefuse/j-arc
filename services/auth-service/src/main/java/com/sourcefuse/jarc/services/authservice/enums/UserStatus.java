@@ -9,7 +9,7 @@ public enum UserStatus {
 
   public final int label;
 
-  private UserStatus(int label) {
+   UserStatus(int label) {
     this.label = label;
   }
 }

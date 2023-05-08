@@ -15,7 +15,11 @@ import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakAuthRes
 import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakUserDTO;
 
 @Component
+
 public class KeycloakFacadeService {
+  private KeycloakFacadeService(){
+
+  }
 
   @Value("${app.keycloak.token-endpoint}")
   private String keycloakTokenEndpoint;

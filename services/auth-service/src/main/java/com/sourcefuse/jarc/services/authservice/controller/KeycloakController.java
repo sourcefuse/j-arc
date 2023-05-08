@@ -44,7 +44,7 @@ public class KeycloakController {
     AuthClient authClient = authClientRepository.findAuthClientByClientId(authClientId)
         .orElseThrow(() -> new HttpServerErrorException(
             HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.ClientInvalid.label));
+            AuthErrorKeys.CLIENT_INVALID.label));
     CodeResponse codeResponse = this.keycloakAuthService.login(code, authClient);
     httpServletResponse.setHeader(
         "Location",

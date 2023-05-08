@@ -45,7 +45,7 @@ public class KeycloakPreVerifyProvider {
     if (userTenant.isEmpty()) {
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.InvalidCredentials.label);
+          AuthErrorKeys.INVALID_CREDENTIALS.label);
     }
     // TODO role assignment pending to be updated
     if (userTenant.get().getStatus() == UserStatus.REGISTERED) {

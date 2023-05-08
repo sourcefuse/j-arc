@@ -1,19 +1,19 @@
 package com.sourcefuse.jarc.services.authservice.enums;
 
 public enum AuthenticateErrorKeys {
-  UserDoesNotExist("UserDoesNotExist"),
-  PasswordCannotBeChanged("PasswordCannotBeChangedForExternalUser"),
-  UserInactive("UserInactive"),
-  TokenRevoked("TokenRevoked"),
-  TokenMissing("TokenMissing"),
-  TempPasswordLoginDisallowed("TempPasswordLoginDisallowed"),
-  PasswordInvalid("PasswordInvalid"),
-  UnprocessableData("UnprocessableData"),
-  PasswordExpiryError("PasswordExpiryError");
+  AUTHENTICATE_ERROR_KEYS("UserDoesNotExist"),
+  PASSWORD_CANNOT_BE_CHANGED("PasswordCannotBeChangedForExternalUser"),
+  USER_INACTIVE("UserInactive"),
+  TOKEN_REVOKED("TokenRevoked"),
+  TOKEN_MISSING("TokenMissing"),
+  TEMP_PASSWORD_LOGIN_DISALLOWED("TempPasswordLoginDisallowed"),
+  PASSWORD_INVALID("PasswordInvalid"),
+  UNPROCESSABLE_DATA("UnprocessableData"),
+  PASSWORD_EXPIRY_ERROR("PasswordExpiryError");
 
   public final String label;
 
-  private AuthenticateErrorKeys(String label) {
+   AuthenticateErrorKeys(String label) {
     this.label = label;
   }
 }

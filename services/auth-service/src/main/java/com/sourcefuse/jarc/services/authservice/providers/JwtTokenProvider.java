@@ -45,7 +45,7 @@ public class JwtTokenProvider {
     Date currentDate = new Date();
     Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
     Claims claims = Jwts.claims().setSubject(currentUser.getUser().getUsername());
-    claims.put(Constants.currentUserKey, currentUser);
+    claims.put(Constants.CURRENT_USER_KEY, currentUser);
     return Jwts
         .builder()
         .setClaims(claims)
@@ -89,7 +89,7 @@ public class JwtTokenProvider {
         .build()
         .parseClaimsJws(token)
         .getBody();
-    Object userObject = claims.get(Constants.currentUserKey);
+    Object userObject = claims.get(Constants.CURRENT_USER_KEY);
     ObjectMapper mapper = new ObjectMapper();
     return mapper.convertValue(userObject, CurrentUser.class);
   }

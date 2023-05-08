@@ -41,7 +41,7 @@ public class ResourceOwnerVerifyProvider {
       if (user.isEmpty()) {
         throw new HttpServerErrorException(
             HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.InvalidCredentials.label);
+            AuthErrorKeys.INVALID_CREDENTIALS.label);
       }
     }
     this.userTenantRepository.findUserBy(
@@ -50,21 +50,23 @@ public class ResourceOwnerVerifyProvider {
         Arrays.asList(UserStatus.REJECTED, UserStatus.INACTIVE))
         .orElseThrow(() -> new HttpServerErrorException(
             HttpStatus.UNAUTHORIZED,
-            AuthenticateErrorKeys.UserInactive.label));
+            AuthenticateErrorKeys.USER_INACTIVE.label));
 
     AuthClient client = this.authClientRepository.findAuthClientByClientId(loginDto.getClientId())
         .orElseThrow(() -> new HttpServerErrorException(
             HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.ClientInvalid.label));
+            AuthErrorKeys.CLIENT_INVALID.label));
 
     if (!user.get().getAuthClientIds().contains(client.getId())) {
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.ClientInvalid.label);
+          AuthErrorKeys.CLIENT_INVALID.label);
     } else if (!Objects.equals(client.getClientSecret(), loginDto.getClientSecret())) {
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.ClientVerificationFailed.label);
+          AuthErrorKeys.CLIENT_VERIFICATION_FAILED.label);
+    } else{
+      // for sonar
     }
 
     return new UserVerificationDTO(client, user.get());

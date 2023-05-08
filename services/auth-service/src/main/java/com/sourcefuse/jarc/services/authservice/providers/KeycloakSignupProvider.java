@@ -30,11 +30,11 @@ public class KeycloakSignupProvider {
 
   public Optional<User> provide(KeycloakUserDTO keycloakUserDTO) {
     Optional<Tenant> tenant = this.tenantRepository.findByKey("master");
-    Optional<Role> defaultRole = this.roleRepository.findByRoleType(RoleKey.Default.label);
+    Optional<Role> defaultRole = this.roleRepository.findByRoleType(RoleKey.DEFAULT.label);
     if (tenant.isEmpty()) {
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.InvalidCredentials.label);
+          AuthErrorKeys.INVALID_CREDENTIALS.label);
     }
 
     if (defaultRole.isEmpty()) {

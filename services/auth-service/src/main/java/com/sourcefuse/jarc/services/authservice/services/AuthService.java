@@ -73,7 +73,7 @@ public class AuthService {
     AuthClient authClient = this.authClientRepository.findAuthClientByClientId(authTokenRequest.getClientId())
         .orElseThrow(() -> new CommonRuntimeException(
             HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.ClientInvalid.label));
+            AuthErrorKeys.CLIENT_INVALID.label));
     JwtTokenRedis jwtTokenObject = (JwtTokenRedis) this.redisTemplate.opsForValue().get(authTokenRequest.getCode());
 
     CurrentUser currentUser = jwtTokenProvider.getUserDetails(jwtTokenObject.getToken());
@@ -99,18 +99,18 @@ public class AuthService {
     AuthClient client = authClientRepository.findAuthClientByClientId(refreshTokenRedis2.getClientId())
         .orElseThrow(() -> new HttpServerErrorException(
             HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.ClientInvalid.label));
+            AuthErrorKeys.CLIENT_INVALID.label));
     String accessToken = authorizationHeader.split(" ")[1];
     if (!accessToken.equals(refreshTokenRedis.getExternalAuthToken())) {
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.TokenInvalid.label);
+          AuthErrorKeys.TOKEN_INVALID.label);
     }
     this.setWithTtl(accessToken, new RevokedTokenRedis(accessToken, accessToken), client.getRefreshTokenExpiration());
     this.redisTemplate.delete(refreshTokenRedis.getId());
     User user = userRepository.findById(refreshTokenRedis.getUserId()).orElseThrow(() -> new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
-        AuthenticateErrorKeys.UserDoesNotExist.label));
+        AuthenticateErrorKeys.AUTHENTICATE_ERROR_KEYS.label));
     return jwtTokenProvider.createJwt(user, client);
   }
 
@@ -131,12 +131,12 @@ public class AuthService {
           HttpStatus.BAD_REQUEST,
           "Email is already exists!.");
     }
-    Optional<Role> defaultRole = roleRepository.findByRoleType(RoleKey.Default.label);
+    Optional<Role> defaultRole = roleRepository.findByRoleType(RoleKey.DEFAULT.label);
     Optional<Tenant> tenant = tenantRepository.findByKey("master");
     if (tenant.isEmpty()) {
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.InvalidCredentials.label);
+          AuthErrorKeys.INVALID_CREDENTIALS.label);
     }
 
     if (defaultRole.isEmpty()) {
@@ -242,7 +242,7 @@ public class AuthService {
     if (user.isEmpty() || user.get().getDeleted()) {
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthenticateErrorKeys.UserDoesNotExist.label);
+          AuthenticateErrorKeys.AUTHENTICATE_ERROR_KEYS.label);
     }
     Optional<UserCredential> userCredential = this.userCredentialRepository.findByUserId(user.get().getId());
     if (userCredential.isPresent() &&
@@ -252,7 +252,7 @@ public class AuthService {
       log.error("User credentials not found in DB or is invalid");
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.InvalidCredentials.label);
+          AuthErrorKeys.INVALID_CREDENTIALS.label);
     } else {
       return user;
     }
@@ -269,20 +269,22 @@ public class AuthService {
       log.error("No allowed auth clients found for this user in DB");
       throw new HttpServerErrorException(
           HttpStatus.UNPROCESSABLE_ENTITY,
-          AuthErrorKeys.ClientUserMissing.label);
+          AuthErrorKeys.CLIENT_USER_MISSING.label);
     } else if (!StringUtils.hasLength(req.getClientSecret())) {
       log.error("client secret key missing from request object");
       throw new HttpServerErrorException(
           HttpStatus.BAD_REQUEST,
-          AuthErrorKeys.ClientSecretMissing.label);
+          AuthErrorKeys.CLIENT_SECRET_MISSING.label);
     } else if (!currentUser.getAuthClientIds().contains(client.getId())) {
       log.error("User is not allowed to access client id passed in request");
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.ClientInvalid.label);
+          AuthErrorKeys.CLIENT_INVALID.label);
     } else if (userStatus == UserStatus.REGISTERED) {
       log.error("User is in registered state");
       throw new HttpServerErrorException(HttpStatus.BAD_REQUEST, "User not active yet");
+    } else {
+      // for sonar
     }
     return userStatus;
   }

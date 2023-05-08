@@ -47,7 +47,7 @@ public class KeycloakAuthService {
       if (user.isEmpty()) {
         throw new HttpServerErrorException(
             HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.UserVerificationFailed.label);
+            AuthErrorKeys.USER_VERIFICATION_FAILED.label);
       }
     }
     Optional<UserCredential> userCredential = this.userCredentialRepository.findByUserId(user.get().getId());
@@ -56,7 +56,7 @@ public class KeycloakAuthService {
         (!userCredential.get().getAuthId().equals(keycloakUserDTO.getPreferred_username()))) {
       throw new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.UserVerificationFailed.label);
+          AuthErrorKeys.USER_VERIFICATION_FAILED.label);
     }
 
     this.keycloakPostVerifyProvider.provide(keycloakUserDTO, user);
