@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.authservice.models.base;
 
-import java.util.Date;
 import jakarta.persistence.Column;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

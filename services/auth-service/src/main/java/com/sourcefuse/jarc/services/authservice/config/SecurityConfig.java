@@ -1,16 +1,14 @@
 package com.sourcefuse.jarc.services.authservice.config;
 
+import com.sourcefuse.jarc.services.authservice.security.JwtAuthenticationEntryPoint;
+import com.sourcefuse.jarc.services.authservice.security.JwtAuthenticationFilter;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.sourcefuse.jarc.services.authservice.security.JwtAuthenticationEntryPoint;
-import com.sourcefuse.jarc.services.authservice.security.JwtAuthenticationFilter;
-
-import lombok.AllArgsConstructor;
 
 @Configuration
 @EnableMethodSecurity
@@ -21,7 +19,8 @@ public class SecurityConfig {
   private final JwtAuthenticationFilter authenticationFilter;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http)
+    throws Exception {
     // http
     // .authorizeHttpRequests(authorize -> authorize
     // .requestMatchers("/auth/**", "/keycloak/**", "/ping")
@@ -33,9 +32,9 @@ public class SecurityConfig {
     http.cors().and().csrf().disable();
 
     http.addFilterBefore(
-        authenticationFilter,
-        UsernamePasswordAuthenticationFilter.class);
+      authenticationFilter,
+      UsernamePasswordAuthenticationFilter.class
+    );
     return http.build();
   }
-
 }

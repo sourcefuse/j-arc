@@ -1,13 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
-
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthenticateErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.UserStatus;
@@ -19,8 +11,13 @@ import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepositor
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.services.AuthService;
-
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 @AllArgsConstructor
 @Service
@@ -31,41 +28,59 @@ public class ResourceOwnerVerifyProvider {
   private AuthClientRepository authClientRepository;
   private AuthService authService;
 
-  public UserVerificationDTO provide(LoginDto loginDto) throws HttpServerErrorException {
+  public UserVerificationDTO provide(LoginDto loginDto)
+    throws HttpServerErrorException {
     Optional<User> user;
 
     try {
-      user = this.authService.verifyPassword(loginDto.getUsername(), loginDto.getPassword());
+      user =
+        this.authService.verifyPassword(
+            loginDto.getUsername(),
+            loginDto.getPassword()
+          );
     } catch (Exception error) {
       user = this.userRepository.findUserByUsername(loginDto.getUsername());
       if (user.isEmpty()) {
         throw new HttpServerErrorException(
-            HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.INVALID_CREDENTIALS.label);
+          HttpStatus.UNAUTHORIZED,
+          AuthErrorKeys.INVALID_CREDENTIALS.label
+        );
       }
     }
     this.userTenantRepository.findUserBy(
         user.get().getId(),
         user.get().getDefaultTenantId(),
-        Arrays.asList(UserStatus.REJECTED, UserStatus.INACTIVE))
-        .orElseThrow(() -> new HttpServerErrorException(
-            HttpStatus.UNAUTHORIZED,
-            AuthenticateErrorKeys.USER_INACTIVE.label));
+        Arrays.asList(UserStatus.REJECTED, UserStatus.INACTIVE)
+      )
+      .orElseThrow(() ->
+        new HttpServerErrorException(
+          HttpStatus.UNAUTHORIZED,
+          AuthenticateErrorKeys.USER_INACTIVE.label
+        )
+      );
 
-    AuthClient client = this.authClientRepository.findAuthClientByClientId(loginDto.getClientId())
-        .orElseThrow(() -> new HttpServerErrorException(
+    AuthClient client =
+      this.authClientRepository.findAuthClientByClientId(loginDto.getClientId())
+        .orElseThrow(() ->
+          new HttpServerErrorException(
             HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.CLIENT_INVALID.label));
+            AuthErrorKeys.CLIENT_INVALID.label
+          )
+        );
 
     if (!user.get().getAuthClientIds().contains(client.getId())) {
       throw new HttpServerErrorException(
-          HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.CLIENT_INVALID.label);
-    } else if (!Objects.equals(client.getClientSecret(), loginDto.getClientSecret())) {
+        HttpStatus.UNAUTHORIZED,
+        AuthErrorKeys.CLIENT_INVALID.label
+      );
+    } else if (
+      !Objects.equals(client.getClientSecret(), loginDto.getClientSecret())
+    ) {
       throw new HttpServerErrorException(
-          HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.CLIENT_VERIFICATION_FAILED.label);
-    } else{
+        HttpStatus.UNAUTHORIZED,
+        AuthErrorKeys.CLIENT_VERIFICATION_FAILED.label
+      );
+    } else {
       // for sonar
     }
 

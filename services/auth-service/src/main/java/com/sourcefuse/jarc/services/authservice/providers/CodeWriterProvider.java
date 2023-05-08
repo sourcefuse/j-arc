@@ -1,10 +1,10 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
+import com.sourcefuse.jarc.services.authservice.models.JwtTokenRedis;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import com.sourcefuse.jarc.services.authservice.models.JwtTokenRedis;
-import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @Service

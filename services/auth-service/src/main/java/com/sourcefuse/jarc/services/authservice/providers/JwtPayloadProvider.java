@@ -1,9 +1,8 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
-import org.springframework.stereotype.Service;
-
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
+import org.springframework.stereotype.Service;
 
 @Service
 public class JwtPayloadProvider {

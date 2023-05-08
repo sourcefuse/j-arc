@@ -1,11 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
-import java.util.Optional;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
-
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
 import com.sourcefuse.jarc.services.authservice.enums.RoleKey;
@@ -17,8 +11,11 @@ import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakUserDTO
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.TenantRepository;
 import com.sourcefuse.jarc.services.authservice.services.AuthService;
-
+import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 @AllArgsConstructor
 @Service
@@ -30,17 +27,20 @@ public class KeycloakSignupProvider {
 
   public Optional<User> provide(KeycloakUserDTO keycloakUserDTO) {
     Optional<Tenant> tenant = this.tenantRepository.findByKey("master");
-    Optional<Role> defaultRole = this.roleRepository.findByRoleType(RoleKey.DEFAULT.label);
+    Optional<Role> defaultRole =
+      this.roleRepository.findByRoleType(RoleKey.DEFAULT.label);
     if (tenant.isEmpty()) {
       throw new HttpServerErrorException(
-          HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.INVALID_CREDENTIALS.label);
+        HttpStatus.UNAUTHORIZED,
+        AuthErrorKeys.INVALID_CREDENTIALS.label
+      );
     }
 
     if (defaultRole.isEmpty()) {
       throw new HttpServerErrorException(
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          "Role not found");
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        "Role not found"
+      );
     }
     User userToCreate = new User();
     userToCreate.setUsername(keycloakUserDTO.getPreferred_username());

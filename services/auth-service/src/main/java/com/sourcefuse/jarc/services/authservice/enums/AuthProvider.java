@@ -10,7 +10,7 @@ public enum AuthProvider {
 
   public final String label;
 
-   AuthProvider(String label) {
+  AuthProvider(String label) {
     this.label = label;
   }
 }

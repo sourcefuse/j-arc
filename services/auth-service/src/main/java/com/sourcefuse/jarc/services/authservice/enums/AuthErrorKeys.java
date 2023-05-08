@@ -18,7 +18,7 @@ public enum AuthErrorKeys {
 
   public final String label;
 
-   AuthErrorKeys(String label) {
+  AuthErrorKeys(String label) {
     this.label = label;
   }
 }

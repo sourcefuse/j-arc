@@ -1,8 +1,6 @@
 package com.sourcefuse.jarc.services.authservice.models;
 
 import com.sourcefuse.jarc.services.authservice.models.base.UserModifiableEntity;
-
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

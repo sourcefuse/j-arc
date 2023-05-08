@@ -13,7 +13,7 @@ public enum AuthenticateErrorKeys {
 
   public final String label;
 
-   AuthenticateErrorKeys(String label) {
+  AuthenticateErrorKeys(String label) {
     this.label = label;
   }
 }

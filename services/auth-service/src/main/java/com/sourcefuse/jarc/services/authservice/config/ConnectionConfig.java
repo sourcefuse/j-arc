@@ -15,32 +15,33 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableMethodSecurity
 @EnableRedisRepositories
 public class ConnectionConfig {
-    private ConnectionConfig(){
 
-    }
-    @Value("${app.datasource.redis.host}")
-    private String redisHost;
+  private ConnectionConfig() {}
 
-    @Value("${app.datasource.redis.port}")
-    private int redisPort;
+  @Value("${app.datasource.redis.host}")
+  private String redisHost;
 
-    @Bean
-    public static PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Value("${app.datasource.redis.port}")
+  private int redisPort;
 
-    @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(
-                redisHost,
-                redisPort);
-        return new LettuceConnectionFactory(config);
-    }
+  @Bean
+  public static PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory());
-        return template;
-    }
+  @Bean
+  public LettuceConnectionFactory redisConnectionFactory() {
+    RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(
+      redisHost,
+      redisPort
+    );
+    return new LettuceConnectionFactory(config);
+  }
+
+  @Bean
+  public RedisTemplate<String, Object> redisTemplate() {
+    RedisTemplate<String, Object> template = new RedisTemplate<>();
+    template.setConnectionFactory(redisConnectionFactory());
+    return template;
+  }
 }

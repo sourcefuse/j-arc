@@ -11,5 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CurrentUser {
-    private User user;
+
+  private User user;
 }

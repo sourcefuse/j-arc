@@ -1,15 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
-import java.security.Key;
-import java.util.Date;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.services.authservice.Constants;
 import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
@@ -18,7 +8,6 @@ import com.sourcefuse.jarc.services.authservice.models.RefreshTokenRedis;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.payload.JWTAuthResponse;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -26,7 +15,15 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -44,15 +41,17 @@ public class JwtTokenProvider {
   private String generateToken(CurrentUser currentUser) {
     Date currentDate = new Date();
     Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
-    Claims claims = Jwts.claims().setSubject(currentUser.getUser().getUsername());
+    Claims claims = Jwts
+      .claims()
+      .setSubject(currentUser.getUser().getUsername());
     claims.put(Constants.CURRENT_USER_KEY, currentUser);
     return Jwts
-        .builder()
-        .setClaims(claims)
-        .setIssuedAt(new Date())
-        .setExpiration(expireDate)
-        .signWith(key())
-        .compact();
+      .builder()
+      .setClaims(claims)
+      .setIssuedAt(new Date())
+      .setExpiration(expireDate)
+      .signWith(key())
+      .compact();
   }
 
   private Key key() {
@@ -72,8 +71,14 @@ public class JwtTokenProvider {
     refreshTokenRedis.setExternalAuthToken(accessToken);
     refreshTokenRedis.setExternalRefreshToken(refreshToken);
     refreshTokenRedis.setId(refreshToken);
-    redisTemplate.opsForValue().set(refreshToken, refreshTokenRedis, authClient.getRefreshTokenExpiration(),
-        TimeUnit.SECONDS);
+    redisTemplate
+      .opsForValue()
+      .set(
+        refreshToken,
+        refreshTokenRedis,
+        authClient.getRefreshTokenExpiration(),
+        TimeUnit.SECONDS
+      );
     JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
     jwtAuthResponse.setAccessToken(accessToken);
     jwtAuthResponse.setTokenType("Bearer");
@@ -84,11 +89,11 @@ public class JwtTokenProvider {
 
   public CurrentUser getUserDetails(String token) {
     Claims claims = Jwts
-        .parserBuilder()
-        .setSigningKey(key())
-        .build()
-        .parseClaimsJws(token)
-        .getBody();
+      .parserBuilder()
+      .setSigningKey(key())
+      .build()
+      .parseClaimsJws(token)
+      .getBody();
     Object userObject = claims.get(Constants.CURRENT_USER_KEY);
     ObjectMapper mapper = new ObjectMapper();
     return mapper.convertValue(userObject, CurrentUser.class);
@@ -99,15 +104,25 @@ public class JwtTokenProvider {
       Jwts.parserBuilder().setSigningKey(key()).build().parse(token);
       return true;
     } catch (MalformedJwtException ex) {
-      throw new CommonRuntimeException(HttpStatus.BAD_REQUEST, "Invalid JWT token");
+      throw new CommonRuntimeException(
+        HttpStatus.BAD_REQUEST,
+        "Invalid JWT token"
+      );
     } catch (ExpiredJwtException ex) {
-      throw new CommonRuntimeException(HttpStatus.BAD_REQUEST, "Expired JWT token");
+      throw new CommonRuntimeException(
+        HttpStatus.BAD_REQUEST,
+        "Expired JWT token"
+      );
     } catch (UnsupportedJwtException ex) {
-      throw new CommonRuntimeException(HttpStatus.BAD_REQUEST, "Unsupported JWT token");
+      throw new CommonRuntimeException(
+        HttpStatus.BAD_REQUEST,
+        "Unsupported JWT token"
+      );
     } catch (IllegalArgumentException ex) {
       throw new CommonRuntimeException(
-          HttpStatus.BAD_REQUEST,
-          "JWT claims string is empty.");
+        HttpStatus.BAD_REQUEST,
+        "JWT claims string is empty."
+      );
     }
   }
 }
