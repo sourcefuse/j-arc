@@ -12,7 +12,11 @@ public class CommonRuntimeException extends RuntimeException {
     this.message = message;
   }
 
-  public CommonRuntimeException(String message, HttpStatus status, String message1) {
+  public CommonRuntimeException(
+    String message,
+    HttpStatus status,
+    String message1
+  ) {
     super(message);
     this.status = status;
     this.message = message1;

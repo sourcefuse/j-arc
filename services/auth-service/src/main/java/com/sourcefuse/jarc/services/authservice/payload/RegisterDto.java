@@ -1,10 +1,8 @@
 package com.sourcefuse.jarc.services.authservice.payload;
 
-import java.util.UUID;
-
 import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
 import com.sourcefuse.jarc.services.authservice.models.User;
-
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

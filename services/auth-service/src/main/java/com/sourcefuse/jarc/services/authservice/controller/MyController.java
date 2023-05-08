@@ -14,5 +14,4 @@ public class MyController {
   public String restricted() {
     return "Authorized to access!";
   }
-
 }

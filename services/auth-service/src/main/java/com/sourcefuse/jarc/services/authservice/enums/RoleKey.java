@@ -14,7 +14,7 @@ public enum RoleKey {
 
   public final int label;
 
-   RoleKey(int label) {
+  RoleKey(int label) {
     this.label = label;
   }
 }

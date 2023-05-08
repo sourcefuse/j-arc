@@ -9,8 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserModifiableEntity
-    extends BaseEntity {
+public class UserModifiableEntity extends BaseEntity {
 
   String createdBy;
   String modifiedBy;
