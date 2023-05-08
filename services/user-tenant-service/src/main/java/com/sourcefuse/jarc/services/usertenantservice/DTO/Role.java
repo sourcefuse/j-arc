@@ -3,7 +3,10 @@ package com.sourcefuse.jarc.services.usertenantservice.DTO;
 import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
 import com.sourcefuse.jarc.services.usertenantservice.enums.RoleType;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;

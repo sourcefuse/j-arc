@@ -9,104 +9,104 @@ import java.util.List;
 import java.util.Map;
 
 public enum RoleType implements RoleTypes {
-    Admin(0),
+    ADMIN(0),
 
     //doubt::
-    Others(1),
-    Default(2),
-    ProgramManager(3),
-    GuestBoardViewer(4),
-    GuestDashboardViewer(5),
-    Automation(7),
-    GuestTaskViewer(8),
-    GuestGroupViewer(9),
-    SuperAdmin(10),
-    GuestWorkspaceViewer(11);
+    OTHERS(1),
+    DEFAULT(2),
+    PROGRAM_MANAGER(3),
+    GUESTBOARDVIEWER(4),
+    GUESTDASHBOARDVIEWER(5),
+    AUTOMATION(7),
+    GUESTTASKVIEWER(8),
+    GUESTGROUPVIEWER(9),
+    SUPERADMIN(10),
+    GUESTWORKSPACEVIEWER(11);
 
     public static final List<String> DisallowedRoles = Collections.singletonList(RoleTypes.Others);
 
     public static final Map<RoleType, RoleTypeMapValue> RoleTypeMap = new EnumMap<>(RoleType.class);
 
     static {
-        RoleTypeMap.put(Admin, new RoleTypeMapValue() {
+        RoleTypeMap.put(ADMIN, new RoleTypeMapValue() {
             public String permissionKey() {
                 return "PlatformAdmin";
             }
 
             public int value() {
-                return Admin.ordinal();
+                return ADMIN.ordinal();
             }
         });
-        RoleTypeMap.put(Default, new RoleTypeMapValue() {
+        RoleTypeMap.put(DEFAULT, new RoleTypeMapValue() {
             public String permissionKey() {
                 return "Default";
             }
 
             public int value() {
-                return Default.ordinal();
+                return DEFAULT.ordinal();
             }
         });
-        RoleTypeMap.put(ProgramManager, new RoleTypeMapValue() {
+        RoleTypeMap.put(PROGRAM_MANAGER, new RoleTypeMapValue() {
             public String permissionKey() {
                 return "ProgramManager";
             }
 
             public int value() {
-                return ProgramManager.ordinal();
+                return PROGRAM_MANAGER.ordinal();
             }
         });
-        RoleTypeMap.put(GuestBoardViewer, new RoleTypeMapValue() {
+        RoleTypeMap.put(GUESTBOARDVIEWER, new RoleTypeMapValue() {
             public String permissionKey() {
                 return "GuestBoardViewer";
             }
 
             public int value() {
-                return GuestBoardViewer.ordinal();
+                return GUESTBOARDVIEWER.ordinal();
             }
         });
-        RoleTypeMap.put(GuestDashboardViewer, new RoleTypeMapValue() {
+        RoleTypeMap.put(GUESTDASHBOARDVIEWER, new RoleTypeMapValue() {
             public String permissionKey() {
                 return "GuestDashboardViewer";
             }
 
             public int value() {
-                return GuestDashboardViewer.ordinal();
+                return GUESTDASHBOARDVIEWER.ordinal();
             }
         });
-        RoleTypeMap.put(GuestGroupViewer, new RoleTypeMapValue() {
+        RoleTypeMap.put(GUESTGROUPVIEWER, new RoleTypeMapValue() {
             public String permissionKey() {
                 return "GuestGroupViewer";
             }
 
             public int value() {
-                return GuestGroupViewer.ordinal();
+                return GUESTGROUPVIEWER.ordinal();
             }
         });
-        RoleTypeMap.put(GuestTaskViewer, new RoleTypeMapValue() {
+        RoleTypeMap.put(GUESTTASKVIEWER, new RoleTypeMapValue() {
             public String permissionKey() {
                 return "GuestTaskViewer";
             }
 
             public int value() {
-                return GuestTaskViewer.ordinal();
+                return GUESTTASKVIEWER.ordinal();
             }
         });
-        RoleTypeMap.put(SuperAdmin, new RoleTypeMapValue() {
+        RoleTypeMap.put(SUPERADMIN, new RoleTypeMapValue() {
             public String permissionKey() {
                 return "SuperAdmin";
             }
 
             public int value() {
-                return SuperAdmin.ordinal();
+                return SUPERADMIN.ordinal();
             }
         });
-        RoleTypeMap.put(GuestWorkspaceViewer, new RoleTypeMapValue() {
+        RoleTypeMap.put(GUESTWORKSPACEVIEWER, new RoleTypeMapValue() {
             public String permissionKey() {
                 return "GuestWorkspaceViewer";
             }
 
             public int value() {
-                return GuestWorkspaceViewer.ordinal();
+                return GUESTWORKSPACEVIEWER.ordinal();
             }
         });
     }

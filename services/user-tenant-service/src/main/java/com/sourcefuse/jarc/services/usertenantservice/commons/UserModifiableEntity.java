@@ -11,7 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @MappedSuperclass
-public abstract class UserModifiableEntity extends  BaseEntity{
+public abstract class UserModifiableEntity extends BaseEntity {
 
     UUID createdBy;
     UUID modifiedBy;

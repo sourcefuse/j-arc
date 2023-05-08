@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.UUID;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,7 +33,7 @@ public class UserGroup extends UserModifiableEntity implements Serializable {
     @Column(name = "user_tenant_id", nullable = false)
     private UUID userTenantId;
 
-    @Transient
+    // @Transient
     @Column(name = "is_owner")
     private boolean isOwner = false;
 

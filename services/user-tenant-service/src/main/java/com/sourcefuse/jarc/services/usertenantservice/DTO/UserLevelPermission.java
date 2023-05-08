@@ -12,8 +12,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "user_permissions",schema = "main")
-public class UserLevelPermission extends UserModifiableEntity  {
+@Table(name = "user_permissions", schema = "main")
+public class UserLevelPermission extends UserModifiableEntity {
     //doubt:
     //implements UserPermission<String>
 

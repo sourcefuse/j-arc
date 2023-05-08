@@ -1,10 +1,10 @@
 package com.sourcefuse.jarc.services.usertenantservice.enums;
 
 public enum Gender {
-    Male("M"),
-    Female("F"),
-    Other("O"),
-    Unknown("U");
+    MALE("M"),
+    FEMALE("F"),
+    OTHER("O"),
+    UNKNOWN("U");
 
     private final String value;
 

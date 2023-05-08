@@ -1,11 +1,12 @@
 package com.sourcefuse.jarc.services.usertenantservice.DTO;
 
-import jakarta.persistence.*;
 import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
 import com.sourcefuse.jarc.services.usertenantservice.enums.TenantStatus;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,12 +15,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tenants",schema = "main")
+@Table(name = "tenants", schema = "main")
 //@SecondaryTable(name = "tenants")
 public class Tenant extends UserModifiableEntity {
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2") //uuid4
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @NotBlank

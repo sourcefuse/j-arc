@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.services.usertenantservice.DTO.UserGroup;
-import com.sourcefuse.jarc.services.usertenantservice.service.UserGroupsService;
+import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,24 +14,23 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping(value = {"${api.user-group.context.url}"})
+@RequestMapping("/user-groups")
 @RequiredArgsConstructor
 
 public class UserGroupsController {
-    private final UserGroupsService userGroupsService;
+
+    private final UserGroupsRepository userGroupsRepo;
 
     @GetMapping()
     public ResponseEntity<Object> fetchAllUserGroups() {
-        log.info("::::::::::::: Fetch all the User Groups present :::::::::::::;");
-        List<UserGroup> UserGroupsList = userGroupsService.findAll();
+        List<UserGroup> UserGroupsList = userGroupsRepo.findAll();
         return new ResponseEntity<Object>(UserGroupsList, HttpStatus.OK);
     }
 
     //doubt::
-    @GetMapping(value = {"${api.user-group.count.context.url}"})
+    @GetMapping("/count")
     public ResponseEntity<Object> countTenants() {
-        log.info("::::::::::::: Count & Fetch all the User Groups present :::::::::::::;");
-        List<UserGroup> UserGroupsList = userGroupsService.findAll();
+        List<UserGroup> UserGroupsList = userGroupsRepo.findAll();
         return new ResponseEntity<Object>(UserGroupsList, HttpStatus.OK);
     }
 

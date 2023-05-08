@@ -2,11 +2,10 @@ package com.sourcefuse.jarc.services.usertenantservice.DTO;
 
 
 import com.sourcefuse.jarc.services.usertenantservice.commons.BaseEntity;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import jakarta.persistence.*;
 
 @Data
 @NoArgsConstructor

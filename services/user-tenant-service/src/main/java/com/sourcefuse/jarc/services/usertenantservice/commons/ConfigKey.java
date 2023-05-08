@@ -1,17 +1,17 @@
 package com.sourcefuse.jarc.services.usertenantservice.commons;
 
 public enum ConfigKey {
-  PasswordPolicy("password-policy"),
-  DateTimeFormat("date-time format"),
-  Profile("profile");
+    PasswordPolicy("password-policy"),
+    DateTimeFormat("date-time format"),
+    Profile("profile");
 
-  private final String key;
+    private final String key;
 
-  ConfigKey(String key) {
-    this.key = key;
-  }
+    ConfigKey(String key) {
+        this.key = key;
+    }
 
-  public String getKey() {
-    return key;
-  }
+    public String getKey() {
+        return key;
+    }
 }

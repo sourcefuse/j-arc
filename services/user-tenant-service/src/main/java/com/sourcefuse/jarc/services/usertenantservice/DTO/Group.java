@@ -33,7 +33,7 @@ public class Group extends UserModifiableEntity implements Serializable {
 
     @Column(name = "group_type")
     @Enumerated(EnumType.STRING)
-    private UserTenantGroupType groupType = UserTenantGroupType.Tenant;
+    private UserTenantGroupType groupType = UserTenantGroupType.TENANT;
 
     @OneToMany(mappedBy = "groupId")
     private List<UserGroup> userGroups;

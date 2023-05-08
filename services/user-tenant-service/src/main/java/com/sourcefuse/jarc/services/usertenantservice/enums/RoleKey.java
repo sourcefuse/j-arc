@@ -1,16 +1,19 @@
 package com.sourcefuse.jarc.services.usertenantservice.enums;
 
-public enum RoleKey {
-    Admin,
-    Default(2),
-    ProgramManager,
-    GuestBoardViewer,
-    GuestDashboardViewer,
-    Automation(7),
-    GuestTaskViewer,
-    GuestGroupViewer,
-    SuperAdmin(10),
-    GuestWorkspaceViewer(11);
+import com.sourcefuse.jarc.services.usertenantservice.commons.RoleTypes;
+
+public enum RoleKey implements RoleTypes {
+    ADMIN,
+    OTHERS,
+    DEFAULT,
+    PROGRAMMANAGER,
+    GUESTBOARDVIEWER,
+    GUESTDASHBOARDVIEWER,
+    AUTOMATION,
+    GUESTTASKVIEWER,
+    GUESTGROUPVIEWER,
+    SUPERADMIN,
+    GUESTWORKSPACEVIEWER;
 
     private final int value;
 

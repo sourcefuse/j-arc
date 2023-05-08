@@ -4,8 +4,9 @@ import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEnti
 import com.sourcefuse.jarc.services.usertenantservice.enums.Gender;
 import com.sourcefuse.jarc.services.usertenantservice.enums.UserStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
@@ -13,9 +14,10 @@ import java.util.UUID;
 
 @Entity
 @Data
-@EqualsAndHashCode(callSuper = true)
+@Builder
 @NoArgsConstructor
-@Table(name = "v_users",schema = "main")
+@AllArgsConstructor
+@Table(name = "v_users", schema = "main")
 public class UserView extends UserModifiableEntity {
 
     @Id
@@ -66,10 +68,10 @@ public class UserView extends UserModifiableEntity {
     private UserStatus status;
 
     @Column(name = "tenant_id", nullable = false)
-    private String tenantId;
+    private UUID tenantId;
 
     @Column(name = "role_id", nullable = false)
-    private String roleId;
+    private UUID roleId;
 
     @Column(name = "name", nullable = false)
     private String tenantName;
@@ -84,7 +86,7 @@ public class UserView extends UserModifiableEntity {
     private Integer roleType;
 
     @Column(name = "user_tenant_id", nullable = false)
-    private String userTenantId;
+    private UUID userTenantId;
 
     @Column(name = "expires_on")
     private Date expiresOn;

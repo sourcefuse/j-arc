@@ -1,14 +1,15 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.services.usertenantservice.DTO.UserTenantPrefs;
-import com.sourcefuse.jarc.services.usertenantservice.exceptions.ApiPayLoadException;
-import com.sourcefuse.jarc.services.usertenantservice.service.UserTenantPrefsService;
+import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
+import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantPrefsRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,25 +21,24 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping(value = {"${api.user-tenant.prefs.url}"})
+@RequestMapping("/user-tenant-prefs")
 public class UserTenantPrefsController {
-
-    @Autowired
-    private UserTenantPrefsService userTPService;
+    private final UserTenantPrefsRepository userTPRepository;
 
     @PostMapping("")
-    public ResponseEntity<Object> createTenantPrefs(@Valid @RequestBody UserTenantPrefs userTPrefs) throws ApiPayLoadException {
+    public ResponseEntity<Object> createTenantPrefs(@Valid @RequestBody UserTenantPrefs userTPrefs) {
         UserTenantPrefs savedUTPrefs;
-        log.info(" :::::::::::: Creating Roles User Tenant Apis consumed :::::::::::;;;");
 
-        UserTenantPrefs PreExistsTenantPrefs = userTPService.findByUserTenantIdConfKey(userTPrefs.getUserTenantId(),
-                userTPrefs.getConfigKey().getValue());
+        IAuthUserWithPermissions currentUser = (IAuthUserWithPermissions) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (currentUser != null && StringUtils.isNotEmpty(currentUser.getUserTenantId().toString()))
+            userTPrefs.setUserTenantId(currentUser.getUserTenantId());
+
+        UserTenantPrefs PreExistsTenantPrefs = userTPRepository.findByUserTenantIdAndConfigKey(userTPrefs.getUserTenantId(), userTPrefs.getConfigKey().getValue());
 
         if (PreExistsTenantPrefs != null) {
             if (userTPrefs.getConfigValue() != null) PreExistsTenantPrefs.setConfigValue(userTPrefs.getConfigValue());
-            savedUTPrefs = userTPService.save(PreExistsTenantPrefs);
-        } else
-            savedUTPrefs = userTPService.save(userTPrefs);
+            savedUTPrefs = userTPRepository.save(PreExistsTenantPrefs);
+        } else savedUTPrefs = userTPRepository.save(userTPrefs);
 
         return new ResponseEntity<>(savedUTPrefs, HttpStatus.CREATED);
     }
@@ -46,8 +46,10 @@ public class UserTenantPrefsController {
     @GetMapping("")
     public ResponseEntity<Object> getAllUsTenantPrefs() {
 
-        log.info("::::::::::::: Fetch Array User -Tenant -Prefs   :::::::::::::;");
-        List<UserTenantPrefs> lutPrefs = userTPService.findAll();
-        return new ResponseEntity<Object>(lutPrefs, HttpStatus.OK);
+        /* filter where logic is pending currently finding all        filter.where = {
+                        and: [filter.where ?? {}, {userTenantId: this.currentUser.userTenantId}],
+            };*/
+        List<UserTenantPrefs> listUtPrefs = userTPRepository.findAll();
+        return new ResponseEntity<Object>(listUtPrefs, HttpStatus.OK);
     }
 }

@@ -2,41 +2,41 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.services.usertenantservice.DTO.Count;
 import com.sourcefuse.jarc.services.usertenantservice.DTO.Tenant;
+import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.commonutils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.exceptions.ApiPayLoadException;
-import com.sourcefuse.jarc.services.usertenantservice.exceptions.GenericRespBuilder;
+import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
+import com.sourcefuse.jarc.services.usertenantservice.enums.PermissionKey;
 import com.sourcefuse.jarc.services.usertenantservice.enums.TenantStatus;
-import com.sourcefuse.jarc.services.usertenantservice.service.TenantService;
+import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @Slf4j
-@RequestMapping(value = {"${api.tenants.context.url}"})
+@RequestMapping("/tenants")
 @RequiredArgsConstructor
 public class TenantController {
 
-    private final TenantService tenantService;
-
-    private final GenericRespBuilder genericRespBuilder;
-
-    private final CommonUtils<Tenant> commonUtils;
+    private final TenantRepository tenantRepository;
 
     @PostMapping("")
     public ResponseEntity<Object> createTenants(@Valid @RequestBody Tenant tenant) {
 
-            log.info("::::::::::::: Tenant create rest Apis consumed :::::::::::::;");
-            tenant.setStatus(TenantStatus.ACTIVE);
-            Tenant savedTenant = tenantService.save(tenant);
-            return new ResponseEntity<Object>(savedTenant, HttpStatus.CREATED);
+        tenant.setStatus(TenantStatus.ACTIVE);
+        Tenant savedTenant = tenantRepository.save(tenant);
+        return new ResponseEntity<Object>(savedTenant, HttpStatus.CREATED);
     }
 
     /**
@@ -44,10 +44,8 @@ public class TenantController {
      */
     @GetMapping("/count")
     public ResponseEntity<Object> countTenants() {
-            log.info("::::::::::::: Tenant count rest Apis consumed :::::::::::::;");
-            Count count = new Count();
-            count.setCount(tenantService.count());
-            return new ResponseEntity<Object>(count, HttpStatus.OK);
+        Count count = Count.builder().count(tenantRepository.count()).build();
+        return new ResponseEntity<Object>(count, HttpStatus.OK);
     }
 
     /**
@@ -55,9 +53,8 @@ public class TenantController {
      */
     @GetMapping("")
     public ResponseEntity<Object> fetchAllTenants() {
-            log.info("::::::::::::: Tenant  Rest Apis consumed to get total Tenants present:::::::::::::;");
-            List<Tenant> TenantList = tenantService.findAll();
-            return new ResponseEntity<Object>(TenantList, HttpStatus.OK);
+        List<Tenant> TenantList = tenantRepository.findAll();
+        return new ResponseEntity<Object>(TenantList, HttpStatus.OK);
     }
 
     /**
@@ -65,22 +62,19 @@ public class TenantController {
      */
     @PatchMapping("")
     public ResponseEntity<Count> updateAllTenants(@RequestBody Tenant Souctenant) {
+        List<Tenant> updatedListTenant = new ArrayList<Tenant>();
 
-        log.info("::::::::::::: Tenant  Rest Apis consumed to update all tenants present :::::::::::::;");
-        List<Tenant> desListTenat = new ArrayList<Tenant>();
+        List<Tenant> tarLisTenant = tenantRepository.findAll();
 
-        List<Tenant> DestlisTenant = tenantService.findAll();
-
-        Long count = null;
-        if (DestlisTenant != null) {
-            for (Tenant DesTenant : DestlisTenant) {
-                commonUtils.copyProperties(Souctenant, DesTenant);
-                desListTenat.add(DesTenant);
+        long count = 0;
+        if (tarLisTenant != null) {
+            for (Tenant tarTenant : tarLisTenant) {
+                BeanUtils.copyProperties(Souctenant, tarTenant, CommonUtils.getNullPropertyNames(Souctenant));
+                updatedListTenant.add(tarTenant);
             }
-            count = tenantService.updateAll(desListTenat);
+            count = tenantRepository.saveAll(updatedListTenant).size();
 
         } else {
-            log.error(" :::::::::::::: No tenants exits ::::::::::::::");
         }
         return new ResponseEntity<Count>(new Count(count), HttpStatus.OK);
     }
@@ -90,29 +84,55 @@ public class TenantController {
      */
 
     @GetMapping("{id}")
-    public ResponseEntity<Object> fetchTenantByID(@PathVariable("id") UUID id) throws ApiPayLoadException {
+    public ResponseEntity<Object> fetchTenantByID(@PathVariable("id") UUID id) {
 
-            log.info("::::::::::::: Fetch Tenant  rest Apis consumed based on id:::::::::::::;");
-            Tenant savedTenant = tenantService.findById(id).get();
-            return new ResponseEntity<Object>(savedTenant, HttpStatus.OK);
+        IAuthUserWithPermissions currentUser = (IAuthUserWithPermissions) SecurityContextHolder.
+                getContext().getAuthentication().getPrincipal();
+
+        if (currentUser.getTenantId() != id &&
+                !currentUser.getPermissions().contains(PermissionKey.ViewOwnTenant.toString())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, AuthorizeErrorKeys.NOTALLOWEDACCESS.toString());
+
+        }
+        Tenant savedTenant;
+        Optional<Tenant> tenant = tenantRepository.findById(id);
+        if (tenant.isPresent()) {
+            savedTenant = tenant.get();
+        } else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No tenant is present against given value");
+
+        return new ResponseEntity<Object>(savedTenant, HttpStatus.OK);
     }
 
 
     @PatchMapping("{id}")
-    public ResponseEntity<Object> updateTenantsById(@PathVariable("id") UUID id, @RequestBody Tenant tenant) throws ApiPayLoadException {
-            log.info("Tenant update rest Apis consumed based on id ");
-            Tenant updateTenant = tenantService.findById(id).get();
-            log.info(updateTenant.toString());
+    public ResponseEntity<Object> updateTenantsById(@PathVariable("id") UUID id, @RequestBody Tenant srcTenant) {
 
-            tenantService.update(tenant, updateTenant);
-            return new ResponseEntity<Object>("Tenant PATCH success", HttpStatus.NO_CONTENT);
+        IAuthUserWithPermissions currentUser = (IAuthUserWithPermissions) SecurityContextHolder.
+                getContext().getAuthentication().getPrincipal();
+
+        if (currentUser.getTenantId() != id &&
+                !currentUser.getPermissions().contains(PermissionKey.ViewOwnTenant.toString())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, AuthorizeErrorKeys.NOTALLOWEDACCESS.toString());
+
+        }
+
+        Tenant tarTenant;
+        Optional<Tenant> svdTenant = tenantRepository.findById(id);
+        if (svdTenant.isPresent()) {
+            tarTenant = svdTenant.get();
+
+            BeanUtils.copyProperties(srcTenant, tarTenant, CommonUtils.getNullPropertyNames(srcTenant));
+            tenantRepository.save(tarTenant);
+
+        } else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No tenant is present against given value");
+
+        return new ResponseEntity<Object>("Tenant PATCH success", HttpStatus.NO_CONTENT);
 
     }
 
     @DeleteMapping("")
-    public ResponseEntity<String> deleteTenantsById(@PathVariable("id") String id) {
-        log.info("::::::::::::: Tenant Delete rest Apis consumed :::::::::::::;");
-        tenantService.deleteById(id);
+    public ResponseEntity<String> deleteTenantsById(@PathVariable("id") UUID id) {
+        tenantRepository.deleteById(id);
         return new ResponseEntity<String>("Tenant DELETE success", HttpStatus.NO_CONTENT);
     }
 
@@ -123,6 +143,14 @@ public class TenantController {
     public ResponseEntity<ArrayList<TenantConfig>> getTenantConfig(@PathVariable("id") String id) {
       //  ArrayList<TenantConfig> tenantConfig=tenantConfigRepository.findById(id);
 
+         IAuthUserWithPermissions currentUser = (IAuthUserWithPermissions) SecurityContextHolder.
+                getContext().getAuthentication().getPrincipal();
+
+        if (currentUser.getTenantId() != id &&
+                !currentUser.getPermissions().contains(PermissionKey.ViewOwnTenant.toString())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, AuthorizeErrorKeys.NotAllowedAccess.toString());
+
+        }
         return new ResponseEntity<ArrayList<TenantConfig>>(tenantConfig, HttpStatus.Ok);
     }*/
 

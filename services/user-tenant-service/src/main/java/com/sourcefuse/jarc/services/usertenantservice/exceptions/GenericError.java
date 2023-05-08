@@ -11,7 +11,6 @@ public class GenericError {
     private String status;
     private String errCode;
     private String message;
-    
-    
+
 
 }
