@@ -6,7 +6,7 @@ public enum TenantStatus {
 
   public final int label;
 
-  private TenantStatus(int label) {
+   TenantStatus(int label) {
     this.label = label;
   }
 }

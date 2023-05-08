@@ -1,20 +1,20 @@
 package com.sourcefuse.jarc.services.authservice.enums;
 
 public enum RoleKey {
-  Admin(0),
-  Default(2),
-  ProgramManager(3),
-  GuestBoardViewer(4),
-  GuestDashboardViewer(5),
-  Automation(7),
-  GuestTaskViewer(8),
-  GuestGroupViewer(9),
-  SuperAdmin(10),
-  GuestWorkspaceViewer(11);
+  ADMIN(0),
+  DEFAULT(2),
+  PROGRAM_MANAGER(3),
+  GUEST_BOARD_VIEWER(4),
+  GUEST_DASHBOARD_VIEWER(5),
+  AUTOMATION(7),
+  GUEST_TASK_VIEWER(8),
+  GUEST_GROUP_VIEWER(9),
+  SUPER_ADMIN(10),
+  GUEST_WORKSPACE_VIEWER(11);
 
   public final int label;
 
-  private RoleKey(int label) {
+   RoleKey(int label) {
     this.label = label;
   }
 }

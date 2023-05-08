@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableRedisRepositories
 @NoArgsConstructor
 public class ConnectionConfig {
+  private ConnectionConfig(){
 
   @Value("${app.datasource.redis.host}")
   private String redisHost;
