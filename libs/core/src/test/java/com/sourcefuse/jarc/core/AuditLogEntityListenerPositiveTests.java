@@ -5,23 +5,24 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.sourcefuse.jarc.core.constants.AuditActions;
-import com.sourcefuse.jarc.core.constants.TestConstants;
-import com.sourcefuse.jarc.core.models.audit.AuditLog;
-import com.sourcefuse.jarc.core.softdelete.SoftDeletesRepositoryImpl;
-import com.sourcefuse.jarc.core.test.models.Role;
-import com.sourcefuse.jarc.core.test.repositories.RoleRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import org.junit.jupiter.api.AfterEach;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+import com.sourcefuse.jarc.core.constants.AuditActions;
+import com.sourcefuse.jarc.core.constants.TestConstants;
+import com.sourcefuse.jarc.core.models.audit.AuditLog;
+import com.sourcefuse.jarc.core.softdelete.SoftDeletesRepositoryImpl;
+import com.sourcefuse.jarc.core.test.models.Role;
+import com.sourcefuse.jarc.core.test.repositories.RoleRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @SpringBootTest
 @ComponentScan({ "com.sourcefuse.jarc.core" })
@@ -40,10 +41,6 @@ public class AuditLogEntityListenerPositiveTests {
     TestConstants.setCurrentLoggedInUser();
   }
 
-  @AfterEach
-  public void waitAfterTest() throws InterruptedException {
-    TimeUnit.MILLISECONDS.sleep(500);
-  }
 
   @Test
   void shouldSaveAuditLogWhenRoleIsSaved() {
@@ -83,7 +80,7 @@ public class AuditLogEntityListenerPositiveTests {
     role = this.roleRepository.save(role);
 
     List<Role> roles = this.roleRepository.findAll();
-    assertEquals(roles.size(), 1);
+	assertEquals(1, roles.size());
     assertEquals(role.getId(), roles.get(0).getId());
     assertEquals(role.getName(), roles.get(0).getName());
     assertEquals(updatedName, roles.get(0).getName());
@@ -130,7 +127,7 @@ public class AuditLogEntityListenerPositiveTests {
     this.roleRepository.deleteByIdHard(role.getId());
 
     List<Role> roles = this.roleRepository.findAll();
-    assertEquals(roles.size(), 0);
+	assertEquals(0, roles.size());
 
     List<AuditLog> auditLogs = entityManager
       .createQuery(
@@ -139,7 +136,7 @@ public class AuditLogEntityListenerPositiveTests {
       )
       .getResultList();
 
-    assertEquals(auditLogs.size(), 2);
+	assertEquals(2, auditLogs.size());
 
     AuditLog saveRoleauditLog = auditLogs
       .stream()
@@ -184,7 +181,7 @@ public class AuditLogEntityListenerPositiveTests {
       )
       .getResultList();
 
-    assertEquals(auditLogs.size(), 2);
+	assertEquals(2, auditLogs.size());
 
     AuditLog saveRoleauditLog = auditLogs
       .stream()

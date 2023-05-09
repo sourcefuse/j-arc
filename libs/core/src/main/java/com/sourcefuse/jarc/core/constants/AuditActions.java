@@ -7,7 +7,7 @@ public enum AuditActions {
 
   private final String name;
 
-  private AuditActions(String value) {
+  AuditActions(String value) {
     this.name = value;
   }
 
