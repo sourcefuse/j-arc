@@ -27,9 +27,15 @@ import com.sourcefuse.jarc.core.models.audit.AuditLog;
 import com.sourcefuse.jarc.core.softdelete.SoftDeletesRepositoryImpl;
 import com.sourcefuse.jarc.core.test.models.Role;
 import com.sourcefuse.jarc.core.test.repositories.RoleRepository;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootTest
 @ComponentScan({ "com.sourcefuse.jarc.core" })

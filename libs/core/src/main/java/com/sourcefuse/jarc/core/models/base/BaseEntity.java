@@ -1,7 +1,5 @@
 package com.sourcefuse.jarc.core.models.base;
 
-import java.util.UUID;
-
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Table;
 import java.util.UUID;

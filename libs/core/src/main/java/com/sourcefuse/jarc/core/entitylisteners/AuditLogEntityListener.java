@@ -44,10 +44,10 @@ public class AuditLogEntityListener<T extends BaseEntity> {
     }
   }
 
-	@PostRemove
-	public void onRemove(T target) {
-		this.saveAuditLog(AuditActions.DELETE, target);
-	}
+  @PostRemove
+  public void onRemove(T target) {
+    this.saveAuditLog(AuditActions.DELETE, target);
+  }
 
   private void saveAuditLog(AuditActions action, T entity) {
     EntityManager em = applicationAwareBeanUtils.getNewEntityManager();
