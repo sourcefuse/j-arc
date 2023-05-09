@@ -21,6 +21,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import com.sourcefuse.jarc.core.constants.AuditActions;
+import com.sourcefuse.jarc.core.constants.TestConstants;
+import com.sourcefuse.jarc.core.models.audit.AuditLog;
+import com.sourcefuse.jarc.core.softdelete.SoftDeletesRepositoryImpl;
+import com.sourcefuse.jarc.core.test.models.Role;
+import com.sourcefuse.jarc.core.test.repositories.RoleRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 @SpringBootTest
 @ComponentScan({ "com.sourcefuse.jarc.core" })
 @EnableJpaRepositories(repositoryBaseClass = SoftDeletesRepositoryImpl.class)

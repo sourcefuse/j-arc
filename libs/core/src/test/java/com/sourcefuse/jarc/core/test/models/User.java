@@ -18,13 +18,13 @@ import lombok.Setter;
 @Setter
 public class User implements BaseEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
-  private String firstName;
-  private String lastName;
-  private String middleName;
-  private String username;
-  private String email;
+	private String firstName;
+	private String lastName;
+	private String middleName;
+	private String username;
+	private String email;
 }

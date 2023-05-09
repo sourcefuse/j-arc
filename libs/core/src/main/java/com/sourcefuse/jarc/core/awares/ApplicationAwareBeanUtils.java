@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityManager;
+
 @Service
 @AllArgsConstructor
 public class ApplicationAwareBeanUtils {
