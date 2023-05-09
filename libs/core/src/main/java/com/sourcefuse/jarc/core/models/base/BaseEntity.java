@@ -6,9 +6,9 @@ import java.util.UUID;
 
 @MappedSuperclass
 public interface BaseEntity {
-  public abstract UUID getId();
+  abstract UUID getId();
 
-  public default String getTableName() {
+  default String getTableName() {
     Table tableAnnotation = this.getClass().getAnnotation(Table.class);
     if (tableAnnotation != null) {
       return tableAnnotation.name();

@@ -40,44 +40,48 @@ public class AuditLogEntityListener<T extends BaseEntity> {
     this.saveAuditLog(AuditActions.DELETE, target);
   }
 
-  @SuppressWarnings("unchecked")
   private void saveAuditLog(AuditActions action, T entity) {
+    try {
+      EntityManager em = ApplicationAwareBeanUtils.getNewEntityManager();
+      this.saveLogInDb(em, action, entity);
+    } catch (IllegalArgumentException e) {
+      log.error("Something went wrong while saving the audit logs {}", e);
+    }
+  }
+
+  private void saveLogInDb(EntityManager em, AuditActions action, T entity) {
     try {
       String before = null;
       String after = new Gson().toJson(entity);
-      EntityManager em = ApplicationAwareBeanUtils.getNewEntityManager();
       if (!action.toString().contains("SAVE")) {
+        @SuppressWarnings("unchecked")
         T oldEntity = (T) em.find(entity.getClass(), entity.getId());
         before = oldEntity != null ? new Gson().toJson(oldEntity) : null;
       }
       if (action.toString().contains("DELETE")) {
         after = null;
       }
-      try {
-        em.getTransaction().begin();
-        CurrentUser<?> currentUser = (CurrentUser<?>) SecurityContextHolder
-          .getContext()
-          .getAuthentication()
-          .getPrincipal();
-        AuditLog auditLog = new AuditLog();
-        auditLog.setAction(action);
-        auditLog.setActedOn(entity.getTableName());
-        auditLog.setActionKey(entity.getClass().getSimpleName() + "_Logs");
-        auditLog.setBefore(before);
-        auditLog.setAfter(after);
-        auditLog.setEntityId(entity.getId());
-        auditLog.setActor(currentUser.getUser().getId());
-        log.info("audit Log {}", auditLog.toString());
-        em.persist(auditLog);
-        em.getTransaction().commit();
-      } catch (Exception ex) {
-        log.error("Something went wrong while saving the audit logs {}", ex);
-        em.getTransaction().rollback();
-      } finally {
-        em.close();
-      }
-    } catch (NullPointerException e) {
-      log.error("Something went wrong while saving the audit logs {}", e);
+      em.getTransaction().begin();
+      CurrentUser<?> currentUser = (CurrentUser<?>) SecurityContextHolder
+        .getContext()
+        .getAuthentication()
+        .getPrincipal();
+      AuditLog auditLog = new AuditLog();
+      auditLog.setAction(action);
+      auditLog.setActedOn(entity.getTableName());
+      auditLog.setActionKey(entity.getClass().getSimpleName() + "_Logs");
+      auditLog.setBefore(before);
+      auditLog.setAfter(after);
+      auditLog.setEntityId(entity.getId());
+      auditLog.setActor(currentUser.getUser().getId());
+      log.info("audit Log {}", auditLog.toString());
+      em.persist(auditLog);
+      em.getTransaction().commit();
+    } catch (Exception ex) {
+      log.error("Something went wrong while saving the audit logs {}", ex);
+      em.getTransaction().rollback();
+    } finally {
+      em.close();
     }
   }
 }

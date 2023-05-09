@@ -22,10 +22,10 @@ public class ApplicationAwareBeanUtils implements ApplicationContextAware {
   }
 
   public static EntityManager getNewEntityManager()
-    throws NullPointerException {
+    throws IllegalArgumentException {
     EntityManager em = context.getBean(EntityManager.class);
     if (em == null) {
-      throw new NullPointerException(
+      throw new IllegalArgumentException(
         "Entity Manager is null can not proceed to save audit log"
       );
     }
