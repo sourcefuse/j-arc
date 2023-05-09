@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.authservice.enums;
 
 public enum AuthenticateErrorKeys {
-  AUTHENTICATE_ERROR_KEYS("UserDoesNotExist"),
+  USER_DOES_NOT_EXISTS("UserDoesNotExist"),
   PASSWORD_CANNOT_BE_CHANGED("PasswordCannotBeChangedForExternalUser"),
   USER_INACTIVE("UserInactive"),
   TOKEN_REVOKED("TokenRevoked"),

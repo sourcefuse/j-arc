@@ -1,7 +1,9 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
+import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
+import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 import com.sourcefuse.jarc.services.authservice.payload.CodeResponse;
 import com.sourcefuse.jarc.services.authservice.payload.JWTAuthResponse;
 import lombok.AllArgsConstructor;
@@ -14,9 +16,14 @@ public class AuthCodeGeneratorProvider {
   private final CodeWriterProvider codeWriterProvider;
   private final JwtTokenProvider jwtTokenProvider;
 
-  public CodeResponse provide(User user, AuthClient authClient) {
+  public CodeResponse provide(
+    User user,
+    UserTenant userTenant,
+    Role role,
+    AuthClient authClient
+  ) {
     JWTAuthResponse jwtAuthResponse =
-      this.jwtTokenProvider.createJwt(user, authClient);
+      this.jwtTokenProvider.createJwt(user, userTenant, role, authClient);
     String code = String.valueOf(
       this.codeWriterProvider.provide(jwtAuthResponse.getAccessToken())
     );

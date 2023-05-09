@@ -9,8 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-public interface UserTenantRepository
-  extends CrudRepository<UserTenant, String> {
+public interface UserTenantRepository extends CrudRepository<UserTenant, UUID> {
   Optional<UserTenant> findUserTenantByUserId(UUID userId);
 
   @Query(

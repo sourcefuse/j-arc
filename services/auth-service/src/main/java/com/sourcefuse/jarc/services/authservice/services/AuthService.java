@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -85,16 +86,35 @@ public class AuthService {
       jwtTokenObject.getToken()
     );
 
-    return this.jwtTokenProvider.createJwt(currentUser.getUser(), authClient);
+    return this.jwtTokenProvider.createJwt(
+        currentUser.getUser(),
+        currentUser.getUserTenant(),
+        currentUser.getRole(),
+        authClient
+      );
   }
 
   public CodeResponse login(
     LoginDto loginDto,
     AuthClient authClient,
-    User authUser
+    User user
   ) {
-    this.verifyClientUserLogin(loginDto, authClient, authUser);
-    return this.authCodeGeneratorProvider.provide(authUser, authClient);
+    UserTenant userTenant =
+      this.verifyClientUserLogin(loginDto, authClient, user);
+    Role role = roleRepository
+      .findById(userTenant.getRoleId())
+      .orElseThrow(() ->
+        new CommonRuntimeException(
+          HttpStatus.UNAUTHORIZED,
+          AuthenticateErrorKeys.UNPROCESSABLE_DATA.label
+        )
+      );
+    return this.authCodeGeneratorProvider.provide(
+        user,
+        userTenant,
+        role,
+        authClient
+      );
   }
 
   public JWTAuthResponse loginToken(
@@ -102,8 +122,22 @@ public class AuthService {
     AuthClient authClient,
     User authUser
   ) {
-    this.verifyClientUserLogin(loginDto, authClient, authUser);
-    return this.jwtTokenProvider.createJwt(authUser, authClient);
+    UserTenant userTenant =
+      this.verifyClientUserLogin(loginDto, authClient, authUser);
+    Role role = roleRepository
+      .findById(userTenant.getRoleId())
+      .orElseThrow(() ->
+        new CommonRuntimeException(
+          HttpStatus.UNAUTHORIZED,
+          AuthenticateErrorKeys.UNPROCESSABLE_DATA.label
+        )
+      );
+    return this.jwtTokenProvider.createJwt(
+        authUser,
+        userTenant,
+        role,
+        authClient
+      );
   }
 
   public JWTAuthResponse refreshToken(
@@ -130,6 +164,10 @@ public class AuthService {
         AuthErrorKeys.TOKEN_INVALID.label
       );
     }
+    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
+      .getContext()
+      .getAuthentication()
+      .getPrincipal();
     this.setWithTtl(
         accessToken,
         new RevokedTokenRedis(accessToken, accessToken),
@@ -141,10 +179,29 @@ public class AuthService {
       .orElseThrow(() ->
         new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthenticateErrorKeys.AUTHENTICATE_ERROR_KEYS.label
+          AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.label
         )
       );
-    return jwtTokenProvider.createJwt(user, client);
+
+    UserTenant userTenant = userTenantRepository
+      .findById(currentUser.getUserTenant().getId())
+      .orElseThrow(() ->
+        new HttpServerErrorException(
+          HttpStatus.UNAUTHORIZED,
+          AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.label
+        )
+      );
+
+    Role role = roleRepository
+      .findById(currentUser.getUserTenant().getRoleId())
+      .orElseThrow(() ->
+        new HttpServerErrorException(
+          HttpStatus.UNAUTHORIZED,
+          AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.label
+        )
+      );
+
+    return jwtTokenProvider.createJwt(user, userTenant, role, client);
   }
 
   public void setWithTtl(String key, Object value, long ttl) {
@@ -309,7 +366,7 @@ public class AuthService {
     if (user.isEmpty() || user.get().getDeleted()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
-        AuthenticateErrorKeys.AUTHENTICATE_ERROR_KEYS.label
+        AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.label
       );
     }
     Optional<UserCredential> userCredential =
@@ -333,7 +390,7 @@ public class AuthService {
     }
   }
 
-  public UserStatus verifyClientUserLogin(
+  public UserTenant verifyClientUserLogin(
     LoginDto req,
     AuthClient client,
     User user
@@ -372,6 +429,6 @@ public class AuthService {
     } else {
       // for sonar
     }
-    return userStatus;
+    return userTenant.get();
   }
 }

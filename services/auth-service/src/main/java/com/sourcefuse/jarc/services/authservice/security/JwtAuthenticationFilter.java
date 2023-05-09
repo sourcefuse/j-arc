@@ -7,8 +7,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -30,10 +34,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String token = getTokenFromRequest(request);
     if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
       CurrentUser user = jwtTokenProvider.getUserDetails(token);
+      List<GrantedAuthority> listAuthorities = new ArrayList<GrantedAuthority>();
+      for (String permission : user.getRole().getPermissions()) {
+        listAuthorities.add(new SimpleGrantedAuthority(permission));
+      }
       UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
         user,
         null,
-        null
+        listAuthorities
       );
 
       authenticationToken.setDetails(

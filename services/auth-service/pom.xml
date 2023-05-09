@@ -151,6 +151,23 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.hubspot.maven.plugins</groupId>
+				<artifactId>prettier-maven-plugin</artifactId>
+				<version>0.19</version>
+				<configuration>
+					<prettierJavaVersion>2.0.0</prettierJavaVersion>
+					<printWidth>80</printWidth>
+<!--					<ignoreConfigFile>true</ignoreConfigFile>-->
+<!--					<ignoreEditorConfig>true</ignoreEditorConfig>-->
+					<!-- Use <inputGlobs> to override the default input patterns -->
+					<inputGlobs>
+						<!-- These are the default patterns, you can omit <inputGlobs> entirely unless you want to override them -->
+						<inputGlob>src/main/java/**/*.java</inputGlob>
+						<inputGlob>src/test/java/**/*.java</inputGlob>
+					</inputGlobs>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

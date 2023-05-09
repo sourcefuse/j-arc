@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.authservice.config;
 
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,9 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableMethodSecurity
 @EnableRedisRepositories
+@NoArgsConstructor
 public class ConnectionConfig {
-
-  private ConnectionConfig() {}
 
   @Value("${app.datasource.redis.host}")
   private String redisHost;

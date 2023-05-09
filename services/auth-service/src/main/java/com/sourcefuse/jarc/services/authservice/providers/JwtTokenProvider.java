@@ -5,7 +5,9 @@ import com.sourcefuse.jarc.services.authservice.Constants;
 import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.RefreshTokenRedis;
+import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
+import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 import com.sourcefuse.jarc.services.authservice.payload.JWTAuthResponse;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 import io.jsonwebtoken.Claims;
@@ -58,8 +60,14 @@ public class JwtTokenProvider {
     return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
   }
 
-  public JWTAuthResponse createJwt(User user, AuthClient authClient) {
-    CurrentUser currentUser = this.jwtPayloadProvider.provide(user);
+  public JWTAuthResponse createJwt(
+    User user,
+    UserTenant userTenant,
+    Role role,
+    AuthClient authClient
+  ) {
+    CurrentUser currentUser =
+      this.jwtPayloadProvider.provide(user, userTenant, role);
     String accessToken = this.generateToken(currentUser);
     String refreshToken = UUID.randomUUID().toString();
 
