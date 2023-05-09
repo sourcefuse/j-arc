@@ -17,65 +17,67 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Slf4j
 public class AuditLogEntityListener<T extends BaseEntity> {
 
-	@PostPersist
-	public void onPersist(T target) {
-		this.saveAuditLog(AuditActions.SAVE, target);
-	}
+  @PostPersist
+  public void onPersist(T target) {
+    this.saveAuditLog(AuditActions.SAVE, target);
+  }
 
-	@PostUpdate
-	public void onUpdate(T target) {
-		if (target instanceof SoftDeleteEntity softDeletedEntity) {
-			if (!softDeletedEntity.isDeleted()) {
-				this.saveAuditLog(AuditActions.UPDATE, target);
-			} else {
-				this.saveAuditLog(AuditActions.DELETE, target);
-			}
-		} else {
-			this.saveAuditLog(AuditActions.UPDATE, target);
-		}
-	}
+  @PostUpdate
+  public void onUpdate(T target) {
+    if (target instanceof SoftDeleteEntity softDeletedEntity) {
+      if (!softDeletedEntity.isDeleted()) {
+        this.saveAuditLog(AuditActions.UPDATE, target);
+      } else {
+        this.saveAuditLog(AuditActions.DELETE, target);
+      }
+    } else {
+      this.saveAuditLog(AuditActions.UPDATE, target);
+    }
+  }
 
-	@PostRemove
-	public void onRemove(T target) {
-		this.saveAuditLog(AuditActions.DELETE, target);
-	}
+  @PostRemove
+  public void onRemove(T target) {
+    this.saveAuditLog(AuditActions.DELETE, target);
+  }
 
-	@SuppressWarnings("unchecked")
-	private void saveAuditLog(AuditActions action, T entity) {
-		try {
-			String before = null;
-			String after = new Gson().toJson(entity);
-			EntityManager em = ApplicationAwareBeanUtils.getNewEntityManager();
-			if (!action.toString().contains("SAVE")) {
-				T oldEntity = (T) em.find(entity.getClass(), entity.getId());
-				before = oldEntity != null ? new Gson().toJson(oldEntity) : null;
-			}
-			if (action.toString().contains("DELETE")) {
-				after = null;
-			}
-			try {
-				em.getTransaction().begin();
-				CurrentUser<?> currentUser = (CurrentUser<?>) SecurityContextHolder.getContext().getAuthentication()
-						.getPrincipal();
-				AuditLog auditLog = new AuditLog();
-				auditLog.setAction(action);
-				auditLog.setActedOn(entity.getTableName());
-				auditLog.setActionKey(entity.getClass().getSimpleName() + "_Logs");
-				auditLog.setBefore(before);
-				auditLog.setAfter(after);
-				auditLog.setEntityId(entity.getId());
-				auditLog.setActor(currentUser.getUser().getId());
-				log.info("audit Log {}", auditLog.toString());
-				em.persist(auditLog);
-				em.getTransaction().commit();
-			} catch (Exception ex) {
-				log.error("Something went wrong while saving the audit logs {}", ex);
-				em.getTransaction().rollback();
-			} finally {
-				em.close();
-			}
-		} catch (NullPointerException e) {
-			log.error("Something went wrong while saving the audit logs {}", e);
-		}
-	}
+  @SuppressWarnings("unchecked")
+  private void saveAuditLog(AuditActions action, T entity) {
+    try {
+      String before = null;
+      String after = new Gson().toJson(entity);
+      EntityManager em = ApplicationAwareBeanUtils.getNewEntityManager();
+      if (!action.toString().contains("SAVE")) {
+        T oldEntity = (T) em.find(entity.getClass(), entity.getId());
+        before = oldEntity != null ? new Gson().toJson(oldEntity) : null;
+      }
+      if (action.toString().contains("DELETE")) {
+        after = null;
+      }
+      try {
+        em.getTransaction().begin();
+        CurrentUser<?> currentUser = (CurrentUser<?>) SecurityContextHolder
+          .getContext()
+          .getAuthentication()
+          .getPrincipal();
+        AuditLog auditLog = new AuditLog();
+        auditLog.setAction(action);
+        auditLog.setActedOn(entity.getTableName());
+        auditLog.setActionKey(entity.getClass().getSimpleName() + "_Logs");
+        auditLog.setBefore(before);
+        auditLog.setAfter(after);
+        auditLog.setEntityId(entity.getId());
+        auditLog.setActor(currentUser.getUser().getId());
+        log.info("audit Log {}", auditLog.toString());
+        em.persist(auditLog);
+        em.getTransaction().commit();
+      } catch (Exception ex) {
+        log.error("Something went wrong while saving the audit logs {}", ex);
+        em.getTransaction().rollback();
+      } finally {
+        em.close();
+      }
+    } catch (NullPointerException e) {
+      log.error("Something went wrong while saving the audit logs {}", e);
+    }
+  }
 }
