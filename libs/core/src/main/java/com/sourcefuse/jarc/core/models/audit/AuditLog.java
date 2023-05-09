@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.core.models.audit;
 
-import com.sourcefuse.jarc.core.constants.Constants.AuditActions;
+import com.sourcefuse.jarc.core.constants.AuditActions;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -31,5 +31,5 @@ public class Role extends SoftDeleteEntity {
 
   String name;
 
-  String permissons;
+  String permissions;
 }

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.sourcefuse.jarc.core.constants.Constants.AuditActions;
+import com.sourcefuse.jarc.core.constants.AuditActions;
 import com.sourcefuse.jarc.core.constants.TestConstants;
 import com.sourcefuse.jarc.core.models.audit.AuditLog;
 import com.sourcefuse.jarc.core.softdelete.SoftDeletesRepositoryImpl;
@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootTest
@@ -50,13 +49,13 @@ public class AuditLogEntityListenerPositiveTests {
   void shouldSaveAuditLogWhenRoleIsSaved() {
     Role role = new Role();
     role.setName("ABC");
-    role.setPermissons("XYZ");
+    role.setPermissions("XYZ");
     role = this.roleRepository.save(role);
     List<Role> roles = this.roleRepository.findAll();
     assertEquals(roles.size(), 1);
     assertEquals(role.getId(), roles.get(0).getId());
     assertEquals(role.getName(), roles.get(0).getName());
-    assertEquals(role.getPermissons(), roles.get(0).getPermissons());
+    assertEquals(role.getPermissions(), roles.get(0).getPermissions());
 
     List<AuditLog> auditLogs = entityManager
       .createQuery("Select a from AuditLog a", AuditLog.class)
@@ -77,7 +76,7 @@ public class AuditLogEntityListenerPositiveTests {
     String oldName = "oldName", updatedName = "updatedName";
     Role role = new Role();
     role.setName(oldName);
-    role.setPermissons("XYZ");
+    role.setPermissions("XYZ");
     role = this.roleRepository.save(role);
 
     role.setName(updatedName);
@@ -89,7 +88,7 @@ public class AuditLogEntityListenerPositiveTests {
     assertEquals(role.getName(), roles.get(0).getName());
     assertEquals(updatedName, roles.get(0).getName());
     assertNotEquals(oldName, roles.get(0).getName());
-    assertEquals(role.getPermissons(), roles.get(0).getPermissons());
+    assertEquals(role.getPermissions(), roles.get(0).getPermissions());
 
     List<AuditLog> auditLogs = entityManager
       .createQuery(
@@ -123,12 +122,12 @@ public class AuditLogEntityListenerPositiveTests {
   }
 
   @Test
-  void shouldSaveAuditLogWhenRoleIsDeleted() {
+  void shouldSaveAuditLogWhenRoleIsHardDeleted() {
     Role role = new Role();
     role.setName("ABC");
-    role.setPermissons("XYZ");
+    role.setPermissions("XYZ");
     role = this.roleRepository.save(role);
-    this.roleRepository.deleteById(role.getId());
+    this.roleRepository.deleteByIdHard(role.getId());
 
     List<Role> roles = this.roleRepository.findAll();
     assertEquals(roles.size(), 0);
@@ -168,11 +167,11 @@ public class AuditLogEntityListenerPositiveTests {
   void shouldSaveAuditLogWhenRoleIsSoftDeleted() {
     Role role = new Role();
     role.setName("ABC");
-    role.setPermissons("XYZ");
+    role.setPermissions("XYZ");
     role = this.roleRepository.save(role);
-    this.roleRepository.softDeleteById(role.getId());
+    this.roleRepository.deleteById(role.getId());
 
-    List<Role> roles = this.roleRepository.findAll();
+    List<Role> roles = this.roleRepository.findAllIncludeSoftDelete();
     assertEquals(roles.size(), 1);
     assertEquals(roles.get(0).isDeleted(), true);
     assertNotNull(roles.get(0).getDeletedOn());

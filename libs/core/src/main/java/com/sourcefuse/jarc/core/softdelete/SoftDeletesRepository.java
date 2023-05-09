@@ -4,47 +4,87 @@ import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
 
 @NoRepositoryBean
 public interface SoftDeletesRepository<
   T extends SoftDeleteEntity, ID extends Serializable
 >
   extends JpaRepository<T, ID> {
-  List<T> findAllActive();
+  void deleteByIdHard(ID id);
 
-  List<T> findAllActive(Sort sort);
+  void deleteHard(T entity);
 
-  Page<T> findAllActive(Pageable pageable);
+  void deleteAllByIdHard(Iterable<? extends ID> ids);
 
-  List<T> findAllActive(Iterable<ID> ids);
+  void deleteAllByIdInBatchHard(Iterable<ID> ids);
 
-  Optional<T> findActiveById(ID id);
+  void deleteAllHard(Iterable<? extends T> entities);
 
-  @Modifying
-  void softDeleteById(ID id);
+  void deleteAllInBatchHard(Iterable<T> entities);
 
-  @Modifying
-  void softDelete(T entity);
+  void deleteAllHard();
 
-  @Modifying
-  void softDelete(Iterable<? extends T> entities);
+  void deleteAllInBatchHard();
 
-  @Modifying
-  void softDeleteAll();
+  Optional<T> findByIdIncludeSoftDelete(ID id);
 
-  //	@Modifying
-  //	void scheduleSoftDelete(ID id);
-  //
-  //	@Modifying
-  //	void scheduleSoftDelete(T entity);
+  boolean existsByIdIncludeSoftDelete(ID id);
 
-  long countActive();
+  List<T> findAllIncludeSoftDelete();
 
-  boolean existsActive(ID id);
+  List<T> findAllByIdIncludeSoftDelete(Iterable<ID> ids);
+
+  List<T> findAllIncludeSoftDelete(Sort sort);
+
+  Page<T> findAllIncludeSoftDelete(Pageable pageable);
+
+  Optional<T> findOneIncludeSoftDelete(Specification<T> spec);
+
+  List<T> findAllIncludeSoftDelete(Specification<T> spec);
+
+  Page<T> findAllIncludeSoftDelete(Specification<T> spec, Pageable pageable);
+
+  List<T> findAllIncludeSoftDelete(Specification<T> spec, Sort sort);
+
+  <S extends T> Optional<S> findOneIncludeSoftDelete(Example<S> example);
+
+  <S extends T> long countIncludeSoftDelete(Example<S> example);
+
+  <S extends T> boolean existsIncludeSoftDelete(Example<S> example);
+
+  boolean existsIncludeSoftDelete(Specification<T> spec);
+
+  long deleteHard(Specification<T> spec);
+
+  <S extends T> List<S> findAllIncludeSoftDelete(Example<S> example);
+
+  <S extends T> List<S> findAllIncludeSoftDelete(Example<S> example, Sort sort);
+
+  <S extends T> Page<S> findAllIncludeSoftDelete(
+    Example<S> example,
+    Pageable pageable
+  );
+
+  <S extends T, R> R findByIncludeSoftDelete(
+    Example<S> example,
+    Function<FetchableFluentQuery<S>, R> queryFunction
+  );
+
+  <S extends T, R> R findByIncludeSoftDelete(
+    Specification<T> spec,
+    Function<FetchableFluentQuery<S>, R> queryFunction
+  );
+
+  long countIncludeSoftDelete();
+
+  long countIncludeSoftDelete(Specification<T> spec);
 }

@@ -2,7 +2,7 @@ package com.sourcefuse.jarc.core.entitylisteners;
 
 import com.google.gson.Gson;
 import com.sourcefuse.jarc.core.awares.ApplicationAwareBeanUtils;
-import com.sourcefuse.jarc.core.constants.Constants.AuditActions;
+import com.sourcefuse.jarc.core.constants.AuditActions;
 import com.sourcefuse.jarc.core.models.audit.AuditLog;
 import com.sourcefuse.jarc.core.models.base.BaseEntity;
 import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;

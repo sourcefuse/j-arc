@@ -11,8 +11,6 @@ public abstract class BaseEntity {
 
   public abstract UUID getId();
 
-  //	public abstract boolean isDeleted();
-
   public String getTableName() {
     Table tableAnnotation = this.getClass().getAnnotation(Table.class);
     if (tableAnnotation != null) {

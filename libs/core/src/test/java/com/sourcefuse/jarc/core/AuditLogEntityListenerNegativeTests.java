@@ -49,13 +49,13 @@ public class AuditLogEntityListenerNegativeTests {
   void shouldNotSaveAuditLogWhenRoleIsSaved() {
     Role role = new Role();
     role.setName("ABC");
-    role.setPermissons("XYZ");
+    role.setPermissions("XYZ");
     role = this.roleRepository.save(role);
     List<Role> roles = this.roleRepository.findAll();
     assertEquals(roles.size(), 1);
     assertEquals(role.getId(), roles.get(0).getId());
     assertEquals(role.getName(), roles.get(0).getName());
-    assertEquals(role.getPermissons(), roles.get(0).getPermissons());
+    assertEquals(role.getPermissions(), roles.get(0).getPermissions());
 
     List<AuditLog> auditLogs = entityManager
       .createQuery("Select a from AuditLog a", AuditLog.class)
@@ -73,7 +73,7 @@ public class AuditLogEntityListenerNegativeTests {
     String oldName = "oldName", updatedName = "updatedName";
     Role role = new Role();
     role.setName(oldName);
-    role.setPermissons("XYZ");
+    role.setPermissions("XYZ");
     role = this.roleRepository.save(role);
 
     role.setName(updatedName);
@@ -85,7 +85,7 @@ public class AuditLogEntityListenerNegativeTests {
     assertEquals(role.getName(), roles.get(0).getName());
     assertEquals(updatedName, roles.get(0).getName());
     assertNotEquals(oldName, roles.get(0).getName());
-    assertEquals(role.getPermissons(), roles.get(0).getPermissons());
+    assertEquals(role.getPermissions(), roles.get(0).getPermissions());
 
     List<AuditLog> auditLogs = entityManager
       .createQuery(
@@ -98,16 +98,16 @@ public class AuditLogEntityListenerNegativeTests {
   }
 
   /**
-   * should not save AuditLog when Role is deleted since authentication is not
-   * exists
+   * should not save AuditLog when Role is hard deleted since authentication is
+   * not exists
    */
   @Test
-  void shouldNotSaveAuditLogWhenRoleIsDeleted() {
+  void shouldNotSaveAuditLogWhenRoleIsHardDeleted() {
     Role role = new Role();
     role.setName("ABC");
-    role.setPermissons("XYZ");
+    role.setPermissions("XYZ");
     role = this.roleRepository.save(role);
-    this.roleRepository.deleteById(role.getId());
+    this.roleRepository.deleteByIdHard(role.getId());
 
     List<Role> roles = this.roleRepository.findAll();
     assertEquals(roles.size(), 0);
@@ -122,17 +122,21 @@ public class AuditLogEntityListenerNegativeTests {
     assertEquals(auditLogs.size(), 0);
   }
 
+  /**
+   * should not save AuditLog when Role is soft deleted since authentication is
+   * not exists
+   */
   @Test
   void shouldSaveAuditLogWhenRoleIsSoftDeleted() {
     Role role = new Role();
     role.setName("ABC");
-    role.setPermissons("XYZ");
+    role.setPermissions("XYZ");
     role = this.roleRepository.save(role);
     List<Role> roles = this.roleRepository.findAll();
     assertEquals(roles.size(), 1);
     System.out.println(roles.size() == 1);
     try {
-      this.roleRepository.softDeleteById(role.getId());
+      this.roleRepository.deleteById(role.getId());
     } catch (Exception e) {
       assertEquals(e.getMessage(), "Forbidden :: User is not Authenticated");
     }
