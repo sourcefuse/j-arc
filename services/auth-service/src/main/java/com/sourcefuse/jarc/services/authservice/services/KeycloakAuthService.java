@@ -9,7 +9,10 @@ import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserCredential;
-import com.sourcefuse.jarc.services.authservice.models.UserTenant;
+import com.sourcefuse.jarc.services.authservice.models.UserTenant;<<<<<<<HEAD=======
+import com.sourcefuse.jarc.services.authservice.payload.CodeResponse;
+import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakAuthResponse;
+import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakUserDTO;>>>>>>>84f cc18(feat(authorisation):add RBAC support using JWT)
 import com.sourcefuse.jarc.services.authservice.providers.AuthCodeGeneratorProvider;
 import com.sourcefuse.jarc.services.authservice.providers.KeycloakPostVerifyProvider;
 import com.sourcefuse.jarc.services.authservice.providers.KeycloakPreVerifyProvider;

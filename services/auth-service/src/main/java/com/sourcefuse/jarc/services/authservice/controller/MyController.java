@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class MyController {
 
   @GetMapping("/restricted")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("isAuthenticated() && hasAuthority('ViewRoles')")
+  // @PostAuthorize("")
   public String restricted() {
     return "Authorized to access!";
   }
