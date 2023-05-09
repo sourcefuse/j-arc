@@ -1,9 +1,0 @@
-{
-  "name": "j-arc",
-  "devDependencies": {
-    "prettier-plugin-java": "^2.1.0"
-  },
-  "scripts": {
-    "prettier:fix": " npx prettier --write \"**/*.java\""
-  }
-}
