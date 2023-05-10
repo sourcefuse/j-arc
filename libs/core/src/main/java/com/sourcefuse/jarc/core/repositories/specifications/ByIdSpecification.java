@@ -8,17 +8,14 @@ import jakarta.persistence.metamodel.SingularAttribute;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 
-public final class ByIdSpecification<T, ID> implements Specification<T> {
+public final class ByIdSpecification<T, E> implements Specification<T> {
 
   private static final long serialVersionUID = 4888951075373995827L;
 
   private final transient JpaEntityInformation<T, ?> entityInformation;
-  private final transient ID id;
+  private final transient E id;
 
-  public ByIdSpecification(
-    JpaEntityInformation<T, ?> entityInformation,
-    ID id
-  ) {
+  public ByIdSpecification(JpaEntityInformation<T, ?> entityInformation, E id) {
     this.entityInformation = entityInformation;
     this.id = id;
   }
@@ -39,6 +36,6 @@ public final class ByIdSpecification<T, ID> implements Specification<T> {
         "entityInformation getIdAttribute is null"
       );
     }
-    return cb.equal(root.<ID>get(idAttributeName), id);
+    return cb.equal(root.<E>get(idAttributeName), id);
   }
 }

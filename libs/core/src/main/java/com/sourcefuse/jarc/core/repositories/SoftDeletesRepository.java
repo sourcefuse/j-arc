@@ -16,16 +16,16 @@ import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuer
 
 @NoRepositoryBean
 public interface SoftDeletesRepository<
-  T extends SoftDeleteEntity, ID extends Serializable
+  T extends SoftDeleteEntity, E extends Serializable
 >
-  extends JpaRepository<T, ID> {
-  void deleteByIdHard(ID id);
+  extends JpaRepository<T, E> {
+  void deleteByIdHard(E id);
 
   void deleteHard(T entity);
 
-  void deleteAllByIdHard(Iterable<? extends ID> ids);
+  void deleteAllByIdHard(Iterable<? extends E> ids);
 
-  void deleteAllByIdInBatchHard(Iterable<ID> ids);
+  void deleteAllByIdInBatchHard(Iterable<E> ids);
 
   void deleteAllHard(Iterable<? extends T> entities);
 
@@ -35,13 +35,13 @@ public interface SoftDeletesRepository<
 
   void deleteAllInBatchHard();
 
-  Optional<T> findByIdIncludeSoftDelete(ID id);
+  Optional<T> findByIdIncludeSoftDelete(E id);
 
-  boolean existsByIdIncludeSoftDelete(ID id);
+  boolean existsByIdIncludeSoftDelete(E id);
 
   List<T> findAllIncludeSoftDelete();
 
-  List<T> findAllByIdIncludeSoftDelete(Iterable<ID> ids);
+  List<T> findAllByIdIncludeSoftDelete(Iterable<E> ids);
 
   List<T> findAllIncludeSoftDelete(Sort sort);
 
