@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ApplicationAwareBeanUtils implements ApplicationContextAware {
 
-  private static ApplicationContext context;
+  private ApplicationContext context;
 
   @Override
   public void setApplicationContext(ApplicationContext applicationContext)
@@ -17,11 +17,11 @@ public class ApplicationAwareBeanUtils implements ApplicationContextAware {
     context = applicationContext;
   }
 
-  public static <T> T getBean(Class<T> beanClass) {
+  public <T> T getBean(Class<T> beanClass) {
     return context.getBean(beanClass);
   }
 
-  public static EntityManager getNewEntityManager() {
+  public EntityManager getNewEntityManager() {
     EntityManager em = context.getBean(EntityManager.class);
     return em.getEntityManagerFactory().createEntityManager();
   }

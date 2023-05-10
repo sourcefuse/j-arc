@@ -4,15 +4,12 @@ import static org.springframework.data.jpa.repository.query.QueryUtils.DELETE_AL
 
 import com.sourcefuse.jarc.core.constants.SoftDeleteRepositoryConstants;
 import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
+import com.sourcefuse.jarc.core.repositories.specifications.ByIdSpecification;
+import com.sourcefuse.jarc.core.repositories.specifications.ByIdsSpecification;
+import com.sourcefuse.jarc.core.repositories.specifications.IsNotDeleted;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.ParameterExpression;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import jakarta.persistence.metamodel.SingularAttribute;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -92,82 +89,6 @@ public class SoftDeletesRepositoryImpl<
     return entityInformation.getJavaType();
   }
 
-  private static final class ByIdSpecification<T, ID>
-    implements Specification<T> {
-
-    private static final long serialVersionUID = 1L;
-    private final JpaEntityInformation<T, ?> entityInformation;
-    private final ID id;
-
-    public ByIdSpecification(
-      JpaEntityInformation<T, ?> entityInformation,
-      ID id
-    ) {
-      this.entityInformation = entityInformation;
-      this.id = id;
-    }
-
-    @Override
-    public Predicate toPredicate(
-      Root<T> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder cb
-    ) {
-      String idAttributeName;
-      SingularAttribute<? super T, ?> idAttribute =
-        entityInformation.getIdAttribute();
-      if (idAttribute != null) {
-        idAttributeName = idAttribute.getName();
-      } else {
-        throw new IllegalArgumentException(
-          "entityInformation getIdAttribute is null"
-        );
-      }
-      return cb.equal(root.<ID>get(idAttributeName), id);
-    }
-  }
-
-  @SuppressWarnings("rawtypes")
-  private static final class ByIdsSpecification<T> implements Specification<T> {
-
-    private static final long serialVersionUID = 1L;
-
-    private final JpaEntityInformation<T, ?> entityInformation;
-
-    ParameterExpression<Iterable> parameter;
-
-    public ByIdsSpecification(JpaEntityInformation<T, ?> entityInformation) {
-      this.entityInformation = entityInformation;
-    }
-
-    @Override
-    public Predicate toPredicate(
-      Root<T> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder cb
-    ) {
-      Path<?> path = root.get(entityInformation.getIdAttribute());
-      parameter = cb.parameter(Iterable.class);
-      return path.in(parameter);
-    }
-  }
-
-  private static final class IsNotDeleted<T> implements Specification<T> {
-
-    private static final long serialVersionUID = 1L;
-
-    @Override
-    public Predicate toPredicate(
-      Root<T> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder cb
-    ) {
-      return cb.isFalse(
-        root.<Boolean>get(SoftDeleteRepositoryConstants.DELETED_FIELD)
-      );
-    }
-  }
-
   private static final <T> Specification<T> notDeleted() {
     return Specification.where(new IsNotDeleted<T>());
   }
@@ -178,9 +99,7 @@ public class SoftDeletesRepositoryImpl<
   @Transactional
   public void deleteById(ID id) {
     Assert.notNull(id, SoftDeleteRepositoryConstants.ID_MUST_NOT_BE_NULL);
-
     T entity = findById(id).orElse(null);
-
     if (entity == null) {
       throw new EmptyResultDataAccessException(
         String.format(
@@ -191,7 +110,6 @@ public class SoftDeletesRepositoryImpl<
         1
       );
     }
-
     delete(entity);
   }
 
@@ -202,7 +120,6 @@ public class SoftDeletesRepositoryImpl<
       entity,
       SoftDeleteRepositoryConstants.ENTITY_MUST_NOT_BE_NULL
     );
-
     entity.setDeleted(true);
     super.save(entity);
   }
@@ -211,7 +128,6 @@ public class SoftDeletesRepositoryImpl<
   @Transactional
   public void deleteAllById(Iterable<? extends ID> ids) {
     Assert.notNull(ids, SoftDeleteRepositoryConstants.IDS_MUST_NOT_BE_NULL);
-
     for (ID id : ids) {
       deleteById(id);
     }
@@ -221,7 +137,6 @@ public class SoftDeletesRepositoryImpl<
   @Transactional
   public void deleteAllByIdInBatch(Iterable<ID> ids) {
     Assert.notNull(ids, SoftDeleteRepositoryConstants.IDS_MUST_NOT_BE_NULL);
-
     deleteAllInBatch(findAllById(ids));
   }
 
@@ -232,7 +147,6 @@ public class SoftDeletesRepositoryImpl<
       entities,
       SoftDeleteRepositoryConstants.ENTITIES_MUST_NOT_BE_NULL
     );
-
     for (T entity : entities) {
       entity.setDeleted(true);
       super.save(entity);
@@ -246,7 +160,6 @@ public class SoftDeletesRepositoryImpl<
       entities,
       SoftDeleteRepositoryConstants.ENTITIES_MUST_NOT_BE_NULL
     );
-
     for (T entity : entities) {
       entity.setDeleted(true);
     }
@@ -269,7 +182,6 @@ public class SoftDeletesRepositoryImpl<
   @Transactional
   public Optional<T> findById(ID id) {
     Assert.notNull(id, SoftDeleteRepositoryConstants.ID_MUST_NOT_BE_NULL);
-
     return super.findOne(
       Specification
         .where(new ByIdSpecification<T, ID>(entityInformation, id))
@@ -281,7 +193,6 @@ public class SoftDeletesRepositoryImpl<
   @Transactional
   public boolean existsById(ID id) {
     Assert.notNull(id, SoftDeleteRepositoryConstants.ENTITY_MUST_NOT_BE_NULL);
-
     return findById(id).orElse(null) != null;
   }
 
@@ -295,32 +206,26 @@ public class SoftDeletesRepositoryImpl<
   @Transactional
   public List<T> findAllById(Iterable<ID> ids) {
     Assert.notNull(ids, SoftDeleteRepositoryConstants.IDS_MUST_NOT_BE_NULL);
-
     if (!ids.iterator().hasNext()) {
       return Collections.emptyList();
     }
-
     if (entityInformation.hasCompositeId()) {
-      List<T> results = new ArrayList<T>();
-
+      List<T> results = new ArrayList<>();
       for (ID id : ids) {
         T entity = findById(id).orElse(null);
         if (entity == null) {
           results.add(entity);
         }
       }
-
       return results;
     }
-
-    ByIdsSpecification<T> specification = new ByIdsSpecification<T>(
+    ByIdsSpecification<T> specification = new ByIdsSpecification<>(
       entityInformation
     );
     TypedQuery<T> query = getQuery(
       Specification.where(specification).and(notDeleted()),
       Sort.by(Sort.Direction.ASC, "id")
     );
-
     return query.setParameter(specification.parameter, ids).getResultList();
   }
 
@@ -424,7 +329,6 @@ public class SoftDeletesRepositoryImpl<
   ) {
     Assert.notNull(example, "Sample must not be null");
     Assert.notNull(queryFunction, "Query function must not be null");
-
     example.getProbe().setDeleted(false);
     return super.findBy(example, queryFunction);
   }
@@ -457,7 +361,6 @@ public class SoftDeletesRepositoryImpl<
   @Transactional
   public void deleteByIdHard(ID id) {
     Assert.notNull(id, SoftDeleteRepositoryConstants.ID_MUST_NOT_BE_NULL);
-
     findById(id).ifPresent(this::deleteHard);
   }
 
@@ -468,7 +371,6 @@ public class SoftDeletesRepositoryImpl<
       entity,
       SoftDeleteRepositoryConstants.ENTITY_MUST_NOT_BE_NULL
     );
-
     super.delete(entity);
   }
 
@@ -476,7 +378,6 @@ public class SoftDeletesRepositoryImpl<
   @Transactional
   public void deleteAllByIdHard(Iterable<? extends ID> ids) {
     Assert.notNull(ids, SoftDeleteRepositoryConstants.IDS_MUST_NOT_BE_NULL);
-
     for (ID id : ids) {
       deleteByIdHard(id);
     }
@@ -486,14 +387,11 @@ public class SoftDeletesRepositoryImpl<
   @Transactional
   public void deleteAllByIdInBatchHard(Iterable<ID> ids) {
     Assert.notNull(ids, SoftDeleteRepositoryConstants.IDS_MUST_NOT_BE_NULL);
-
     if (!ids.iterator().hasNext()) {
       return;
     }
-
     if (entityInformation.hasCompositeId()) {
       List<T> entities = new ArrayList<>();
-
       ids.forEach(id -> entities.add(getReferenceById(id)));
       deleteAllInBatchHard(entities);
     } else {
@@ -512,9 +410,7 @@ public class SoftDeletesRepositoryImpl<
         entityInformation.getEntityName(),
         idAttributeName
       );
-
       Query query = em.createQuery(queryString);
-
       if (ids instanceof Collection) {
         query.setParameter("ids", ids);
       } else {
@@ -523,9 +419,7 @@ public class SoftDeletesRepositoryImpl<
           .collect(Collectors.toCollection(ArrayList::new));
         query.setParameter("ids", idsCollection);
       }
-
       checkAndApplyQueryHints(query);
-
       query.executeUpdate();
     }
   }
@@ -537,7 +431,6 @@ public class SoftDeletesRepositoryImpl<
       entities,
       SoftDeleteRepositoryConstants.ENTITIES_MUST_NOT_BE_NULL
     );
-
     for (T entity : entities) {
       deleteHard(entity);
     }
@@ -550,7 +443,6 @@ public class SoftDeletesRepositoryImpl<
       entities,
       SoftDeleteRepositoryConstants.ENTITIES_MUST_NOT_BE_NULL
     );
-
     super.deleteAllInBatch(entities);
   }
 
@@ -594,24 +486,18 @@ public class SoftDeletesRepositoryImpl<
     if (!ids.iterator().hasNext()) {
       return Collections.emptyList();
     }
-
     if (entityInformation.hasCompositeId()) {
       List<T> results = new ArrayList<>();
-
       for (ID id : ids) {
         findByIdIncludeSoftDelete(id).ifPresent(results::add);
       }
-
       return results;
     }
-
     Collection<ID> idCollection = Streamable.of(ids).toList();
-
     ByIdsSpecification<T> specification = new ByIdsSpecification<>(
       entityInformation
     );
     TypedQuery<T> query = getQuery(specification, Sort.unsorted());
-
     return query
       .setParameter(specification.parameter, idCollection)
       .getResultList();
@@ -629,7 +515,6 @@ public class SoftDeletesRepositoryImpl<
     if (pageable.isUnpaged()) {
       return new PageImpl<>(findAll());
     }
-
     return super.findAll((Specification<T>) null, pageable);
   }
 
@@ -671,7 +556,6 @@ public class SoftDeletesRepositoryImpl<
     ExampleMatcher newMatcher = example
       .getMatcher()
       .withIgnorePaths(SoftDeleteRepositoryConstants.DELETED_FIELD);
-
     return super.findOne(Example.of(example.getProbe(), newMatcher));
   }
 
@@ -746,11 +630,9 @@ public class SoftDeletesRepositoryImpl<
   ) {
     Assert.notNull(example, "Sample must not be null");
     Assert.notNull(queryFunction, "Query function must not be null");
-
     ExampleMatcher newMatcher = example
       .getMatcher()
       .withIgnorePaths(SoftDeleteRepositoryConstants.DELETED_FIELD);
-
     return super.findBy(
       Example.of(example.getProbe(), newMatcher),
       queryFunction
@@ -782,10 +664,8 @@ public class SoftDeletesRepositoryImpl<
     if (metadata == null) {
       return;
     }
-
     getQueryHints().withFetchGraphs(em).forEach(query::setHint);
-
-    if (metadata.getComment() != null && provider.getCommentHintKey() != null) {
+    if (provider.getCommentHintKey() != null) {
       query.setHint(
         provider.getCommentHintKey(),
         provider.getCommentHintValue(metadata.getComment())

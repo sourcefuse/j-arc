@@ -1,9 +1,10 @@
 package com.sourcefuse.jarc.core.constants;
 
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor
 public class SoftDeleteRepositoryConstants {
+
+  private SoftDeleteRepositoryConstants() {
+    throw new IllegalStateException("Utility class");
+  }
 
   public static final String DELETED_FIELD = "deleted";
   public static final String ID_MUST_NOT_BE_NULL =
