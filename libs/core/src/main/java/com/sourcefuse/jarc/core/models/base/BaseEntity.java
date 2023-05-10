@@ -6,15 +6,15 @@ import java.util.UUID;
 
 @MappedSuperclass
 public interface BaseEntity {
-    default UUID getId() {
-        return null;
-    }
+  default UUID getId() {
+    return null;
+  }
 
-    default String getTableName() {
-        Table tableAnnotation = this.getClass().getAnnotation(Table.class);
-        if (tableAnnotation != null) {
-            return tableAnnotation.name();
-        }
-        return null;
+  default String getTableName() {
+    Table tableAnnotation = this.getClass().getAnnotation(Table.class);
+    if (tableAnnotation != null) {
+      return tableAnnotation.name();
     }
+    return null;
+  }
 }

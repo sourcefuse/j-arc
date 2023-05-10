@@ -20,15 +20,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class UserModifiableEntity extends SoftDeleteEntity {
 
-    @CreatedBy
-    UUID createdBy;
+  @CreatedBy
+  UUID createdBy;
 
-    @LastModifiedBy
-    UUID modifiedBy;
+  @LastModifiedBy
+  UUID modifiedBy;
 
-    @CreatedDate
-    LocalDateTime createdOn;
+  @CreatedDate
+  LocalDateTime createdOn;
 
-    @LastModifiedDate
-    LocalDateTime modifiedOn;
+  @LastModifiedDate
+  LocalDateTime modifiedOn;
 }
