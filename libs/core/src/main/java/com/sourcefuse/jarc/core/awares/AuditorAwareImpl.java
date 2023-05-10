@@ -10,16 +10,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuditorAwareImpl implements AuditorAware<UUID> {
 
-    @Override
-    public Optional<UUID> getCurrentAuditor() {
-        return Optional.of(
-            (
-                (CurrentUser<?>) SecurityContextHolder
-                    .getContext()
-                    .getAuthentication()
-                    .getPrincipal()
-            ).getUser()
-                .getId()
-        );
-    }
+  @Override
+  public Optional<UUID> getCurrentAuditor() {
+    return Optional.of(
+      (
+        (CurrentUser<?>) SecurityContextHolder
+          .getContext()
+          .getAuthentication()
+          .getPrincipal()
+      ).getUser()
+        .getId()
+    );
+  }
 }

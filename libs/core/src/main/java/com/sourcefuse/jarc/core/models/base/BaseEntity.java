@@ -15,4 +15,6 @@ public interface BaseEntity {
     if (tableAnnotation != null) {
       return tableAnnotation.name();
     }
+    return null;
+  }
 }

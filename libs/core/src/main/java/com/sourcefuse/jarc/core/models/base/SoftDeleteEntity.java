@@ -17,10 +17,10 @@ import lombok.NoArgsConstructor;
 @EntityListeners(SoftDeleteEntityListner.class)
 public abstract class SoftDeleteEntity implements BaseEntity {
 
-    @Column(columnDefinition = "boolean default false")
-    boolean deleted;
+  @Column(columnDefinition = "boolean default false")
+  boolean deleted;
 
   LocalDateTime deletedOn;
 
-    UUID deletedBy;
+  UUID deletedBy;
 }
