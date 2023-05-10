@@ -2,6 +2,10 @@ package com.sourcefuse.jarc.core.constants;
 
 public final class SoftDeleteRepositoryConstants {
 
+  private SoftDeleteRepositoryConstants() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static final String DELETED_FIELD = "deleted";
   public static final String ID_MUST_NOT_BE_NULL =
     "The given id must not be null!";
