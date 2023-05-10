@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.core.constants;
 
-public class SoftDeleteRepositoryConstants {
+public final class SoftDeleteRepositoryConstants {
 
   private SoftDeleteRepositoryConstants() {
     throw new IllegalStateException("Utility class");

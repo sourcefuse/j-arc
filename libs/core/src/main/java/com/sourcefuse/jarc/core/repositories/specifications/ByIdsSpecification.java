@@ -16,7 +16,7 @@ public final class ByIdsSpecification<T> implements Specification<T> {
 
   private final JpaEntityInformation<T, ?> entityInformation;
 
-  public ParameterExpression<Iterable> parameter;
+  public static ParameterExpression<Iterable> parameter;
 
   public ByIdsSpecification(JpaEntityInformation<T, ?> entityInformation) {
     this.entityInformation = entityInformation;
