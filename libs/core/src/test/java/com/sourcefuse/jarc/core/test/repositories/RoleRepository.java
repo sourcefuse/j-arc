@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.core.test.repositories;
 
-import com.sourcefuse.jarc.core.softdelete.SoftDeletesRepository;
+import com.sourcefuse.jarc.core.repositories.SoftDeletesRepository;
 import com.sourcefuse.jarc.core.test.models.Role;
 import java.util.UUID;
 

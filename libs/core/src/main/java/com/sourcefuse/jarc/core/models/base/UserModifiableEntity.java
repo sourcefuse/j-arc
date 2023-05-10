@@ -2,7 +2,7 @@ package com.sourcefuse.jarc.core.models.base;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,15 +20,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class UserModifiableEntity extends SoftDeleteEntity {
 
-  @CreatedBy
-  UUID createdBy;
+    @CreatedBy
+    UUID createdBy;
 
-  @LastModifiedBy
-  UUID modifiedBy;
+    @LastModifiedBy
+    UUID modifiedBy;
 
-  @CreatedDate
-  Date createdOn;
+    @CreatedDate
+    LocalDateTime createdOn;
 
-  @LastModifiedDate
-  Date modifiedOn;
+    @LastModifiedDate
+    LocalDateTime modifiedOn;
 }

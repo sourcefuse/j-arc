@@ -7,7 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,34 +27,34 @@ import org.hibernate.type.SqlTypes;
 @Table(name = "audit_logs", schema = "logs")
 public class AuditLog {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-  @Column(name = "action", nullable = false)
-  private AuditActions action;
+    @Column(name = "action", nullable = false)
+    private AuditActions action;
 
-  @Column(name = "acted_at", nullable = false)
-  @CreationTimestamp
-  private LocalDate actedAt;
+    @Column(name = "acted_at", nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime actedAt;
 
-  @Column(name = "acted_on", nullable = false)
-  private String actedOn;
+    @Column(name = "acted_on", nullable = false)
+    private String actedOn;
 
-  @Column(name = "action_key", nullable = false)
-  private String actionKey;
+    @Column(name = "action_key", nullable = false)
+    private String actionKey;
 
-  @Column(name = "entity_id", nullable = false)
-  private UUID entityId;
+    @Column(name = "entity_id", nullable = false)
+    private UUID entityId;
 
-  @Column(name = "actor", nullable = false)
-  private UUID actor;
+    @Column(name = "actor", nullable = false)
+    private UUID actor;
 
-  @JdbcTypeCode(SqlTypes.JSON)
-  @Column(columnDefinition = "jsonb")
-  private String before;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private String before;
 
-  @JdbcTypeCode(SqlTypes.JSON)
-  @Column(columnDefinition = "jsonb")
-  private String after;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private String after;
 }
