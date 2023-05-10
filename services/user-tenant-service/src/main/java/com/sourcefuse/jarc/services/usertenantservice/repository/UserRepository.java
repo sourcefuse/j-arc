@@ -1,15 +1,13 @@
 package com.sourcefuse.jarc.services.usertenantservice.repository;
 
-import com.sourcefuse.jarc.services.usertenantservice.DTO.User;
+import com.sourcefuse.jarc.services.usertenantservice.dto.User;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
-
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
+  User findByUsernameOrEmail(String username, String email);
 
-    User findByUsernameOrEmail(String username, String email);
-
-    long countByIdNotAndUsername(UUID id, String username);
+  long countByIdNotAndUsername(UUID id, String username);
 }

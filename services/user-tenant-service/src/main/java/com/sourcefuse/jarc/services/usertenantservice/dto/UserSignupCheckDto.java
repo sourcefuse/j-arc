@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.usertenantservice.DTO;
+package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserSignupCheckDto {
 
-    @Id
-    @Column(nullable = false)
-    private Long id;
-    @Column(nullable = false)
-    private boolean isSignedUp;
+  @Id
+  @Column(nullable = false)
+  private Long id;
 
+  @Column(nullable = false)
+  private boolean isSignedUp;
 }

@@ -1,57 +1,57 @@
 package com.sourcefuse.jarc.services.usertenantservice.enums;
 
 public enum PermissionKey {
-    CREATEUSERGROUP("CreateUserGroup", "1"),
-    VIEWUSERGROUPLIST("ViewUserGroupList", "2"),
-    UPDATEUSERGROUP("UpdateUserGroup", "3"),
-    DELETEUSERGROUP("DeleteUserGroup", "4"),
-    DELETESUBSCRIPTIONS("DeleteSubscriptions", "5"),
-    VIEWROLES("ViewRoles", "6"),
-    NOTALLOWED("NotAllowed", "7"),
-    CREATEROLES("CreateRoles", "8"),
-    UPDATEROLES("UpdateRoles", "9"),
-    DELETEROLES("DeleteRoles", "10"),
-    VIEWANYUSER("ViewAnyUser", "11"),
-    VIEWTENANTUSER("ViewTenantUser", "12"),
-    ViewTenantUserRestricted("ViewTenantUserRestricted", "13"),
-    ViewAllUser("ViewAllUser", "14"),
-    ViewOwnUser("ViewOwnUser", "15"),
-    CreateAnyUser("CreateAnyUser", "16"),
-    CreateTenantUser("CreateTenantUser", "17"),
-    CreateTenantUserRestricted("CreateTenantUserRestricted", "18"),
-    UpdateAnyUser("UpdateAnyUser", "19"),
-    UpdateOwnUser("UpdateOwnUser", "20"),
-    UpdateTenantUser("UpdateTenantUser", "21"),
-    UpdateTenantUserRestricted("UpdateTenantUserRestricted", "22"),
-    DeleteAnyUser("DeleteAnyUser", "23"),
-    DeleteTenantUser("DeleteTenantUser", "24"),
-    DeleteTenantUserRestricted("DeleteTenantUserRestricted", "25"),
-    CreateTenant("CreateTenant", "26"),
-    ViewTenant("ViewTenant", "27"),
-    UpdateTenant("UpdateTenant", "28"),
-    ViewOwnTenant("ViewOwnTenant", "29"),
-    UpdateOwnTenant("UpdateOwnTenant", "30"),
-    DeleteTenant("DeleteTenant", "31"),
-    AddMemberToUserGroup("AddMemberToUserGroup", "32"),
-    UpdateMemberInUserGroup("UpdateMemberInUserGroup", "33"),
-    RemoveMemberFromUserGroup("RemoveMemberFromUserGroup", "34"),
-    LeaveUserGroup("LeaveUserGroup", "35"),
-    UpdateUserTenantPreference("UpdateUserTenantPreference", "36"),
-    ViewUserTenantPreference("ViewUserTenantPreference", "37");
+  CREATE_USER_GROUP("CreateUserGroup", "1"),
+  VIEW_USER_GROUP_LIST("ViewUserGroupList", "2"),
+  UPDATE_USER_GROUP("UpdateUserGroup", "3"),
+  DELETE_USER_GROUP("DeleteUserGroup", "4"),
+  DELETE_SUBSCRIPTIONS("DeleteSubscriptions", "5"),
+  VIEW_ROLES("ViewRoles", "6"),
+  NOT_ALLOWED("NotAllowed", "7"),
+  CREATE_ROLES("CreateRoles", "8"),
+  UPDATE_ROLES("UpdateRoles", "9"),
+  DELETE_ROLES("DeleteRoles", "10"),
+  VIEW_ANY_USER("ViewAnyUser", "11"),
+  VIEW_TENANT_USER("ViewTenantUser", "12"),
+  VIEW_TENANT_USER_RESTRICTED("ViewTenantUserRestricted", "13"),
+  VIEW_ALL_USER("ViewAllUser", "14"),
+  VIEW_OWN_USER("ViewOwnUser", "15"),
+  CREATE_ANY_USER("CreateAnyUser", "16"),
+  CREATE_TENANT_USER("CreateTenantUser", "17"),
+  CREATE_TENANT_USER_RESTRICTED("CreateTenantUserRestricted", "18"),
+  UPDATE_ANY_USER("UpdateAnyUser", "19"),
+  UPDATE_OWN_USER("UpdateOwnUser", "20"),
+  UPDATE_TENANT_USER("UpdateTenantUser", "21"),
+  UPDATE_TENANT_USER_RESTRICTED("UpdateTenantUserRestricted", "22"),
+  DELETE_ANY_USER("DeleteAnyUser", "23"),
+  DELETE_TENANT_USER("DeleteTenantUser", "24"),
+  DELETE_TENANT_USER_RESTRICTED("DeleteTenantUserRestricted", "25"),
+  CREATE_TENANT("CreateTenant", "26"),
+  VIEW_TENANT("ViewTenant", "27"),
+  UPDATE_TENANT("UpdateTenant", "28"),
+  VIEW_OWN_TENANT("ViewOwnTenant", "29"),
+  UPDATE_OWN_TENANT("UpdateOwnTenant", "30"),
+  DELETE_TENANT("DeleteTenant", "31"),
+  ADD_MEMBER_TO_USER_GROUP("AddMemberToUserGroup", "32"),
+  UPDATE_MEMBER_IN_USER_GROUP("UpdateMemberInUserGroup", "33"),
+  REMOVE_MEMBER_FROM_USER_GROUP("RemoveMemberFromUserGroup", "34"),
+  LEAVE_USER_GROUP("LeaveUserGroup", "35"),
+  UPDATE_USER_TENANT_PREFERENCE("UpdateUserTenantPreference", "36"),
+  VIEW_USER_TENANT_PREFERENCE("ViewUserTenantPreference", "37");
 
-    private final String key;
-    private final String value;
+  private final String key;
+  private final String value;
 
-    PermissionKey(String key, String value) {
-        this.key = key;
-        this.value = value;
-    }
+  PermissionKey(String key, String value) {
+    this.key = key;
+    this.value = value;
+  }
 
-    public String getKey() {
-        return key;
-    }
+  public String getKey() {
+    return key;
+  }
 
-    public String getValue() {
-        return value;
-    }
+  public String getValue() {
+    return value;
+  }
 }

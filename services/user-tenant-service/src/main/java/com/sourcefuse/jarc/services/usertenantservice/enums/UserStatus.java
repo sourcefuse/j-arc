@@ -1,19 +1,19 @@
 package com.sourcefuse.jarc.services.usertenantservice.enums;
 
 public enum UserStatus {
-    REGISTERED(0),
-    ACTIVE(1),
-    INACTIVE(2),
-    PASSWORD_CHANGE_NEEDED(3),
-    REJECTED(4);
+  REGISTERED(0),
+  ACTIVE(1),
+  INACTIVE(2),
+  PASSWORD_CHANGE_NEEDED(3),
+  REJECTED(4);
 
-    private final int value;
+  private final int value;
 
-    UserStatus(int value) {
-        this.value = value;
-    }
+  UserStatus(int value) {
+    this.value = value;
+  }
 
-    public int getValue() {
-        return value;
-    }
+  public int getValue() {
+    return value;
+  }
 }

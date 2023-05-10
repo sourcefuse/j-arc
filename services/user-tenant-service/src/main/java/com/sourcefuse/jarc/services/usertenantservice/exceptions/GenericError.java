@@ -8,9 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GenericError {
-    private String status;
-    private String errCode;
-    private String message;
 
-
+  private String status;
+  private String errCode;
+  private String message;
 }

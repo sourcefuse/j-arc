@@ -1,40 +1,36 @@
 package com.sourcefuse.jarc.services.usertenantservice.auth;
 
-import lombok.Data;
-
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import lombok.Data;
 
 /*class creating for testing purpose not required for user tenant serv*/
 @Data
-public class IAuthUserWithPermissions<ID, TID, UTID> extends IAuthUser {
-    UUID id;
+public class IAuthUserWithPermissions extends IAuthUser {
 
-    ID identifier;
+  UUID id;
 
-    List<String> permissions;
+  List<String> permissions;
 
-    int authClientId;
+  int authClientId;
 
-    IUserPrefs userPreferences;
+  IUserPrefs userPreferences;
 
-    String email;
+  String email;
 
-    String role;
+  String role;
 
-    String firstName;
+  String firstName;
 
+  String lastName;
 
-    String lastName;
+  String middleName;
 
-    String middleName;
+  UUID tenantId;
 
-    UUID tenantId;
+  UUID userTenantId;
 
-    UUID userTenantId;
-
-    Date passwordExpiryTime;
-    List<String> allowedResources;
-
+  Date passwordExpiryTime;
+  List<String> allowedResources;
 }

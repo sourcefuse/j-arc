@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.usertenantservice.DTO;
+package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,12 +15,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GroupUserCountView extends Group {
 
-    @Column(name = "user_count")
-    private Integer userCount = 0;
-
-    //doubt
-//    public GroupUserCountView(Long id, String name, Integer userCount) {
-//        super(id, name);
-//        this.userCount = userCount;
-//    }
+  @Column(name = "user_count")
+  private Integer userCount = 0;
 }

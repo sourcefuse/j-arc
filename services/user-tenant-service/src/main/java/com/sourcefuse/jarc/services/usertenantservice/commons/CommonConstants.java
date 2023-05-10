@@ -1,17 +1,12 @@
 package com.sourcefuse.jarc.services.usertenantservice.commons;
 
-
 public interface CommonConstants {
+  String FIND = "FIND";
 
-    String find = "FIND";
+  String PREDICATE = "Predicate";
 
-    static String predicate = "Predicate";
+  String CRITERIA_QUERY = "criteria";
 
-    String criteriaQuery = "criteria";
-
-    String builder = "builder";
-    Integer superAdminRoleType = 10;
-
+  String BUILDER = "builder";
+  Integer SUPER_ADMIN_ROLE_TYPE = 10;
 }
-
-

@@ -1,19 +1,17 @@
 package com.sourcefuse.jarc.services.usertenantservice.commons;
 
 import jakarta.persistence.MappedSuperclass;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
-public abstract class BaseEntity extends SoftDeleteEntity {
+public class BaseEntity extends SoftDeleteEntity {
 
-    Date createdOn;
-    Date modifiedOn;
-
+  Date createdOn;
+  Date modifiedOn;
 }

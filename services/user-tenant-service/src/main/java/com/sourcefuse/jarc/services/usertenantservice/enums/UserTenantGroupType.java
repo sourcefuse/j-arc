@@ -1,16 +1,15 @@
 package com.sourcefuse.jarc.services.usertenantservice.enums;
 
 public enum UserTenantGroupType {
-    TENANT("Tenant");
+  TENANT("Tenant");
 
-    String value;
+  String value;
 
-    private UserTenantGroupType(String value) {
-        this.value = value;
-    }
+  UserTenantGroupType(String value) {
+    this.value = value;
+  }
 
-    public String getValue() {
-        return value;
-    }
+  public String getValue() {
+    return value;
+  }
 }
-

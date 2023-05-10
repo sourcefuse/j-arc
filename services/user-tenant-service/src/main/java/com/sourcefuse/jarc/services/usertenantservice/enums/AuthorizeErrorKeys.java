@@ -1,15 +1,15 @@
 package com.sourcefuse.jarc.services.usertenantservice.enums;
 
 public enum AuthorizeErrorKeys {
-    NOTALLOWEDACCESS("NotAllowedAccess");
+  NOT_ALLOWED_ACCESS("NotAllowedAccess");
 
-    private final String value;
+  private final String value;
 
-    AuthorizeErrorKeys(String value) {
-        this.value = value;
-    }
+  AuthorizeErrorKeys(String value) {
+    this.value = value;
+  }
 
-    public String getValue() {
-        return value;
-    }
+  public String getValue() {
+    return value;
+  }
 }

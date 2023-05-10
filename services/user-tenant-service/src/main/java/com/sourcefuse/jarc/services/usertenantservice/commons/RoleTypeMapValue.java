@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.commons;
 
 public interface RoleTypeMapValue {
-    String permissionKey();
+  String permissionKey();
 
-    int value();
+  int value();
 }
