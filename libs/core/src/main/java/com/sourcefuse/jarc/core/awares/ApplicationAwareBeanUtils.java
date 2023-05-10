@@ -12,11 +12,11 @@ public class ApplicationAwareBeanUtils {
   private ApplicationContext context;
 
   public <T> T getBean(Class<T> beanClass) {
-    return context.getBean(beanClass);
+    return applicationContext.getBean(beanClass);
   }
 
   public EntityManager getNewEntityManager() {
-    EntityManager em = context.getBean(EntityManager.class);
+    EntityManager em = applicationContext.getBean(EntityManager.class);
     return em.getEntityManagerFactory().createEntityManager();
   }
 }
