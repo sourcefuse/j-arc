@@ -12,5 +12,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CurrentUser<T extends BaseEntity> {
 
-  private T user;
+    private T user;
 }

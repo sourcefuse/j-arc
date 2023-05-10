@@ -25,11 +25,11 @@ import lombok.ToString;
 @EntityListeners(AuditLogEntityListener.class)
 public class Role extends SoftDeleteEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-  String name;
+    String name;
 
-  String permissions;
+    String permissions;
 }

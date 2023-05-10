@@ -31,18 +31,28 @@ public class AuditLogEntityListener<T extends BaseEntity> {
     this.saveAuditLog(AuditActions.SAVE, target);
   }
 
-  @PostUpdate
-  public void onUpdate(T target) {
-    if (target instanceof SoftDeleteEntity softDeletedEntity) {
-      if (!softDeletedEntity.isDeleted()) {
-        this.saveAuditLog(AuditActions.UPDATE, target);
-      } else {
-        this.saveAuditLog(AuditActions.DELETE, target);
-      }
-    } else {
-      this.saveAuditLog(AuditActions.UPDATE, target);
+    @PostPersist
+    public void onPersist(T target) {
+        this.saveAuditLog(AuditActions.SAVE, target);
     }
-  }
+
+    @PostUpdate
+    public void onUpdate(T target) {
+        if (target instanceof SoftDeleteEntity softDeletedEntity) {
+            if (!softDeletedEntity.isDeleted()) {
+                this.saveAuditLog(AuditActions.UPDATE, target);
+            } else {
+                this.saveAuditLog(AuditActions.DELETE, target);
+            }
+        } else {
+            this.saveAuditLog(AuditActions.UPDATE, target);
+        }
+    }
+
+    @PostRemove
+    public void onRemove(T target) {
+        this.saveAuditLog(AuditActions.DELETE, target);
+    }
 
   @PostRemove
   public void onRemove(T target) {

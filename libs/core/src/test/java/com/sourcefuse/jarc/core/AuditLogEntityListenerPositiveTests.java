@@ -24,7 +24,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import com.sourcefuse.jarc.core.constants.AuditActions;
 import com.sourcefuse.jarc.core.constants.TestConstants;
 import com.sourcefuse.jarc.core.models.audit.AuditLog;
-import com.sourcefuse.jarc.core.softdelete.SoftDeletesRepositoryImpl;
+import com.sourcefuse.jarc.core.repositories.SoftDeletesRepositoryImpl;
 import com.sourcefuse.jarc.core.test.models.Role;
 import com.sourcefuse.jarc.core.test.repositories.RoleRepository;
 import jakarta.persistence.EntityManager;
@@ -42,17 +42,17 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(repositoryBaseClass = SoftDeletesRepositoryImpl.class)
 class AuditLogEntityListenerPositiveTests {
 
-  @PersistenceContext
-  private EntityManager entityManager;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-  @Autowired
-  RoleRepository roleRepository;
+    @Autowired
+    RoleRepository roleRepository;
 
-  @BeforeEach
-  void clearUserAndAuditLog() {
-    TestConstants.clearTables(entityManager);
-    TestConstants.setCurrentLoggedInUser();
-  }
+    @BeforeEach
+    void clearUserAndAuditLog() {
+        TestConstants.clearTables(entityManager);
+        TestConstants.setCurrentLoggedInUser();
+    }
 
   @Test
   void shouldSaveAuditLogWhenRoleIsSaved() {
@@ -66,9 +66,9 @@ class AuditLogEntityListenerPositiveTests {
     assertEquals(role.getName(), roles.get(0).getName());
     assertEquals(role.getPermissions(), roles.get(0).getPermissions());
 
-    List<AuditLog> auditLogs = entityManager
-      .createQuery("Select a from AuditLog a", AuditLog.class)
-      .getResultList();
+        List<AuditLog> auditLogs = entityManager
+            .createQuery("Select a from AuditLog a", AuditLog.class)
+            .getResultList();
 
     assertEquals(1, auditLogs.size());
     assertEquals(AuditActions.SAVE, auditLogs.get(0).getAction());
@@ -80,31 +80,31 @@ class AuditLogEntityListenerPositiveTests {
     assertEquals(TestConstants.mockUserId, auditLogs.get(0).getActor());
   }
 
-  @Test
-  void shouldSaveAuditLogWhenRoleIsUpdated() {
-    String oldName = "oldName", updatedName = "updatedName";
-    Role role = new Role();
-    role.setName(oldName);
-    role.setPermissions("XYZ");
-    role = this.roleRepository.save(role);
+    @Test
+    void shouldSaveAuditLogWhenRoleIsUpdated() {
+        String oldName = "oldName", updatedName = "updatedName";
+        Role role = new Role();
+        role.setName(oldName);
+        role.setPermissions("XYZ");
+        role = this.roleRepository.save(role);
 
-    role.setName(updatedName);
-    role = this.roleRepository.save(role);
+        role.setName(updatedName);
+        role = this.roleRepository.save(role);
 
-    List<Role> roles = this.roleRepository.findAll();
-    assertEquals(1, roles.size());
-    assertEquals(role.getId(), roles.get(0).getId());
-    assertEquals(role.getName(), roles.get(0).getName());
-    assertEquals(updatedName, roles.get(0).getName());
-    assertNotEquals(oldName, roles.get(0).getName());
-    assertEquals(role.getPermissions(), roles.get(0).getPermissions());
+        List<Role> roles = this.roleRepository.findAll();
+        assertEquals(1, roles.size());
+        assertEquals(role.getId(), roles.get(0).getId());
+        assertEquals(role.getName(), roles.get(0).getName());
+        assertEquals(updatedName, roles.get(0).getName());
+        assertNotEquals(oldName, roles.get(0).getName());
+        assertEquals(role.getPermissions(), roles.get(0).getPermissions());
 
-    List<AuditLog> auditLogs = entityManager
-      .createQuery(
-        "Select a from AuditLog a order by a.actedOn desc",
-        AuditLog.class
-      )
-      .getResultList();
+        List<AuditLog> auditLogs = entityManager
+            .createQuery(
+                "Select a from AuditLog a order by a.actedOn desc",
+                AuditLog.class
+            )
+            .getResultList();
 
     assertEquals(2, auditLogs.size());
 
@@ -130,25 +130,25 @@ class AuditLogEntityListenerPositiveTests {
     assertEquals(TestConstants.mockUserId, updateRoleAuditLog.getActor());
   }
 
-  @Test
-  void shouldSaveAuditLogWhenRoleIsHardDeleted() {
-    Role role = new Role();
-    role.setName("ABC");
-    role.setPermissions("XYZ");
-    role = this.roleRepository.save(role);
-    this.roleRepository.deleteByIdHard(role.getId());
+    @Test
+    void shouldSaveAuditLogWhenRoleIsHardDeleted() {
+        Role role = new Role();
+        role.setName("ABC");
+        role.setPermissions("XYZ");
+        role = this.roleRepository.save(role);
+        this.roleRepository.deleteByIdHard(role.getId());
 
-    List<Role> roles = this.roleRepository.findAll();
-    assertEquals(0, roles.size());
+        List<Role> roles = this.roleRepository.findAll();
+        assertEquals(0, roles.size());
 
-    List<AuditLog> auditLogs = entityManager
-      .createQuery(
-        "Select a from AuditLog a order by a.actedOn desc",
-        AuditLog.class
-      )
-      .getResultList();
+        List<AuditLog> auditLogs = entityManager
+            .createQuery(
+                "Select a from AuditLog a order by a.actedOn desc",
+                AuditLog.class
+            )
+            .getResultList();
 
-    assertEquals(2, auditLogs.size());
+        assertEquals(2, auditLogs.size());
 
     AuditLog saveRoleAuditLog = auditLogs
       .stream()
@@ -172,13 +172,13 @@ class AuditLogEntityListenerPositiveTests {
     assertEquals(TestConstants.mockUserId, deleteRoleAuditLog.getActor());
   }
 
-  @Test
-  void shouldSaveAuditLogWhenRoleIsSoftDeleted() {
-    Role role = new Role();
-    role.setName("ABC");
-    role.setPermissions("XYZ");
-    role = this.roleRepository.save(role);
-    this.roleRepository.deleteById(role.getId());
+    @Test
+    void shouldSaveAuditLogWhenRoleIsSoftDeleted() {
+        Role role = new Role();
+        role.setName("ABC");
+        role.setPermissions("XYZ");
+        role = this.roleRepository.save(role);
+        this.roleRepository.deleteById(role.getId());
 
     List<Role> roles = this.roleRepository.findAllIncludeSoftDelete();
     assertEquals(1, roles.size());
@@ -186,14 +186,14 @@ class AuditLogEntityListenerPositiveTests {
     assertNotNull(roles.get(0).getDeletedOn());
     assertNotNull(roles.get(0).getDeletedBy());
 
-    List<AuditLog> auditLogs = entityManager
-      .createQuery(
-        "Select a from AuditLog a order by a.actedOn desc",
-        AuditLog.class
-      )
-      .getResultList();
+        List<AuditLog> auditLogs = entityManager
+            .createQuery(
+                "Select a from AuditLog a order by a.actedOn desc",
+                AuditLog.class
+            )
+            .getResultList();
 
-    assertEquals(2, auditLogs.size());
+        assertEquals(2, auditLogs.size());
 
     AuditLog saveRoleAuditLog = auditLogs
       .stream()
