@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.core.constants;
 
-public class SoftDeleteRepositoryConstants {
+public final class SoftDeleteRepositoryConstants {
 
   public static final String DELETED_FIELD = "deleted";
   public static final String ID_MUST_NOT_BE_NULL =
