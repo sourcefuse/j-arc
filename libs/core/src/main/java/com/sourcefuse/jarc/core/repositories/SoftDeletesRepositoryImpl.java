@@ -13,6 +13,7 @@ import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.metamodel.SingularAttribute;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -112,15 +113,17 @@ public class SoftDeletesRepositoryImpl<
       CriteriaQuery<?> query,
       CriteriaBuilder cb
     ) {
-      String idAttribute;
-      if (entityInformation.getIdAttribute() != null) {
-        idAttribute = entityInformation.getIdAttribute().getName();
+      String idAttributeName;
+      SingularAttribute<? super T, ?> idAttribute =
+        entityInformation.getIdAttribute();
+      if (idAttribute != null) {
+        idAttributeName = idAttribute.getName();
       } else {
         throw new IllegalArgumentException(
           "entityInformation getIdAttribute is null"
         );
       }
-      return cb.equal(root.<ID>get(idAttribute), id);
+      return cb.equal(root.<ID>get(idAttributeName), id);
     }
   }
 
@@ -494,9 +497,11 @@ public class SoftDeletesRepositoryImpl<
       ids.forEach(id -> entities.add(getReferenceById(id)));
       deleteAllInBatchHard(entities);
     } else {
-      String idAttribute;
-      if (entityInformation.getIdAttribute() != null) {
-        idAttribute = entityInformation.getIdAttribute().getName();
+      String idAttributeName;
+      SingularAttribute<? super T, ?> idAttribute =
+        entityInformation.getIdAttribute();
+      if (idAttribute != null) {
+        idAttributeName = idAttribute.getName();
       } else {
         throw new IllegalArgumentException(
           "entityInformation getIdAttribute is null"
@@ -505,7 +510,7 @@ public class SoftDeletesRepositoryImpl<
       String queryString = String.format(
         DELETE_ALL_QUERY_BY_ID_STRING,
         entityInformation.getEntityName(),
-        idAttribute
+        idAttributeName
       );
 
       Query query = em.createQuery(queryString);
