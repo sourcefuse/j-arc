@@ -12,8 +12,8 @@ public final class ByIdSpecification<T, ID> implements Specification<T> {
 
   private static final long serialVersionUID = 4888951075373995827L;
 
-  private final JpaEntityInformation<T, ?> entityInformation;
-  private final ID id;
+  private final transient JpaEntityInformation<T, ?> entityInformation;
+  private final transient ID id;
 
   public ByIdSpecification(
     JpaEntityInformation<T, ?> entityInformation,

@@ -14,21 +14,17 @@ import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostRemove;
 import jakarta.persistence.PostUpdate;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
+@AllArgsConstructor
 @Service
 public class AuditLogEntityListener<T extends BaseEntity> {
 
-  @Autowired
   ApplicationAwareBeanUtils applicationAwareBeanUtils;
-
-  Gson gson = new GsonBuilder()
-    .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
-    .create();
 
   @PostPersist
   public void onPersist(T target) {
@@ -56,6 +52,12 @@ public class AuditLogEntityListener<T extends BaseEntity> {
   private void saveAuditLog(AuditActions action, T entity) {
     EntityManager em = applicationAwareBeanUtils.getNewEntityManager();
     try {
+      Gson gson = new GsonBuilder()
+        .registerTypeAdapter(
+          LocalDateTime.class,
+          new LocalDateTimeTypeAdapter()
+        )
+        .create();
       String before = null;
       String after = gson.toJson(entity);
       if (!action.toString().contains("SAVE")) {

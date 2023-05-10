@@ -103,9 +103,9 @@ public class SoftDeletesRepositoryImpl<
 
     private static final long serialVersionUID = -3244704710376973492L;
 
-    private final JpaEntityInformation<T, ?> entityInformation;
+    private final transient JpaEntityInformation<T, ?> entityInformation;
 
-    ParameterExpression<Iterable> parameter;
+    transient ParameterExpression<Iterable> parameter;
 
     public ByIdsSpecification(JpaEntityInformation<T, ?> entityInformation) {
       this.entityInformation = entityInformation;
