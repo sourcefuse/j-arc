@@ -23,6 +23,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.sourcefuse.jarc.core.constants.AuditActions;
 import com.sourcefuse.jarc.core.constants.TestConstants;
+import com.sourcefuse.jarc.core.enums.AuditActions;
 import com.sourcefuse.jarc.core.models.audit.AuditLog;
 import com.sourcefuse.jarc.core.repositories.SoftDeletesRepositoryImpl;
 import com.sourcefuse.jarc.core.test.models.Role;
