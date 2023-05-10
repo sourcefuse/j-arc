@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.sourcefuse.jarc.core.constants.AuditActions;
 import com.sourcefuse.jarc.core.constants.TestConstants;
+import com.sourcefuse.jarc.core.enums.AuditActions;
 import com.sourcefuse.jarc.core.models.audit.AuditLog;
 import com.sourcefuse.jarc.core.repositories.SoftDeletesRepositoryImpl;
 import com.sourcefuse.jarc.core.test.models.Role;
@@ -90,7 +90,7 @@ class AuditLogEntityListenerPositiveTests {
       )
       .getResultList();
 
-    assertEquals(auditLogs.size(), 2);
+    assertEquals(2, auditLogs.size());
 
     AuditLog saveRoleAuditLog = auditLogs
       .stream()
@@ -165,8 +165,8 @@ class AuditLogEntityListenerPositiveTests {
     this.roleRepository.deleteById(role.getId());
 
     List<Role> roles = this.roleRepository.findAllIncludeSoftDelete();
-    assertEquals(roles.size(), 1);
-    assertEquals(roles.get(0).isDeleted(), true);
+    assertEquals(1, roles.size());
+    assertEquals(true, roles.get(0).isDeleted());
     assertNotNull(roles.get(0).getDeletedOn());
     assertNotNull(roles.get(0).getDeletedBy());
 

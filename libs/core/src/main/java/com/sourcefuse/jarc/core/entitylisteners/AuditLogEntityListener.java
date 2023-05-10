@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sourcefuse.jarc.core.adapters.LocalDateTimeTypeAdapter;
 import com.sourcefuse.jarc.core.awares.ApplicationAwareBeanUtils;
-import com.sourcefuse.jarc.core.constants.AuditActions;
+import com.sourcefuse.jarc.core.enums.AuditActions;
 import com.sourcefuse.jarc.core.models.audit.AuditLog;
 import com.sourcefuse.jarc.core.models.base.BaseEntity;
 import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;

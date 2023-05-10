@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.core.constants;
+package com.sourcefuse.jarc.core.enums;
 
 public enum AuditActions {
   SAVE("SAVE"),

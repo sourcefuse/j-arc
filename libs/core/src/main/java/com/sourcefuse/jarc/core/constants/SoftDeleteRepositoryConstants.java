@@ -1,5 +1,8 @@
 package com.sourcefuse.jarc.core.constants;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class SoftDeleteRepositoryConstants {
 
   public static final String DELETED_FIELD = "deleted";

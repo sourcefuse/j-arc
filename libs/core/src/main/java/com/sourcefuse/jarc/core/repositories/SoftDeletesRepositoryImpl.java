@@ -42,10 +42,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 public class SoftDeletesRepositoryImpl<
-  T extends SoftDeleteEntity, TYPE extends Serializable
+  T extends SoftDeleteEntity, ID extends Serializable
 >
-  extends SimpleJpaRepository<T, TYPE>
-  implements SoftDeletesRepository<T, TYPE> {
+  extends SimpleJpaRepository<T, ID>
+  implements SoftDeletesRepository<T, ID> {
 
   private final PersistenceProvider provider;
 
@@ -91,16 +91,16 @@ public class SoftDeletesRepositoryImpl<
     return entityInformation.getJavaType();
   }
 
-  private static final class ByIdSpecification<T, TYPE>
+  private static final class ByIdSpecification<T, ID>
     implements Specification<T> {
 
     private static final long serialVersionUID = 1L;
     private final JpaEntityInformation<T, ?> entityInformation;
-    private final TYPE id;
+    private final ID id;
 
     public ByIdSpecification(
       JpaEntityInformation<T, ?> entityInformation,
-      TYPE id
+      ID id
     ) {
       this.entityInformation = entityInformation;
       this.id = id;
@@ -113,14 +113,14 @@ public class SoftDeletesRepositoryImpl<
       CriteriaBuilder cb
     ) {
       String idAttribute;
-      if (entityInformation.getIdAttribute() == null) {
+      if (entityInformation.getIdAttribute() != null) {
         idAttribute = entityInformation.getIdAttribute().getName();
       } else {
-        throw new NullPointerException(
+        throw new IllegalArgumentException(
           "entityInformation getIdAttribute is null"
         );
       }
-      return cb.equal(root.<TYPE>get(idAttribute), id);
+      return cb.equal(root.<ID>get(idAttribute), id);
     }
   }
 
@@ -169,10 +169,11 @@ public class SoftDeletesRepositoryImpl<
     return Specification.where(new IsNotDeleted<T>());
   }
 
-  // INFO: overridden soft delete and find non soft deleted entries method //
+  // INFO: overridden soft delete and
+  // find non soft deleted entries method
   @Override
   @Transactional
-  public void deleteById(TYPE id) {
+  public void deleteById(ID id) {
     Assert.notNull(id, SoftDeleteRepositoryConstants.ID_MUST_NOT_BE_NULL);
 
     T entity = findById(id).orElse(null);
@@ -205,17 +206,17 @@ public class SoftDeletesRepositoryImpl<
 
   @Override
   @Transactional
-  public void deleteAllById(Iterable<? extends TYPE> ids) {
+  public void deleteAllById(Iterable<? extends ID> ids) {
     Assert.notNull(ids, SoftDeleteRepositoryConstants.IDS_MUST_NOT_BE_NULL);
 
-    for (TYPE id : ids) {
+    for (ID id : ids) {
       deleteById(id);
     }
   }
 
   @Override
   @Transactional
-  public void deleteAllByIdInBatch(Iterable<TYPE> ids) {
+  public void deleteAllByIdInBatch(Iterable<ID> ids) {
     Assert.notNull(ids, SoftDeleteRepositoryConstants.IDS_MUST_NOT_BE_NULL);
 
     deleteAllInBatch(findAllById(ids));
@@ -263,19 +264,19 @@ public class SoftDeletesRepositoryImpl<
 
   @Override
   @Transactional
-  public Optional<T> findById(TYPE id) {
+  public Optional<T> findById(ID id) {
     Assert.notNull(id, SoftDeleteRepositoryConstants.ID_MUST_NOT_BE_NULL);
 
     return super.findOne(
       Specification
-        .where(new ByIdSpecification<T, TYPE>(entityInformation, id))
+        .where(new ByIdSpecification<T, ID>(entityInformation, id))
         .and(notDeleted())
     );
   }
 
   @Override
   @Transactional
-  public boolean existsById(TYPE id) {
+  public boolean existsById(ID id) {
     Assert.notNull(id, SoftDeleteRepositoryConstants.ENTITY_MUST_NOT_BE_NULL);
 
     return findById(id).orElse(null) != null;
@@ -289,17 +290,17 @@ public class SoftDeletesRepositoryImpl<
 
   @Override
   @Transactional
-  public List<T> findAllById(Iterable<TYPE> ids) {
+  public List<T> findAllById(Iterable<ID> ids) {
     Assert.notNull(ids, SoftDeleteRepositoryConstants.IDS_MUST_NOT_BE_NULL);
 
-    if (ids == null || !ids.iterator().hasNext()) {
+    if (!ids.iterator().hasNext()) {
       return Collections.emptyList();
     }
 
     if (entityInformation.hasCompositeId()) {
       List<T> results = new ArrayList<T>();
 
-      for (TYPE id : ids) {
+      for (ID id : ids) {
         T entity = findById(id).orElse(null);
         if (entity == null) {
           results.add(entity);
@@ -446,11 +447,12 @@ public class SoftDeletesRepositoryImpl<
     return super.count(addNotDeletedSpecification(spec));
   }
 
-  // INFO: Existing methods for hard delete and find all with soft deleted methods
+  // INFO: Existing methods for hard delete
+  // and find all with soft deleted methods
 
   @Override
   @Transactional
-  public void deleteByIdHard(TYPE id) {
+  public void deleteByIdHard(ID id) {
     Assert.notNull(id, SoftDeleteRepositoryConstants.ID_MUST_NOT_BE_NULL);
 
     findById(id).ifPresent(this::deleteHard);
@@ -469,17 +471,17 @@ public class SoftDeletesRepositoryImpl<
 
   @Override
   @Transactional
-  public void deleteAllByIdHard(Iterable<? extends TYPE> ids) {
+  public void deleteAllByIdHard(Iterable<? extends ID> ids) {
     Assert.notNull(ids, SoftDeleteRepositoryConstants.IDS_MUST_NOT_BE_NULL);
 
-    for (TYPE id : ids) {
+    for (ID id : ids) {
       deleteByIdHard(id);
     }
   }
 
   @Override
   @Transactional
-  public void deleteAllByIdInBatchHard(Iterable<TYPE> ids) {
+  public void deleteAllByIdInBatchHard(Iterable<ID> ids) {
     Assert.notNull(ids, SoftDeleteRepositoryConstants.IDS_MUST_NOT_BE_NULL);
 
     if (!ids.iterator().hasNext()) {
@@ -493,10 +495,10 @@ public class SoftDeletesRepositoryImpl<
       deleteAllInBatchHard(entities);
     } else {
       String idAttribute;
-      if (entityInformation.getIdAttribute() == null) {
+      if (entityInformation.getIdAttribute() != null) {
         idAttribute = entityInformation.getIdAttribute().getName();
       } else {
-        throw new NullPointerException(
+        throw new IllegalArgumentException(
           "entityInformation getIdAttribute is null"
         );
       }
@@ -511,7 +513,7 @@ public class SoftDeletesRepositoryImpl<
       if (ids instanceof Collection) {
         query.setParameter("ids", ids);
       } else {
-        Collection<TYPE> idsCollection = StreamSupport
+        Collection<ID> idsCollection = StreamSupport
           .stream(ids.spliterator(), false)
           .collect(Collectors.toCollection(ArrayList::new));
         query.setParameter("ids", idsCollection);
@@ -563,14 +565,14 @@ public class SoftDeletesRepositoryImpl<
 
   @Override
   @Transactional
-  public Optional<T> findByIdIncludeSoftDelete(TYPE id) {
+  public Optional<T> findByIdIncludeSoftDelete(ID id) {
     Assert.notNull(id, SoftDeleteRepositoryConstants.ID_MUST_NOT_BE_NULL);
     return super.findById(id);
   }
 
   @Override
   @Transactional
-  public boolean existsByIdIncludeSoftDelete(TYPE id) {
+  public boolean existsByIdIncludeSoftDelete(ID id) {
     Assert.notNull(id, SoftDeleteRepositoryConstants.ID_MUST_NOT_BE_NULL);
     return super.findById(id).isPresent();
   }
@@ -583,7 +585,7 @@ public class SoftDeletesRepositoryImpl<
 
   @Override
   @Transactional
-  public List<T> findAllByIdIncludeSoftDelete(Iterable<TYPE> ids) {
+  public List<T> findAllByIdIncludeSoftDelete(Iterable<ID> ids) {
     if (!ids.iterator().hasNext()) {
       return Collections.emptyList();
     }
@@ -591,14 +593,14 @@ public class SoftDeletesRepositoryImpl<
     if (entityInformation.hasCompositeId()) {
       List<T> results = new ArrayList<>();
 
-      for (TYPE id : ids) {
+      for (ID id : ids) {
         findByIdIncludeSoftDelete(id).ifPresent(results::add);
       }
 
       return results;
     }
 
-    Collection<TYPE> idCollection = Streamable.of(ids).toList();
+    Collection<ID> idCollection = Streamable.of(ids).toList();
 
     ByIdsSpecification<T> specification = new ByIdsSpecification<>(
       entityInformation
