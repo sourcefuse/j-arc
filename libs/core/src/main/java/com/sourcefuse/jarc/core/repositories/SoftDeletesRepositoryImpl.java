@@ -5,16 +5,11 @@ import static org.springframework.data.jpa.repository.query.QueryUtils.DELETE_AL
 import com.sourcefuse.jarc.core.constants.SoftDeleteRepositoryConstants;
 import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 import com.sourcefuse.jarc.core.repositories.specifications.ByIdSpecification;
+import com.sourcefuse.jarc.core.repositories.specifications.ByIdsSpecification;
 import com.sourcefuse.jarc.core.repositories.specifications.IsNotDeleted;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.ParameterExpression;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import jakarta.persistence.metamodel.SingularAttribute;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -96,31 +91,6 @@ public class SoftDeletesRepositoryImpl<
 
   private static final <T> Specification<T> notDeleted() {
     return Specification.where(new IsNotDeleted<T>());
-  }
-
-  @SuppressWarnings("rawtypes")
-  private static final class ByIdsSpecification<T> implements Specification<T> {
-
-    private static final long serialVersionUID = -3244704710376973492L;
-
-    private final transient JpaEntityInformation<T, ?> entityInformation;
-
-    transient ParameterExpression<Iterable> parameter;
-
-    public ByIdsSpecification(JpaEntityInformation<T, ?> entityInformation) {
-      this.entityInformation = entityInformation;
-    }
-
-    @Override
-    public Predicate toPredicate(
-      Root<T> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder cb
-    ) {
-      Path<?> path = root.get(entityInformation.getIdAttribute());
-      parameter = cb.parameter(Iterable.class);
-      return path.in(parameter);
-    }
   }
 
   // INFO: overridden soft delete and
@@ -256,7 +226,9 @@ public class SoftDeletesRepositoryImpl<
       Specification.where(specification).and(notDeleted()),
       Sort.by(Sort.Direction.ASC, "id")
     );
-    return query.setParameter(specification.parameter, ids).getResultList();
+    return query
+      .setParameter(specification.getParameters(), ids)
+      .getResultList();
   }
 
   @Override
@@ -529,7 +501,7 @@ public class SoftDeletesRepositoryImpl<
     );
     TypedQuery<T> query = getQuery(specification, Sort.unsorted());
     return query
-      .setParameter(specification.parameter, idCollection)
+      .setParameter(specification.getParameters(), idCollection)
       .getResultList();
   }
 
