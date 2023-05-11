@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.authservice.exception;
 
 import com.sourcefuse.jarc.services.authservice.payload.ErrorDetails;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +25,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     WebRequest webRequest
   ) {
     ErrorDetails errorDetails = new ErrorDetails(
-      new Date(),
+      LocalDateTime.now(),
       exception.getMessage(),
       webRequest.getDescription(false)
     );
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     WebRequest webRequest
   ) {
     ErrorDetails errorDetails = new ErrorDetails(
-      new Date(),
+      LocalDateTime.now(),
       exception.getMessage(),
       webRequest.getDescription(false)
     );
@@ -51,7 +51,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     WebRequest webRequest
   ) {
     ErrorDetails errorDetails = new ErrorDetails(
-      new Date(),
+      LocalDateTime.now(),
       exception.getMessage(),
       webRequest.getDescription(false)
     );
@@ -84,7 +84,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     WebRequest webRequest
   ) {
     ErrorDetails errorDetails = new ErrorDetails(
-      new Date(),
+      LocalDateTime.now(),
       exception.getMessage(),
       webRequest.getDescription(false)
     );

@@ -10,6 +10,7 @@ import com.sourcefuse.jarc.services.authservice.payload.UserVerificationDTO;
 import com.sourcefuse.jarc.services.authservice.providers.ClientPasswordVerifyProvider;
 import com.sourcefuse.jarc.services.authservice.providers.ResourceOwnerVerifyProvider;
 import com.sourcefuse.jarc.services.authservice.services.AuthService;
+import com.sourcefuse.jarc.services.authservice.services.JwtService;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
   private final AuthService authService;
+  private final JwtService jwtService;
   private final ClientPasswordVerifyProvider clientPasswordVerifyProvider;
   private final ResourceOwnerVerifyProvider resourceOwnerVerifyProvider;
 
@@ -74,7 +76,7 @@ public class AuthController {
     @RequestBody RefreshTokenDTO refreshTokenDTO,
     @RequestHeader("Authorization") String authorizationHeader
   ) {
-    JWTAuthResponse jwtAuthResponse = authService.refreshToken(
+    JWTAuthResponse jwtAuthResponse = jwtService.refreshToken(
       authorizationHeader,
       refreshTokenDTO
     );
@@ -85,7 +87,7 @@ public class AuthController {
   public JWTAuthResponse getTokenByCode(
     @RequestBody AuthTokenRequest authTokenRequest
   ) {
-    return this.authService.getTokenByCode(authTokenRequest);
+    return this.jwtService.getTokenByCode(authTokenRequest);
   }
 
   @GetMapping("/me")

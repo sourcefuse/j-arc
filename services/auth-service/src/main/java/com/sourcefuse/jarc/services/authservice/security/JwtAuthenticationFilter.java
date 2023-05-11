@@ -23,6 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+  private static String bearerPrefix = "Bearer ";
   private final JwtTokenProvider jwtTokenProvider;
 
   @Override
@@ -34,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String token = getTokenFromRequest(request);
     if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
       CurrentUser user = jwtTokenProvider.getUserDetails(token);
-      List<GrantedAuthority> listAuthorities = new ArrayList<GrantedAuthority>();
+      List<GrantedAuthority> listAuthorities = new ArrayList<>();
       for (String permission : user.getRole().getPermissions()) {
         listAuthorities.add(new SimpleGrantedAuthority(permission));
       }
@@ -54,10 +55,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
-  private String getTokenFromRequest(HttpServletRequest request) {
+  private static String getTokenFromRequest(HttpServletRequest request) {
     String bearerToken = request.getHeader("Authorization");
     if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-      return bearerToken.substring(7, bearerToken.length());
+      return bearerToken.substring(bearerPrefix.length(), bearerToken.length());
     }
 
     return null;

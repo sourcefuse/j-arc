@@ -17,7 +17,6 @@ public class RefreshTokenRedis implements Serializable {
   @Id
   private String id;
 
-  // private String token;
   private String clientId;
   private UUID userId;
   private String username;

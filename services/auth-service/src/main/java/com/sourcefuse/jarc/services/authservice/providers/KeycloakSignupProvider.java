@@ -10,19 +10,19 @@ import com.sourcefuse.jarc.services.authservice.payload.RegisterDto;
 import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakUserDTO;
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.TenantRepository;
-import com.sourcefuse.jarc.services.authservice.services.AuthService;
+import com.sourcefuse.jarc.services.authservice.services.UserService;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpServerErrorException;
 
 @AllArgsConstructor
-@Service
+@Component
 public class KeycloakSignupProvider {
 
   private final TenantRepository tenantRepository;
-  private final AuthService authService;
+  private final UserService userService;
   private final RoleRepository roleRepository;
 
   public Optional<User> provide(KeycloakUserDTO keycloakUserDTO) {
@@ -55,6 +55,6 @@ public class KeycloakSignupProvider {
     registerDto.setAuthId(keycloakUserDTO.getPreferred_username());
     registerDto.setRoleId(defaultRole.get().getId());
 
-    return Optional.ofNullable(this.authService.register(registerDto));
+    return Optional.ofNullable(this.userService.register(registerDto));
   }
 }

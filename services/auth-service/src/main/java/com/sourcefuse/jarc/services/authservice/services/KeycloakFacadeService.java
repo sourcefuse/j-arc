@@ -2,6 +2,7 @@ package com.sourcefuse.jarc.services.authservice.services;
 
 import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakAuthResponse;
 import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakUserDTO;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,9 +15,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Component
+@NoArgsConstructor
 public class KeycloakFacadeService {
-
-  private KeycloakFacadeService() {}
 
   @Value("${app.keycloak.token-endpoint}")
   private String keycloakTokenEndpoint;
@@ -40,7 +40,7 @@ public class KeycloakFacadeService {
     HttpHeaders headers = new HttpHeaders();
     headers.set("Accept", "*/*");
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("client_id", clientId);
     map.add("client_secret", clientSecret);
     map.add("code", code);
@@ -64,7 +64,7 @@ public class KeycloakFacadeService {
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.setBearerAuth(accessToken);
-    HttpEntity request = new HttpEntity(headers);
+    HttpEntity<KeycloakUserDTO> request = new HttpEntity<>(headers);
     ResponseEntity<KeycloakUserDTO> response = restTemplate.exchange(
       keycloakUserInfoEndpoint,
       HttpMethod.GET,

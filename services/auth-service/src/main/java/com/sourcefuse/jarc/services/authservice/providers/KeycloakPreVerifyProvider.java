@@ -5,7 +5,6 @@ import com.sourcefuse.jarc.services.authservice.enums.UserStatus;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakUserDTO;
-import com.sourcefuse.jarc.services.authservice.repositories.UserCredentialRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import java.util.Optional;
@@ -20,21 +19,13 @@ public class KeycloakPreVerifyProvider {
 
   private final UserRepository userRepository;
   private final UserTenantRepository userTenantRepository;
-  private final UserCredentialRepository userCredentialRepository;
 
-  public Optional<User> provide(
-    Optional<User> optionalUser,
-    KeycloakUserDTO keycloakUserDTO
-  ) {
-    if (optionalUser.isEmpty()) {
-      return optionalUser;
-    }
-    User user = optionalUser.get();
+  public Optional<User> provide(User user, KeycloakUserDTO keycloakUserDTO) {
     if (
-      user.getFirstName() != keycloakUserDTO.getGiven_name() ||
-      user.getLastName() != keycloakUserDTO.getFamily_name() ||
-      user.getUsername() != keycloakUserDTO.getPreferred_username() ||
-      user.getEmail() != keycloakUserDTO.getEmail()
+      !user.getFirstName().equals(keycloakUserDTO.getGiven_name()) ||
+      !user.getLastName().equals(keycloakUserDTO.getFamily_name()) ||
+      !user.getUsername().equals(keycloakUserDTO.getPreferred_username()) ||
+      !user.getEmail().equals(keycloakUserDTO.getEmail())
     ) {
       user.setUsername(keycloakUserDTO.getPreferred_username());
       user.setFirstName(keycloakUserDTO.getGiven_name());

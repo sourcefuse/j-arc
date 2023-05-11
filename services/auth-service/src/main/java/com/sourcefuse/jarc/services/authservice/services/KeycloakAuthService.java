@@ -1,6 +1,7 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
+import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
@@ -20,11 +21,11 @@ import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepositor
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpServerErrorException;
 
 @AllArgsConstructor
-@Service
+@Component
 public class KeycloakAuthService {
 
   private final UserRepository userRepository;
@@ -45,61 +46,56 @@ public class KeycloakAuthService {
           keycloakAuthResponse.getAccess_token()
         );
     String usernameOrEmail = keycloakUserDTO.getEmail();
-    Optional<User> user =
-      this.userRepository.findFirstUserByUsernameOrEmail(usernameOrEmail);
-
-    user = this.keycloakPreVerifyProvider.provide(user, keycloakUserDTO);
-    if (user.isEmpty()) {
-      user = this.keycloakSignupProvider.provide(keycloakUserDTO);
-      if (user.isEmpty()) {
-        throw new HttpServerErrorException(
-          HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.USER_VERIFICATION_FAILED.label
-        );
-      }
-    }
-    Optional<UserCredential> userCredential =
-      this.userCredentialRepository.findByUserId(user.get().getId());
+    User user = this.getUserBy(usernameOrEmail, keycloakUserDTO);
+    UserCredential userCredential =
+      this.userCredentialRepository.findByUserId(user.getId())
+        .orElseThrow(this::throwUserVerificationFailed);
     if (
-      userCredential.isEmpty() ||
-      !userCredential.get().getAuthProvider().equals("keycloak") ||
+      !userCredential.getAuthProvider().equals(AuthProvider.KEYCLOAK.label) ||
       (
         !userCredential
-          .get()
           .getAuthId()
           .equals(keycloakUserDTO.getPreferred_username())
       )
     ) {
-      throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.USER_VERIFICATION_FAILED.label
-      );
+      throw throwUserVerificationFailed();
     }
-
     this.keycloakPostVerifyProvider.provide(keycloakUserDTO, user);
     UserTenant userTenant =
-      this.userTenantRepository.findUserTenantByUserId(user.get().getId())
-        .orElseThrow(() ->
-          new HttpServerErrorException(
-            HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.USER_VERIFICATION_FAILED.label
-          )
-        );
+      this.userTenantRepository.findUserTenantByUserId(user.getId())
+        .orElseThrow(this::throwUserVerificationFailed);
 
     Role role =
       this.roleRepository.findById(userTenant.getRoleId())
-        .orElseThrow(() ->
-          new HttpServerErrorException(
-            HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.USER_VERIFICATION_FAILED.label
-          )
-        );
+        .orElseThrow(this::throwUserVerificationFailed);
 
     return authCodeGeneratorProvider.provide(
-      user.get(),
+      user,
       userTenant,
       role,
       authClient
+    );
+  }
+
+  User getUserBy(String usernameOrEmail, KeycloakUserDTO keycloakUserDTO) {
+    Optional<User> user =
+      this.userRepository.findFirstUserByUsernameOrEmail(usernameOrEmail);
+    if (user.isPresent()) {
+      user =
+        this.keycloakPreVerifyProvider.provide(user.get(), keycloakUserDTO);
+    } else {
+      user = this.keycloakSignupProvider.provide(keycloakUserDTO);
+    }
+    if (user.isEmpty()) {
+      throw this.throwUserVerificationFailed();
+    }
+    return user.get();
+  }
+
+  HttpServerErrorException throwUserVerificationFailed() {
+    return new HttpServerErrorException(
+      HttpStatus.UNAUTHORIZED,
+      AuthErrorKeys.USER_VERIFICATION_FAILED.label
     );
   }
 }

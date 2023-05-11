@@ -5,6 +5,7 @@ import com.sourcefuse.jarc.services.authservice.enums.AuthenticateErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.UserStatus;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.User;
+import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 import com.sourcefuse.jarc.services.authservice.payload.LoginDto;
 import com.sourcefuse.jarc.services.authservice.payload.UserVerificationDTO;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
@@ -31,7 +32,6 @@ public class ResourceOwnerVerifyProvider {
   public UserVerificationDTO provide(LoginDto loginDto)
     throws HttpServerErrorException {
     Optional<User> user;
-
     try {
       user =
         this.authService.verifyPassword(
@@ -40,50 +40,43 @@ public class ResourceOwnerVerifyProvider {
           );
     } catch (Exception error) {
       user = this.userRepository.findUserByUsername(loginDto.getUsername());
-      if (user.isEmpty()) {
-        throw new HttpServerErrorException(
-          HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.INVALID_CREDENTIALS.label
-        );
-      }
     }
-    this.userTenantRepository.findUserBy(
-        user.get().getId(),
-        user.get().getDefaultTenantId(),
-        Arrays.asList(UserStatus.REJECTED, UserStatus.INACTIVE)
-      )
-      .orElseThrow(() ->
-        new HttpServerErrorException(
-          HttpStatus.UNAUTHORIZED,
-          AuthenticateErrorKeys.USER_INACTIVE.label
-        )
+    if (user.isEmpty()) {
+      throw throwUnauthorizedException(AuthErrorKeys.INVALID_CREDENTIALS);
+    }
+    Optional<UserTenant> userTenant =
+      this.userTenantRepository.findUserBy(
+          user.get().getId(),
+          user.get().getDefaultTenantId(),
+          Arrays.asList(UserStatus.REJECTED, UserStatus.INACTIVE)
+        );
+    if (userTenant.isEmpty()) {
+      throw new HttpServerErrorException(
+        HttpStatus.UNAUTHORIZED,
+        AuthenticateErrorKeys.USER_INACTIVE.label
       );
-
+    }
     AuthClient client =
       this.authClientRepository.findAuthClientByClientId(loginDto.getClientId())
         .orElseThrow(() ->
-          new HttpServerErrorException(
-            HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.CLIENT_INVALID.label
-          )
+          throwUnauthorizedException(AuthErrorKeys.CLIENT_INVALID)
         );
-
     if (!user.get().getAuthClientIds().contains(client.getId())) {
-      throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.CLIENT_INVALID.label
-      );
+      throw throwUnauthorizedException(AuthErrorKeys.CLIENT_INVALID);
     } else if (
       !Objects.equals(client.getClientSecret(), loginDto.getClientSecret())
     ) {
-      throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.CLIENT_VERIFICATION_FAILED.label
-      );
+      throw throwUnauthorizedException(AuthErrorKeys.CLIENT_INVALID);
     } else {
       // for sonar
     }
-
     return new UserVerificationDTO(client, user.get());
+  }
+
+  HttpServerErrorException throwUnauthorizedException(AuthErrorKeys errorKeys) {
+    throw new HttpServerErrorException(
+      HttpStatus.UNAUTHORIZED,
+      errorKeys.label
+    );
   }
 }
