@@ -7,4 +7,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AuthClientsRepository
-  extends JpaRepository<AuthClient, UUID>, TenantRepositoryCustom {}
+  extends JpaRepository<AuthClient, UUID>, TenantRepositoryCustom<AuthClient> {}

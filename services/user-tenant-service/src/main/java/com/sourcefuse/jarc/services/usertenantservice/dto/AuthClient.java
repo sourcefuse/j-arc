@@ -1,7 +1,13 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.sourcefuse.jarc.services.usertenantservice.commons.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.io.Serializable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +18,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "auth_clients", schema = "main")
-public class AuthClient extends BaseEntity {
+public class AuthClient extends BaseEntity implements Serializable {
+
+  private static final long serialVersionUID = 1905122041950251208L;
 
   //  implements IAuthClient doubt::
   @Id

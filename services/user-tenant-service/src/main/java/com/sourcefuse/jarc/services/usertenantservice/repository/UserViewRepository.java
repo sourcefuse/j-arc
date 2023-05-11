@@ -5,6 +5,6 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserViewRepository
-  extends JpaRepository<UserView, UUID>, TenantRepositoryCustom {
+  extends JpaRepository<UserView, UUID>, TenantRepositoryCustom<UserView> {
   UserView findByUserTenantId(UUID id);
 }

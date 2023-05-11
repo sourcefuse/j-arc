@@ -1,6 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.exceptions;
 
 import com.sourcefuse.jarc.services.usertenantservice.dto.ErrorDetails;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,12 +23,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(ResponseStatusException.class)
-  private final ResponseEntity<ErrorDetails> handleHttpError(
+  private static final ResponseEntity<ErrorDetails> handleHttpError(
     ResponseStatusException exception,
     WebRequest webRequest
   ) {
     ErrorDetails errorDetails = new ErrorDetails(
-      new Date(),
+      LocalDateTime.now(),
       exception.getReason(),
       webRequest.getDescription(false)
     );
@@ -35,12 +36,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(Exception.class)
-  private final ResponseEntity<ErrorDetails> handleGlobalException(
+  private static final ResponseEntity<ErrorDetails> handleGlobalException(
     Exception exception,
     WebRequest webRequest
   ) {
     ErrorDetails errorDetails = new ErrorDetails(
-      new Date(),
+      LocalDateTime.now(),
       exception.getMessage(),
       webRequest.getDescription(true)
     );
@@ -49,12 +50,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(ResourceNotFoundException.class)
-  private final ResponseEntity<ErrorDetails> handleResourceNotFoundException(
+  private static final ResponseEntity<ErrorDetails> handleResourceNotFoundException(
     ResourceNotFoundException exception,
     WebRequest webRequest
   ) {
     ErrorDetails errorDetails = new ErrorDetails(
-      new Date(),
+      LocalDateTime.now(),
       exception.getMessage(),
       webRequest.getDescription(false)
     );
@@ -62,35 +63,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(CommonRuntimeException.class)
-  private final ResponseEntity<ErrorDetails> handleBlogAPIException(
+  private static final ResponseEntity<ErrorDetails> handleBlogAPIException(
     CommonRuntimeException exception,
     WebRequest webRequest
   ) {
     ErrorDetails errorDetails = new ErrorDetails(
-      new Date(),
+      LocalDateTime.now(),
       exception.getMessage(),
       webRequest.getDescription(false)
     );
     return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
-  }
-
-  @Override
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(
-    MethodArgumentNotValidException ex,
-    HttpHeaders headers,
-    HttpStatusCode status,
-    WebRequest request
-  ) {
-    Map<String, String> errors = new HashMap<>();
-    ex
-      .getBindingResult()
-      .getAllErrors()
-      .forEach(error -> {
-        String fieldName = ((FieldError) error).getField();
-        String message = error.getDefaultMessage();
-        errors.put(fieldName, message);
-      });
-
-    return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
   }
 }

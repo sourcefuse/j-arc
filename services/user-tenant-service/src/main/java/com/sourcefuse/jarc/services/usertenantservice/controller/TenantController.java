@@ -19,7 +19,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
@@ -64,7 +71,7 @@ public class TenantController {
   public ResponseEntity<Count> updateAllTenants(
     @RequestBody Tenant souctenant
   ) {
-    List<Tenant> updatedListTenant = new ArrayList<Tenant>();
+    List<Tenant> updatedListTenant = new ArrayList<>();
 
     List<Tenant> tarLisTenant = tenantRepository.findAll();
 
@@ -110,11 +117,12 @@ public class TenantController {
     Optional<Tenant> tenant = tenantRepository.findById(id);
     if (tenant.isPresent()) {
       savedTenant = tenant.get();
-    } else throw new ResponseStatusException(
-      HttpStatus.NOT_FOUND,
-      "No tenant is present against given value"
-    );
-
+    } else {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        "No tenant is present against given value"
+      );
+    }
     return new ResponseEntity<>(savedTenant, HttpStatus.OK);
   }
 
@@ -152,11 +160,12 @@ public class TenantController {
         CommonUtils.getNullPropertyNames(srcTenant)
       );
       tenantRepository.save(tarTenant);
-    } else throw new ResponseStatusException(
-      HttpStatus.NOT_FOUND,
-      "No tenant is present against given value"
-    );
-
+    } else {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        "No tenant is present against given value"
+      );
+    }
     return new ResponseEntity<>("Tenant PATCH success", HttpStatus.NO_CONTENT);
   }
 

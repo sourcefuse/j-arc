@@ -37,7 +37,6 @@ public class UserTenantController {
   // pending authentication doubt ::
   @GetMapping("{id}")
   public ResponseEntity<Object> getUserTenantById(@PathVariable("id") UUID id) {
-    //UserTenant userTenant = roleUTService.findById(id);
     Optional<UserTenant> userTenant = roleUserTRepository.findById(id);
     IAuthUserWithPermissions currentUser =
       (IAuthUserWithPermissions) SecurityContextHolder
@@ -68,10 +67,12 @@ public class UserTenantController {
           AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
         );
       }
-    } else throw new ResponseStatusException(
-      HttpStatus.NOT_FOUND,
-      "No User-Tenant is present against given value" + id
-    );
+    } else {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        "No User-Tenant is present against given value" + id
+      );
+    }
 
     UserView userView = userViewRepository.findByUserTenantId(id);
     if (userView == null) {

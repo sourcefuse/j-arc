@@ -3,6 +3,7 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.commons.CommonConstants;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Count;
+import com.sourcefuse.jarc.services.usertenantservice.dto.User;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
@@ -25,7 +26,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
@@ -73,26 +81,8 @@ public class TenantUserController {
   }
 
   @GetMapping("")
-  public ResponseEntity<Object> getAllUsrTenantByRole(
-    @PathVariable("id") UUID id
-  ) {
-    List<UserView> userViews;
-    IAuthUserWithPermissions currentUser =
-      (IAuthUserWithPermissions) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
-    if (
-      currentUser.getTenantId() != id &&
-      !currentUser
-        .getPermissions()
-        .contains(PermissionKey.VIEW_ANY_USER.toString())
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
-      );
-    }
+  public ResponseEntity<Object> gtUsrTntByRole(@PathVariable("id") UUID id) {
+    IAuthUserWithPermissions currentUser = getiAuthUserWithPermissions(id);
     Predicate predicate = null;
     Map<String, Object> map = new HashMap<>();
     if (
@@ -112,27 +102,24 @@ public class TenantUserController {
     CriteriaBuilder cb = map.get(CommonConstants.BUILDER) != null
       ? (CriteriaBuilder) map.get(CommonConstants.BUILDER)
       : em.getCriteriaBuilder();
-    CriteriaQuery cq = map.get(CommonConstants.CRITERIA_QUERY) != null
+    CriteriaQuery<UserView> cq = map.get(CommonConstants.CRITERIA_QUERY) != null
       ? (CriteriaQuery) map.get(CommonConstants.CRITERIA_QUERY)
-      : cb.createQuery();
+      : cb.createQuery(UserView.class);
     Root<UserView> root = cq.from(UserView.class);
 
     if (predicate != null) {
-      predicate = cb.and(predicate, cb.equal(root.get("tenantId"), id));
-    } else predicate = cb.equal(root.get("tenantId"), id);
+      predicate =
+        cb.and(predicate, cb.equal(root.get(CommonConstants.TENANT_ID), id));
+    } else {
+      predicate = cb.equal(root.get(CommonConstants.TENANT_ID), id);
+    }
     cq.where(
       predicate,
       cb.notEqual(root.get("roleType"), CommonConstants.SUPER_ADMIN_ROLE_TYPE)
     );
-    if (
-      currentUser.getRole().equalsIgnoreCase(RoleKey.SUPER_ADMIN.toString())
-    ) {
-      //doubt::   this.nonRestrictedUserViewRepo.find
-      userViews = tnUsrService.getUserView(cq);
-    }
-    userViews = tnUsrService.getUserView(cq);
-
-    return new ResponseEntity<>(userViews, HttpStatus.OK); //doubt return UserDto
+    List<UserView> userViews;
+    //doubt return UserDto
+    return new ResponseEntity<>(tnUsrService.getUserView(cq), HttpStatus.OK);
   }
 
   @GetMapping("/view-all")
@@ -143,23 +130,8 @@ public class TenantUserController {
   }
 
   @GetMapping("/count")
-  public ResponseEntity<Object> count(@PathVariable("id") UUID id) {
-    IAuthUserWithPermissions currentUser =
-      (IAuthUserWithPermissions) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
-    if (
-      currentUser.getTenantId() != id &&
-      !currentUser
-        .getPermissions()
-        .contains(PermissionKey.VIEW_ANY_USER.toString())
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
-      );
-    }
+  public ResponseEntity<Object> cntUsrTenant(@PathVariable("id") UUID id) {
+    IAuthUserWithPermissions currentUser = getiAuthUserWithPermissions(id);
 
     Predicate predicate = null;
     Map<String, Object> map = new HashMap<>();
@@ -183,23 +155,21 @@ public class TenantUserController {
       : em.getCriteriaBuilder();
     CriteriaQuery cq = map.get(CommonConstants.CRITERIA_QUERY) != null
       ? (CriteriaQuery) map.get(CommonConstants.CRITERIA_QUERY)
-      : cb.createQuery();
-    Root<Root> root = cq.from(UserView.class);
+      : cb.createQuery(UserView.class);
+    Root<UserView> root = cq.from(UserView.class);
 
     if (predicate != null) {
-      predicate = cb.and(predicate, cb.equal(root.get("tenantId"), id));
-    } else predicate = cb.equal(root.get("tenantId"), id);
+      predicate =
+        cb.and(predicate, cb.equal(root.get(CommonConstants.TENANT_ID), id));
+    } else {
+      predicate = cb.equal(root.get(CommonConstants.TENANT_ID), id);
+    }
     cq.where(
       predicate,
       cb.notEqual(root.get("roleType"), CommonConstants.SUPER_ADMIN_ROLE_TYPE)
     );
     long userCount;
-    if (
-      currentUser.getRole().equalsIgnoreCase(RoleKey.SUPER_ADMIN.toString())
-    ) {
-      //doubt::   this.nonRestrictedUserViewRepo.find
-      userCount = tnUsrService.getUserView(cq).size();
-    } else userCount = tnUsrService.getUserView(cq).size();
+    userCount = tnUsrService.getUserView(cq).size();
 
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(
@@ -208,11 +178,7 @@ public class TenantUserController {
     );
   }
 
-  @GetMapping("/{userId}")
-  public ResponseEntity<Object> findAllUsers(
-    @PathVariable("id") UUID id,
-    @PathVariable("userId") UUID userId
-  ) {
+  private IAuthUserWithPermissions getiAuthUserWithPermissions(UUID id) {
     IAuthUserWithPermissions currentUser =
       (IAuthUserWithPermissions) SecurityContextHolder
         .getContext()
@@ -229,6 +195,15 @@ public class TenantUserController {
         AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
       );
     }
+    return currentUser;
+  }
+
+  @GetMapping("/{userId}")
+  public ResponseEntity<Object> findAllUsers(
+    @PathVariable("id") UUID id,
+    @PathVariable("userId") UUID userId
+  ) {
+    IAuthUserWithPermissions currentUser = getiAuthUserWithPermissions(id);
     if (
       currentUser.getId() != userId &&
       currentUser

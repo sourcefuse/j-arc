@@ -2,7 +2,15 @@ package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.sourcefuse.jarc.services.usertenantservice.commons.BaseEntity;
 import com.sourcefuse.jarc.services.usertenantservice.enums.UserStatus;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +26,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "user_tenants", schema = "main")
 public class UserTenant extends BaseEntity implements Serializable {
+
+  private static final long serialVersionUID = 1905122041950251216L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

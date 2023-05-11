@@ -2,7 +2,7 @@ package com.sourcefuse.jarc.services.usertenantservice.enums;
 
 import com.sourcefuse.jarc.services.usertenantservice.commons.RoleTypes;
 
-public enum RoleKey implements RoleTypes {
+public enum RoleKey {
   ADMIN,
   OTHERS,
   DEFAULT,
@@ -19,10 +19,6 @@ public enum RoleKey implements RoleTypes {
 
   RoleKey() {
     this.value = ordinal();
-  }
-
-  RoleKey(int value) {
-    this.value = value;
   }
 
   public int getValue() {

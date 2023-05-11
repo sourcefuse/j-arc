@@ -11,7 +11,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * doubt::
@@ -39,29 +43,30 @@ public class UserTenantPrefsController {
     if (
       currentUser != null &&
       StringUtils.isNotEmpty(currentUser.getUserTenantId().toString())
-    ) userTPrefs.setUserTenantId(currentUser.getUserTenantId());
+    ) {
+      userTPrefs.setUserTenantId(currentUser.getUserTenantId());
+    }
 
-    UserTenantPrefs PreExistsTenantPrefs =
+    UserTenantPrefs preExistsTenantPrefs =
       userTPRepository.findByUserTenantIdAndConfigKey(
         userTPrefs.getUserTenantId(),
         userTPrefs.getConfigKey().getValue()
       );
 
-    if (PreExistsTenantPrefs != null) {
-      if (
-        userTPrefs.getConfigValue() != null
-      ) PreExistsTenantPrefs.setConfigValue(userTPrefs.getConfigValue());
-      savedUTPrefs = userTPRepository.save(PreExistsTenantPrefs);
-    } else savedUTPrefs = userTPRepository.save(userTPrefs);
+    if (preExistsTenantPrefs != null) {
+      if (userTPrefs.getConfigValue() != null) {
+        preExistsTenantPrefs.setConfigValue(userTPrefs.getConfigValue());
+      }
+      savedUTPrefs = userTPRepository.save(preExistsTenantPrefs);
+    } else {
+      savedUTPrefs = userTPRepository.save(userTPrefs);
+    }
 
     return new ResponseEntity<>(savedUTPrefs, HttpStatus.CREATED);
   }
 
   @GetMapping("")
   public ResponseEntity<Object> getAllUsTenantPrefs() {
-    /* filter where logic is pending currently finding all        filter.where = {
-                        and: [filter.where ?? {}, {userTenantId: this.currentUser.userTenantId}],
-            };*/
     List<UserTenantPrefs> listUtPrefs = userTPRepository.findAll();
     return new ResponseEntity<>(listUtPrefs, HttpStatus.OK);
   }

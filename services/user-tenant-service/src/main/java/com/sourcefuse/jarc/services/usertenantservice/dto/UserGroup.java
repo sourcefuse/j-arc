@@ -1,7 +1,12 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.UUID;
 import lombok.*;
@@ -13,7 +18,10 @@ import lombok.*;
 @Entity
 @Builder
 @Table(name = "user_groups", schema = "main")
+@EqualsAndHashCode(callSuper = false)
 public class UserGroup extends UserModifiableEntity implements Serializable {
+
+  private static final long serialVersionUID = 1905122041950251213L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

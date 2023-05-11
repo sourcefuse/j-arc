@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.commons;
 
 public enum UserConfigKey {
-  LastAccessedUrl("last-accessed-url");
+  LAST_ACCESSED_URL("last-accessed-url");
 
   private final String key;
 

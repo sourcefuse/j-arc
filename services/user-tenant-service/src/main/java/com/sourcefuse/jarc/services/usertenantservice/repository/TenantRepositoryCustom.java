@@ -6,17 +6,15 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TenantRepositoryCustom<T> {
-  void createCriteria(Class entityClass);
+  void createCriteria(Class<T> entityClass);
 
-  List<T> nameByCourse(String author, String bookname, String lis, Class type);
+  List<T> findByClientIdIn(List<String> allowedClients, Class<T> type);
 
-  List<T> findByClientIdIn(List<String> allowedClients, Class type);
+  List<T> findUserView(CriteriaQuery<T> criteriaQuery);
 
-  List<UserView> findUserView(CriteriaQuery criteriaQuery);
+  List<T> getAllUserView(UUID id, Class<T> type);
 
-  List<T> getAllUserView(UUID id, Class type);
+  List<T> countUser(CriteriaQuery<T> cq);
 
-  List<UserView> countUser(CriteriaQuery cq);
-
-  T findById(UUID userId, UUID id, Class type);
+  T findById(UUID userId, UUID id, Class<T> type);
 }

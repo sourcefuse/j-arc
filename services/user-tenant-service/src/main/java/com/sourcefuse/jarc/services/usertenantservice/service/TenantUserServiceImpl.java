@@ -1,16 +1,27 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
-import static com.sourcefuse.jarc.services.usertenantservice.enums.RoleType.RoleTypeMap;
+import static com.sourcefuse.jarc.services.usertenantservice.commons.TypeRole.RoleTypeMap;
 
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.commons.CommonConstants;
+import com.sourcefuse.jarc.services.usertenantservice.commons.TypeRole;
 import com.sourcefuse.jarc.services.usertenantservice.commonutils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.dto.*;
+import com.sourcefuse.jarc.services.usertenantservice.dto.AuthClient;
+import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
+import com.sourcefuse.jarc.services.usertenantservice.dto.User;
+import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
+import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
+import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.enums.PermissionKey;
 import com.sourcefuse.jarc.services.usertenantservice.enums.RoleType;
 import com.sourcefuse.jarc.services.usertenantservice.enums.UserStatus;
-import com.sourcefuse.jarc.services.usertenantservice.repository.*;
+import com.sourcefuse.jarc.services.usertenantservice.repository.AuthClientsRepository;
+import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
+import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
+import com.sourcefuse.jarc.services.usertenantservice.repository.UserRepository;
+import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantRepository;
+import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -18,7 +29,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.*;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.buf.StringUtils;
@@ -49,7 +59,7 @@ public class TenantUserServiceImpl implements TenantUserService {
     IAuthUserWithPermissions currentUser,
     Object options
   ) {
-    Map mapOption = new HashMap();
+    Map<String, String> mapOption = new HashMap();
     User user = userData.getUserDetails();
     if (options != null) {
       mapOption = (Map) options;
@@ -61,11 +71,74 @@ public class TenantUserServiceImpl implements TenantUserService {
     if (optRole.isPresent()) {
       role = optRole.get();
       roleType = RoleTypeMap.get(role.getRoleType()).permissionKey();
-    } else throw new ResponseStatusException(
-      HttpStatus.NOT_FOUND,
-      "${no.role.is.present}"
+    } else {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        "${no.role.is.present}"
+      );
+    }
+    UserDto existingUser = getUserDto(
+      userData,
+      currentUser,
+      mapOption,
+      user,
+      roleType
+    );
+    if (existingUser != null) return existingUser;
+
+    if (
+      currentUser.getTenantId().equals(userData.getTenantId()) &&
+      currentUser
+        .getPermissions()
+        .contains(PermissionKey.CREATE_TENANT_USER_RESTRICTED.toString()) &&
+      !currentUser.getPermissions().contains("CreateTenant" + roleType)
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.FORBIDDEN,
+        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+      );
+    }
+
+    List<AuthClient> authClients = authClientsRepository.findByClientIdIn(
+      role.getAllowedClients(),
+      AuthClient.class
     );
 
+    List<String> authClientIds = authClients
+      .stream()
+      .map(auth -> String.valueOf(auth.getId()))
+      .toList();
+    user.setAuthClientIds("{" + StringUtils.join(authClientIds, ',') + "}");
+
+    user.setUsername(user.getUsername().toLowerCase(Locale.getDefault()));
+    user.setDefaultTenantId(userData.getTenantId());
+    User savedUser = userRepository.save(user);
+    UserTenant userTenant = createUserTenantData(
+      userData,
+      UserStatus.REGISTERED,
+      savedUser.getId()
+    );
+    return new UserDto(
+      savedUser,
+      userTenant.getRoleId(),
+      userTenant.getStatus(),
+      userTenant.getTenantId(),
+      userTenant.getId(),
+      String.valueOf(
+        mapOption.get(CommonConstants.AUTH_PROVIDER) != null
+          ? mapOption.get(CommonConstants.AUTH_PROVIDER)
+          : ""
+      )
+    );
+  }
+
+  private UserDto getUserDto(
+    UserDto userData,
+    IAuthUserWithPermissions currentUser,
+    Map<String, String> mapOption,
+    User user,
+    String roleType
+  ) {
     User existingUser = userRepository.findByUsernameOrEmail(
       user.getUsername(),
       user.getEmail()
@@ -83,7 +156,7 @@ public class TenantUserServiceImpl implements TenantUserService {
         );
       } else {
         if (
-          currentUser.getTenantId() == userData.getTenantId() &&
+          currentUser.getTenantId().equals(userData.getTenantId()) &&
           currentUser
             .getPermissions()
             .contains(PermissionKey.CREATE_TENANT_USER_RESTRICTED.toString()) &&
@@ -97,8 +170,7 @@ public class TenantUserServiceImpl implements TenantUserService {
         UserTenant userTenant = createUserTenantData(
           userData,
           UserStatus.REGISTERED,
-          existingUser.getId(),
-          mapOption
+          existingUser.getId()
         );
         return new UserDto(
           existingUser,
@@ -107,60 +179,14 @@ public class TenantUserServiceImpl implements TenantUserService {
           userTenant.getTenantId(),
           userTenant.getId(),
           String.valueOf(
-            mapOption.get("authProvider") != null
-              ? mapOption.get("authProvider")
+            mapOption.get(CommonConstants.AUTH_PROVIDER) != null
+              ? mapOption.get(CommonConstants.AUTH_PROVIDER)
               : ""
           )
         );
       }
     }
-
-    if (
-      currentUser.getTenantId() == userData.getTenantId() &&
-      currentUser
-        .getPermissions()
-        .contains(PermissionKey.CREATE_TENANT_USER_RESTRICTED.toString()) &&
-      !currentUser.getPermissions().contains("CreateTenant" + roleType)
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
-      );
-    }
-    //todo doubt :: pending dynamic query
-    List<AuthClient> authClients = authClientsRepository.findByClientIdIn(
-      role.getAllowedClients(),
-      Role.class
-    );
-    //List<AuthClient> authClients=Arrays.asList(new AuthClient[]{new AuthClient(UUID.randomUUID()),
-    //      new AuthClient(UUID.randomUUID())});
-    List<String> authClientIds = authClients
-      .stream()
-      .map(auth -> String.valueOf(auth.getId()))
-      .collect(Collectors.toList());
-    user.setAuthClientIds("{" + StringUtils.join(authClientIds, ',') + "}");
-
-    user.setUsername(user.getUsername().toLowerCase());
-    user.setDefaultTenantId(userData.getTenantId());
-    User savedUser = userRepository.save(user);
-    UserTenant userTenant = createUserTenantData(
-      userData,
-      UserStatus.REGISTERED,
-      savedUser.getId(),
-      mapOption
-    );
-    return new UserDto(
-      savedUser,
-      userTenant.getRoleId(),
-      userTenant.getStatus(),
-      userTenant.getTenantId(),
-      userTenant.getId(),
-      String.valueOf(
-        mapOption.get("authProvider") != null
-          ? mapOption.get("authProvider")
-          : ""
-      )
-    );
+    return null;
   }
 
   @Override
@@ -171,7 +197,7 @@ public class TenantUserServiceImpl implements TenantUserService {
   ) {
     Map<String, Object> map = new HashMap<>();
     CriteriaBuilder cb = em.getCriteriaBuilder();
-    CriteriaQuery cq = cb.createQuery();
+    CriteriaQuery<UserView> cq = cb.createQuery(UserView.class);
     Root<UserView> root = cq.from(cls);
     Predicate finl = null;
 
@@ -245,20 +271,17 @@ public class TenantUserServiceImpl implements TenantUserService {
     User tempUser = new User();
     BeanUtils.copyProperties(userView, tempUser);
     User savUser;
-
-    if (tempUser != null) {
-      Optional<User> optUser = userRepository.findById(id);
-      if (optUser.isPresent()) {
-        savUser = optUser.get();
-        BeanUtils.copyProperties(
-          tempUser,
-          savUser,
-          CommonUtils.getNullPropertyNames(tempUser)
-        );
-        savUser = userRepository.save(savUser);
-      }
-      updateUserTenant(userView, id, currentUser);
+    Optional<User> optUser = userRepository.findById(id);
+    if (optUser.isPresent()) {
+      savUser = optUser.get();
+      BeanUtils.copyProperties(
+        tempUser,
+        savUser,
+        CommonUtils.getNullPropertyNames(tempUser)
+      );
+      userRepository.save(savUser);
     }
+    updateUserTenant(userView, id, currentUser);
   }
 
   @Override
@@ -298,11 +321,11 @@ public class TenantUserServiceImpl implements TenantUserService {
     if (optUser.isPresent()) {
       user = optUser.get();
       user.setDefaultTenantId(defaultTenantId);
-      user = userRepository.save(user);
+      userRepository.save(user);
     }
   }
 
-  private void checkForDeleteAnyUserPermission(
+  private static void checkForDeleteAnyUserPermission(
     IAuthUserWithPermissions currentUser,
     UUID tenantId
   ) {
@@ -310,7 +333,7 @@ public class TenantUserServiceImpl implements TenantUserService {
       !currentUser
         .getPermissions()
         .contains(PermissionKey.DELETE_ANY_USER.toString()) &&
-      tenantId != currentUser.getTenantId()
+      !tenantId.equals(currentUser.getTenantId())
     ) {
       throw new ResponseStatusException(
         HttpStatus.FORBIDDEN,
@@ -333,10 +356,12 @@ public class TenantUserServiceImpl implements TenantUserService {
           id,
           currentUser.getTenantId()
         );
-      if (!userTenant.isPresent()) throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
-      );
+      if (!userTenant.isPresent()) {
+        throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+        );
+      }
     }
   }
 
@@ -392,7 +417,7 @@ public class TenantUserServiceImpl implements TenantUserService {
             ? userView.getTenantId()
             : currentUser.getTenantId()
         );
-      usrTntLis.forEach(usrTnt -> {
+      usrTntLis.forEach((UserTenant usrTnt) -> {
         BeanUtils.copyProperties(
           utData,
           usrTnt,
@@ -408,45 +433,7 @@ public class TenantUserServiceImpl implements TenantUserService {
     UUID id,
     UUID tenantId
   ) {
-    if (
-      currentUser.getId() != id &&
-      currentUser
-        .getPermissions()
-        .contains(PermissionKey.UPDATE_OWN_USER.toString())
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
-      );
-    }
-    if (
-      currentUser.getTenantId() == tenantId &&
-      currentUser
-        .getPermissions()
-        .contains(PermissionKey.UPDATE_TENANT_USER_RESTRICTED.toString()) &&
-      currentUser.getId() != id
-    ) {
-      Optional<UserTenant> userTenant =
-        userTenantRepository.findFirstByUserIdAndTenantIdOrderByIdAsc(
-          id,
-          currentUser.getTenantId()
-        );
-      //  userTenant.getRole().getRoleType()  doubt::
-      //RoleType.DEFAULT this need to change
-      if (
-        !userTenant.isPresent() ||
-        !currentUser
-          .getPermissions()
-          .contains(
-            "UpdateTenant" + RoleTypeMap.get(RoleType.DEFAULT).permissionKey()
-          )
-      ) {
-        throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN,
-          AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
-        );
-      }
-    }
+    extracted(currentUser, id, tenantId);
 
     if (
       currentUser
@@ -480,35 +467,66 @@ public class TenantUserServiceImpl implements TenantUserService {
     }
   }
 
-  private void validateUserCreation(
-    User user,
-    UserDto userData,
+  private void extracted(
     IAuthUserWithPermissions currentUser,
-    Map options
+    UUID id,
+    UUID tenantId
   ) {
     if (
+      !currentUser.getId().equals(id) &&
       currentUser
         .getPermissions()
-        .contains(PermissionKey.CREATE_TENANT_USER.getKey()) &&
-      !currentUser.getTenantId().equals(userData.getTenantId())
+        .contains(PermissionKey.UPDATE_OWN_USER.toString())
     ) {
       throw new ResponseStatusException(
         HttpStatus.FORBIDDEN,
         AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
       );
     }
+    if (
+      currentUser.getTenantId().equals(tenantId) &&
+      currentUser
+        .getPermissions()
+        .contains(PermissionKey.UPDATE_TENANT_USER_RESTRICTED.toString()) &&
+      !currentUser.getId().equals(id)
+    ) {
+      Optional<UserTenant> userTenant =
+        userTenantRepository.findFirstByUserIdAndTenantIdOrderByIdAsc(
+          id,
+          currentUser.getTenantId()
+        );
+      //  userTenant.getRole().getRoleType()  doubt::
+      //RoleType.DEFAULT this need to change
+      if (
+        !userTenant.isPresent() ||
+        !currentUser
+          .getPermissions()
+          .contains(
+            "UpdateTenant" + RoleTypeMap.get(RoleType.DEFAULT).permissionKey()
+          )
+      ) {
+        throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+        );
+      }
+    }
+  }
 
-    if (user != null && user.getEmail() != null) user.setEmail(
-      user.getEmail().toLowerCase().trim()
-    );
+  private static void validateUserCreation(
+    User user,
+    UserDto userData,
+    IAuthUserWithPermissions currentUser,
+    Map<String, String> options
+  ) {
+    extracted(userData, currentUser);
 
+    if (user.getEmail() != null) {
+      user.setEmail(user.getEmail().toLowerCase(Locale.getDefault()).trim());
+    }
     // Check for valid email
     String emailRegex = "^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$";
-    if (
-      user != null &&
-      user.getEmail() != null &&
-      !user.getEmail().matches(emailRegex)
-    ) {
+    if (user.getEmail() != null && !user.getEmail().matches(emailRegex)) {
       throw new ResponseStatusException(
         HttpStatus.FORBIDDEN,
         "${email.invalid}"
@@ -521,7 +539,7 @@ public class TenantUserServiceImpl implements TenantUserService {
       : new String[0];
     String[] email = user.getEmail().split("@");
     if (
-      email.length != 2 ||
+      email.length != CommonConstants.TWO ||
       allowedDomains.length == 0 ||
       !Arrays.asList(allowedDomains).contains(email[1])
     ) {
@@ -532,30 +550,44 @@ public class TenantUserServiceImpl implements TenantUserService {
     }
 
     if (
-      allowedDomains != null &&
       allowedDomains.length == 1 &&
-      allowedDomains[0].equals("*") &&
+      "*".equals(allowedDomains[0]) &&
       options != null
     ) {
-      options.put("authProvider", "keycloak");
-      // options.setAuthProvider("keycloak");
+      options.put(CommonConstants.AUTH_PROVIDER, "keycloak");
     } else if (options != null) {
       options.put(
-        "authProvider",
-        options.get("authProvider") != null &&
+        CommonConstants.AUTH_PROVIDER,
+        options.get(CommonConstants.AUTH_PROVIDER) != null &&
           Arrays.asList(allowedDomains).contains(email[1])
-          ? options.get("authProvider")
+          ? options.get(CommonConstants.AUTH_PROVIDER)
           : "internal"
       );
-    }
+    } else {}
     // Implement user creation validation logic here
+  }
+
+  private static void extracted(
+    UserDto userData,
+    IAuthUserWithPermissions currentUser
+  ) {
+    if (
+      currentUser
+        .getPermissions()
+        .contains(PermissionKey.CREATE_TENANT_USER.getKey()) &&
+      !currentUser.getTenantId().equals(userData.getTenantId())
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.FORBIDDEN,
+        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+      );
+    }
   }
 
   private UserTenant createUserTenantData(
     UserDto userData,
     UserStatus status,
-    UUID userId,
-    Map options
+    UUID userId
   ) {
     UserTenant userTenant = UserTenant
       .builder()

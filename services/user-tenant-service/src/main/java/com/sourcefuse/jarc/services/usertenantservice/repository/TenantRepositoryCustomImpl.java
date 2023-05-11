@@ -8,12 +8,13 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 class TenantRepositoryCustomImpl<T> implements TenantRepositoryCustom<T> {
 
   CriteriaBuilder cb;
@@ -24,49 +25,27 @@ class TenantRepositoryCustomImpl<T> implements TenantRepositoryCustom<T> {
   private EntityManager em;
 
   @Override
-  public void createCriteria(Class entityClass) {
+  public void createCriteria(Class<T> entityClass) {
     this.cb = this.em.getCriteriaBuilder();
     criteriaQuery = cb.createQuery(entityClass);
     root = criteriaQuery.from(entityClass);
   }
 
   @Override
-  public List<T> nameByCourse(
-    String author,
-    String bookname,
-    String lis,
-    Class type
-  ) {
+  public List<T> findByClientIdIn(List<String> allowedClients, Class<T> type) {
     createCriteria(type);
-    Predicate authorNamePredicate = cb.equal(root.get("author"), author);
-    Predicate titlePredicate = cb.like(root.get("lName"), "%" + bookname + "%");
-    List<String> ls = Arrays.asList(lis, "320");
-    Predicate inPredi = root.get("price").in(ls);
-    Predicate finalPr = cb.or(
-      inPredi,
-      cb.and(authorNamePredicate, titlePredicate)
-    );
-    //Using criteria builder you can build your criteria queries.
-    criteriaQuery.where(finalPr);
-
-    return em.createQuery(criteriaQuery).getResultList();
-  }
-
-  @Override
-  public List<T> findByClientIdIn(List<String> allowedClients, Class type) {
-    createCriteria(type);
-    Predicate inPre = root.get("allowedClients").in(allowedClients);
+    Predicate inPre = root.get("clientId").in(allowedClients);
     criteriaQuery.where(inPre);
     return em.createQuery(criteriaQuery).getResultList();
   }
 
   @Override
-  public List<UserView> findUserView(CriteriaQuery criteriaQuery) {
+  public List<T> findUserView(CriteriaQuery<T> criteriaQuery) {
     return em.createQuery(criteriaQuery).getResultList();
   }
 
   @Override
-  public List<T> getAllUserView(UUID id, Class type) {
+  public List<T> getAllUserView(UUID id, Class<T> type) {
     createCriteria(type);
     criteriaQuery.where(
       cb.equal(root.get("tenantId"), id),
@@ -76,12 +55,12 @@ class TenantRepositoryCustomImpl<T> implements TenantRepositoryCustom<T> {
   }
 
   @Override
-  public List<UserView> countUser(CriteriaQuery cq) {
+  public List<T> countUser(CriteriaQuery<T> cq) {
     return em.createQuery(cq).getResultList();
   }
 
   @Override
-  public T findById(UUID userId, UUID id, Class type) {
+  public T findById(UUID userId, UUID id, Class<T> type) {
     createCriteria(type);
     criteriaQuery.where(
       cb.equal(root.get("id"), userId),

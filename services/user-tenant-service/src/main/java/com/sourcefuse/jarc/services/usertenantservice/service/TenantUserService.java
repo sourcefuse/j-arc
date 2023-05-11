@@ -20,16 +20,16 @@ public interface TenantUserService {
   Map<String, Object> checkViewTenantRestrictedPermissions(
     IAuthUserWithPermissions currentUser,
     Predicate predicate,
-    Class cls
+    Class<UserView> cls
   );
 
-  List<UserView> getUserView(CriteriaQuery criteriaQuery);
+  List<UserView> getUserView(CriteriaQuery<UserView> criteriaQuery);
 
-  List<UserView> getAllUsers(UUID id, Class type);
+  List<UserView> getAllUsers(UUID id, Class<UserView> type);
 
-  List<UserView> count(CriteriaQuery cq);
+  List<UserView> count(CriteriaQuery<UserView> cq);
 
-  UserView findById(UUID userId, UUID id, Class type);
+  UserView findById(UUID userId, UUID id, Class<UserView> type);
 
   void updateById(
     IAuthUserWithPermissions currentUser,

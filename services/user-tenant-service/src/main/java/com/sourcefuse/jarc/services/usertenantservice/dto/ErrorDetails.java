@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ErrorDetails {
 
-  private Date timestamp;
+  private LocalDateTime timestamp;
   private String message;
   private String details;
 }

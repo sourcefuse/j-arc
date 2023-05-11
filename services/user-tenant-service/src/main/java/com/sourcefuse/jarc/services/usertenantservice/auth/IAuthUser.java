@@ -7,8 +7,6 @@ import lombok.Data;
 @Data
 public class IAuthUser {
 
-  UUID id;
-
   String userName;
 
   String password;
