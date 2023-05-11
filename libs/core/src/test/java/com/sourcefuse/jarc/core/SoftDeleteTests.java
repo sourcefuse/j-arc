@@ -72,23 +72,13 @@ class SoftDeleteTests {
   void testFindAll() {
     List<Role> result = this.roleRepository.findAllIncludeSoftDelete();
 
-    assertThat(result).containsExactly(adminRole, tempRole, userRole);
+    assertThat(result).containsExactly(adminRole, userRole, tempRole);
   }
 
   @Test
-  void testFindAllPageable() {
-    Page<Role> result = this.roleRepository.findAll(PageRequest.of(0, 2));
-
-    assertThat(result.getContent()).containsExactly(adminRole, userRole);
-  }
-
-  @Test
-  void testFindAllIds() {
+  void testFindAllSort() {
     List<Role> result =
-      this.roleRepository.findAllById(Collections.singleton(tempRole.getId()));
-
-    assertThat(result).containsExactly(tempRole);
-  }
+      this.roleRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
 
     assertThat(result).containsExactly(adminRole, tempRole, userRole);
   }
@@ -334,53 +324,40 @@ class SoftDeleteTests {
     boolean result =
       this.roleRepository.existsByIdIncludeSoftDelete(tempRole.getId());
 
+    assertThat(result).isFalse();
+  }
+
   @Test
   void testDeleteAllByIdInBatchHard() {
     this.roleRepository.deleteAllByIdInBatchHard(
         Collections.singleton(tempRole.getId())
       );
 
-  @Test
-  void testSoftDeleteById() {
-    this.roleRepository.deleteById(tempRole.getId());
+    boolean result =
+      this.roleRepository.existsByIdIncludeSoftDelete(tempRole.getId());
 
-    assertThat(this.roleRepository.findById(tempRole.getId())).isEmpty();
+    assertThat(result).isFalse();
   }
 
   @Test
-  void testSoftDelete() {
-    this.roleRepository.delete(tempRole);
+  void testDeleteAllHardByEntities() {
+    this.roleRepository.deleteAllHard(Collections.singleton(tempRole));
 
-    assertThat(this.roleRepository.findById(tempRole.getId())).isEmpty();
+    boolean result =
+      this.roleRepository.existsByIdIncludeSoftDelete(tempRole.getId());
+
+    assertThat(result).isFalse();
   }
 
   @Test
-  void testSoftDeleteAll() {
-    this.roleRepository.deleteAll();
+  void testDeleteAllInBatchHardByEntities() {
+    this.roleRepository.deleteAllInBatchHard(Collections.singleton(tempRole));
 
-    assertThat(this.roleRepository.findAll()).isEmpty();
+    boolean result =
+      this.roleRepository.existsByIdIncludeSoftDelete(tempRole.getId());
+
+    assertThat(result).isFalse();
   }
-
-  @Test
-  void testCountActive() {
-    long result = this.roleRepository.count();
-
-    assertThat(result).isEqualTo(3);
-  }
-
-  @Test
-  void testExistsActive() {
-    boolean result = this.roleRepository.existsById(tempRole.getId());
-
-    assertThat(result).isTrue();
-  }
-
-  /**
-   * Test that a deleted entity is marked as deleted
-   */
-  @Test
-  void shouldMarkDeletedEntityAsDeleted() {
-    this.roleRepository.delete(tempRole);
 
   @Test
   void testDeleteAllHard() {
@@ -391,16 +368,18 @@ class SoftDeleteTests {
     assertEquals(0, roles.size());
   }
 
-    assertEquals(0, roles.size());
-  }
+  @Test
+  void testDeleteAllInBatchHard() {
+    this.roleRepository.deleteAllInBatchHard();
 
     List<Role> roles = this.roleRepository.findAllIncludeSoftDelete();
 
     assertEquals(0, roles.size());
   }
 
-    assertEquals(0, roles.size());
-  }
+  @Test
+  void testFindByIdIncludeSoftDelete() {
+    this.roleRepository.deleteById(tempRole.getId());
 
     Role role =
       this.roleRepository.findByIdIncludeSoftDelete(tempRole.getId())
@@ -431,9 +410,9 @@ class SoftDeleteTests {
     assertEquals(2, roles.size());
   }
 
-    assertEquals(3, rolesIncludeDeleted.size());
-    assertEquals(2, roles.size());
-  }
+  @Test
+  void testFindAllByIdIncludeSoftDelete() {
+    this.roleRepository.deleteById(tempRole.getId());
 
     List<Role> roles =
       this.roleRepository.findAllByIdIncludeSoftDelete(
@@ -443,8 +422,9 @@ class SoftDeleteTests {
     assertEquals(1, roles.size());
   }
 
-    assertEquals(1, roles.size());
-  }
+  @Test
+  void testFindAllIncludeSoftDeleteWithSort() {
+    this.roleRepository.deleteById(tempRole.getId());
 
     List<Role> roles =
       this.roleRepository.findAllIncludeSoftDelete(
@@ -455,9 +435,9 @@ class SoftDeleteTests {
     assertThat(roles).contains(userRole, tempRole, adminRole);
   }
 
-    assertEquals(3, roles.size());
-    assertThat(roles).contains(userRole, tempRole, adminRole);
-  }
+  @Test
+  void testFindAllIncludeSoftDeleteWithPageable() {
+    this.roleRepository.deleteById(tempRole.getId());
 
     Page<Role> roles =
       this.roleRepository.findAllIncludeSoftDelete(PageRequest.of(0, 3));
@@ -486,9 +466,6 @@ class SoftDeleteTests {
       this.roleRepository.findAllIncludeSoftDelete(
           Specification.where(getById(tempRole.getId()))
         );
-
-    assertEquals(1, roles.size());
-  }
 
     assertEquals(1, roles.size());
   }
@@ -602,6 +579,10 @@ class SoftDeleteTests {
     assertEquals(1, roles.size());
   }
 
+  @Test
+  void findAllIncludeSoftDeleteWithExampleAndPageable() {
+    this.roleRepository.deleteById(tempRole.getId());
+
     Page<Role> roles =
       this.roleRepository.findAllIncludeSoftDelete(
           tempRoleExample,
@@ -612,13 +593,18 @@ class SoftDeleteTests {
     assertNotNull(roles.filter(ele -> ele.getName().equals("Temp")).toList());
   }
 
-    assertEquals(1, roles.toList().size());
-    assertNotNull(roles.filter(ele -> ele.getName().equals("Temp")).toList());
+  @Test
+  void testFindByIncludeSoftDeleteWithExample() {
+    List<Role> result =
+      this.roleRepository.findByIncludeSoftDelete(
+          tempRoleExample,
+          query -> query.all()
+        );
+
+    assertEquals(1, result.size());
+
+    assertThat(result).contains(tempRole);
   }
-
-    assertEquals(1, result.size());
-
-    assertEquals(1, result.size());
 
   @Test
   void testFindByIncludeSoftDeleteWithSpecification() {
@@ -631,13 +617,11 @@ class SoftDeleteTests {
     assertEquals(2, result.size());
   }
 
-    assertEquals(2, result.size());
-  }
+  @Test
+  void testCountIncludeSoftDelete() {
+    this.roleRepository.deleteById(tempRole.getId());
 
     Long roles = this.roleRepository.countIncludeSoftDelete();
-
-    assertEquals(3, roles);
-  }
 
     assertEquals(3, roles);
   }
@@ -654,176 +638,12 @@ class SoftDeleteTests {
     assertEquals(1, roles);
   }
 
-		assertEquals(3, roles.size());
-		assertThat(roles).contains(userRole, tempRole, adminRole);
-	}
+  private Specification<Role> getById(UUID id) {
+    return (root, query, builder) -> builder.equal(root.get("id"), id);
+  }
 
-	@Test
-	void testFindAllIncludeSoftDeleteWithPageable() {
-		this.roleRepository.deleteById(tempRole.getId());
-
-		Page<Role> roles = this.roleRepository.findAllIncludeSoftDelete(PageRequest.of(0, 3));
-
-		assertNotNull(roles.filter(ele -> ele.getName().equals("Admin")).toList());
-		assertNotNull(roles.filter(ele -> ele.getName().equals("User")).toList());
-		assertNotNull(roles.filter(ele -> ele.getName().equals("Temp")).toList());
-	}
-
-	@Test
-	void testFindOneIncludeSoftDelete() {
-		this.roleRepository.deleteById(tempRole.getId());
-		Role role = this.roleRepository.findOneIncludeSoftDelete(Specification.where(getById(tempRole.getId())))
-				.orElse(null);
-		assertNotNull(role);
-	}
-
-	@Test
-	void findAllIncludeSoftDelete() {
-		this.roleRepository.deleteById(tempRole.getId());
-
-		List<Role> roles = this.roleRepository.findAllIncludeSoftDelete(Specification.where(getById(tempRole.getId())));
-
-		assertEquals(1, roles.size());
-	}
-
-	@Test
-	void findAllIncludeSoftDeleteWithSpecificationAndPageable() {
-		this.roleRepository.deleteById(tempRole.getId());
-		Page<Role> roles = this.roleRepository.findAllIncludeSoftDelete(Specification.where(permissionLike("Get")),
-				PageRequest.of(0, 3));
-
-		assertNotNull(roles.filter(ele -> ele.getName().equals("Admin")).toList());
-		assertNotNull(roles.filter(ele -> ele.getName().equals("User")).toList());
-		assertNotNull(roles.filter(ele -> ele.getName().equals("Temp")).toList());
-	}
-
-	@Test
-	void findAllIncludeSoftDeleteWithSpecificationAndSort() {
-		this.roleRepository.deleteById(userRole.getId());
-
-		List<Role> roles = this.roleRepository.findAllIncludeSoftDelete(Specification.where(permissionLike("Update")),
-				Sort.by(Sort.Direction.DESC, "name"));
-
-		assertEquals(2, roles.size());
-		assertThat(roles).contains(userRole, adminRole);
-	}
-
-	@Test
-	void testFindOneIncludeSoftDeleteByExample() {
-		this.roleRepository.deleteById(tempRole.getId());
-
-		Role rolesExists = this.roleRepository.findOneIncludeSoftDelete(tempRoleExample).orElse(null);
-
-		assertNotNull(rolesExists);
-	}
-
-	@Test
-	void testCountIncludeSoftDeleteByExample() {
-		this.roleRepository.deleteById(tempRole.getId());
-
-		Long roleCount = this.roleRepository.countIncludeSoftDelete(tempRoleExample);
-
-		assertEquals(1, roleCount);
-	}
-
-	@Test
-	void testExistsIncludeSoftDeleteByExample() {
-		this.roleRepository.deleteById(tempRole.getId());
-
-		boolean rolesExists = this.roleRepository.existsIncludeSoftDelete(tempRoleExample);
-
-		assertTrue(rolesExists);
-	}
-
-	@Test
-	void testExistsIncludeSoftDeleteBySpecification() {
-		this.roleRepository.deleteById(tempRole.getId());
-
-		boolean rolesExists = this.roleRepository
-				.existsIncludeSoftDelete(Specification.where(getById(tempRole.getId())));
-
-		assertTrue(rolesExists);
-	}
-
-	@Test
-	void testDeleteHardBySpecification() {
-		Long deletedEntities = this.roleRepository.deleteHard(Specification.where(getById(tempRole.getId())));
-
-		assertEquals(deletedEntities, 1);
-
-		boolean result = this.roleRepository.existsByIdIncludeSoftDelete(tempRole.getId());
-
-		assertThat(result).isFalse();
-	}
-
-	@Test
-	void findAllIncludeSoftDeleteWithExample() {
-		this.roleRepository.deleteById(tempRole.getId());
-
-		List<Role> roles = this.roleRepository.findAllIncludeSoftDelete(tempRoleExample);
-
-		assertEquals(1, roles.size());
-	}
-
-	@Test
-	void findAllIncludeSoftDeleteWithExampleAndSort() {
-		this.roleRepository.deleteById(tempRole.getId());
-
-		List<Role> roles = this.roleRepository.findAllIncludeSoftDelete(tempRoleExample,
-				Sort.by(Sort.Direction.DESC, "name"));
-
-		assertEquals(1, roles.size());
-	}
-
-	@Test
-	void findAllIncludeSoftDeleteWithExampleAndPageable() {
-		this.roleRepository.deleteById(tempRole.getId());
-
-		Page<Role> roles = this.roleRepository.findAllIncludeSoftDelete(tempRoleExample, PageRequest.of(0, 1));
-
-		assertEquals(roles.toList().size(), 1);
-		assertNotNull(roles.filter(ele -> ele.getName().equals("Temp")).toList());
-	}
-
-	@Test
-	void testFindByIncludeSoftDeleteWithExample() {
-		List<Role> result = this.roleRepository.findByIncludeSoftDelete(tempRoleExample, query -> query.all());
-
-		assertEquals(1, result.size());
-
-		assertThat(result).contains(tempRole);
-	}
-
-	@Test
-	void testFindByIncludeSoftDeleteWithSpecification() {
-		List<Role> result = this.roleRepository.findByIncludeSoftDelete(permissionLike("Update"), query -> query.all());
-
-		assertEquals(2, result.size());
-	}
-
-	@Test
-	void testCountIncludeSoftDelete() {
-		this.roleRepository.deleteById(tempRole.getId());
-
-		Long roles = this.roleRepository.countIncludeSoftDelete();
-
-		assertEquals(3, roles);
-	}
-
-	@Test
-	void testCountIncludeSoftDeleteBySoecification() {
-		this.roleRepository.deleteById(tempRole.getId());
-
-		Long roles = this.roleRepository.countIncludeSoftDelete(Specification.where(getById(tempRole.getId())));
-
-		assertEquals(roles, 1);
-	}
-
-	private Specification<Role> getById(UUID id) {
-		return (root, query, builder) -> builder.equal(root.get("id"), id);
-	}
-
-	private Specification<Role> permissionLike(String permission) {
-		return (root, query, builder) -> builder.like(root.get("permissions"), "%" + permission + "%");
-	}
+  private Specification<Role> permissionLike(String permission) {
+    return (root, query, builder) ->
+      builder.like(root.get("permissions"), "%" + permission + "%");
+  }
 }

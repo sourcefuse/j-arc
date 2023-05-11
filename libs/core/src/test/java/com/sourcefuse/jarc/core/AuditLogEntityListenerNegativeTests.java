@@ -82,24 +82,38 @@ class AuditLogEntityListenerNegativeTests {
     assertNotEquals(oldName, roles.get(0).getName());
     assertEquals(role.getPermissions(), roles.get(0).getPermissions());
 
-    assertEquals(1, roles.size());
-    assertEquals(role.getId(), roles.get(0).getId());
-    assertEquals(role.getName(), roles.get(0).getName());
-    assertEquals(updatedName, roles.get(0).getName());
-    assertNotEquals(oldName, roles.get(0).getName());
-    assertEquals(role.getPermissions(), roles.get(0).getPermissions());
+    List<AuditLog> auditLogs = entityManager
+      .createQuery(
+        "Select a from AuditLog a order by a.actedOn desc",
+        AuditLog.class
+      )
+      .getResultList();
 
     assertEquals(0, auditLogs.size());
   }
 
-    assertEquals(0, auditLogs.size());
-  }
+  /**
+   * should not save AuditLog when Role is hard deleted since authentication is
+   * not exists
+   */
+  @Test
+  void shouldNotSaveAuditLogWhenRoleIsHardDeleted() {
+    Role role = new Role();
+    role.setName("ABC");
+    role.setPermissions("XYZ");
+    role = this.roleRepository.save(role);
+    this.roleRepository.deleteByIdHard(role.getId());
 
     List<Role> roles = this.roleRepository.findAll();
 
     assertEquals(0, roles.size());
 
-    List<Role> roles = this.roleRepository.findAll();
+    List<AuditLog> auditLogs = entityManager
+      .createQuery(
+        "Select a from AuditLog a order by a.actedOn desc",
+        AuditLog.class
+      )
+      .getResultList();
 
     assertEquals(0, auditLogs.size());
   }
@@ -126,17 +140,12 @@ class AuditLogEntityListenerNegativeTests {
     roles = this.roleRepository.findAll();
     assertEquals(1, roles.size());
 
-  /**
-   * should not save AuditLog when Role is soft deleted since authentication is
-   * not exists
-   */
-  @Test
-  void shouldSaveAuditLogWhenRoleIsSoftDeleted() {
-    Role role = new Role();
-    role.setName("ABC");
-    role.setPermissions("XYZ");
-    role = this.roleRepository.save(role);
-    List<Role> roles = this.roleRepository.findAll();
+    List<AuditLog> auditLogs = entityManager
+      .createQuery(
+        "Select a from AuditLog a order by a.actedOn desc",
+        AuditLog.class
+      )
+      .getResultList();
 
     assertEquals(0, auditLogs.size());
   }

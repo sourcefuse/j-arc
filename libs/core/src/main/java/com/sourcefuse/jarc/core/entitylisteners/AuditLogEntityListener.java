@@ -31,11 +31,6 @@ public class AuditLogEntityListener<T extends BaseEntity> {
     this.saveAuditLog(AuditActions.SAVE, target);
   }
 
-  @PostPersist
-  public void onPersist(T target) {
-    this.saveAuditLog(AuditActions.SAVE, target);
-  }
-
   @PostUpdate
   public void onUpdate(T target) {
     if (target instanceof SoftDeleteEntity softDeletedEntity) {
