@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+// import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,14 +25,14 @@ public class AuditLogController {
   @Autowired
   private AuditLogRepository auditLogRepository;
 
-  // TODO: Remove comments of @PreAuthorize("isAuthenticated()") once
-  // authorization service is integrated
+  // TODO: Remove comments of @PreAuthorize("isAuthenticated()") 
+  //once authorization service is integrated
   @PostMapping
   //	@PreAuthorize("isAuthenticated()")
   public ResponseEntity<AuditLog> create(
     @Valid @RequestBody AuditLog auditLog
   ) {
-    return new ResponseEntity<AuditLog>(
+    return new ResponseEntity<>(
       this.auditLogRepository.save(auditLog),
       HttpStatus.CREATED
     );
@@ -41,7 +41,7 @@ public class AuditLogController {
   @GetMapping("/count")
   //	@PreAuthorize("isAuthenticated()")
   public ResponseEntity<Long> count() {
-    return new ResponseEntity<Long>(
+    return new ResponseEntity<>(
       this.auditLogRepository.count(),
       HttpStatus.OK
     );
@@ -50,7 +50,7 @@ public class AuditLogController {
   @GetMapping
   //	@PreAuthorize("isAuthenticated()")
   public ResponseEntity<Iterable<AuditLog>> find() {
-    return new ResponseEntity<Iterable<AuditLog>>(
+    return new ResponseEntity<>(
       this.auditLogRepository.findAll(),
       HttpStatus.OK
     );
@@ -66,6 +66,6 @@ public class AuditLogController {
         "entity not found for provided id"
       );
     }
-    return new ResponseEntity<AuditLog>(auditLog, HttpStatus.OK);
+    return new ResponseEntity<>(auditLog, HttpStatus.OK);
   }
 }

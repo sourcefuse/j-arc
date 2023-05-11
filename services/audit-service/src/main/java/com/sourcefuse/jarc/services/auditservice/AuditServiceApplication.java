@@ -15,8 +15,9 @@ public class AuditServiceApplication {
   }
 
   /**
-   * TODO: need to remove this code when authentication service is integrated
-   * This code is added to allow access to all url in this app for temporary purpose
+   * TODO: need to remove this code when authentication 
+   * service is integrated, This code is added to allow
+   * access to all url in this app for temporary purpose
    */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
