@@ -17,15 +17,16 @@ import java.util.List;
 import java.util.Map;
 
 public class TypeRole {
-    private TypeRole(){
-        throw new IllegalStateException("Utility class");
-    }
 
-    public static Map<RoleType, RoleTypeMapValue> getRoleTypeMap() {
-        return roleTypeMap;
-    }
+  private TypeRole() {
+    throw new IllegalStateException("Utility class");
+  }
 
-    static final List<String> DisallowedRoles = Collections.singletonList(
+  public static Map<RoleType, RoleTypeMapValue> getRoleTypeMap() {
+    return roleTypeMap;
+  }
+
+  static final List<String> DisallowedRoles = Collections.singletonList(
     String.valueOf(RoleTypes.OTHERS)
   );
 

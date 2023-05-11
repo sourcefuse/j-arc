@@ -47,7 +47,6 @@ public class TenantUserController {
   private final DeleteTntUserService deleteTntUserService;
   private final UpdateTntUserService updateTntUserService;
 
-
   @PersistenceContext
   private EntityManager em;
 

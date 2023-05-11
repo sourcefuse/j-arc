@@ -65,7 +65,7 @@ public class UserGroupController {
     } else {
       throw new ResponseStatusException(
         HttpStatus.NOT_FOUND,
-              CommonConstants.NO_GRP_PRESENT+ id
+        CommonConstants.NO_GRP_PRESENT + id
       );
     }
     return new ResponseEntity<>(usrGr.get(), HttpStatus.CREATED);
@@ -106,7 +106,7 @@ public class UserGroupController {
     } else {
       throw new ResponseStatusException(
         HttpStatus.NOT_FOUND,
-              CommonConstants.NO_GRP_PRESENT
+        CommonConstants.NO_GRP_PRESENT
       );
     }
 
@@ -146,8 +146,8 @@ public class UserGroupController {
           HttpStatus.FORBIDDEN,
           "${user.group.not.found}"
         );
-      }else{
-       userGroup= userGroupRecord.get();
+      } else {
+        userGroup = userGroupRecord.get();
       }
       extracted(currentUser, usrTenantId, usrGrp, userGroup);
       Count count = Count
@@ -166,7 +166,7 @@ public class UserGroupController {
     } else {
       throw new ResponseStatusException(
         HttpStatus.NOT_FOUND,
-              CommonConstants.NO_GRP_PRESENT
+        CommonConstants.NO_GRP_PRESENT
       );
     }
     return new ResponseEntity<>("UserGroup DELETE success", HttpStatus.OK);
@@ -206,9 +206,7 @@ public class UserGroupController {
     }
 
     if (
-      userGroupRecord
-        .getUserTenantId()
-        .equals(currentUser.getUserTenantId()) &&
+      userGroupRecord.getUserTenantId().equals(currentUser.getUserTenantId()) &&
       (currentUserGroup.isOwner())
     ) {
       throw new ResponseStatusException(
@@ -232,7 +230,7 @@ public class UserGroupController {
     } else {
       throw new ResponseStatusException(
         HttpStatus.NOT_FOUND,
-              CommonConstants.NO_GRP_PRESENT
+        CommonConstants.NO_GRP_PRESENT
       );
     }
     return new ResponseEntity<>(usrGrpList, HttpStatus.OK);

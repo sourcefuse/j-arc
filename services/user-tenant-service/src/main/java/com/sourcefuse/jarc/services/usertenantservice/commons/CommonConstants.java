@@ -2,11 +2,13 @@ package com.sourcefuse.jarc.services.usertenantservice.commons;
 
 public final class CommonConstants {
 
-  public static final String NO_GRP_PRESENT = "No group is present against given value";
+  public static final String NO_GRP_PRESENT =
+    "No group is present against given value";
 
-  private CommonConstants(){
+  private CommonConstants() {
     throw new IllegalStateException("Utility class");
   }
+
   public static final String FIND = "FIND";
 
   public static final String PREDICATE = "Predicate";

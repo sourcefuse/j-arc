@@ -29,5 +29,4 @@ public interface TenantUserService {
   List<UserView> count(CriteriaQuery<UserView> cq);
 
   UserView findById(UUID userId, UUID id, Class<UserView> type);
-
 }

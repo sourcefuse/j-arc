@@ -1,6 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
 import static com.sourcefuse.jarc.services.usertenantservice.commons.TypeRole.roleTypeMap;
+
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.commons.CommonConstants;
 import com.sourcefuse.jarc.services.usertenantservice.dto.AuthClient;
@@ -24,13 +25,13 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.UUID;
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.buf.StringUtils;
@@ -98,7 +99,12 @@ public class TenantUserServiceImpl implements TenantUserService {
     return getUserDto(userData, mapOption, user, authClients);
   }
 
-  private  UserDto getUserDto(UserDto userData, Map<String, String> mapOption, User user, List<AuthClient> authClients) {
+  private UserDto getUserDto(
+    UserDto userData,
+    Map<String, String> mapOption,
+    User user,
+    List<AuthClient> authClients
+  ) {
     List<String> authClientIds = authClients
       .stream()
       .map(auth -> String.valueOf(auth.getId()))
@@ -109,25 +115,29 @@ public class TenantUserServiceImpl implements TenantUserService {
     user.setDefaultTenantId(userData.getTenantId());
     User savedUser = userRepository.save(user);
     UserTenant userTenant = createUserTenantData(
-            userData,
+      userData,
       UserStatus.REGISTERED,
       savedUser.getId()
     );
     return new UserDto(
-            savedUser,
-            userTenant.getRoleId(),
-            userTenant.getStatus(),
-            userTenant.getTenantId(),
-            userTenant.getId(),
-            String.valueOf(
-                    mapOption.get(CommonConstants.AUTH_PROVIDER) != null
-                            ? mapOption.get(CommonConstants.AUTH_PROVIDER)
-                            : ""
-            )
+      savedUser,
+      userTenant.getRoleId(),
+      userTenant.getStatus(),
+      userTenant.getTenantId(),
+      userTenant.getId(),
+      String.valueOf(
+        mapOption.get(CommonConstants.AUTH_PROVIDER) != null
+          ? mapOption.get(CommonConstants.AUTH_PROVIDER)
+          : ""
+      )
     );
   }
 
-  private static void extracted(UserDto userData, IAuthUserWithPermissions currentUser, String roleType) {
+  private static void extracted(
+    UserDto userData,
+    IAuthUserWithPermissions currentUser,
+    String roleType
+  ) {
     if (
       currentUser.getTenantId().equals(userData.getTenantId()) &&
       currentUser
@@ -246,6 +256,7 @@ public class TenantUserServiceImpl implements TenantUserService {
   public UserView findById(UUID userId, UUID id, Class type) {
     return userViewRepository.findById(userId, id, type);
   }
+
   private static void validateUserCreation(
     User user,
     UserDto userData,
@@ -290,7 +301,11 @@ public class TenantUserServiceImpl implements TenantUserService {
     }
   }
 
-  private static void extracted(Map<String, String> options, String[] allowedDomains, String[] email) {
+  private static void extracted(
+    Map<String, String> options,
+    String[] allowedDomains,
+    String[] email
+  ) {
     if (
       allowedDomains.length == 1 &&
       "*".equals(allowedDomains[0]) &&
