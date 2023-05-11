@@ -1,5 +1,7 @@
 package com.sourcefuse.jarc.services.authservice.payload.keycloak;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,10 +14,14 @@ import lombok.Setter;
 public class KeycloakUserDTO {
 
   private String sub;
-  private boolean email_verified;
+  @JsonProperty("email_verified")
+  private boolean emailVerified;
   private String name;
-  private String preferred_username;
-  private String given_name;
-  private String family_name;
+  @JsonProperty("preferred_username")
+  private String preferredUsername;
+  @JsonProperty("given_name")
+  private String givenName;
+  @JsonProperty("family_name")
+  private String familyName;
   private String email;
 }
