@@ -10,20 +10,21 @@ import org.springframework.security.web.SecurityFilterChain;
 @SpringBootApplication
 public class AuditServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AuditServiceApplication.class, args);
+  public static void main(String[] args) {
+    SpringApplication.run(AuditServiceApplication.class, args);
+  }
 
-	}
-	
-	/** 
-	 * TODO: need to remove this code when authentication service is integrated
-	 * This code is added to allow access to all url in this app for temporary purpose
-	 */
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	    return http.csrf(CsrfConfigurer::disable)
-	        .authorizeHttpRequests(requests -> requests
-	            .requestMatchers("/**").permitAll())
-	        .build();
-	}
+  /**
+   * TODO: need to remove this code when authentication service is integrated
+   * This code is added to allow access to all url in this app for temporary purpose
+   */
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    return http
+      .csrf(CsrfConfigurer::disable)
+      .authorizeHttpRequests(requests ->
+        requests.requestMatchers("/**").permitAll()
+      )
+      .build();
+  }
 }
