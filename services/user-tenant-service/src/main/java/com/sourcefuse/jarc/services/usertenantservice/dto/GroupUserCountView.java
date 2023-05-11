@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupUserCountView extends Group implements Serializable {
+public class GroupUserCountView extends Group{
 
   private static final long serialVersionUID = 1905122041950251209L;
 

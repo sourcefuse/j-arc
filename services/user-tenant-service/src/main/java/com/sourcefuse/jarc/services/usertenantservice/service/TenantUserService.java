@@ -5,7 +5,6 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,16 +30,4 @@ public interface TenantUserService {
 
   UserView findById(UUID userId, UUID id, Class<UserView> type);
 
-  void updateById(
-    IAuthUserWithPermissions currentUser,
-    UUID userId,
-    @Valid UserView userView,
-    UUID id
-  );
-
-  void deleteUserById(
-    IAuthUserWithPermissions currentUser,
-    UUID userId,
-    UUID id
-  );
 }

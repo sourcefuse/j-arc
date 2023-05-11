@@ -15,20 +15,26 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import lombok.Getter;
 
 public class TypeRole {
+    private TypeRole(){
+        throw new IllegalStateException("Utility class");
+    }
 
-  public static final List<String> DisallowedRoles = Collections.singletonList(
+    public static Map<RoleType, RoleTypeMapValue> getRoleTypeMap() {
+        return roleTypeMap;
+    }
+
+    static final List<String> DisallowedRoles = Collections.singletonList(
     String.valueOf(RoleTypes.OTHERS)
   );
 
-  public static Map<RoleType, RoleTypeMapValue> RoleTypeMap = new EnumMap<>(
+  public static Map<RoleType, RoleTypeMapValue> roleTypeMap = new EnumMap<>(
     RoleType.class
   );
 
   static {
-    RoleTypeMap.put(
+    roleTypeMap.put(
       ADMIN,
       new RoleTypeMapValue() {
         public String permissionKey() {
@@ -40,7 +46,7 @@ public class TypeRole {
         }
       }
     );
-    RoleTypeMap.put(
+    roleTypeMap.put(
       DEFAULT,
       new RoleTypeMapValue() {
         public String permissionKey() {
@@ -52,7 +58,7 @@ public class TypeRole {
         }
       }
     );
-    RoleTypeMap.put(
+    roleTypeMap.put(
       PROGRAM_MANAGER,
       new RoleTypeMapValue() {
         public String permissionKey() {
@@ -64,7 +70,7 @@ public class TypeRole {
         }
       }
     );
-    RoleTypeMap.put(
+    roleTypeMap.put(
       GUEST_BOARD_VIEWER,
       new RoleTypeMapValue() {
         public String permissionKey() {
@@ -76,7 +82,7 @@ public class TypeRole {
         }
       }
     );
-    RoleTypeMap.put(
+    roleTypeMap.put(
       GUEST_DASHBOARD_VIEWER,
       new RoleTypeMapValue() {
         public String permissionKey() {
@@ -88,7 +94,7 @@ public class TypeRole {
         }
       }
     );
-    RoleTypeMap.put(
+    roleTypeMap.put(
       GUEST_GROUP_VIEWER,
       new RoleTypeMapValue() {
         public String permissionKey() {
@@ -100,7 +106,7 @@ public class TypeRole {
         }
       }
     );
-    RoleTypeMap.put(
+    roleTypeMap.put(
       GUEST_TASK_VIEWER,
       new RoleTypeMapValue() {
         public String permissionKey() {
@@ -112,7 +118,7 @@ public class TypeRole {
         }
       }
     );
-    RoleTypeMap.put(
+    roleTypeMap.put(
       SUPER_ADMIN,
       new RoleTypeMapValue() {
         public String permissionKey() {
@@ -124,7 +130,7 @@ public class TypeRole {
         }
       }
     );
-    RoleTypeMap.put(
+    roleTypeMap.put(
       GUEST_WORKSPACE_VIEWER,
       new RoleTypeMapValue() {
         public String permissionKey() {

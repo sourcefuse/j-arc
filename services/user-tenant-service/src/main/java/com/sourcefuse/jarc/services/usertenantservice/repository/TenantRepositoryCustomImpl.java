@@ -1,7 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.repository;
 
 import com.sourcefuse.jarc.services.usertenantservice.commons.CommonConstants;
-import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;

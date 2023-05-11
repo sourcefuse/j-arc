@@ -1,22 +1,16 @@
 package com.sourcefuse.jarc.services.usertenantservice.exceptions;
 
 import com.sourcefuse.jarc.services.usertenantservice.dto.ErrorDetails;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @ControllerAdvice
@@ -50,7 +44,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(ResourceNotFoundException.class)
-  private static final ResponseEntity<ErrorDetails> handleResourceNotFoundException(
+  private static final ResponseEntity<ErrorDetails>
+  handleReScrNotFndException(
     ResourceNotFoundException exception,
     WebRequest webRequest
   ) {

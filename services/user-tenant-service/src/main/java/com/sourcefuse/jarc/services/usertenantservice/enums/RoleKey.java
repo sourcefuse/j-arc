@@ -1,7 +1,5 @@
 package com.sourcefuse.jarc.services.usertenantservice.enums;
 
-import com.sourcefuse.jarc.services.usertenantservice.commons.RoleTypes;
-
 public enum RoleKey {
   ADMIN,
   OTHERS,

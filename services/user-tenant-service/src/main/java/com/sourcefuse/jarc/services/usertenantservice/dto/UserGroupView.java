@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "v_user_group")
-public class UserGroupView extends Group implements Serializable {
+public class UserGroupView extends Group{
 
   private static final long serialVersionUID = 1905122041950251214L;
 

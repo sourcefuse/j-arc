@@ -2,7 +2,6 @@ package com.sourcefuse.jarc.services.usertenantservice.commons;
 
 import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;

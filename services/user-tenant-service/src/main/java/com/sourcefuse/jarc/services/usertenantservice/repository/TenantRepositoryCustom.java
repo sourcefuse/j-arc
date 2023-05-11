@@ -1,6 +1,5 @@
 package com.sourcefuse.jarc.services.usertenantservice.repository;
 
-import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import jakarta.persistence.criteria.CriteriaQuery;
 import java.util.List;
 import java.util.UUID;

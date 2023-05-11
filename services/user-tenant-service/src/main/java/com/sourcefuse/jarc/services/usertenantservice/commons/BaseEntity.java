@@ -1,11 +1,11 @@
 package com.sourcefuse.jarc.services.usertenantservice.commons;
 
 import jakarta.persistence.MappedSuperclass;
-import java.time.LocalDateTime;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor

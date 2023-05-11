@@ -36,7 +36,7 @@ public class UserTenantPrefs
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "config_value", columnDefinition = "jsonb")
-  private Object configValue;
+  private transient Object configValue;
 
   @Column(name = "user_tenant_id")
   private UUID userTenantId;

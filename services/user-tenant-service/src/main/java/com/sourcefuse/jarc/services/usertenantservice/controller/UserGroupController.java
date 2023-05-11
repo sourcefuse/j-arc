@@ -1,6 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
+import com.sourcefuse.jarc.services.usertenantservice.commons.CommonConstants;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Count;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
@@ -64,7 +65,7 @@ public class UserGroupController {
     } else {
       throw new ResponseStatusException(
         HttpStatus.NOT_FOUND,
-        "${no.group.present}" + id
+              CommonConstants.NO_GRP_PRESENT+ id
       );
     }
     return new ResponseEntity<>(usrGr.get(), HttpStatus.CREATED);
@@ -105,7 +106,7 @@ public class UserGroupController {
     } else {
       throw new ResponseStatusException(
         HttpStatus.NOT_FOUND,
-        "${no.group.present}"
+              CommonConstants.NO_GRP_PRESENT
       );
     }
 
@@ -139,13 +140,16 @@ public class UserGroupController {
         .stream()
         .filter(usrGp -> usrGp.getId().equals(userGroupId))
         .findFirst();
+      UserGroup userGroup;
       if (!userGroupRecord.isPresent()) {
         throw new ResponseStatusException(
           HttpStatus.FORBIDDEN,
           "${user.group.not.found}"
         );
+      }else{
+       userGroup= userGroupRecord.get();
       }
-      extracted(currentUser, usrTenantId, usrGrp, userGroupRecord);
+      extracted(currentUser, usrTenantId, usrGrp, userGroup);
       Count count = Count
         .builder()
         .totalCnt(userGroupsRepo.getUserGroupCountByGroupId(id))
@@ -162,17 +166,17 @@ public class UserGroupController {
     } else {
       throw new ResponseStatusException(
         HttpStatus.NOT_FOUND,
-        "${no.group.present}"
+              CommonConstants.NO_GRP_PRESENT
       );
     }
     return new ResponseEntity<>("UserGroup DELETE success", HttpStatus.OK);
   }
 
-  private void extracted(
+  private static void extracted(
     IAuthUserWithPermissions currentUser,
     UUID usrTenantId,
     List<UserGroup> usrGrp,
-    Optional<UserGroup> userGroupRecord
+    UserGroup userGroupRecord
   ) {
     boolean isAdmin =
       Integer.parseInt(currentUser.getRole()) == RoleKey.ADMIN.getValue();
@@ -190,7 +194,6 @@ public class UserGroupController {
         (currentUserGroup.isOwner()) ||
         (
           userGroupRecord
-            .get()
             .getUserTenantId()
             .equals(currentUser.getUserTenantId())
         )
@@ -204,7 +207,6 @@ public class UserGroupController {
 
     if (
       userGroupRecord
-        .get()
         .getUserTenantId()
         .equals(currentUser.getUserTenantId()) &&
       (currentUserGroup.isOwner())
@@ -230,7 +232,7 @@ public class UserGroupController {
     } else {
       throw new ResponseStatusException(
         HttpStatus.NOT_FOUND,
-        "${no.group.present}"
+              CommonConstants.NO_GRP_PRESENT
       );
     }
     return new ResponseEntity<>(usrGrpList, HttpStatus.OK);

@@ -1,12 +1,5 @@
 package com.sourcefuse.jarc.services.usertenantservice.enums;
 
-import com.sourcefuse.jarc.services.usertenantservice.commons.RoleTypeMapValue;
-import com.sourcefuse.jarc.services.usertenantservice.commons.RoleTypes;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-
 public enum RoleType {
   ADMIN(0),
   //doubt::

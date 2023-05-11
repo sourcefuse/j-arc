@@ -3,13 +3,13 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.commons.CommonConstants;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Count;
-import com.sourcefuse.jarc.services.usertenantservice.dto.User;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.enums.PermissionKey;
-import com.sourcefuse.jarc.services.usertenantservice.enums.RoleKey;
+import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTntUserService;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserService;
+import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTntUserService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -43,6 +43,10 @@ import org.springframework.web.server.ResponseStatusException;
 public class TenantUserController {
 
   private final TenantUserService tnUsrService;
+
+  private final DeleteTntUserService deleteTntUserService;
+  private final UpdateTntUserService updateTntUserService;
+
 
   @PersistenceContext
   private EntityManager em;
@@ -117,7 +121,6 @@ public class TenantUserController {
       predicate,
       cb.notEqual(root.get("roleType"), CommonConstants.SUPER_ADMIN_ROLE_TYPE)
     );
-    List<UserView> userViews;
     //doubt return UserDto
     return new ResponseEntity<>(tnUsrService.getUserView(cq), HttpStatus.OK);
   }
@@ -153,7 +156,7 @@ public class TenantUserController {
     CriteriaBuilder cb = map.get(CommonConstants.BUILDER) != null
       ? (CriteriaBuilder) map.get(CommonConstants.BUILDER)
       : em.getCriteriaBuilder();
-    CriteriaQuery cq = map.get(CommonConstants.CRITERIA_QUERY) != null
+    CriteriaQuery<UserView> cq = map.get(CommonConstants.CRITERIA_QUERY) != null
       ? (CriteriaQuery) map.get(CommonConstants.CRITERIA_QUERY)
       : cb.createQuery(UserView.class);
     Root<UserView> root = cq.from(UserView.class);
@@ -178,7 +181,7 @@ public class TenantUserController {
     );
   }
 
-  private IAuthUserWithPermissions getiAuthUserWithPermissions(UUID id) {
+  private static IAuthUserWithPermissions getiAuthUserWithPermissions(UUID id) {
     IAuthUserWithPermissions currentUser =
       (IAuthUserWithPermissions) SecurityContextHolder
         .getContext()
@@ -242,7 +245,7 @@ public class TenantUserController {
     if (userView.getUsername() != null) {
       userView.setUsername(userView.getUsername().toLowerCase());
     }
-    tnUsrService.updateById(currentUser, userId, userView, id);
+    updateTntUserService.updateById(currentUser, userId, userView, id);
 
     return new ResponseEntity<>("User PATCH success", HttpStatus.NO_CONTENT);
   }
@@ -257,7 +260,7 @@ public class TenantUserController {
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    tnUsrService.deleteUserById(currentUser, userId, id);
+    deleteTntUserService.deleteUserById(currentUser, userId, id);
     return new ResponseEntity<>("User DELETE success", HttpStatus.NO_CONTENT);
   }
 }
