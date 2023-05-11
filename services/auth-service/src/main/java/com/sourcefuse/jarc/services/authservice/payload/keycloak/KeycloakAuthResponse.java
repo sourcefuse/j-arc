@@ -1,5 +1,7 @@
 package com.sourcefuse.jarc.services.authservice.payload.keycloak;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,14 +12,19 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class KeycloakAuthResponse {
-
-  private String access_token;
-  private int expires_in;
-  private int refresh_expires_in;
-  private String refresh_token;
-  private String token_type;
-  private String id_token;
-  // public int not-before-policy;
-  private String session_state;
+  @JsonProperty("access_token")
+  private String accessToken;
+  @JsonProperty("expires_in")
+  private int expiresIn;
+  @JsonProperty("refresh_expires_in")
+  private int refreshExpiresIn;
+  @JsonProperty("refresh_token")
+  private String refreshToken;
+  @JsonProperty("token_type")
+  private String tokenType;
+  @JsonProperty("id_token")
+  private String idToken;
+  @JsonProperty("session_state")
+  private String sessionState;
   private String scope;
 }

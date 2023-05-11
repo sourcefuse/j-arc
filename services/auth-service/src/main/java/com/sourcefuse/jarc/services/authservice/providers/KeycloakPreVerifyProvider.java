@@ -22,14 +22,14 @@ public class KeycloakPreVerifyProvider {
 
   public Optional<User> provide(User user, KeycloakUserDTO keycloakUserDTO) {
     if (
-      !user.getFirstName().equals(keycloakUserDTO.getGiven_name()) ||
-      !user.getLastName().equals(keycloakUserDTO.getFamily_name()) ||
-      !user.getUsername().equals(keycloakUserDTO.getPreferred_username()) ||
+      !user.getFirstName().equals(keycloakUserDTO.getGivenName()) ||
+      !user.getLastName().equals(keycloakUserDTO.getFamilyName()) ||
+      !user.getUsername().equals(keycloakUserDTO.getPreferredUsername()) ||
       !user.getEmail().equals(keycloakUserDTO.getEmail())
     ) {
-      user.setUsername(keycloakUserDTO.getPreferred_username());
-      user.setFirstName(keycloakUserDTO.getGiven_name());
-      user.setLastName(keycloakUserDTO.getFamily_name());
+      user.setUsername(keycloakUserDTO.getPreferredUsername());
+      user.setFirstName(keycloakUserDTO.getGivenName());
+      user.setLastName(keycloakUserDTO.getFamilyName());
       user.setEmail(keycloakUserDTO.getEmail());
       this.userRepository.save(user);
     }

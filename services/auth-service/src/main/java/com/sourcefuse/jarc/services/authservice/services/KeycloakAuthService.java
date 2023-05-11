@@ -43,7 +43,7 @@ public class KeycloakAuthService {
       this.keycloakFacadeService.keycloakAuthByCode(code);
     KeycloakUserDTO keycloakUserDTO =
       this.keycloakFacadeService.getKeycloakUserProfile(
-          keycloakAuthResponse.getAccess_token()
+          keycloakAuthResponse.getAccessToken()
         );
     String usernameOrEmail = keycloakUserDTO.getEmail();
     User user = this.getUserBy(usernameOrEmail, keycloakUserDTO);
@@ -55,7 +55,7 @@ public class KeycloakAuthService {
       (
         !userCredential
           .getAuthId()
-          .equals(keycloakUserDTO.getPreferred_username())
+          .equals(keycloakUserDTO.getPreferredUsername())
       )
     ) {
       throw throwUserVerificationFailed();

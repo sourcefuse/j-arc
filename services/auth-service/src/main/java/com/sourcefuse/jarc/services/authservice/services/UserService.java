@@ -47,28 +47,7 @@ public class UserService {
   private final UserTenantRepository userTenantRepository;
 
   public User register(RegisterDto registerDto) {
-    if (
-      Boolean.TRUE.equals(
-        userRepository.existsByUsername(registerDto.getUser().getUsername())
-      )
-    ) {
-      throw new CommonRuntimeException(
-        HttpStatus.BAD_REQUEST,
-        "Username is already exists!."
-      );
-    }
-    Optional<User> userExists = userRepository.findByEmail(
-      registerDto.getAuthId()
-    );
-    if (userExists.isPresent()) {
-      throw new CommonRuntimeException(
-        HttpStatus.BAD_REQUEST,
-        "Email is already exists!."
-      );
-    }
-    Optional<Role> defaultRole = roleRepository.findByRoleType(
-      RoleKey.DEFAULT.label
-    );
+    checkIfUserExists(registerDto);
     Optional<Tenant> tenant = tenantRepository.findByKey("master");
     if (tenant.isEmpty()) {
       throw new HttpServerErrorException(
@@ -76,7 +55,9 @@ public class UserService {
         AuthErrorKeys.INVALID_CREDENTIALS.label
       );
     }
-
+    Optional<Role> defaultRole = roleRepository.findByRoleType(
+      RoleKey.DEFAULT.label
+    );
     if (defaultRole.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -84,17 +65,6 @@ public class UserService {
       );
     }
 
-    Optional<UserCredential> userCreds =
-      this.userCredentialRepository.findByAuthIdAndAuthProvider(
-          registerDto.getAuthId(),
-          registerDto.getAuthProvider().label
-        );
-    if (userCreds.isPresent()) {
-      throw new CommonRuntimeException(
-        HttpStatus.BAD_REQUEST,
-        "User already exists!."
-      );
-    }
     Optional<User> user =
       this.userRepository.findFirstUserByUsernameOrEmail(
           registerDto.getUser().getUsername().toLowerCase(Locale.getDefault())
@@ -120,9 +90,14 @@ public class UserService {
         return user.get();
       }
     }
+
+    return createUser(registerDto, tenant.get(), defaultRole.get());
+  }
+
+  User createUser(RegisterDto registerDto, Tenant tenant, Role defaultRole) {
     ArrayList<AuthClient> authClients =
       this.authClientRepository.findByAllowedClients(
-          defaultRole.get().getAllowedClients()
+          defaultRole.getAllowedClients()
         );
     registerDto
       .getUser()
@@ -133,7 +108,7 @@ public class UserService {
           .collect(java.util.stream.Collectors.toList())
       );
 
-    registerDto.getUser().setDefaultTenantId(tenant.get().getId());
+    registerDto.getUser().setDefaultTenantId(tenant.getId());
     User savedUser =
       this.createUser(
           registerDto.getUser(),
@@ -143,10 +118,44 @@ public class UserService {
     this.createUserTenantData(
         UserStatus.ACTIVE,
         savedUser.getId(),
-        defaultRole.get().getId(),
-        tenant.get().getId()
+        defaultRole.getId(),
+        tenant.getId()
       );
     return savedUser;
+  }
+
+  void checkIfUserExists(RegisterDto registerDto) {
+    if (
+      Boolean.TRUE.equals(
+        userRepository.existsByUsername(registerDto.getUser().getUsername())
+      )
+    ) {
+      throw new CommonRuntimeException(
+        HttpStatus.BAD_REQUEST,
+        "Username is already exists!."
+      );
+    }
+    Optional<User> userExists = userRepository.findByEmail(
+      registerDto.getAuthId()
+    );
+    if (userExists.isPresent()) {
+      throw new CommonRuntimeException(
+        HttpStatus.BAD_REQUEST,
+        "Email is already exists!."
+      );
+    }
+
+    Optional<UserCredential> userCreds =
+      this.userCredentialRepository.findByAuthIdAndAuthProvider(
+          registerDto.getAuthId(),
+          registerDto.getAuthProvider().label
+        );
+    if (userCreds.isPresent()) {
+      throw new CommonRuntimeException(
+        HttpStatus.BAD_REQUEST,
+        "User already exists!."
+      );
+    }
   }
 
   User createUser(User user, AuthProvider provider, String authId) {

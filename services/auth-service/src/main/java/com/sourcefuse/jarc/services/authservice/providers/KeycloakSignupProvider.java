@@ -27,15 +27,14 @@ public class KeycloakSignupProvider {
 
   public Optional<User> provide(KeycloakUserDTO keycloakUserDTO) {
     Optional<Tenant> tenant = this.tenantRepository.findByKey("master");
-    Optional<Role> defaultRole =
-      this.roleRepository.findByRoleType(RoleKey.DEFAULT.label);
     if (tenant.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
         AuthErrorKeys.INVALID_CREDENTIALS.label
       );
     }
-
+    Optional<Role> defaultRole =
+      this.roleRepository.findByRoleType(RoleKey.DEFAULT.label);
     if (defaultRole.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -43,16 +42,16 @@ public class KeycloakSignupProvider {
       );
     }
     User userToCreate = new User();
-    userToCreate.setUsername(keycloakUserDTO.getPreferred_username());
-    userToCreate.setFirstName(keycloakUserDTO.getGiven_name());
-    userToCreate.setLastName(keycloakUserDTO.getFamily_name());
+    userToCreate.setUsername(keycloakUserDTO.getPreferredUsername());
+    userToCreate.setFirstName(keycloakUserDTO.getGivenName());
+    userToCreate.setLastName(keycloakUserDTO.getFamilyName());
     userToCreate.setEmail(keycloakUserDTO.getEmail());
 
     RegisterDto registerDto = new RegisterDto();
     registerDto.setAuthProvider(AuthProvider.KEYCLOAK);
     registerDto.setDefaultTenantId(tenant.get().getId());
     registerDto.setUser(userToCreate);
-    registerDto.setAuthId(keycloakUserDTO.getPreferred_username());
+    registerDto.setAuthId(keycloakUserDTO.getPreferredUsername());
     registerDto.setRoleId(defaultRole.get().getId());
 
     return Optional.ofNullable(this.userService.register(registerDto));

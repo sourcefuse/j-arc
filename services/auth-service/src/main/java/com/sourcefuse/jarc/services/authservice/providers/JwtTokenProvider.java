@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class JwtTokenProvider {
 
   @Value("${app.jwt-secret}")
@@ -96,22 +98,18 @@ public class JwtTokenProvider {
   }
 
   public CurrentUser getUserDetails(String token) {
-    Claims claims = Jwts
-      .parserBuilder()
-      .setSigningKey(key())
-      .build()
-      .parseClaimsJws(token)
-      .getBody();
-    Object userObject = claims.get(Constants.CURRENT_USER_KEY);
-    ObjectMapper mapper = new ObjectMapper();
-    return mapper.convertValue(userObject, CurrentUser.class);
-  }
-
-  public boolean validateToken(String token) {
     try {
-      Jwts.parserBuilder().setSigningKey(key()).build().parse(token);
-      return true;
+      Claims claims = Jwts
+        .parserBuilder()
+        .setSigningKey(key())
+        .build()
+        .parseClaimsJws(token)
+        .getBody();
+      Object userObject = claims.get(Constants.CURRENT_USER_KEY);
+      ObjectMapper mapper = new ObjectMapper();
+      return mapper.convertValue(userObject, CurrentUser.class);
     } catch (MalformedJwtException ex) {
+      log.error(ex.getMessage());
       throw new CommonRuntimeException(
         HttpStatus.BAD_REQUEST,
         "Invalid JWT token"

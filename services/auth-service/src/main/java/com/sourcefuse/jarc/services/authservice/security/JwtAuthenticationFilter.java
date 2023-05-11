@@ -33,13 +33,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     FilterChain filterChain
   ) throws ServletException, IOException {
     String token = getTokenFromRequest(request);
-    if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+    if (StringUtils.hasText(token)) {
       CurrentUser user = jwtTokenProvider.getUserDetails(token);
       List<GrantedAuthority> listAuthorities = new ArrayList<>();
       for (String permission : user.getRole().getPermissions()) {
         listAuthorities.add(new SimpleGrantedAuthority(permission));
       }
-      UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+      UsernamePasswordAuthenticationToken authenticationToken = 
+      new UsernamePasswordAuthenticationToken(
         user,
         null,
         listAuthorities

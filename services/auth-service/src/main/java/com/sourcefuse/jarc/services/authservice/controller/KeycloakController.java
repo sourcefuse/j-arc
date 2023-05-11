@@ -61,7 +61,7 @@ public class KeycloakController {
         codeResponse.getCode()
       )
     );
-    httpServletResponse.setStatus(302);
+    httpServletResponse.setStatus(HttpStatus.FOUND.value());
   }
 
   @PostMapping("/login")
@@ -84,6 +84,7 @@ public class KeycloakController {
       clientDTO.getClientId()
     );
     httpServletResponse.setHeader("Location", location);
-    httpServletResponse.setStatus(302);
+    httpServletResponse.setStatus(HttpStatus.FOUND.value());
+
   }
 }
