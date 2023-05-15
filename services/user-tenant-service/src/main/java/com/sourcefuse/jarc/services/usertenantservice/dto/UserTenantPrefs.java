@@ -41,7 +41,7 @@ public class UserTenantPrefs
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "config_value", columnDefinition = "jsonb")
-  private Object configValue;
+  private transient Object configValue;
 
   @JsonIgnore
   @ManyToOne(optional = true)

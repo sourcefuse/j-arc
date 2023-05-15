@@ -23,8 +23,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "tenants", schema = "main")
-//@SecondaryTable(name = "tenants")
 public class Tenant extends UserModifiableEntity implements Serializable {
+
+  private static final long serialVersionUID = 1905122032150251213L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

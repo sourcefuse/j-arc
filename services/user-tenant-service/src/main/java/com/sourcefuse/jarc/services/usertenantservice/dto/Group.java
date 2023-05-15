@@ -29,6 +29,8 @@ import lombok.NoArgsConstructor;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Group extends UserModifiableEntity implements Serializable {
 
+  private static final long serialVersionUID = 1905122031950251212L;
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;

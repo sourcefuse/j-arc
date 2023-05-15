@@ -2,12 +2,13 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.commons.CommonConstants;
-import com.sourcefuse.jarc.services.usertenantservice.dto.Count;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.enums.PermissionKey;
+import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTntUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserService;
+import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTntUserServiceImpl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -38,9 +39,14 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RequestMapping("/tenants/{id}/users")
 @RequiredArgsConstructor
+/*** pending this class created for future to support
+Tenant user controller where one Tenant
+cannot see other Tenant data */
 public class TenantUserController {
 
   private final TenantUserService tnUsrService;
+  UpdateTntUserServiceImpl updateTntUserService;
+  DeleteTntUserServiceImpl deleteTntUserService;
 
   @PersistenceContext
   private EntityManager em;
@@ -73,13 +79,15 @@ public class TenantUserController {
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    //tnUsrService.create(userDto, currentUser, option);
+    tnUsrService.create(userDto, currentUser, option);
 
     return new ResponseEntity<>("", HttpStatus.CREATED);
   }
 
   @GetMapping("")
-  public ResponseEntity<Object> gtUsrTntByRole(@PathVariable("id") UUID id) {
+  public ResponseEntity<Object> getUserTenantByRole(
+    @PathVariable("id") UUID id
+  ) {
     IAuthUserWithPermissions currentUser = getiAuthUserWithPermissions(id);
     Predicate predicate = null;
     Map<String, Object> map = new HashMap<>();
@@ -89,12 +97,12 @@ public class TenantUserController {
         .contains(PermissionKey.VIEW_TENANT_USER_RESTRICTED.toString()) &&
       currentUser.getTenantId() == id
     ) {
-      //      map =
-      //        tnUsrService.checkViewTenantRestrictedPermissions(
-      //          currentUser,
-      //          predicate,
-      //          UserView.class
-      //        );
+      map =
+        tnUsrService.checkViewTenantRestrictedPermissions(
+          currentUser,
+          predicate,
+          UserView.class
+        );
       predicate = (Predicate) map.get(CommonConstants.PREDICATE);
     }
     CriteriaBuilder cb = map.get(CommonConstants.BUILDER) != null
@@ -130,7 +138,7 @@ public class TenantUserController {
   }
 
   @GetMapping("/count")
-  public ResponseEntity<Object> cntUsrTenant(@PathVariable("id") UUID id) {
+  public ResponseEntity<Object> userTenantCount(@PathVariable("id") UUID id) {
     IAuthUserWithPermissions currentUser = getiAuthUserWithPermissions(id);
 
     Predicate predicate = null;
@@ -142,12 +150,12 @@ public class TenantUserController {
         .contains(PermissionKey.VIEW_TENANT_USER_RESTRICTED.toString()) &&
       currentUser.getTenantId() == id
     ) {
-      /*map =
+      map =
         tnUsrService.checkViewTenantRestrictedPermissions(
           currentUser,
           predicate,
           UserView.class
-        );*/
+        );
       predicate = (Predicate) map.get(CommonConstants.PREDICATE);
     }
     CriteriaBuilder cb = map.get(CommonConstants.BUILDER) != null
@@ -169,7 +177,7 @@ public class TenantUserController {
       cb.notEqual(root.get("roleType"), CommonConstants.SUPER_ADMIN_ROLE_TYPE)
     );
     long userCount;
-    userCount = 0; //tnUsrService.getUserView(cq).size();
+    userCount = tnUsrService.getUserView(cq).size();
 
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(
@@ -215,8 +223,7 @@ public class TenantUserController {
         AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
       );
     }
-
-    UserView userView = new UserView(); //tnUsrService.findById(userId, id, UserView.class);
+    UserView userView = tnUsrService.findById(userId, id, UserView.class);
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(userView, HttpStatus.OK);
   }
@@ -242,7 +249,8 @@ public class TenantUserController {
     if (userView.getUsername() != null) {
       userView.setUsername(userView.getUsername().toLowerCase());
     }
-    //updateTntUserService.updateById(currentUser, userId, userView, id);
+
+    updateTntUserService.updateById(currentUser, userId, userView, id);
 
     return new ResponseEntity<>("User PATCH success", HttpStatus.NO_CONTENT);
   }
@@ -257,7 +265,7 @@ public class TenantUserController {
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    //deleteTntUserService.deleteUserById(currentUser, userId, id);
+    deleteTntUserService.deleteUserById(currentUser, userId, id);
     return new ResponseEntity<>("User DELETE success", HttpStatus.NO_CONTENT);
   }
 }

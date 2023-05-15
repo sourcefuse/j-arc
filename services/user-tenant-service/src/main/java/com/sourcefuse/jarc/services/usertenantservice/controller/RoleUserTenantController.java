@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.services.usertenantservice.commonutils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.dto.Count;
+import com.sourcefuse.jarc.services.usertenantservice.dt;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
@@ -60,7 +60,7 @@ public class RoleUserTenantController {
   }
 
   @GetMapping("{id}" + "/user-tenants")
-  public ResponseEntity<Object> getAllUsTenantByRole(
+  public ResponseEntity<Object> getAllUserTenantByRole(
     @PathVariable("id") UUID id
   ) {
     List<UserTenant> tenantList = roleUserTRepository.findUserTenantsByRoleId(

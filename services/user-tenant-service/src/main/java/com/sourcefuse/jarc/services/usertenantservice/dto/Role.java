@@ -29,6 +29,8 @@ import lombok.Setter;
 @Table(name = "roles", schema = "main")
 public class Role extends UserModifiableEntity implements Serializable {
 
+  private static final long serialVersionUID = 1905122032050251213L;
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
