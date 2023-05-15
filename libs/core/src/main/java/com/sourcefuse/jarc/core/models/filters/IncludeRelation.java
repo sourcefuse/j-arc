@@ -8,5 +8,5 @@ import lombok.Setter;
 public class IncludeRelation {
 
   String relation;
-  Filter scope;
+  Filter scope = new Filter();
 }

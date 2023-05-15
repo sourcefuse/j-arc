@@ -1,6 +1,8 @@
 package com.sourcefuse.jarc.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.sourcefuse.jarc.core.constants.TestConstants;
@@ -26,7 +28,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootTest
 @EnableJpaRepositories(repositoryBaseClass = SoftDeletesRepositoryImpl.class)
-public class QueryServiceTests {
+class QueryServiceTests {
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -49,6 +51,7 @@ public class QueryServiceTests {
   User user3 = new User();
 
   Filter filter = new Filter();
+  IncludeRelation includeRelation = new IncludeRelation();
   Map<String, Object> filterWhere = new HashMap<String, Object>();
   Map<String, Object> fieldsOperation = new HashMap<String, Object>();
   List<IncludeRelation> listInclude = new ArrayList<>();
@@ -100,163 +103,171 @@ public class QueryServiceTests {
     user3 = this.userRepository.save(user3);
   }
 
+  private List<User> filterWithOperatorAndAge(String operator, Object age) {
+    fieldsOperation.put(operator, age);
+    filterWhere.put("age", fieldsOperation);
+    filter.setWhere(filterWhere);
+    return filterService.executeQuery(filter, User.class);
+  }
+
   @Test
-  void testFIlterForEqualsOperator() {
+  void testFilterForEqualsOperator() {
     fieldsOperation.put("eq", "User");
     filterWhere.put("name", fieldsOperation);
     filter.setWhere(filterWhere);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
-    assertThat(roles.size()).isEqualTo(1);
+    assertThat(roles).hasSize(1);
 
     assertThat(userRole.getId()).isEqualTo(roles.get(0).getId());
   }
 
   @Test
-  void testFIlterForNotEqualsOperator() {
+  void testFilterForNotEqualsOperator() {
     fieldsOperation.put("ne", "User");
     filterWhere.put("name", fieldsOperation);
     filter.setWhere(filterWhere);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
-    assertThat(roles.size()).isEqualTo(2);
+    assertThat(roles).hasSize(2);
 
     assertThat(roles).contains(adminRole, tempRole);
   }
 
   @Test
-  void testFIlterForGreaterThanOperator() {
-    fieldsOperation.put("gt", "20");
-    filterWhere.put("age", fieldsOperation);
-    filter.setWhere(filterWhere);
-
-    List<User> users = filterService.executeQuery(filter, User.class);
-
-    assertThat(users.size()).isEqualTo(2);
-
+  void testFilterForGreaterThanOperator() {
+    List<User> users = this.filterWithOperatorAndAge("gt", "20");
+    assertThat(users).hasSize(2);
     assertThat(users).contains(user2, user3);
   }
 
   @Test
-  void testFIlterForGreaterThanOperatorWithString() {
-    fieldsOperation.put("gt", "24s");
-    filterWhere.put("age", fieldsOperation);
-    filter.setWhere(filterWhere);
-
+  void testFilterForGreaterThanOperatorWithString() {
     assertThrows(
       NumberFormatException.class,
       () -> {
-        filterService.executeQuery(filter, User.class);
+        this.filterWithOperatorAndAge("gt", "24s");
       }
     );
   }
 
   @Test
-  void testFIlterForGreaterThanOrEqulsToOperator() {
-    fieldsOperation.put("gte", "20");
-    filterWhere.put("age", fieldsOperation);
-    filter.setWhere(filterWhere);
+  void testFilterForGreaterThanOrEqulsToOperator() {
+    List<User> users = this.filterWithOperatorAndAge("gte", "20");
 
-    List<User> users = filterService.executeQuery(filter, User.class);
-
-    assertThat(users.size()).isEqualTo(3);
-
+    assertThat(users).hasSize(3);
     assertThat(users).contains(user1, user2, user3);
   }
 
   @Test
-  void testFIlterForGreaterThanOrEqulsToOperatorWithString() {
-    fieldsOperation.put("gte", "24s");
-    filterWhere.put("age", fieldsOperation);
-    filter.setWhere(filterWhere);
-
+  void testFilterForGreaterThanOrEqulsToOperatorWithString() {
     assertThrows(
       NumberFormatException.class,
       () -> {
-        filterService.executeQuery(filter, User.class);
+        this.filterWithOperatorAndAge("gte", "24s");
       }
     );
   }
 
   @Test
-  void testFIlterForLessThanOperator() {
-    fieldsOperation.put("lt", 24);
-    filterWhere.put("age", fieldsOperation);
-    filter.setWhere(filterWhere);
+  void testFilterForLessThanOperator() {
+    List<User> users = this.filterWithOperatorAndAge("lt", 24);
 
-    List<User> users = filterService.executeQuery(filter, User.class);
-
-    assertThat(users.size()).isEqualTo(2);
-
+    assertThat(users).hasSize(2);
     assertThat(users).contains(user1, user2);
   }
 
   @Test
-  void testFIlterForLessThanOperatorWithString() {
-    fieldsOperation.put("lt", "24s");
-    filterWhere.put("age", fieldsOperation);
-    filter.setWhere(filterWhere);
-
+  void testFilterForLessThanOperatorWithString() {
     assertThrows(
       NumberFormatException.class,
       () -> {
-        filterService.executeQuery(filter, User.class);
+        this.filterWithOperatorAndAge("lt", "24s");
       }
     );
   }
 
   @Test
-  void testFIlterForLessThanOrEqualsToOperator() {
-    fieldsOperation.put("lte", "24");
-    filterWhere.put("age", fieldsOperation);
-    filter.setWhere(filterWhere);
+  void testFilterForLessThanOrEqualsToOperator() {
+    List<User> users = this.filterWithOperatorAndAge("lte", "24");
 
-    List<User> users = filterService.executeQuery(filter, User.class);
-
-    assertThat(users.size()).isEqualTo(3);
-
+    assertThat(users).hasSize(3);
     assertThat(users).contains(user1, user2, user3);
   }
 
   @Test
-  void testFIlterForLessThanOrEqualsToOperatorWithString() {
-    fieldsOperation.put("lte", "24s");
-    filterWhere.put("age", fieldsOperation);
-    filter.setWhere(filterWhere);
-
+  void testFilterForLessThanOrEqualsToOperatorWithString() {
     assertThrows(
       NumberFormatException.class,
       () -> {
-        filterService.executeQuery(filter, User.class);
+        this.filterWithOperatorAndAge("lte", "24s");
       }
     );
   }
 
   @Test
-  void testFIlterForLikeOperator() {
+  void testFilterForLikeOperator() {
     fieldsOperation.put("like", "Update");
     filterWhere.put("permissions", fieldsOperation);
     filter.setWhere(filterWhere);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
-    assertThat(roles.size()).isEqualTo(2);
-
+    assertThat(roles).hasSize(2);
     assertThat(roles).contains(adminRole, userRole);
   }
 
   @Test
-  void testFIlterForNotLikeOperator() {
+  void testFilterForNotLikeOperator() {
     fieldsOperation.put("notlike", "Update");
     filterWhere.put("permissions", fieldsOperation);
     filter.setWhere(filterWhere);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
-    assertThat(roles.size()).isEqualTo(1);
-
+    assertThat(roles).hasSize(1);
     assertThat(tempRole.getId()).isEqualTo(roles.get(0).getId());
+  }
+
+  @Test
+  void testFilterFieldSelectionTest() {
+    Map<String, Boolean> fields = new HashMap<String, Boolean>();
+    fields.put("name", true);
+    fieldsOperation.put("notlike", "Update");
+    filterWhere.put("permissions", fieldsOperation);
+    filter.setWhere(filterWhere);
+    filter.setFields(fields);
+
+    List<Role> roles = filterService.executeQuery(filter, Role.class);
+
+    assertThat(roles).hasSize(1);
+
+    assertNull(roles.get(0).getId());
+    assertNull(roles.get(0).getPermissions());
+    assertThat(tempRole.getName()).isEqualTo(roles.get(0).getName());
+  }
+
+  @Test
+  void testFilterFieldSelectionTestForMultipleRoles() {
+    Map<String, Boolean> fields = new HashMap<String, Boolean>();
+    fields.put("name", true);
+    fieldsOperation.put("like", "Update");
+    filterWhere.put("permissions", fieldsOperation);
+    filter.setWhere(filterWhere);
+    filter.setFields(fields);
+
+    List<Role> roles = filterService.executeQuery(filter, Role.class);
+
+    assertThat(roles).hasSize(2);
+
+    assertNull(roles.get(0).getId());
+    assertNull(roles.get(0).getPermissions());
+    assertNotNull(roles.get(0).getName());
+
+    assertNull(roles.get(1).getId());
+    assertNull(roles.get(1).getPermissions());
+    assertNotNull(roles.get(1).getName());
   }
 }
