@@ -1,23 +1,29 @@
 package com.sourcefuse.jarc.core.services;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.springframework.stereotype.Service;
+
 import com.sourcefuse.jarc.core.models.filters.Filter;
+import com.sourcefuse.jarc.core.models.filters.IncludeRelation;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.From;
-import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import org.springframework.stereotype.Service;
+import lombok.NoArgsConstructor;
 
 @Service
+@NoArgsConstructor
 public class QueryService {
 
   @PersistenceContext
@@ -42,7 +48,7 @@ public class QueryService {
       criteriaQuery
     );
 
-    if (selections.size() > 0) {
+    if (!selections.isEmpty()) {
       criteriaQuery.multiselect(selections);
     } else {
       criteriaQuery.select(root);
@@ -62,49 +68,41 @@ public class QueryService {
   ) {
     // Apply WHERE clause
     List<Predicate> predicates = new ArrayList<>();
-    filter
-      .getWhere()
-      .entrySet()
-      .stream()
-      .forEach(entry -> {
-        String fieldName = entry.getKey();
-        Object fieldValue = entry.getValue();
 
-        if (fieldValue instanceof Map) {
-          // Handle operators for the field
-          Map<String, Object> fieldOperators = (Map<String, Object>) fieldValue;
+    for (Entry<String, Object> entry : filter.getWhere().entrySet()) {
+      String fieldName = entry.getKey();
+      Object fieldValue = entry.getValue();
 
-          fieldOperators
-            .entrySet()
-            .stream()
-            .forEach(operatorEntry -> {
-              String operator = operatorEntry.getKey();
-              Object value = operatorEntry.getValue();
+      if (fieldValue instanceof Map) {
+        Map<String, Object> fieldOperators = (Map<String, Object>) fieldValue;
 
-              Expression<String> fieldPath = from.get(fieldName);
-              predicates.add(
-                getPredicate(criteriaBuilder, operator, fieldPath, value)
-              );
-            });
-        } else {
-          Expression<String> fieldPath = from.get(fieldName);
-          predicates.add(criteriaBuilder.equal(fieldPath, fieldValue));
-        }
-      });
+        fieldOperators
+          .entrySet()
+          .stream()
+          .forEach((Entry<String, Object> operatorEntry) -> {
+            String operator = operatorEntry.getKey();
+            Object value = operatorEntry.getValue();
+
+            Expression<String> fieldPath = from.get(fieldName);
+            predicates.add(
+              getPredicate(criteriaBuilder, operator, fieldPath, value)
+            );
+          });
+      } else {
+        Expression<String> fieldPath = from.get(fieldName);
+        predicates.add(criteriaBuilder.equal(fieldPath, fieldValue));
+      }
+    }
 
     filter
       .getInclude()
       .stream()
-      .forEach(includeRelation -> {
-        String relation = includeRelation.getRelation();
-        Filter relationFilter = includeRelation.getScope();
-
-        Join<Object, Object> join = from.join(relation, JoinType.INNER);
+      .forEach((IncludeRelation includeRelation) -> {
         predicates.addAll(
           generatePredicates(
             criteriaBuilder,
-            relationFilter,
-            join,
+            includeRelation.getScope(),
+            from.join(includeRelation.getRelation(), JoinType.INNER),
             criteriaQuery
           )
         );
@@ -124,10 +122,9 @@ public class QueryService {
       .getFields()
       .entrySet()
       .stream()
-      .forEach(entry -> {
+      .forEach((Entry<String, Boolean> entry) -> {
         String fieldName = entry.getKey();
         Boolean includeField = entry.getValue();
-
         if (includeField) {
           Selection<?> fieldPath = from.get(fieldName).alias(fieldName);
           selections.add(fieldPath);
@@ -136,15 +133,12 @@ public class QueryService {
     filter
       .getInclude()
       .stream()
-      .forEach(includeRelation -> {
-        String relation = includeRelation.getRelation();
-        Filter relationFilter = includeRelation.getScope();
-        Join<Object, Object> join = from.join(relation, JoinType.INNER);
+      .forEach((IncludeRelation includeRelation) -> {
         selections.addAll(
           generateFieldSelection(
             criteriaBuilder,
-            relationFilter,
-            join,
+            includeRelation.getScope(),
+            from.join(includeRelation.getRelation(), JoinType.INNER),
             criteriaQuery
           )
         );
@@ -159,6 +153,8 @@ public class QueryService {
     Object value
   ) {
     Predicate predicate;
+    Double doubleValue;
+    Expression<Double> field;
     switch (operator) {
       case "eq":
         predicate = criteriaBuilder.equal(fieldPath, value);
@@ -167,32 +163,24 @@ public class QueryService {
         predicate = criteriaBuilder.notEqual(fieldPath, value);
         break;
       case "gt":
-        predicate =
-          criteriaBuilder.greaterThan(
-            fieldPath.as(Double.class),
-            Double.valueOf(value.toString())
-          );
+        doubleValue = Double.valueOf(value.toString());
+        field = fieldPath.as(Double.class);
+        predicate = criteriaBuilder.greaterThan(field, doubleValue);
         break;
       case "gte":
-        predicate =
-          criteriaBuilder.greaterThanOrEqualTo(
-            fieldPath.as(Double.class),
-            Double.valueOf(value.toString())
-          );
+        doubleValue = Double.valueOf(value.toString());
+        field = fieldPath.as(Double.class);
+        predicate = criteriaBuilder.greaterThanOrEqualTo(field, doubleValue);
         break;
       case "lt":
-        predicate =
-          criteriaBuilder.lessThan(
-            fieldPath.as(Double.class),
-            Double.valueOf(value.toString())
-          );
+        doubleValue = Double.valueOf(value.toString());
+        field = fieldPath.as(Double.class);
+        predicate = criteriaBuilder.lessThan(field, doubleValue);
         break;
       case "lte":
-        predicate =
-          criteriaBuilder.lessThanOrEqualTo(
-            fieldPath.as(Double.class),
-            Double.valueOf(value.toString())
-          );
+        doubleValue = Double.valueOf(value.toString());
+        field = fieldPath.as(Double.class);
+        predicate = criteriaBuilder.lessThanOrEqualTo(field, doubleValue);
         break;
       case "like":
         predicate = criteriaBuilder.like(fieldPath, "%" + value + "%");

@@ -131,16 +131,13 @@ class QueryServiceTests {
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
-    assertThat(roles).hasSize(2);
-
-    assertThat(roles).contains(adminRole, tempRole);
+    assertThat(roles).hasSize(2).contains(adminRole, tempRole);
   }
 
   @Test
   void testFilterForGreaterThanOperator() {
     List<User> users = this.filterWithOperatorAndAge("gt", "20");
-    assertThat(users).hasSize(2);
-    assertThat(users).contains(user2, user3);
+    assertThat(users).hasSize(2).contains(user2, user3);
   }
 
   @Test
@@ -157,8 +154,7 @@ class QueryServiceTests {
   void testFilterForGreaterThanOrEqulsToOperator() {
     List<User> users = this.filterWithOperatorAndAge("gte", "20");
 
-    assertThat(users).hasSize(3);
-    assertThat(users).contains(user1, user2, user3);
+    assertThat(users).hasSize(3).contains(user1, user2, user3);
   }
 
   @Test
@@ -175,8 +171,7 @@ class QueryServiceTests {
   void testFilterForLessThanOperator() {
     List<User> users = this.filterWithOperatorAndAge("lt", 24);
 
-    assertThat(users).hasSize(2);
-    assertThat(users).contains(user1, user2);
+    assertThat(users).hasSize(2).contains(user1, user2);
   }
 
   @Test
@@ -193,8 +188,7 @@ class QueryServiceTests {
   void testFilterForLessThanOrEqualsToOperator() {
     List<User> users = this.filterWithOperatorAndAge("lte", "24");
 
-    assertThat(users).hasSize(3);
-    assertThat(users).contains(user1, user2, user3);
+    assertThat(users).hasSize(3).contains(user1, user2, user3);
   }
 
   @Test
@@ -215,8 +209,7 @@ class QueryServiceTests {
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
-    assertThat(roles).hasSize(2);
-    assertThat(roles).contains(adminRole, userRole);
+    assertThat(roles).hasSize(2).contains(adminRole, userRole);
   }
 
   @Test
