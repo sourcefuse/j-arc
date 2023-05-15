@@ -8,7 +8,6 @@ import jakarta.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.stereotype.Service;
 
 public interface TenantUserService {
   UserDto create(

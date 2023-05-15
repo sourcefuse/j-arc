@@ -1,7 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
-import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import jakarta.persistence.criteria.CriteriaQuery;
