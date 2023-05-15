@@ -1,15 +1,7 @@
 package com.sourcefuse.jarc.core.services;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.springframework.stereotype.Service;
-
 import com.sourcefuse.jarc.core.models.filters.Filter;
 import com.sourcefuse.jarc.core.models.filters.IncludeRelation;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -20,7 +12,12 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @NoArgsConstructor
@@ -97,7 +94,7 @@ public class QueryService {
     filter
       .getInclude()
       .stream()
-      .forEach((IncludeRelation includeRelation) -> {
+      .forEach((IncludeRelation includeRelation) ->
         predicates.addAll(
           generatePredicates(
             criteriaBuilder,
@@ -105,8 +102,8 @@ public class QueryService {
             from.join(includeRelation.getRelation(), JoinType.INNER),
             criteriaQuery
           )
-        );
-      });
+        )
+      );
     return predicates;
   }
 
@@ -124,7 +121,7 @@ public class QueryService {
       .stream()
       .forEach((Entry<String, Boolean> entry) -> {
         String fieldName = entry.getKey();
-        Boolean includeField = entry.getValue();
+        boolean includeField = entry.getValue();
         if (includeField) {
           Selection<?> fieldPath = from.get(fieldName).alias(fieldName);
           selections.add(fieldPath);
@@ -133,7 +130,7 @@ public class QueryService {
     filter
       .getInclude()
       .stream()
-      .forEach((IncludeRelation includeRelation) -> {
+      .forEach((IncludeRelation includeRelation) ->
         selections.addAll(
           generateFieldSelection(
             criteriaBuilder,
@@ -141,12 +138,12 @@ public class QueryService {
             from.join(includeRelation.getRelation(), JoinType.INNER),
             criteriaQuery
           )
-        );
-      });
+        )
+      );
     return selections;
   }
 
-  private Predicate getPredicate(
+  private static Predicate getPredicate(
     CriteriaBuilder criteriaBuilder,
     String operator,
     Expression<String> fieldPath,
