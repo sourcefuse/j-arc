@@ -5,10 +5,6 @@ public final class CommonConstants {
   public static final String NO_GRP_PRESENT =
     "No group is present against given value";
 
-  private CommonConstants() {
-    throw new IllegalStateException("Utility class");
-  }
-
   public static final String FIND = "FIND";
 
   public static final String PREDICATE = "Predicate";
@@ -20,4 +16,8 @@ public final class CommonConstants {
   public static final int TWO = 2;
   public static final String TENANT_ID = "tenantId";
   public static final String AUTH_PROVIDER = "authProvider";
+
+  private CommonConstants() {
+    throw new IllegalStateException("Utility class");
+  }
 }

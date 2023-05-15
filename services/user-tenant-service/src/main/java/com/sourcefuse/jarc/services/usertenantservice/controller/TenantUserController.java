@@ -7,9 +7,7 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.enums.PermissionKey;
-import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTntUserService;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserService;
-import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTntUserService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -44,9 +42,6 @@ public class TenantUserController {
 
   private final TenantUserService tnUsrService;
 
-  private final DeleteTntUserService deleteTntUserService;
-  private final UpdateTntUserService updateTntUserService;
-
   @PersistenceContext
   private EntityManager em;
 
@@ -78,7 +73,7 @@ public class TenantUserController {
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    tnUsrService.create(userDto, currentUser, option);
+    //tnUsrService.create(userDto, currentUser, option);
 
     return new ResponseEntity<>("", HttpStatus.CREATED);
   }
@@ -94,12 +89,12 @@ public class TenantUserController {
         .contains(PermissionKey.VIEW_TENANT_USER_RESTRICTED.toString()) &&
       currentUser.getTenantId() == id
     ) {
-      map =
-        tnUsrService.checkViewTenantRestrictedPermissions(
-          currentUser,
-          predicate,
-          UserView.class
-        );
+      //      map =
+      //        tnUsrService.checkViewTenantRestrictedPermissions(
+      //          currentUser,
+      //          predicate,
+      //          UserView.class
+      //        );
       predicate = (Predicate) map.get(CommonConstants.PREDICATE);
     }
     CriteriaBuilder cb = map.get(CommonConstants.BUILDER) != null
@@ -121,7 +116,10 @@ public class TenantUserController {
       cb.notEqual(root.get("roleType"), CommonConstants.SUPER_ADMIN_ROLE_TYPE)
     );
     //doubt return UserDto
-    return new ResponseEntity<>(tnUsrService.getUserView(cq), HttpStatus.OK);
+    return new ResponseEntity<>(
+      new UserView()/*tnUsrService.getUserView(cq)*/,
+      HttpStatus.OK
+    );
   }
 
   @GetMapping("/view-all")
@@ -144,12 +142,12 @@ public class TenantUserController {
         .contains(PermissionKey.VIEW_TENANT_USER_RESTRICTED.toString()) &&
       currentUser.getTenantId() == id
     ) {
-      map =
+      /*map =
         tnUsrService.checkViewTenantRestrictedPermissions(
           currentUser,
           predicate,
           UserView.class
-        );
+        );*/
       predicate = (Predicate) map.get(CommonConstants.PREDICATE);
     }
     CriteriaBuilder cb = map.get(CommonConstants.BUILDER) != null
@@ -171,7 +169,7 @@ public class TenantUserController {
       cb.notEqual(root.get("roleType"), CommonConstants.SUPER_ADMIN_ROLE_TYPE)
     );
     long userCount;
-    userCount = tnUsrService.getUserView(cq).size();
+    userCount = 0; //tnUsrService.getUserView(cq).size();
 
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(
@@ -218,7 +216,7 @@ public class TenantUserController {
       );
     }
 
-    UserView userView = tnUsrService.findById(userId, id, UserView.class);
+    UserView userView = new UserView(); //tnUsrService.findById(userId, id, UserView.class);
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(userView, HttpStatus.OK);
   }
@@ -244,7 +242,7 @@ public class TenantUserController {
     if (userView.getUsername() != null) {
       userView.setUsername(userView.getUsername().toLowerCase());
     }
-    updateTntUserService.updateById(currentUser, userId, userView, id);
+    //updateTntUserService.updateById(currentUser, userId, userView, id);
 
     return new ResponseEntity<>("User PATCH success", HttpStatus.NO_CONTENT);
   }
@@ -259,7 +257,7 @@ public class TenantUserController {
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    deleteTntUserService.deleteUserById(currentUser, userId, id);
+    //deleteTntUserService.deleteUserById(currentUser, userId, id);
     return new ResponseEntity<>("User DELETE success", HttpStatus.NO_CONTENT);
   }
 }

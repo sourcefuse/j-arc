@@ -9,8 +9,11 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -23,9 +26,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "groups", schema = "main")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Group extends UserModifiableEntity implements Serializable {
-
-  private static final long serialVersionUID = 1905122041950251209L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -42,8 +44,13 @@ public class Group extends UserModifiableEntity implements Serializable {
 
   @Column(name = "group_type")
   @Enumerated(EnumType.STRING)
+  @Transient
   private UserTenantGroupType groupType = UserTenantGroupType.TENANT;
 
-  @OneToMany(mappedBy = "groupId")
+  @OneToMany(mappedBy = "group")
   private List<UserGroup> userGroups;
+
+  public Group(UUID groupId) {
+    this.id = groupId;
+  }
 }

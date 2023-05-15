@@ -1,8 +1,9 @@
-package com.sourcefuse.jarc.services.usertenantservice.dto;
+package com.sourcefuse.jarc.services.usertenantservice.model;
 
+import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import java.io.Serializable;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,5 @@ public class UserGroupView extends Group {
   private static final long serialVersionUID = 1905122041950251214L;
 
   @Column(name = "user_tenant_id")
-  private String userTenantId;
+  private UUID userTenantId;
 }

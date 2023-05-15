@@ -26,8 +26,6 @@ import lombok.NoArgsConstructor;
 //@SecondaryTable(name = "tenants")
 public class Tenant extends UserModifiableEntity implements Serializable {
 
-  private static final long serialVersionUID = 1905122041950251210L;
-
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
@@ -37,7 +35,6 @@ public class Tenant extends UserModifiableEntity implements Serializable {
   private String name;
 
   @Column(nullable = false)
-  //    @Enumerated(EnumType.STRING)
   private TenantStatus status;
 
   @Column(name = "KEY")
@@ -64,9 +61,13 @@ public class Tenant extends UserModifiableEntity implements Serializable {
   @Column(name = "tenant_type")
   private String tenantType;
 
-  @OneToMany(mappedBy = "tenantId", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
   private List<TenantConfig> tenantConfigs;
 
-  @OneToMany(mappedBy = "tenantId", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
   private List<UserTenant> userTenants;
+
+  public Tenant(UUID tenantId) {
+    this.id = tenantId;
+  }
 }

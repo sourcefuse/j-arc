@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -45,10 +46,9 @@ public class RoleUserTenantController {
 
     Optional<Role> role = roleRepository.findById(id);
     if (role.isPresent()) {
-      userTenant.setRoleId(role.get().getId());
+      userTenant.getRole().setId(role.get().getId());
 
       role.get().getUserTenants().add(userTenant);
-
       savedUserRole = roleUserTRepository.save(userTenant);
     } else {
       throw new ResponseStatusException(
@@ -92,7 +92,6 @@ public class RoleUserTenantController {
 
     List<UserTenant> userTenantArrayList =
       roleUserTRepository.findUserTenantsByRoleId(id);
-
     long count = 0;
     if (!userTenantArrayList.isEmpty()) {
       for (UserTenant tarUserTenant : userTenantArrayList) {
@@ -108,6 +107,7 @@ public class RoleUserTenantController {
     return new ResponseEntity<>(new Count(count), HttpStatus.OK);
   }
 
+  @Transactional
   @DeleteMapping("{id}" + "/user-tenants")
   public ResponseEntity<Object> deleteRolesById(@PathVariable("id") UUID id) {
     long count = roleUserTRepository.deleteByRoleId(id);

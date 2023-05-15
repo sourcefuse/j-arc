@@ -1,14 +1,19 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sourcefuse.jarc.services.usertenantservice.commons.BaseEntity;
 import com.sourcefuse.jarc.services.usertenantservice.enums.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
@@ -18,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @NoArgsConstructor
@@ -25,10 +31,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "user_tenants", schema = "main")
+@Slf4j
 public class UserTenant extends BaseEntity implements Serializable {
 
   private static final long serialVersionUID = 1905122041950251216L;
 
+  //doubt:
+  // implements IUserPrefs
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
@@ -40,14 +49,20 @@ public class UserTenant extends BaseEntity implements Serializable {
   @Enumerated
   private UserStatus status;
 
-  @Column(name = "user_id", nullable = false)
-  private UUID userId;
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+  private User user;
 
-  @Column(name = "tenant_id", nullable = false)
-  private UUID tenantId;
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
+  private Tenant tenant;
 
-  @Column(name = "role_id", nullable = false)
-  private UUID roleId;
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+  private Role role;
 
   @OneToMany(
     mappedBy = "userTenantId",
@@ -57,9 +72,52 @@ public class UserTenant extends BaseEntity implements Serializable {
   private List<UserLevelPermission> userLevelPermissions;
 
   @OneToMany(
-    mappedBy = "userTenantId",
+    mappedBy = "userTenant",
     cascade = CascadeType.ALL,
     orphanRemoval = true
   )
   private List<UserGroup> userGroups;
+
+  public UserTenant(UUID userTenantId) {
+    this.id = userTenantId;
+  }
+
+  @JsonProperty("userId")
+  public UUID getUsr() {
+    if (user != null) {
+      return this.user.getId();
+    }
+    return null;
+  }
+
+  @JsonProperty("userId")
+  public void setUsr(UUID userId) {
+    this.user = new User(userId);
+  }
+
+  @JsonProperty("tenantId")
+  public UUID getTnt() {
+    if (tenant != null) {
+      return this.tenant.getId();
+    }
+    return null;
+  }
+
+  @JsonProperty("tenantId")
+  public void setTnt(UUID tenantId) {
+    this.tenant = new Tenant(tenantId);
+  }
+
+  @JsonProperty("roleId")
+  public UUID getRol() {
+    if (role != null) {
+      return this.role.getId();
+    }
+    return null;
+  }
+
+  @JsonProperty("roleId")
+  public void setRol(UUID roleId) {
+    this.role = new Role(roleId);
+  }
 }

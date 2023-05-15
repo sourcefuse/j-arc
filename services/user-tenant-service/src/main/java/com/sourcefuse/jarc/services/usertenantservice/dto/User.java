@@ -1,5 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
 import com.sourcefuse.jarc.services.usertenantservice.enums.Gender;
 import jakarta.persistence.CascadeType;
@@ -10,6 +12,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -27,17 +31,17 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @Data
-//@NoArgsConstructor
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Entity
 @Table(name = "users", schema = "main")
-//@SecondaryTable(name = "users")
 public class User extends UserModifiableEntity implements Serializable {
 
   private static final long serialVersionUID = 1905122041950251212L;
 
+  //doubt:
+  //implements IAuthUser
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
@@ -81,12 +85,33 @@ public class User extends UserModifiableEntity implements Serializable {
   @Temporal(TemporalType.DATE)
   private Date dob;
 
-  @Column(name = "default_tenant_id")
-  private UUID defaultTenantId;
+  @JsonIgnore
+  @ManyToOne
+  @JoinColumn(name = "default_tenant_id")
+  //doubt:
+  //this not found at Tenant class
+  private Tenant defaultTenant;
 
   @OneToOne(mappedBy = "userId", cascade = CascadeType.ALL)
   private UserCredentials credentials;
 
-  @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<UserTenant> userTenants;
+
+  public User(UUID userId) {
+    this.id = userId;
+  }
+
+  @JsonProperty("defaultTenantId")
+  public UUID getTnt() {
+    if (defaultTenant != null) {
+      return this.defaultTenant.getId();
+    }
+    return null;
+  }
+
+  @JsonProperty("defaultTenantId")
+  public void setTnt(UUID defaultTenantId) {
+    this.defaultTenant = new Tenant(defaultTenantId);
+  }
 }

@@ -1,8 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
-import static com.sourcefuse.jarc.services.usertenantservice.commons.TypeRole.roleTypeMap;
-
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
+import com.sourcefuse.jarc.services.usertenantservice.commons.TypeRole;
 import com.sourcefuse.jarc.services.usertenantservice.commonutils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.User;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
@@ -139,7 +138,8 @@ public class UpdateTntUserServiceImpl implements UpdateTntUserService {
         !currentUser
           .getPermissions()
           .contains(
-            "UpdateTenant" + roleTypeMap.get(RoleType.DEFAULT).permissionKey()
+            "UpdateTenant" +
+            TypeRole.getRoleTypeMap().get(RoleType.DEFAULT).permissionKey()
           )
       ) {
         throw new ResponseStatusException(
@@ -157,12 +157,12 @@ public class UpdateTntUserServiceImpl implements UpdateTntUserService {
   ) {
     UserTenant utData = new UserTenant();
     if (userView.getRoleId() != null) {
-      utData.setRoleId(userView.getRoleId());
+      utData.getRole().setId(userView.getRoleId());
     }
     if (userView.getStatus() != null) {
       utData.setStatus(userView.getStatus());
     }
-    if (utData.getRoleId() != null && utData.getStatus() != null) {
+    if (utData.getRole() != null && utData.getStatus() != null) {
       List<UserTenant> usrTntLis =
         userTenantRepository.findAllByUserIdAndTenantId(
           id,

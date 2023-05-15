@@ -2,6 +2,7 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.commons.CommonConstants;
+import com.sourcefuse.jarc.services.usertenantservice.commonutils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Count;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
@@ -10,15 +11,16 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -49,13 +51,13 @@ public class UserGroupController {
     Optional<Group> group = groupRepository.findById(id);
     if (group.isPresent()) {
       svdGroup = group.get();
-      if (userGroup.getGroupId() == null) {
-        userGroup.setGroupId(svdGroup.getId());
+      if (userGroup.getGroup().getId() == null) {
+        userGroup.getGroup().setId(svdGroup.getId());
       }
       usrGr =
         userGroupsRepo.findByGroupIdAndUserTenantId(
-          userGroup.getGroupId(),
-          userGroup.getUserTenantId()
+          userGroup.getGroup().getId(),
+          userGroup.getUserTenant().getId()
         );
       if (!usrGr.isPresent()) {
         usrGr = (Optional.ofNullable(userGroupsRepo.save(userGroup)));
@@ -71,7 +73,8 @@ public class UserGroupController {
     return new ResponseEntity<>(usrGr.get(), HttpStatus.CREATED);
   }
 
-  @PatchMapping("{id}" + "/user-groups" + "{userGroupId}")
+  @Transactional
+  @PatchMapping("{id}/user-groups/{userGroupId}")
   public ResponseEntity<Object> updateAll(
     @PathVariable("id") UUID id,
     @RequestBody UserGroup userGroup,
@@ -99,7 +102,17 @@ public class UserGroupController {
       if (userGroup.getId() == null) {
         userGroup.setId(userGroupId);
       }
-      userGroupsRepo.save(userGroup);
+      Optional<UserGroup> tarUsrGrpOpt = userGroupsRepo.findById(userGroupId);
+      UserGroup tarUserGroup = new UserGroup();
+      if (tarUsrGrpOpt.isPresent()) {
+        tarUserGroup = tarUsrGrpOpt.get();
+      }
+      BeanUtils.copyProperties(
+        userGroup,
+        tarUserGroup,
+        CommonUtils.getNullPropertyNames(userGroup)
+      );
+      userGroupsRepo.save(tarUserGroup);
 
       group.get().setModifiedOn(LocalDateTime.now());
       groupRepository.save(group.get());
@@ -109,14 +122,14 @@ public class UserGroupController {
         CommonConstants.NO_GRP_PRESENT
       );
     }
-
     return new ResponseEntity<>(
       "Group.UserGroup PATCH success count",
       HttpStatus.OK
     );
   }
 
-  @DeleteMapping("{id}" + "/user-groups" + "{userGroupId}")
+  @Transactional
+  @DeleteMapping("{id}/user-groups/{userGroupId}")
   public ResponseEntity<Object> deleteUsrGrp(
     @PathVariable("id") UUID id,
     @PathVariable("userGroupId") UUID userGroupId
@@ -152,12 +165,12 @@ public class UserGroupController {
       extracted(currentUser, usrTenantId, usrGrp, userGroup);
       Count count = Count
         .builder()
-        .totalCnt(userGroupsRepo.getUserGroupCountByGroupId(id))
+        .totalCnt(userGroupsRepo.countByGroupId(id))
         .build();
       if (count.getTotalCnt() == 1) {
         throw new ResponseStatusException(
           HttpStatus.FORBIDDEN,
-          "${one.owner.msg"
+          "${one.owner.msg}"
         );
       }
       userGroupsRepo.deleteById(userGroupId);
@@ -182,7 +195,7 @@ public class UserGroupController {
       Integer.parseInt(currentUser.getRole()) == RoleKey.ADMIN.getValue();
     Optional<UserGroup> currentUserGroupOpt = usrGrp
       .stream()
-      .filter(usrGp -> usrGp.getUserTenantId().equals(usrTenantId))
+      .filter(usrGp -> usrGp.getUserTenant().getId().equals(usrTenantId))
       .findFirst();
     UserGroup currentUserGroup = new UserGroup();
     if (currentUserGroupOpt.isPresent()) {
@@ -194,7 +207,8 @@ public class UserGroupController {
         (currentUserGroup.isOwner()) ||
         (
           userGroupRecord
-            .getUserTenantId()
+            .getUserTenant()
+            .getId()
             .equals(currentUser.getUserTenantId())
         )
       )
@@ -206,7 +220,10 @@ public class UserGroupController {
     }
 
     if (
-      userGroupRecord.getUserTenantId().equals(currentUser.getUserTenantId()) &&
+      userGroupRecord
+        .getUserTenant()
+        .getId()
+        .equals(currentUser.getUserTenantId()) &&
       (currentUserGroup.isOwner())
     ) {
       throw new ResponseStatusException(
@@ -216,7 +233,7 @@ public class UserGroupController {
     }
   }
 
-  @GetMapping("{id}" + "/user-groups")
+  @GetMapping("{id}/user-groups")
   public ResponseEntity<Object> getAllUsTenantByRole(
     @PathVariable("id") UUID id
   ) {
@@ -226,7 +243,7 @@ public class UserGroupController {
     List<UserGroup> usrGrpList;
     Optional<Group> group = groupRepository.findById(id);
     if (group.isPresent()) {
-      usrGrpList = userGroupsRepo.findAll();
+      usrGrpList = userGroupsRepo.findAllByGroupId(id);
     } else {
       throw new ResponseStatusException(
         HttpStatus.NOT_FOUND,
@@ -236,9 +253,9 @@ public class UserGroupController {
     return new ResponseEntity<>(usrGrpList, HttpStatus.OK);
   }
 
-  @GetMapping("{id}" + "/user-groups/count")
+  @GetMapping("{id}/user-groups/count")
   public ResponseEntity<Object> countUserGroup(@PathVariable("id") UUID id) {
-    Long grpCnt = userGroupsRepo.getUserGroupCountByGroupId(id);
+    Long grpCnt = userGroupsRepo.countByGroupId(id);
     Count count = Count.builder().totalCnt(grpCnt).build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }

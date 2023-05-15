@@ -1,5 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
 import com.sourcefuse.jarc.services.usertenantservice.enums.UserConfigKey;
 import jakarta.persistence.Column;
@@ -7,6 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.UUID;
@@ -31,13 +35,29 @@ public class UserTenantPrefs
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  // @Enumerated(EnumType.STRING)
   @Column(name = "config_key", nullable = false)
   private UserConfigKey configKey;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "config_value", columnDefinition = "jsonb")
-  private transient Object configValue;
+  private Object configValue;
 
-  @Column(name = "user_tenant_id")
-  private UUID userTenantId;
+  @JsonIgnore
+  @ManyToOne(optional = true)
+  @JoinColumn(name = "user_tenant_id")
+  private UserTenant userTenant;
+
+  @JsonProperty("userTenantId")
+  public UUID getUsrTnt() {
+    if (userTenant != null) {
+      return this.userTenant.getId();
+    }
+    return null;
+  }
+
+  @JsonProperty("userTenantId")
+  public void setUsrTnt(UUID userTenantId) {
+    this.userTenant = new UserTenant(userTenantId);
+  }
 }

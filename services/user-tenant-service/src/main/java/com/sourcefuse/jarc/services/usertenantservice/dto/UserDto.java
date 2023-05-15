@@ -9,19 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//@Entity
-
-/*** This model need not to persisted*/
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
-
-  /**
-   * @Id
-   * @GeneratedValue(strategy = GenerationType.UUID)
-   * private UUID id;
-   */
 
   @Column(nullable = false)
   private UUID roleId;

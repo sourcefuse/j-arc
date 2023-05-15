@@ -1,5 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sourcefuse.jarc.services.usertenantservice.commons.ConfigKey;
 import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
 import jakarta.persistence.Column;
@@ -7,6 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
@@ -38,6 +42,21 @@ public class TenantConfig extends UserModifiableEntity implements Serializable {
   @Column(name = "config_value", columnDefinition = "jsonb")
   private String configValue;
 
-  @Column(name = "tenant_id")
-  private UUID tenantId;
+  @JsonIgnore
+  @ManyToOne
+  @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false)
+  private Tenant tenant;
+
+  @JsonProperty("tenantId")
+  public UUID getTnt() {
+    if (tenant != null) {
+      return this.tenant.getId();
+    }
+    return null;
+  }
+
+  @JsonProperty("tenantId")
+  public void setTnt(UUID tenantId) {
+    this.tenant = new Tenant(tenantId);
+  }
 }

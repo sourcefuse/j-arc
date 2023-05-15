@@ -24,7 +24,7 @@ public interface UserGroupsRepository extends JpaRepository<UserGroup, UUID> {
     boolean bool
   );
 
-  Long getUserGroupCountByGroupId(UUID id);
+  Long countByGroupId(UUID id);
 
   List<UserGroup> findByGroupIdOrIdOrUserTenantId(
     UUID id,
@@ -33,4 +33,6 @@ public interface UserGroupsRepository extends JpaRepository<UserGroup, UUID> {
   );
 
   void deleteAllByUserTenantId(UUID id);
+
+  List<UserGroup> findAllByGroupId(UUID id);
 }

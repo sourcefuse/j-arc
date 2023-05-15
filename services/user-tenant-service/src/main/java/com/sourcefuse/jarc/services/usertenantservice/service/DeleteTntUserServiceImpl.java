@@ -1,8 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
-import static com.sourcefuse.jarc.services.usertenantservice.commons.TypeRole.roleTypeMap;
-
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
+import com.sourcefuse.jarc.services.usertenantservice.commons.TypeRole;
 import com.sourcefuse.jarc.services.usertenantservice.dto.User;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
@@ -55,14 +54,14 @@ public class DeleteTntUserServiceImpl implements DeleteTntUserService {
     UserTenant userTenant = userTenantRepository.findByUserId(id);
     UUID defaultTenantId = null;
     if (userTenant != null) {
-      defaultTenantId = userTenant.getTenantId();
+      defaultTenantId = userTenant.getTenant().getId();
     }
 
     Optional<User> optUser = userRepository.findById(id);
     User user;
     if (optUser.isPresent()) {
       user = optUser.get();
-      user.setDefaultTenantId(defaultTenantId);
+      user.getDefaultTenant().setId(defaultTenantId);
       userRepository.save(user);
     }
   }
@@ -88,7 +87,8 @@ public class DeleteTntUserServiceImpl implements DeleteTntUserService {
         !currentUser
           .getPermissions()
           .contains(
-            "DeleteTenant" + roleTypeMap.get(RoleType.DEFAULT).permissionKey()
+            "DeleteTenant" +
+            TypeRole.getRoleTypeMap().get(RoleType.DEFAULT).permissionKey()
           )
       ) {
         throw new ResponseStatusException(

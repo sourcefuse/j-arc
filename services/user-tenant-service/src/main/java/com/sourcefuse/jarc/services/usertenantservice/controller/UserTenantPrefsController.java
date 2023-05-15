@@ -44,12 +44,12 @@ public class UserTenantPrefsController {
       currentUser != null &&
       StringUtils.isNotEmpty(currentUser.getUserTenantId().toString())
     ) {
-      userTPrefs.setUserTenantId(currentUser.getUserTenantId());
+      userTPrefs.getUserTenant().setId(currentUser.getUserTenantId());
     }
 
     UserTenantPrefs preExistsTenantPrefs =
       userTPRepository.findByUserTenantIdAndConfigKey(
-        userTPrefs.getUserTenantId(),
+        userTPrefs.getUserTenant().getId(),
         userTPrefs.getConfigKey().getValue()
       );
 

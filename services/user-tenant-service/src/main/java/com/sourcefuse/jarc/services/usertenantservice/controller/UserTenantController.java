@@ -7,8 +7,6 @@ import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.enums.PermissionKey;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewRepository;
-import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserService;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +30,6 @@ public class UserTenantController {
 
   private final UserViewRepository userViewRepository;
 
-  private final TenantUserService tnUsrService;
-
   // pending authentication doubt ::
   @GetMapping("{id}")
   public ResponseEntity<Object> getUserTenantById(@PathVariable("id") UUID id) {
@@ -46,7 +42,9 @@ public class UserTenantController {
 
     if (userTenant.isPresent()) {
       if (
-        currentUser.getTenantId() != userTenant.get().getTenantId() &&
+        !currentUser
+          .getTenantId()
+          .equals(userTenant.get().getTenant().getId()) &&
         !currentUser
           .getPermissions()
           .contains(PermissionKey.VIEW_ANY_USER.toString())
@@ -57,7 +55,7 @@ public class UserTenantController {
         );
       }
       if (
-        currentUser.getId() != userTenant.get().getUserId() &&
+        !currentUser.getId().equals(userTenant.get().getUser().getId()) &&
         currentUser
           .getPermissions()
           .contains(PermissionKey.VIEW_OWN_USER.toString())

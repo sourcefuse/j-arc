@@ -5,6 +5,7 @@ import com.sourcefuse.jarc.services.usertenantservice.commonutils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Count;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
+import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import jakarta.validation.Valid;
@@ -45,10 +46,15 @@ public class GroupController {
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    UserGroup userGroup = UserGroup
+    UserGroup userGroup = new UserGroup();
+
+    /*userGroup.setGroup(new Group(savedGroups.getId()));
+    userGroup.setUserTenant(new UserTenant(currentUser.getUserTenantId()));
+    userGroup.setOwner(true);*/
+    UserGroup
       .builder()
-      .groupId(savedGroups.getId())
-      .userTenantId(currentUser.getUserTenantId())
+      .group(new Group(savedGroups.getId()))
+      .userTenant(new UserTenant(currentUser.getUserTenantId()))
       .isOwner(true)
       .build();
     userGroupsRepo.save(userGroup);

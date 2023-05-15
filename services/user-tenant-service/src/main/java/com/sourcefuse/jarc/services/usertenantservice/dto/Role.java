@@ -15,19 +15,19 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "roles", schema = "main")
 public class Role extends UserModifiableEntity implements Serializable {
-
-  private static final long serialVersionUID = 1905122041950251207L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -50,7 +50,7 @@ public class Role extends UserModifiableEntity implements Serializable {
   @Column(name = "allowed_clients")
   private List<String> allowedClients;
 
-  @OneToMany(mappedBy = "roleId")
+  @OneToMany(mappedBy = "role")
   private List<UserTenant> userTenants;
 
   @OneToOne
@@ -70,4 +70,8 @@ public class Role extends UserModifiableEntity implements Serializable {
     updatable = false
   )
   private UserView modifiedByUser;
+
+  public Role(UUID roleId) {
+    this.id = roleId;
+  }
 }

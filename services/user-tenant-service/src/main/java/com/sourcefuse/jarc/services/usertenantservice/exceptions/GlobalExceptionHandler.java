@@ -38,7 +38,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       exception.getMessage(),
       webRequest.getDescription(true)
     );
-    exception.printStackTrace();
     return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 

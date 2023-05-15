@@ -19,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -67,6 +68,7 @@ public class TenantController {
   /**
    * Need to discuss about query parameter doubt
    */
+  @Transactional
   @PatchMapping("")
   public ResponseEntity<Count> updateAllTenants(
     @RequestBody Tenant souctenant
@@ -126,6 +128,7 @@ public class TenantController {
     return new ResponseEntity<>(savedTenant, HttpStatus.OK);
   }
 
+  @Transactional
   @PatchMapping("{id}")
   public ResponseEntity<Object> updateTenantsById(
     @PathVariable("id") UUID id,
@@ -169,6 +172,7 @@ public class TenantController {
     return new ResponseEntity<>("Tenant PATCH success", HttpStatus.NO_CONTENT);
   }
 
+  @Transactional
   @DeleteMapping("")
   public ResponseEntity<String> deleteTenantsById(@PathVariable("id") UUID id) {
     tenantRepository.deleteById(id);
