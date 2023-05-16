@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.core.services;
 
+import com.sourcefuse.jarc.core.constants.OperationPredicates;
 import com.sourcefuse.jarc.core.models.filters.Filter;
 import com.sourcefuse.jarc.core.models.filters.IncludeRelation;
 import jakarta.persistence.EntityManager;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,14 +33,9 @@ public class QueryService {
     CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(entityClass);
     Root<T> root = criteriaQuery.from(entityClass);
 
-    List<Selection<?>> selections = generateFieldSelection(
-      criteriaBuilder,
-      filter,
-      root,
-      criteriaQuery
-    );
+    List<Selection<?>> selections = generateFieldSelection(filter, root);
 
-    List<Predicate> predicates = generatePredicates(
+    List<Predicate> predicates = buildPredicates(
       criteriaBuilder,
       filter,
       root,
@@ -56,8 +53,7 @@ public class QueryService {
     return entityManager.createQuery(criteriaQuery).getResultList();
   }
 
-  @SuppressWarnings("unchecked")
-  private <T> List<Predicate> generatePredicates(
+  private <T> List<Predicate> buildPredicates(
     CriteriaBuilder criteriaBuilder,
     Filter filter,
     From<?, T> from,
@@ -71,20 +67,9 @@ public class QueryService {
       Object fieldValue = entry.getValue();
 
       if (fieldValue instanceof Map) {
-        Map<String, Object> fieldOperators = (Map<String, Object>) fieldValue;
-
-        fieldOperators
-          .entrySet()
-          .stream()
-          .forEach((Entry<String, Object> operatorEntry) -> {
-            String operator = operatorEntry.getKey();
-            Object value = operatorEntry.getValue();
-
-            Expression<String> fieldPath = from.get(fieldName);
-            predicates.add(
-              getPredicate(criteriaBuilder, operator, fieldPath, value)
-            );
-          });
+        predicates.addAll(
+          generatePredicates(criteriaBuilder, from, fieldName, fieldValue)
+        );
       } else {
         Expression<String> fieldPath = from.get(fieldName);
         predicates.add(criteriaBuilder.equal(fieldPath, fieldValue));
@@ -96,7 +81,7 @@ public class QueryService {
       .stream()
       .forEach((IncludeRelation includeRelation) ->
         predicates.addAll(
-          generatePredicates(
+          buildPredicates(
             criteriaBuilder,
             includeRelation.getScope(),
             from.join(includeRelation.getRelation(), JoinType.INNER),
@@ -107,11 +92,9 @@ public class QueryService {
     return predicates;
   }
 
-  private <T> List<Selection<?>> generateFieldSelection(
-    CriteriaBuilder criteriaBuilder,
+  private static <T> List<Selection<?>> generateFieldSelection(
     Filter filter,
-    From<?, T> from,
-    CriteriaQuery<?> criteriaQuery
+    From<?, T> from
   ) {
     List<Selection<?>> selections = new ArrayList<>();
 
@@ -127,67 +110,90 @@ public class QueryService {
           selections.add(fieldPath);
         }
       });
-    filter
-      .getInclude()
-      .stream()
-      .forEach((IncludeRelation includeRelation) ->
-        selections.addAll(
-          generateFieldSelection(
-            criteriaBuilder,
-            includeRelation.getScope(),
-            from.join(includeRelation.getRelation(), JoinType.INNER),
-            criteriaQuery
-          )
-        )
-      );
     return selections;
   }
 
-  private static Predicate getPredicate(
+  @SuppressWarnings("unchecked")
+  private static <T> List<Predicate> generatePredicates(
     CriteriaBuilder criteriaBuilder,
-    String operator,
-    Expression<String> fieldPath,
-    Object value
+    From<?, T> from,
+    String fieldName,
+    Object fieldValue
   ) {
-    Predicate predicate;
-    Double doubleValue;
-    Expression<Double> field;
-    switch (operator) {
-      case "eq":
-        predicate = criteriaBuilder.equal(fieldPath, value);
-        break;
-      case "ne":
-        predicate = criteriaBuilder.notEqual(fieldPath, value);
-        break;
-      case "gt":
-        doubleValue = Double.valueOf(value.toString());
-        field = fieldPath.as(Double.class);
-        predicate = criteriaBuilder.greaterThan(field, doubleValue);
-        break;
-      case "gte":
-        doubleValue = Double.valueOf(value.toString());
-        field = fieldPath.as(Double.class);
-        predicate = criteriaBuilder.greaterThanOrEqualTo(field, doubleValue);
-        break;
-      case "lt":
-        doubleValue = Double.valueOf(value.toString());
-        field = fieldPath.as(Double.class);
-        predicate = criteriaBuilder.lessThan(field, doubleValue);
-        break;
-      case "lte":
-        doubleValue = Double.valueOf(value.toString());
-        field = fieldPath.as(Double.class);
-        predicate = criteriaBuilder.lessThanOrEqualTo(field, doubleValue);
-        break;
-      case "like":
-        predicate = criteriaBuilder.like(fieldPath, "%" + value + "%");
-        break;
-      case "notlike":
-        predicate = criteriaBuilder.notLike(fieldPath, "%" + value + "%");
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported operator: " + operator);
+    List<Predicate> predicates = new ArrayList<>();
+    if ("and".equals(fieldName)) {
+      List<Predicate> andPredicates = new ArrayList<>();
+      Map<String, Object> fieldOperators = (Map<String, Object>) fieldValue;
+      fieldOperators
+        .entrySet()
+        .stream()
+        .forEach((Entry<String, Object> operatorEntry) -> {
+          String operator = operatorEntry.getKey();
+          Object value = operatorEntry.getValue();
+          andPredicates.addAll(
+            generatePredicates(criteriaBuilder, from, operator, value)
+          );
+        });
+      predicates.add(
+        criteriaBuilder.and(andPredicates.toArray(new Predicate[0]))
+      );
+    } else if ("or".equals(fieldName)) {
+      List<Predicate> orPredicates = new ArrayList<>();
+      Map<String, Object> fieldOperators = (Map<String, Object>) fieldValue;
+      fieldOperators
+        .entrySet()
+        .stream()
+        .forEach((Entry<String, Object> operatorEntry) -> {
+          String operator = operatorEntry.getKey();
+          Object value = operatorEntry.getValue();
+          orPredicates.addAll(
+            generatePredicates(criteriaBuilder, from, operator, value)
+          );
+        });
+      predicates.add(
+        criteriaBuilder.or(orPredicates.toArray(new Predicate[0]))
+      );
+    } else {
+      predicates.addAll(
+        generatePredicatesByOperators(
+          criteriaBuilder,
+          from,
+          fieldName,
+          fieldValue
+        )
+      );
     }
-    return predicate;
+    return predicates;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> List<Predicate> generatePredicatesByOperators(
+    CriteriaBuilder criteriaBuilder,
+    From<?, T> from,
+    String fieldName,
+    Object fieldValue
+  ) {
+    List<Predicate> predicates = new ArrayList<>();
+    if (fieldValue instanceof Map) {
+      Map<String, Object> fieldOperators = (Map<String, Object>) fieldValue;
+      predicates.addAll(
+        fieldOperators
+          .entrySet()
+          .stream()
+          .map((Entry<String, Object> operatorEntry) ->
+            OperationPredicates.getPredicate(
+              criteriaBuilder,
+              operatorEntry.getKey(),
+              from.get(fieldName),
+              operatorEntry.getValue()
+            )
+          )
+          .collect(Collectors.toList())
+      );
+    } else {
+      Expression<String> fieldPath = from.get(fieldName);
+      predicates.add(criteriaBuilder.equal(fieldPath, fieldValue));
+    }
+    return predicates;
   }
 }

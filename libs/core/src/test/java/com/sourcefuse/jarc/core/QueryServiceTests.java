@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,9 +53,7 @@ class QueryServiceTests {
 
   Filter filter = new Filter();
   IncludeRelation includeRelation = new IncludeRelation();
-  Map<String, Object> filterWhere = new HashMap<String, Object>();
   Map<String, Object> fieldsOperation = new HashMap<String, Object>();
-  List<IncludeRelation> listInclude = new ArrayList<>();
 
   @BeforeEach
   void setUp() {
@@ -63,7 +62,7 @@ class QueryServiceTests {
     this.setUpRole();
 
     filter = new Filter();
-    filterWhere = new HashMap<String, Object>();
+    includeRelation = new IncludeRelation();
     fieldsOperation = new HashMap<String, Object>();
   }
 
@@ -97,7 +96,7 @@ class QueryServiceTests {
     user2 = this.userRepository.save(user2);
 
     user3.setFirstName("User Three");
-    user3.setRole(userRole);
+    user3.setRole(tempRole);
     user3.setLastName("User");
     user3.setAge(24);
     user3 = this.userRepository.save(user3);
@@ -105,16 +104,14 @@ class QueryServiceTests {
 
   private List<User> filterWithOperatorAndAge(String operator, Object age) {
     fieldsOperation.put(operator, age);
-    filterWhere.put("age", fieldsOperation);
-    filter.setWhere(filterWhere);
+    filter.getWhere().put("age", fieldsOperation);
     return filterService.executeQuery(filter, User.class);
   }
 
   @Test
   void testFilterForEqualsOperator() {
     fieldsOperation.put("eq", "User");
-    filterWhere.put("name", fieldsOperation);
-    filter.setWhere(filterWhere);
+    filter.getWhere().put("name", fieldsOperation);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
@@ -125,9 +122,8 @@ class QueryServiceTests {
 
   @Test
   void testFilterForNotEqualsOperator() {
-    fieldsOperation.put("ne", "User");
-    filterWhere.put("name", fieldsOperation);
-    filter.setWhere(filterWhere);
+    fieldsOperation.put("neq", "User");
+    filter.getWhere().put("name", fieldsOperation);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
@@ -204,8 +200,7 @@ class QueryServiceTests {
   @Test
   void testFilterForLikeOperator() {
     fieldsOperation.put("like", "Update");
-    filterWhere.put("permissions", fieldsOperation);
-    filter.setWhere(filterWhere);
+    filter.getWhere().put("permissions", fieldsOperation);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
@@ -214,9 +209,8 @@ class QueryServiceTests {
 
   @Test
   void testFilterForNotLikeOperator() {
-    fieldsOperation.put("notlike", "Update");
-    filterWhere.put("permissions", fieldsOperation);
-    filter.setWhere(filterWhere);
+    fieldsOperation.put("nlike", "Update");
+    filter.getWhere().put("permissions", fieldsOperation);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
@@ -226,12 +220,9 @@ class QueryServiceTests {
 
   @Test
   void testFilterFieldSelectionTest() {
-    Map<String, Boolean> fields = new HashMap<String, Boolean>();
-    fields.put("name", true);
-    fieldsOperation.put("notlike", "Update");
-    filterWhere.put("permissions", fieldsOperation);
-    filter.setWhere(filterWhere);
-    filter.setFields(fields);
+    filter.getFields().put("name", true);
+    fieldsOperation.put("nlike", "Update");
+    filter.getWhere().put("permissions", fieldsOperation);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
@@ -243,13 +234,36 @@ class QueryServiceTests {
   }
 
   @Test
+  void testFilterForInOerator() {
+    List<UUID> uuids = new ArrayList<>();
+    uuids.add(tempRole.getId());
+    uuids.add(adminRole.getId());
+    fieldsOperation.put("in", uuids);
+    filter.getWhere().put("id", fieldsOperation);
+
+    List<Role> roles = filterService.executeQuery(filter, Role.class);
+
+    assertThat(roles).hasSize(2).contains(tempRole, adminRole);
+  }
+
+  @Test
+  void testFilterForNotInOerator() {
+    List<UUID> uuids = new ArrayList<>();
+    uuids.add(tempRole.getId());
+    uuids.add(adminRole.getId());
+    fieldsOperation.put("nin", uuids);
+    filter.getWhere().put("id", fieldsOperation);
+
+    List<Role> roles = filterService.executeQuery(filter, Role.class);
+
+    assertThat(roles).hasSize(1).contains(userRole);
+  }
+
+  @Test
   void testFilterFieldSelectionTestForMultipleRoles() {
-    Map<String, Boolean> fields = new HashMap<String, Boolean>();
-    fields.put("name", true);
+    filter.getFields().put("name", true);
     fieldsOperation.put("like", "Update");
-    filterWhere.put("permissions", fieldsOperation);
-    filter.setWhere(filterWhere);
-    filter.setFields(fields);
+    filter.getWhere().put("permissions", fieldsOperation);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
@@ -262,5 +276,67 @@ class QueryServiceTests {
     assertNull(roles.get(1).getId());
     assertNull(roles.get(1).getPermissions());
     assertNotNull(roles.get(1).getName());
+  }
+
+  @Test
+  void testFilterAndOperation() {
+    filter.getFields().put("name", true);
+    Map<String, Object> fieldsCondOperation = new HashMap<String, Object>();
+    fieldsOperation.put("like", "Update");
+    fieldsCondOperation.put("permissions", fieldsOperation);
+    fieldsCondOperation.put("name", "Admin");
+    filter.getWhere().put("and", fieldsCondOperation);
+
+    List<Role> roles = filterService.executeQuery(filter, Role.class);
+
+    assertThat(roles).hasSize(1).contains(adminRole);
+  }
+
+  @Test
+  void testFilterOrInsideAndOperation() {
+    filter.getFields().put("name", true);
+    fieldsOperation.put("like", "Update");
+    Map<String, Object> orCondOperation = new HashMap<String, Object>();
+    orCondOperation.put("permissions", fieldsOperation);
+    orCondOperation.put("name", "Admin");
+    Map<String, Object> andCondOperation = new HashMap<String, Object>();
+    andCondOperation.put("or", orCondOperation);
+    andCondOperation.put("permissions", "Get,Update,Find,Delete");
+    filter.getWhere().put("and", andCondOperation);
+
+    List<Role> roles = filterService.executeQuery(filter, Role.class);
+
+    assertThat(roles).hasSize(1).contains(adminRole);
+  }
+
+  @Test
+  void testFilterAndInsideOrOperation() {
+    filter.getFields().put("name", true);
+    fieldsOperation.put("like", "Update");
+    Map<String, Object> orCondOperation = new HashMap<String, Object>();
+    orCondOperation.put("permissions", fieldsOperation);
+    orCondOperation.put("name", "Admin");
+    Map<String, Object> andCondOperation = new HashMap<String, Object>();
+    andCondOperation.put("and", orCondOperation);
+    andCondOperation.put("permissions", "Get");
+    filter.getWhere().put("or", andCondOperation);
+
+    List<Role> roles = filterService.executeQuery(filter, Role.class);
+
+    assertThat(roles).hasSize(2).contains(adminRole, tempRole);
+  }
+
+  @Test
+  void testFilterOrOperation() {
+    filter.getFields().put("name", true);
+    Map<String, Object> fieldsCondOperation = new HashMap<String, Object>();
+    fieldsOperation.put("like", "Update");
+    fieldsCondOperation.put("permissions", fieldsOperation);
+    fieldsCondOperation.put("name", "Temp");
+    filter.getWhere().put("or", fieldsCondOperation);
+
+    List<Role> roles = filterService.executeQuery(filter, Role.class);
+
+    assertThat(roles).hasSize(3).contains(adminRole, userRole, tempRole);
   }
 }

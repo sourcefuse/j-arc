@@ -5,7 +5,6 @@ import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,7 +39,7 @@ public class Role extends UserModifiableEntity {
 
   @OneToMany(
     mappedBy = "role",
-    fetch = FetchType.EAGER,
+    //    fetch = FetchType.EAGER,
     cascade = CascadeType.ALL
   )
   @Where(clause = "deleted = false")
