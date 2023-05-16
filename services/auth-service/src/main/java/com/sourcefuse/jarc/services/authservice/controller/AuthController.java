@@ -1,12 +1,12 @@
 package com.sourcefuse.jarc.services.authservice.controller;
 
+import com.sourcefuse.jarc.services.authservice.dtos.AuthTokenRequest;
+import com.sourcefuse.jarc.services.authservice.dtos.CodeResponse;
+import com.sourcefuse.jarc.services.authservice.dtos.JWTAuthResponse;
+import com.sourcefuse.jarc.services.authservice.dtos.LoginDto;
+import com.sourcefuse.jarc.services.authservice.dtos.RefreshTokenDTO;
+import com.sourcefuse.jarc.services.authservice.dtos.UserVerificationDTO;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
-import com.sourcefuse.jarc.services.authservice.payload.AuthTokenRequest;
-import com.sourcefuse.jarc.services.authservice.payload.CodeResponse;
-import com.sourcefuse.jarc.services.authservice.payload.JWTAuthResponse;
-import com.sourcefuse.jarc.services.authservice.payload.LoginDto;
-import com.sourcefuse.jarc.services.authservice.payload.RefreshTokenDTO;
-import com.sourcefuse.jarc.services.authservice.payload.UserVerificationDTO;
 import com.sourcefuse.jarc.services.authservice.providers.ClientPasswordVerifyProvider;
 import com.sourcefuse.jarc.services.authservice.providers.ResourceOwnerVerifyProvider;
 import com.sourcefuse.jarc.services.authservice.services.AuthService;

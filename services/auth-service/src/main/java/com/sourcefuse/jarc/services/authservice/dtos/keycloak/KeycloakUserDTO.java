@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.authservice.payload.keycloak;
+package com.sourcefuse.jarc.services.authservice.dtos.keycloak;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

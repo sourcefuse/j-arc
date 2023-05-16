@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.services.authservice.repositories;
 
-import com.sourcefuse.jarc.services.authservice.enums.UserStatus;
+import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 import java.util.List;
 import java.util.Optional;

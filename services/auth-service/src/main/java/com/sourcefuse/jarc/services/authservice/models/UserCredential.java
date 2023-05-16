@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.services.authservice.models;
 
-import com.sourcefuse.jarc.services.authservice.models.base.UserModifiableEntity;
+import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

@@ -1,6 +1,5 @@
-package com.sourcefuse.jarc.services.authservice.payload;
+package com.sourcefuse.jarc.services.authservice.dtos;
 
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,8 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RefreshTokenDTO {
+public class ClientDTO {
 
-  private UUID refreshToken;
+  private String clientId;
+  private String clientSecret;
 }

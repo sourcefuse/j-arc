@@ -1,16 +1,16 @@
-package com.sourcefuse.jarc.services.authservice.payload;
+package com.sourcefuse.jarc.services.authservice.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
-@NoArgsConstructor
+@Setter
 @AllArgsConstructor
-public class ClientDTO {
+@NoArgsConstructor
+public class AuthTokenRequest {
 
+  private String code;
   private String clientId;
-  private String clientSecret;
 }

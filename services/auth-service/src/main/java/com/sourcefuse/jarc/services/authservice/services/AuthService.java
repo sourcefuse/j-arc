@@ -1,18 +1,18 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
+import com.sourcefuse.jarc.core.enums.UserStatus;
+import com.sourcefuse.jarc.services.authservice.dtos.CodeResponse;
+import com.sourcefuse.jarc.services.authservice.dtos.JWTAuthResponse;
+import com.sourcefuse.jarc.services.authservice.dtos.LoginDto;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
 import com.sourcefuse.jarc.services.authservice.enums.AuthenticateErrorKeys;
-import com.sourcefuse.jarc.services.authservice.enums.UserStatus;
 import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserCredential;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
-import com.sourcefuse.jarc.services.authservice.payload.CodeResponse;
-import com.sourcefuse.jarc.services.authservice.payload.JWTAuthResponse;
-import com.sourcefuse.jarc.services.authservice.payload.LoginDto;
 import com.sourcefuse.jarc.services.authservice.providers.AuthCodeGeneratorProvider;
 import com.sourcefuse.jarc.services.authservice.providers.JwtTokenProvider;
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
@@ -53,7 +53,7 @@ public class AuthService {
       .orElseThrow(() ->
         new CommonRuntimeException(
           HttpStatus.UNAUTHORIZED,
-          AuthenticateErrorKeys.UNPROCESSABLE_DATA.label
+          AuthenticateErrorKeys.UNPROCESSABLE_DATA.toString()
         )
       );
     return this.authCodeGeneratorProvider.provide(
@@ -76,7 +76,7 @@ public class AuthService {
       .orElseThrow(() ->
         new CommonRuntimeException(
           HttpStatus.UNAUTHORIZED,
-          AuthenticateErrorKeys.UNPROCESSABLE_DATA.label
+          AuthenticateErrorKeys.UNPROCESSABLE_DATA.toString()
         )
       );
     return this.jwtTokenProvider.createJwt(
@@ -90,10 +90,10 @@ public class AuthService {
   public Optional<User> verifyPassword(String username, String password) {
     Optional<User> user =
       this.userRepository.findUserByUsername(username.toLowerCase());
-    if (user.isEmpty() || user.get().getDeleted().booleanValue()) {
+    if (user.isEmpty() || user.get().isDeleted()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
-        AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.label
+        AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString()
       );
     }
     Optional<UserCredential> userCredential =
@@ -104,7 +104,7 @@ public class AuthService {
         userCredential.get().getPassword().isEmpty() ||
         !Objects.equals(
           userCredential.get().getAuthProvider(),
-          AuthProvider.INTERNAL.label
+          AuthProvider.INTERNAL.toString()
         ) ||
         !(BCrypt.checkpw(password, userCredential.get().getPassword()))
       )
@@ -112,7 +112,7 @@ public class AuthService {
       log.error("User credentials not found in DB or is invalid");
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.INVALID_CREDENTIALS.label
+        AuthErrorKeys.INVALID_CREDENTIALS.toString()
       );
     } else {
       return user;
@@ -126,13 +126,14 @@ public class AuthService {
   ) {
     User currentUser = user;
 
-    Optional<UserTenant> userTenant = userTenantRepository.findUserTenantByUserId(
+    Optional<UserTenant> userTenant =
+     userTenantRepository.findUserTenantByUserId(
       currentUser.getId()
     );
     if (userTenant.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
-        AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.label
+        AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString()
       );
     }
     UserStatus userStatus = userTenant.get().getStatus();
@@ -141,19 +142,19 @@ public class AuthService {
       log.error("No allowed auth clients found for this user in DB");
       throw new HttpServerErrorException(
         HttpStatus.UNPROCESSABLE_ENTITY,
-        AuthErrorKeys.CLIENT_USER_MISSING.label
+        AuthErrorKeys.CLIENT_USER_MISSING.toString()
       );
     } else if (!StringUtils.hasLength(req.getClientSecret())) {
       log.error("client secret key missing from request object");
       throw new HttpServerErrorException(
         HttpStatus.BAD_REQUEST,
-        AuthErrorKeys.CLIENT_SECRET_MISSING.label
+        AuthErrorKeys.CLIENT_SECRET_MISSING.toString()
       );
     } else if (!currentUser.getAuthClientIds().contains(client.getId())) {
       log.error("User is not allowed to access client id passed in request");
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.CLIENT_INVALID.label
+        AuthErrorKeys.CLIENT_INVALID.toString()
       );
     } else if (userStatus == UserStatus.REGISTERED) {
       log.error("User is in registered state");

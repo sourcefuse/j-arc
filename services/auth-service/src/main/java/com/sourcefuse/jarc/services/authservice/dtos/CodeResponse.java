@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.authservice.payload;
+package com.sourcefuse.jarc.services.authservice.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

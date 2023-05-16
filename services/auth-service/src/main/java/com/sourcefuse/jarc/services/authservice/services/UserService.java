@@ -1,9 +1,10 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
+import com.sourcefuse.jarc.core.enums.RoleKey;
+import com.sourcefuse.jarc.core.enums.UserStatus;
+import com.sourcefuse.jarc.services.authservice.dtos.RegisterDto;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
-import com.sourcefuse.jarc.services.authservice.enums.RoleKey;
-import com.sourcefuse.jarc.services.authservice.enums.UserStatus;
 import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.Role;
@@ -11,7 +12,6 @@ import com.sourcefuse.jarc.services.authservice.models.Tenant;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserCredential;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
-import com.sourcefuse.jarc.services.authservice.payload.RegisterDto;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.TenantRepository;
@@ -52,11 +52,11 @@ public class UserService {
     if (tenant.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.INVALID_CREDENTIALS.label
+        AuthErrorKeys.INVALID_CREDENTIALS.toString()
       );
     }
     Optional<Role> defaultRole = roleRepository.findByRoleType(
-      RoleKey.DEFAULT.label
+      RoleKey.DEFAULT
     );
     if (defaultRole.isEmpty()) {
       throw new HttpServerErrorException(
@@ -148,7 +148,7 @@ public class UserService {
     Optional<UserCredential> userCreds =
       this.userCredentialRepository.findByAuthIdAndAuthProvider(
           registerDto.getAuthId(),
-          registerDto.getAuthProvider().label
+          registerDto.getAuthProvider().toString()
         );
     if (userCreds.isPresent()) {
       throw new CommonRuntimeException(
@@ -174,9 +174,9 @@ public class UserService {
       userCredential.setUserId(user.getId());
       if (provider == AuthProvider.KEYCLOAK) {
         userCredential.setAuthId(authId);
-        userCredential.setAuthProvider(AuthProvider.KEYCLOAK.label);
+        userCredential.setAuthProvider(AuthProvider.KEYCLOAK.toString());
       } else {
-        userCredential.setAuthProvider(AuthProvider.INTERNAL.label);
+        userCredential.setAuthProvider(AuthProvider.INTERNAL.toString());
         userCredential.setPassword(passwordEncoder.encode(defaultPassword));
       }
       this.userCredentialRepository.save(userCredential);

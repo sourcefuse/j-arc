@@ -1,13 +1,13 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
+import com.sourcefuse.jarc.core.enums.UserStatus;
+import com.sourcefuse.jarc.services.authservice.dtos.LoginDto;
+import com.sourcefuse.jarc.services.authservice.dtos.UserVerificationDTO;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthenticateErrorKeys;
-import com.sourcefuse.jarc.services.authservice.enums.UserStatus;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
-import com.sourcefuse.jarc.services.authservice.payload.LoginDto;
-import com.sourcefuse.jarc.services.authservice.payload.UserVerificationDTO;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
@@ -53,7 +53,7 @@ public class ResourceOwnerVerifyProvider {
     if (userTenant.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
-        AuthenticateErrorKeys.USER_INACTIVE.label
+        AuthenticateErrorKeys.USER_INACTIVE.toString()
       );
     }
     AuthClient client =
@@ -76,7 +76,7 @@ public class ResourceOwnerVerifyProvider {
   HttpServerErrorException throwUnauthorizedException(AuthErrorKeys errorKeys) {
     throw new HttpServerErrorException(
       HttpStatus.UNAUTHORIZED,
-      errorKeys.label
+      errorKeys.toString()
     );
   }
 }

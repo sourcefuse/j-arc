@@ -1,0 +1,14 @@
+package com.sourcefuse.jarc.core.enums;
+
+public enum RoleKey {
+  ADMIN,
+  DEFAULT,
+  PROGRAM_MANAGER,
+  GUEST_BOARD_VIEWER,
+  GUEST_DASHBOARD_VIEWER,
+  AUTOMATION,
+  GUEST_TASK_VIEWER,
+  GUEST_GROUP_VIEWER,
+  SUPER_ADMIN,
+  GUEST_WORKSPACE_VIEWER;
+}

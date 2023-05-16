@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.authservice.enums;
+package com.sourcefuse.jarc.core.enums;
 
 public enum Gender {
   MALE("M"),

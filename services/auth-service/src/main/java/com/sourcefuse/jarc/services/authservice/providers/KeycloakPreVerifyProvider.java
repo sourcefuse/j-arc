@@ -1,10 +1,10 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
+import com.sourcefuse.jarc.core.enums.UserStatus;
+import com.sourcefuse.jarc.services.authservice.dtos.keycloak.KeycloakUserDTO;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
-import com.sourcefuse.jarc.services.authservice.enums.UserStatus;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
-import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakUserDTO;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class KeycloakPreVerifyProvider {
     if (userTenant.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.INVALID_CREDENTIALS.label
+        AuthErrorKeys.INVALID_CREDENTIALS.toString()
       );
     }
     // TODO role assignment pending to be updated

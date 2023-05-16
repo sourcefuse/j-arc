@@ -1,5 +1,8 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
+import com.sourcefuse.jarc.services.authservice.dtos.CodeResponse;
+import com.sourcefuse.jarc.services.authservice.dtos.keycloak.KeycloakAuthResponse;
+import com.sourcefuse.jarc.services.authservice.dtos.keycloak.KeycloakUserDTO;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
@@ -7,9 +10,6 @@ import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserCredential;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
-import com.sourcefuse.jarc.services.authservice.payload.CodeResponse;
-import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakAuthResponse;
-import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakUserDTO;
 import com.sourcefuse.jarc.services.authservice.providers.AuthCodeGeneratorProvider;
 import com.sourcefuse.jarc.services.authservice.providers.KeycloakPostVerifyProvider;
 import com.sourcefuse.jarc.services.authservice.providers.KeycloakPreVerifyProvider;
@@ -51,7 +51,7 @@ public class KeycloakAuthService {
       this.userCredentialRepository.findByUserId(user.getId())
         .orElseThrow(this::throwUserVerificationFailed);
     if (
-      !userCredential.getAuthProvider().equals(AuthProvider.KEYCLOAK.label) ||
+      !userCredential.getAuthProvider().equals(AuthProvider.KEYCLOAK.toString()) ||
       (
         !userCredential
           .getAuthId()
@@ -95,7 +95,7 @@ public class KeycloakAuthService {
   HttpServerErrorException throwUserVerificationFailed() {
     return new HttpServerErrorException(
       HttpStatus.UNAUTHORIZED,
-      AuthErrorKeys.USER_VERIFICATION_FAILED.label
+      AuthErrorKeys.USER_VERIFICATION_FAILED.toString()
     );
   }
 }

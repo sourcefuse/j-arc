@@ -1,9 +1,9 @@
 package com.sourcefuse.jarc.services.authservice.controller;
 
+import com.sourcefuse.jarc.services.authservice.dtos.ClientDTO;
+import com.sourcefuse.jarc.services.authservice.dtos.CodeResponse;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
-import com.sourcefuse.jarc.services.authservice.payload.ClientDTO;
-import com.sourcefuse.jarc.services.authservice.payload.CodeResponse;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
 import com.sourcefuse.jarc.services.authservice.services.KeycloakAuthService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,7 +48,7 @@ public class KeycloakController {
       .orElseThrow(() ->
         new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,
-          AuthErrorKeys.CLIENT_INVALID.label
+          AuthErrorKeys.CLIENT_INVALID.toString()
         )
       );
     CodeResponse codeResponse =

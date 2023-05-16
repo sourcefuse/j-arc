@@ -1,15 +1,9 @@
 package com.sourcefuse.jarc.services.authservice.security;
 
-import com.sourcefuse.jarc.services.authservice.providers.JwtTokenProvider;
-import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,6 +12,15 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.sourcefuse.jarc.services.authservice.providers.JwtTokenProvider;
+import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @Component

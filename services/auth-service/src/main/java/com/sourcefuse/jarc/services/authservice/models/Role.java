@@ -1,6 +1,7 @@
 package com.sourcefuse.jarc.services.authservice.models;
 
-import com.sourcefuse.jarc.services.authservice.models.base.UserModifiableEntity;
+import com.sourcefuse.jarc.core.enums.RoleKey;
+import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,7 +31,7 @@ public class Role extends UserModifiableEntity {
   private UUID id;
 
   private String name;
-  private int roleType;
+  private RoleKey roleType;
   private List<String> permissions;
   private List<String> allowedClients;
 }

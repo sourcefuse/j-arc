@@ -1,13 +1,13 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
+import com.sourcefuse.jarc.core.enums.RoleKey;
+import com.sourcefuse.jarc.services.authservice.dtos.RegisterDto;
+import com.sourcefuse.jarc.services.authservice.dtos.keycloak.KeycloakUserDTO;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
-import com.sourcefuse.jarc.services.authservice.enums.RoleKey;
 import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.Tenant;
 import com.sourcefuse.jarc.services.authservice.models.User;
-import com.sourcefuse.jarc.services.authservice.payload.RegisterDto;
-import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakUserDTO;
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.TenantRepository;
 import com.sourcefuse.jarc.services.authservice.services.UserService;
@@ -30,11 +30,11 @@ public class KeycloakSignupProvider {
     if (tenant.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.INVALID_CREDENTIALS.label
+        AuthErrorKeys.INVALID_CREDENTIALS.toString()
       );
     }
     Optional<Role> defaultRole =
-      this.roleRepository.findByRoleType(RoleKey.DEFAULT.label);
+      this.roleRepository.findByRoleType(RoleKey.DEFAULT);
     if (defaultRole.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.INTERNAL_SERVER_ERROR,

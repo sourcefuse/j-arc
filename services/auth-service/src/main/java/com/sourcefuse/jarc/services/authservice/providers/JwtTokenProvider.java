@@ -1,14 +1,24 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sourcefuse.jarc.services.authservice.Constants;
+import java.security.Key;
+import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import com.sourcefuse.jarc.core.constants.AuthConstants;
+import com.sourcefuse.jarc.services.authservice.Utils;
+import com.sourcefuse.jarc.services.authservice.dtos.JWTAuthResponse;
 import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.RefreshTokenRedis;
 import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
-import com.sourcefuse.jarc.services.authservice.payload.JWTAuthResponse;
+import com.sourcefuse.jarc.services.authservice.security.CustomJwtBuilder;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -17,16 +27,8 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import java.security.Key;
-import java.util.Date;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -48,11 +50,10 @@ public class JwtTokenProvider {
     Claims claims = Jwts
       .claims()
       .setSubject(currentUser.getUser().getUsername());
-    claims.put(Constants.CURRENT_USER_KEY, currentUser);
-    return Jwts
-      .builder()
+    claims.put(AuthConstants.CURRENT_USER_KEY, currentUser);
+    return new CustomJwtBuilder()
       .setClaims(claims)
-      .setIssuedAt(new Date())
+      .setIssuedAt(currentDate)
       .setExpiration(expireDate)
       .signWith(key())
       .compact();
@@ -68,33 +69,41 @@ public class JwtTokenProvider {
     Role role,
     AuthClient authClient
   ) {
-    CurrentUser currentUser =
-      this.jwtPayloadProvider.provide(user, userTenant, role);
-    String accessToken = this.generateToken(currentUser);
-    String refreshToken = UUID.randomUUID().toString();
+    try {
+      CurrentUser currentUser =
+        this.jwtPayloadProvider.provide(user, userTenant, role);
+      String accessToken = this.generateToken(currentUser);
+      String refreshToken = UUID.randomUUID().toString();
 
-    RefreshTokenRedis refreshTokenRedis = new RefreshTokenRedis();
+      RefreshTokenRedis refreshTokenRedis = new RefreshTokenRedis();
 
-    refreshTokenRedis.setClientId(authClient.getClientId());
-    refreshTokenRedis.setUserId(user.getId());
-    refreshTokenRedis.setUsername(user.getUsername());
-    refreshTokenRedis.setExternalAuthToken(accessToken);
-    refreshTokenRedis.setExternalRefreshToken(refreshToken);
-    refreshTokenRedis.setId(refreshToken);
-    redisTemplate
-      .opsForValue()
-      .set(
-        refreshToken,
-        refreshTokenRedis,
-        authClient.getRefreshTokenExpiration(),
-        TimeUnit.SECONDS
+      refreshTokenRedis.setClientId(authClient.getClientId());
+      refreshTokenRedis.setUserId(user.getId());
+      refreshTokenRedis.setUsername(user.getUsername());
+      refreshTokenRedis.setExternalAuthToken(accessToken);
+      refreshTokenRedis.setExternalRefreshToken(refreshToken);
+      refreshTokenRedis.setId(refreshToken);
+      redisTemplate
+        .opsForValue()
+        .set(
+          refreshToken,
+          refreshTokenRedis,
+          authClient.getRefreshTokenExpiration(),
+          TimeUnit.SECONDS
+        );
+      JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
+      jwtAuthResponse.setAccessToken(accessToken);
+      jwtAuthResponse.setTokenType("Bearer");
+      jwtAuthResponse.setExpires(new Date().getTime() + jwtExpirationDate);
+      jwtAuthResponse.setRefreshToken(refreshToken);
+      return jwtAuthResponse;
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      throw new CommonRuntimeException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        "Error while generating JWT token"
       );
-    JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
-    jwtAuthResponse.setAccessToken(accessToken);
-    jwtAuthResponse.setTokenType("Bearer");
-    jwtAuthResponse.setExpires(new Date().getTime() + jwtExpirationDate);
-    jwtAuthResponse.setRefreshToken(refreshToken);
-    return jwtAuthResponse;
+    }
   }
 
   public CurrentUser getUserDetails(String token) {
@@ -105,9 +114,10 @@ public class JwtTokenProvider {
         .build()
         .parseClaimsJws(token)
         .getBody();
-      Object userObject = claims.get(Constants.CURRENT_USER_KEY);
-      ObjectMapper mapper = new ObjectMapper();
-      return mapper.convertValue(userObject, CurrentUser.class);
+      Object userObject = claims.get(AuthConstants.CURRENT_USER_KEY);
+      return Utils
+        .getObjectMapperInstance()
+        .convertValue(userObject, CurrentUser.class);
     } catch (MalformedJwtException ex) {
       log.error(ex.getMessage());
       throw new CommonRuntimeException(

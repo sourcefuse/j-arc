@@ -1,7 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
-import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakAuthResponse;
-import com.sourcefuse.jarc.services.authservice.payload.keycloak.KeycloakUserDTO;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -13,6 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import com.sourcefuse.jarc.services.authservice.dtos.keycloak.KeycloakAuthResponse;
+import com.sourcefuse.jarc.services.authservice.dtos.keycloak.KeycloakUserDTO;
 
 @Component
 @NoArgsConstructor
