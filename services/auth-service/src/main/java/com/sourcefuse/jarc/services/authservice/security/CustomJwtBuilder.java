@@ -7,9 +7,9 @@ import io.jsonwebtoken.io.SerializationException;
 import lombok.SneakyThrows;
 
 public class CustomJwtBuilder extends DefaultJwtBuilder {
-   /**
-    * @deprecated 
-    */
+  /**
+   * @deprecated
+   */
   @SneakyThrows
   @Override
   @Deprecated(since = "1.11.0", forRemoval = true)
