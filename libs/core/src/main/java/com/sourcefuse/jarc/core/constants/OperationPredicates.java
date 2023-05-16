@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.core.constants;
 
+import com.sourcefuse.jarc.core.interfaces.TriFunction;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
@@ -7,47 +8,79 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-interface TriFunction<T, U, V, R> {
-  R apply(T t, U u, V v);
-}
+public final class OperationPredicates {
 
-public class OperationPredicates {
+  private static Map<String, 
+  TriFunction<CriteriaBuilder, Expression<String>, Object, Predicate>>
+   operatorMap = new HashMap<>();
 
-  private static Map<String, TriFunction<CriteriaBuilder, Expression<String>, Object, Predicate>> operatorMap =
-    new HashMap<>();
+  public static final String AND_OPERATOR = "and";
+  public static final String OR_OPERATOR = "or";
+
+  private OperationPredicates() {
+    throw new IllegalStateException("Utility class");
+  }
 
   private static void setUpOperators() {
+    setUpEqualsAndInOperators();
+    setUpLikeOperators();
+    setUpGreaterThanOperators();
+    setUpLessThanOperators();
+  }
+
+  private static void setUpEqualsAndInOperators() {
     operatorMap = new HashMap<>();
-    operatorMap.put(
-      "eq",
-      (criteriaBuilder, path, value) -> criteriaBuilder.equal(path, value)
-    );
-    operatorMap.put(
-      "neq",
-      (criteriaBuilder, path, value) -> criteriaBuilder.notEqual(path, value)
-    );
+    operatorMap.put("eq", CriteriaBuilder::equal);
+    operatorMap.put("neq", CriteriaBuilder::notEqual);
     operatorMap.put(
       "in",
-      (criteriaBuilder, path, value) -> path.in((List<?>) value)
+      (
+          CriteriaBuilder criteriaBuilder,
+          Expression<String> path,
+          Object value
+        ) ->
+        path.in((List<?>) value)
     );
     operatorMap.put(
       "nin",
-      (criteriaBuilder, path, value) ->
+      (
+          CriteriaBuilder criteriaBuilder,
+          Expression<String> path,
+          Object value
+        ) ->
         criteriaBuilder.not(path.in((List<?>) value))
     );
+  }
+
+  private static void setUpLikeOperators() {
     operatorMap.put(
       "like",
-      (criteriaBuilder, path, value) ->
+      (
+          CriteriaBuilder criteriaBuilder,
+          Expression<String> path,
+          Object value
+        ) ->
         criteriaBuilder.like(path, "%" + value + "%")
     );
     operatorMap.put(
       "nlike",
-      (criteriaBuilder, path, value) ->
+      (
+          CriteriaBuilder criteriaBuilder,
+          Expression<String> path,
+          Object value
+        ) ->
         criteriaBuilder.notLike(path, "%" + value + "%")
     );
+  }
+
+  private static void setUpGreaterThanOperators() {
     operatorMap.put(
       "gt",
-      (criteriaBuilder, path, value) ->
+      (
+          CriteriaBuilder criteriaBuilder,
+          Expression<String> path,
+          Object value
+        ) ->
         criteriaBuilder.greaterThan(
           path.as(Double.class),
           Double.valueOf(value.toString())
@@ -55,15 +88,26 @@ public class OperationPredicates {
     );
     operatorMap.put(
       "gte",
-      (criteriaBuilder, path, value) ->
+      (
+          CriteriaBuilder criteriaBuilder,
+          Expression<String> path,
+          Object value
+        ) ->
         criteriaBuilder.greaterThanOrEqualTo(
           path.as(Double.class),
           Double.valueOf(value.toString())
         )
     );
+  }
+
+  private static void setUpLessThanOperators() {
     operatorMap.put(
       "lt",
-      (criteriaBuilder, path, value) ->
+      (
+          CriteriaBuilder criteriaBuilder,
+          Expression<String> path,
+          Object value
+        ) ->
         criteriaBuilder.lessThan(
           path.as(Double.class),
           Double.valueOf(value.toString())
@@ -71,7 +115,11 @@ public class OperationPredicates {
     );
     operatorMap.put(
       "lte",
-      (criteriaBuilder, path, value) ->
+      (
+          CriteriaBuilder criteriaBuilder,
+          Expression<String> path,
+          Object value
+        ) ->
         criteriaBuilder.lessThanOrEqualTo(
           path.as(Double.class),
           Double.valueOf(value.toString())
@@ -89,16 +137,12 @@ public class OperationPredicates {
     return operatorMap
       .getOrDefault(
         operator,
-        (builder, path, val) -> {
+        (CriteriaBuilder builder, Expression<String> path, Object val) -> {
           throw new IllegalArgumentException(
             "Unsupported operator: " + operator
           );
         }
       )
       .apply(criteriaBuilder, fieldPath, value);
-  }
-
-  private OperationPredicates() {
-    throw new IllegalStateException("Utility class");
   }
 }

@@ -188,7 +188,7 @@ public class QueryService {
               operatorEntry.getValue()
             )
           )
-          .collect(Collectors.toList())
+          .toList()
       );
     } else {
       Expression<String> fieldPath = from.get(fieldName);
