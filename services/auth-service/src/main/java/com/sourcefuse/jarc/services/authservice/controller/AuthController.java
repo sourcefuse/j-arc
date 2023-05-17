@@ -12,6 +12,7 @@ import com.sourcefuse.jarc.services.authservice.providers.ResourceOwnerVerifyPro
 import com.sourcefuse.jarc.services.authservice.services.AuthService;
 import com.sourcefuse.jarc.services.authservice.services.JwtService;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +35,9 @@ public class AuthController {
   private final ResourceOwnerVerifyProvider resourceOwnerVerifyProvider;
 
   @PostMapping(value = { "/login" })
-  public ResponseEntity<CodeResponse> login(@RequestBody LoginDto loginDto) {
+  public ResponseEntity<CodeResponse> login(
+    @Valid @RequestBody LoginDto loginDto
+  ) {
     AuthClient client =
       this.clientPasswordVerifyProvider.value(
           loginDto.getClientId(),
@@ -53,7 +56,7 @@ public class AuthController {
 
   @PostMapping(value = { "/login-token" })
   public ResponseEntity<JWTAuthResponse> loginToken(
-    @RequestBody LoginDto loginDto
+    @Valid @RequestBody LoginDto loginDto
   ) {
     AuthClient client =
       this.clientPasswordVerifyProvider.value(
@@ -73,7 +76,7 @@ public class AuthController {
   @PostMapping("/token-refresh")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<JWTAuthResponse> exchangeToken(
-    @RequestBody RefreshTokenDTO refreshTokenDTO,
+    @Valid @RequestBody RefreshTokenDTO refreshTokenDTO,
     @RequestHeader("Authorization") String authorizationHeader
   ) {
     JWTAuthResponse jwtAuthResponse = jwtService.refreshToken(
@@ -85,7 +88,7 @@ public class AuthController {
 
   @PostMapping("/token")
   public JWTAuthResponse getTokenByCode(
-    @RequestBody AuthTokenRequest authTokenRequest
+    @Valid @RequestBody AuthTokenRequest authTokenRequest
   ) {
     return this.jwtService.getTokenByCode(authTokenRequest);
   }

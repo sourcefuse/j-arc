@@ -7,6 +7,7 @@ import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
 import com.sourcefuse.jarc.services.authservice.services.KeycloakAuthService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -38,8 +39,8 @@ public class KeycloakController {
 
   @GetMapping("/auth-redirect-callback")
   public void authRedirectCallback(
-    @RequestParam("code") String code,
-    @RequestParam("state") String state,
+          @Valid @RequestParam("code") String code,
+          @Valid @RequestParam("state") String state,
     HttpServletResponse httpServletResponse
   ) {
     String authClientId = state.split("=")[1];
@@ -67,7 +68,7 @@ public class KeycloakController {
   @PostMapping("/login")
   public void keycloak(
     HttpServletResponse httpServletResponse,
-    @RequestBody ClientDTO clientDTO
+    @Valid @RequestBody ClientDTO clientDTO
   ) {
     String redirectUrlWithParam = java.text.MessageFormat.format(
       "{0}&state=auth_client_id={1}",
