@@ -7,6 +7,7 @@ import com.sourcefuse.jarc.services.usertenantservice.enums.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -46,7 +47,7 @@ public class UserTenant extends BaseEntity implements Serializable {
   private String locale;
 
   @Column(name = "status")
-  @Enumerated
+  @Enumerated(EnumType.STRING)
   private UserStatus status;
 
   @JsonIgnore

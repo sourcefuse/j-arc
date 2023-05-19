@@ -74,6 +74,7 @@ public class UserView extends UserModifiableEntity implements Serializable {
   private String defaultTenantId;
 
   @Column(name = "status")
+  @Enumerated(EnumType.STRING)
   private UserStatus status;
 
   @Column(name = "tenant_id", nullable = false)

@@ -5,10 +5,12 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.stereotype.Service;
 
 @Service
 public class TenantUserServiceImpl implements TenantUserService {
@@ -28,22 +30,22 @@ public class TenantUserServiceImpl implements TenantUserService {
     Predicate predicate,
     Class<UserView> cls
   ) {
-    return null;
+    return Collections.emptyMap();
   }
 
   @Override
   public List<UserView> getUserView(CriteriaQuery<UserView> criteriaQuery) {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
   public List<UserView> getAllUsers(UUID id, Class<UserView> type) {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
   public List<UserView> count(CriteriaQuery<UserView> cq) {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override

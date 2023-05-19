@@ -6,19 +6,22 @@ import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEnti
 import com.sourcefuse.jarc.services.usertenantservice.enums.UserConfigKey;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.io.Serializable;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.io.Serializable;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -35,13 +38,13 @@ public class UserTenantPrefs
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  // @Enumerated(EnumType.STRING)
   @Column(name = "config_key", nullable = false)
+  @Enumerated(EnumType.STRING)
   private UserConfigKey configKey;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "config_value", columnDefinition = "jsonb")
-  private transient Object configValue;
+  private Object configValue;
 
   @JsonIgnore
   @ManyToOne(optional = true)

@@ -7,10 +7,6 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
 import jakarta.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 @RestController
 @Slf4j
 @RequestMapping("/roles")
@@ -37,7 +38,7 @@ public class RoleUserTenantController {
 
   private final RoleUserTenantRepository roleUserTRepository;
 
-  @PostMapping("{id}" + "/user-tenants")
+  @PostMapping("{id}/user-tenants")
   public ResponseEntity<Object> createRole(
     @Valid @RequestBody UserTenant userTenant,
     @PathVariable("id") UUID id
@@ -59,7 +60,7 @@ public class RoleUserTenantController {
     return new ResponseEntity<>(savedUserRole, HttpStatus.CREATED);
   }
 
-  @GetMapping("{id}" + "/user-tenants")
+  @GetMapping("{id}/user-tenants")
   public ResponseEntity<Object> getAllUserTenantByRole(
     @PathVariable("id") UUID id
   ) {
@@ -69,7 +70,7 @@ public class RoleUserTenantController {
     return new ResponseEntity<>(tenantList, HttpStatus.OK);
   }
 
-  @GetMapping("{id}" + "/user-tenants/count")
+  @GetMapping("{id}/user-tenants/count")
   public ResponseEntity<Object> countUserTenantByRole(
     @PathVariable("id") UUID id
   ) {
@@ -83,7 +84,7 @@ public class RoleUserTenantController {
     );
   }
 
-  @PatchMapping("{id}" + "/user-tenants")
+  @PatchMapping("{id}/user-tenants")
   public ResponseEntity<Count> updateAll(
     @PathVariable("id") UUID id,
     @RequestBody UserTenant socUserTenant
@@ -108,7 +109,7 @@ public class RoleUserTenantController {
   }
 
   @Transactional
-  @DeleteMapping("{id}" + "/user-tenants")
+  @DeleteMapping("{id}/user-tenants")
   public ResponseEntity<Object> deleteRolesById(@PathVariable("id") UUID id) {
     long count = roleUserTRepository.deleteByRoleId(id);
     Count cnt = Count.builder().totalCnt(count).build();

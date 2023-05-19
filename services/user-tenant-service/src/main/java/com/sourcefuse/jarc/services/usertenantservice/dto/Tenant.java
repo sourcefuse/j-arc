@@ -5,18 +5,21 @@ import com.sourcefuse.jarc.services.usertenantservice.enums.TenantStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import java.io.Serializable;
-import java.util.List;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -36,6 +39,7 @@ public class Tenant extends UserModifiableEntity implements Serializable {
   private String name;
 
   @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private TenantStatus status;
 
   @Column(name = "KEY")

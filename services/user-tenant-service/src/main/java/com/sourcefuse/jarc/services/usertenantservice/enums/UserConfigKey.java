@@ -1,15 +1,15 @@
 package com.sourcefuse.jarc.services.usertenantservice.enums;
 
 public enum UserConfigKey {
-  LAST_ACCESSED_URL("last-accessed-url");
+  LAST_ACCESSED_URL(0);
 
-  private final String value;
+  private final Integer value;
 
-  UserConfigKey(String value) {
+  UserConfigKey(Integer value) {
     this.value = value;
   }
 
-  public String getValue() {
+  public Integer getValue() {
     return value;
   }
 }

@@ -7,7 +7,6 @@ import static com.sourcefuse.jarc.services.usertenantservice.enums.RoleType.SUPE
 import com.sourcefuse.jarc.services.usertenantservice.enums.RoleType;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +24,7 @@ public final class TypeRole {
   }
 
   public static Map<RoleType, RoleTypeMapValue> getRoleTypeMap() {
-    return new HashMap<>(roleTypeMap);
+    return new EnumMap<>(roleTypeMap);
   }
 
   static {
