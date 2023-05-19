@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -33,9 +34,11 @@ public class UserLevelPermission
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @NotBlank
   @Column(nullable = false)
   private String permission;
 
+  @NotBlank
   @Column(nullable = false)
   private boolean allowed = true;
 

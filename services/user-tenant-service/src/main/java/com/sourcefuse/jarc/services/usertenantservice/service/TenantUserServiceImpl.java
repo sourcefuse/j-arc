@@ -5,12 +5,11 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
 
 @Service
 public class TenantUserServiceImpl implements TenantUserService {

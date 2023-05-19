@@ -14,14 +14,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import java.io.Serializable;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.io.Serializable;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -38,10 +38,12 @@ public class UserTenantPrefs
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @NotBlank
   @Column(name = "config_key", nullable = false)
   @Enumerated(EnumType.STRING)
   private UserConfigKey configKey;
 
+  @NotBlank
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "config_value", columnDefinition = "jsonb")
   private Object configValue;
@@ -59,6 +61,7 @@ public class UserTenantPrefs
     return null;
   }
 
+  @NotBlank
   @JsonProperty("userTenantId")
   public void setUsrTnt(UUID userTenantId) {
     this.userTenant = new UserTenant(userTenantId);

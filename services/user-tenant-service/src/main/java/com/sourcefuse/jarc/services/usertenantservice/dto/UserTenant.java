@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -91,6 +92,7 @@ public class UserTenant extends BaseEntity implements Serializable {
     return null;
   }
 
+  @NotBlank
   @JsonProperty("userId")
   public void setUsr(UUID userId) {
     this.user = new User(userId);
@@ -104,6 +106,7 @@ public class UserTenant extends BaseEntity implements Serializable {
     return null;
   }
 
+  @NotBlank
   @JsonProperty("tenantId")
   public void setTnt(UUID tenantId) {
     this.tenant = new Tenant(tenantId);
@@ -117,6 +120,7 @@ public class UserTenant extends BaseEntity implements Serializable {
     return null;
   }
 
+  @NotBlank
   @JsonProperty("roleId")
   public void setRol(UUID roleId) {
     this.role = new Role(roleId);

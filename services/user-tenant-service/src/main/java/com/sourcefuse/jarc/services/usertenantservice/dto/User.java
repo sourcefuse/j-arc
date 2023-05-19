@@ -110,6 +110,7 @@ public class User extends UserModifiableEntity implements Serializable {
     return null;
   }
 
+  @NotBlank
   @JsonProperty("defaultTenantId")
   public void setTnt(UUID defaultTenantId) {
     this.defaultTenant = new Tenant(defaultTenantId);

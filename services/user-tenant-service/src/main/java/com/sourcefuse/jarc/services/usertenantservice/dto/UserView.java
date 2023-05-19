@@ -11,13 +11,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.UUID;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -33,6 +35,7 @@ public class UserView extends UserModifiableEntity implements Serializable {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @NotBlank
   @Column(name = "first_name", nullable = false)
   private String firstName;
 
@@ -42,9 +45,11 @@ public class UserView extends UserModifiableEntity implements Serializable {
   @Column(name = "middle_name")
   private String middleName;
 
+  @NotBlank
   @Column(name = "username", nullable = false)
   private String username;
 
+  @NotBlank
   @Column(name = "email", nullable = false)
   private String email;
 
@@ -70,6 +75,7 @@ public class UserView extends UserModifiableEntity implements Serializable {
   @Column(name = "dob")
   private Date dob;
 
+  @NotBlank
   @Column(name = "default_tenant_id", nullable = false)
   private String defaultTenantId;
 
@@ -77,12 +83,15 @@ public class UserView extends UserModifiableEntity implements Serializable {
   @Enumerated(EnumType.STRING)
   private UserStatus status;
 
+  @NotBlank
   @Column(name = "tenant_id", nullable = false)
   private UUID tenantId;
 
+  @NotBlank
   @Column(name = "role_id", nullable = false)
   private UUID roleId;
 
+  @NotBlank
   @Column(name = "name", nullable = false)
   private String tenantName;
 
@@ -95,6 +104,7 @@ public class UserView extends UserModifiableEntity implements Serializable {
   @Column(name = "roletype")
   private Integer roleType;
 
+  @NotBlank
   @Column(name = "user_tenant_id", nullable = false)
   private UUID userTenantId;
 

@@ -55,6 +55,7 @@ public class TenantConfig extends UserModifiableEntity implements Serializable {
     return null;
   }
 
+  @NotBlank
   @JsonProperty("tenantId")
   public void setTnt(UUID tenantId) {
     this.tenant = new Tenant(tenantId);

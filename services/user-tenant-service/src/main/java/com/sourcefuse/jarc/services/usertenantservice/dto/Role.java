@@ -13,15 +13,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import java.io.Serializable;
+import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.io.Serializable;
-import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -38,9 +38,11 @@ public class Role extends UserModifiableEntity implements Serializable {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @NotBlank
   @Column(nullable = false)
   private String name;
 
+  @NotBlank
   @Column(nullable = false, name = "role_type")
   //doubt::
   @Enumerated(EnumType.STRING)

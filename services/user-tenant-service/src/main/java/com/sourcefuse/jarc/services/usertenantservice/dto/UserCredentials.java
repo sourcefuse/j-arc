@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class UserCredentials extends BaseEntity implements Serializable {
   @Id
   private String id;
 
+  @NotBlank
   @Column(name = "auth_provider", nullable = false)
   private String authProvider;
 

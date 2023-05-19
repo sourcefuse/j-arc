@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ public class AuthClient extends BaseEntity implements Serializable {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @NotBlank
   @Column(name = "client_id", nullable = false)
   private String clientId;
 
@@ -36,15 +38,19 @@ public class AuthClient extends BaseEntity implements Serializable {
   @Column(name = "redirect_url")
   private String redirectUrl;
 
+  @NotBlank
   @Column(nullable = false)
   private String secret;
 
+  @NotBlank
   @Column(name = "access_token_expiration", nullable = false)
   private Long accessTokenExpiration;
 
+  @NotBlank
   @Column(name = "refresh_token_expiration", nullable = false)
   private Long refreshTokenExpiration;
 
+  @NotBlank
   @Column(name = "auth_code_expiration", nullable = false)
   private Long authCodeExpiration;
 

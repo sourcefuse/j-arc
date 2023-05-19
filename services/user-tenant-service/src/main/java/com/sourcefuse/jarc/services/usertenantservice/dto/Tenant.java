@@ -13,13 +13,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -38,6 +37,7 @@ public class Tenant extends UserModifiableEntity implements Serializable {
   @Column(nullable = false)
   private String name;
 
+  @NotBlank
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private TenantStatus status;

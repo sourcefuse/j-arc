@@ -4,6 +4,7 @@ import com.sourcefuse.jarc.services.usertenantservice.enums.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.NotBlank;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,9 +15,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserDto {
 
+  @NotBlank
   @Column(nullable = false)
   private UUID roleId;
 
+  @NotBlank
   @Column(nullable = false)
   private UUID tenantId;
 
