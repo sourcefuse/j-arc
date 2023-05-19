@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -54,6 +55,7 @@ public class UserTenantPrefs
   private UserTenant userTenant;
 
   @JsonProperty("userTenantId")
+  @NotNull(message = "UserTenant ID cannot be null")
   public UUID getUsrTnt() {
     if (userTenant != null) {
       return this.userTenant.getId();
@@ -61,7 +63,6 @@ public class UserTenantPrefs
     return null;
   }
 
-  @NotBlank
   @JsonProperty("userTenantId")
   public void setUsrTnt(UUID userTenantId) {
     this.userTenant = new UserTenant(userTenantId);

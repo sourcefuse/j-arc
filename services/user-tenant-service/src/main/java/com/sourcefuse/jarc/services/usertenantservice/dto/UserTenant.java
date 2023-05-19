@@ -17,7 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -85,6 +85,7 @@ public class UserTenant extends BaseEntity implements Serializable {
   }
 
   @JsonProperty("userId")
+  @NotNull(message = "User ID cannot be null")
   public UUID getUsr() {
     if (user != null) {
       return this.user.getId();
@@ -92,13 +93,13 @@ public class UserTenant extends BaseEntity implements Serializable {
     return null;
   }
 
-  @NotBlank
   @JsonProperty("userId")
   public void setUsr(UUID userId) {
     this.user = new User(userId);
   }
 
   @JsonProperty("tenantId")
+  @NotNull(message = "Tenant ID cannot be null")
   public UUID getTnt() {
     if (tenant != null) {
       return this.tenant.getId();
@@ -106,13 +107,13 @@ public class UserTenant extends BaseEntity implements Serializable {
     return null;
   }
 
-  @NotBlank
   @JsonProperty("tenantId")
   public void setTnt(UUID tenantId) {
     this.tenant = new Tenant(tenantId);
   }
 
   @JsonProperty("roleId")
+  @NotNull(message = "Role ID cannot be null")
   public UUID getRol() {
     if (role != null) {
       return this.role.getId();
@@ -120,7 +121,6 @@ public class UserTenant extends BaseEntity implements Serializable {
     return null;
   }
 
-  @NotBlank
   @JsonProperty("roleId")
   public void setRol(UUID roleId) {
     this.role = new Role(roleId);

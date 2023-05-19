@@ -20,6 +20,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
@@ -103,6 +104,7 @@ public class User extends UserModifiableEntity implements Serializable {
   }
 
   @JsonProperty("defaultTenantId")
+  @NotNull(message = "DefaultTenant ID cannot be null")
   public UUID getTnt() {
     if (defaultTenant != null) {
       return this.defaultTenant.getId();
@@ -110,7 +112,6 @@ public class User extends UserModifiableEntity implements Serializable {
     return null;
   }
 
-  @NotBlank
   @JsonProperty("defaultTenantId")
   public void setTnt(UUID defaultTenantId) {
     this.defaultTenant = new Tenant(defaultTenantId);

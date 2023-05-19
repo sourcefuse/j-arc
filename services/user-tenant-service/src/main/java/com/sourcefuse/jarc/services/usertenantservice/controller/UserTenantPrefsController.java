@@ -4,6 +4,7 @@ import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissi
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenantPrefs;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantPrefsRepository;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * doubt::

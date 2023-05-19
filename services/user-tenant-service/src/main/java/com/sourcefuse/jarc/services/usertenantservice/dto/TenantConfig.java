@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -48,6 +49,7 @@ public class TenantConfig extends UserModifiableEntity implements Serializable {
   private Tenant tenant;
 
   @JsonProperty("tenantId")
+  @NotNull(message = "Tenant ID cannot be null")
   public UUID getTnt() {
     if (tenant != null) {
       return this.tenant.getId();
@@ -55,7 +57,6 @@ public class TenantConfig extends UserModifiableEntity implements Serializable {
     return null;
   }
 
-  @NotBlank
   @JsonProperty("tenantId")
   public void setTnt(UUID tenantId) {
     this.tenant = new Tenant(tenantId);

@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -51,6 +51,7 @@ public class UserGroup extends UserModifiableEntity implements Serializable {
   private boolean isOwner;
 
   @JsonProperty("groupId")
+  @NotNull(message = "Group ID cannot be null")
   public UUID getGrp() {
     if (group != null) {
       return this.group.getId();
@@ -58,13 +59,13 @@ public class UserGroup extends UserModifiableEntity implements Serializable {
     return null;
   }
 
-  @NotBlank
   @JsonProperty("groupId")
   public void setGrp(UUID groupId) {
     this.group = new Group(groupId);
   }
 
   @JsonProperty("userTenantId")
+  @NotNull(message = "UserTenant ID cannot be null")
   public UUID getUsrTnt() {
     if (userTenant != null) {
       return this.userTenant.getId();
@@ -72,7 +73,6 @@ public class UserGroup extends UserModifiableEntity implements Serializable {
     return null;
   }
 
-  @NotBlank
   @JsonProperty("userTenantId")
   public void setUsrTnt(UUID userTenantId) {
     this.userTenant = new UserTenant(userTenantId);

@@ -7,12 +7,17 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -22,11 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -40,7 +40,7 @@ public class RoleUserTenantController {
 
   @PostMapping("{id}/user-tenants")
   public ResponseEntity<Object> createRole(
-    @Valid @RequestBody UserTenant userTenant,
+    @Validated @RequestBody UserTenant userTenant,
     @PathVariable("id") UUID id
   ) {
     UserTenant savedUserRole;
@@ -87,7 +87,7 @@ public class RoleUserTenantController {
   @PatchMapping("{id}/user-tenants")
   public ResponseEntity<Count> updateAll(
     @PathVariable("id") UUID id,
-    @RequestBody UserTenant socUserTenant
+    @Valid @RequestBody UserTenant socUserTenant
   ) {
     List<UserTenant> tarUserTenantArrayList = new ArrayList<>();
 
