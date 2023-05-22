@@ -2,21 +2,27 @@ package com.sourcefuse.jarc.services.authservice.services;
 
 import java.util.concurrent.TimeUnit;
 
-import com.sourcefuse.jarc.services.authservice.enums.AuthenticateErrorKeys;
-import com.sourcefuse.jarc.services.authservice.models.*;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sourcefuse.jarc.services.authservice.dtos.AuthTokenRequest;
 import com.sourcefuse.jarc.services.authservice.dtos.JWTAuthResponse;
 import com.sourcefuse.jarc.services.authservice.dtos.RefreshTokenDTO;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
+import com.sourcefuse.jarc.services.authservice.enums.AuthenticateErrorKeys;
 import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
+import com.sourcefuse.jarc.services.authservice.models.AuthClient;
+import com.sourcefuse.jarc.services.authservice.models.JwtTokenRedis;
+import com.sourcefuse.jarc.services.authservice.models.RefreshTokenRedis;
+import com.sourcefuse.jarc.services.authservice.models.RevokedTokenRedis;
+import com.sourcefuse.jarc.services.authservice.models.Role;
+import com.sourcefuse.jarc.services.authservice.models.User;
+import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 import com.sourcefuse.jarc.services.authservice.providers.JwtTokenProvider;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
@@ -25,7 +31,6 @@ import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepositor
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.client.HttpServerErrorException;
 
 @RequiredArgsConstructor
 @Service
@@ -69,13 +74,25 @@ public class JwtService {
     RefreshTokenDTO refreshTokenDTO
   ) {
     RefreshTokenRedis refreshTokenRedis = 
-      (RefreshTokenRedis) this.redisTemplate.opsForValue()
+    (RefreshTokenRedis) this.redisTemplate.opsForValue()
       .get(refreshTokenDTO.getRefreshToken().toString());
 
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.findAndRegisterModules();
-    RefreshTokenRedis refreshTokenRedis2 = objectMapper
-      .convertValue(refreshTokenRedis, RefreshTokenRedis.class);
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.findAndRegisterModules();
+    String accessToken = authorizationHeader.split(" ")[1];
+
+   
+    if (refreshTokenRedis==null ||
+    !accessToken.equals(refreshTokenRedis.getExternalAuthToken())) {
+      throw new HttpServerErrorException(
+        HttpStatus.UNAUTHORIZED,
+        AuthErrorKeys.TOKEN_INVALID.toString()
+      );
+    }
+    RefreshTokenRedis refreshTokenRedis2 = objectMapper.convertValue(
+      refreshTokenRedis,
+      RefreshTokenRedis.class
+    );
     AuthClient client = authClientRepository
       .findAuthClientByClientId(refreshTokenRedis2.getClientId())
       .orElseThrow(() ->
@@ -84,13 +101,6 @@ public class JwtService {
           AuthErrorKeys.CLIENT_INVALID.toString()
         )
       );
-    String accessToken = authorizationHeader.split(" ")[1];
-    if (!accessToken.equals(refreshTokenRedis.getExternalAuthToken())) {
-      throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.TOKEN_INVALID.toString()
-      );
-    }
     CurrentUser currentUser = (CurrentUser) SecurityContextHolder
       .getContext()
       .getAuthentication()

@@ -119,22 +119,25 @@ public class JwtTokenProvider {
         .getObjectMapperInstance()
         .convertValue(userObject, CurrentUser.class);
     } catch (MalformedJwtException ex) {
-      log.error(ex.getMessage());
+      log.error(null, ex);
       throw new CommonRuntimeException(
         HttpStatus.BAD_REQUEST,
         "Invalid JWT token"
       );
     } catch (ExpiredJwtException ex) {
+      log.error(null, ex);
       throw new CommonRuntimeException(
         HttpStatus.BAD_REQUEST,
         "Expired JWT token"
       );
     } catch (UnsupportedJwtException ex) {
+      log.error(null, ex);
       throw new CommonRuntimeException(
         HttpStatus.BAD_REQUEST,
         "Unsupported JWT token"
       );
     } catch (IllegalArgumentException ex) {
+      log.error(null, ex);
       throw new CommonRuntimeException(
         HttpStatus.BAD_REQUEST,
         "JWT claims string is empty."

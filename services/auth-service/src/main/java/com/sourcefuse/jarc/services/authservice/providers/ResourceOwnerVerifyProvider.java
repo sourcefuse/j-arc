@@ -16,12 +16,15 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 
 @AllArgsConstructor
 @Service
+@Slf4j
 public class ResourceOwnerVerifyProvider {
 
   private UserRepository userRepository;
@@ -39,6 +42,7 @@ public class ResourceOwnerVerifyProvider {
             loginDto.getPassword()
           );
     } catch (Exception error) {
+      log.error(null, error);
       user = this.userRepository.findUserByUsername(loginDto.getUsername());
     }
     if (user.isEmpty()) {

@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RevokedTokenRedis implements Serializable {
-
+  private static final long serialVersionUID = 1;
   @Id
   private String id;
 
