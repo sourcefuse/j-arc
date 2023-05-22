@@ -1,7 +1,7 @@
 on:
     push:
       branches:
-        - main
+        - master
   
 permissions:
     contents: write
@@ -15,5 +15,5 @@ jobs:
       steps:
         - uses: google-github-actions/release-please-action@v3
           with:
-            release-type: node
+            release-type: java
             package-name: release-please-action
