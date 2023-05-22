@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,10 +24,12 @@ public class AuditLogController {
   @Autowired
   private AuditLogRepository auditLogRepository;
 
-  // TODO: Remove comments of @PreAuthorize("isAuthenticated()") 
-  //once authorization service is integrated
+  /*
+   * TO_DO: Remove comments of @PreAuthorize("isAuthenticated()") once
+   * authorization service is integrated
+   */
   @PostMapping
-  //	@PreAuthorize("isAuthenticated()")
+  // @PreAuthorize("isAuthenticated()")
   public ResponseEntity<AuditLog> create(
     @Valid @RequestBody AuditLog auditLog
   ) {
@@ -39,16 +40,13 @@ public class AuditLogController {
   }
 
   @GetMapping("/count")
-  //	@PreAuthorize("isAuthenticated()")
+  // @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Long> count() {
-    return new ResponseEntity<>(
-      this.auditLogRepository.count(),
-      HttpStatus.OK
-    );
+    return new ResponseEntity<>(this.auditLogRepository.count(), HttpStatus.OK);
   }
 
   @GetMapping
-  //	@PreAuthorize("isAuthenticated()")
+  // @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Iterable<AuditLog>> find() {
     return new ResponseEntity<>(
       this.auditLogRepository.findAll(),
@@ -57,15 +55,16 @@ public class AuditLogController {
   }
 
   @GetMapping("/{id}")
-  //	@PreAuthorize("isAuthenticated()")
+  // @PreAuthorize("isAuthenticated()")
   public ResponseEntity<AuditLog> findById(@PathVariable("id") UUID id) {
-    AuditLog auditLog = this.auditLogRepository.findById(id).orElse(null);
-    if (auditLog == null) {
-      throw new ResponseStatusException(
-        HttpStatus.NOT_FOUND,
-        "entity not found for provided id"
-      );
-    }
+    AuditLog auditLog =
+      this.auditLogRepository.findById(id)
+        .orElseThrow(() ->
+          new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "entity not found for provided id"
+          )
+        );
     return new ResponseEntity<>(auditLog, HttpStatus.OK);
   }
 }

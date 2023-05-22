@@ -43,7 +43,7 @@ public class AuditControllerTests {
 
   ObjectMapper objectMapper = new ObjectMapper();
 
-  UUID mockUserId = UUID.randomUUID();
+  UUID mockUserId = UUID.fromString("db66f86d-a7e8-45b7-a6ad-8a5024158377");
 
   AuditLog auditLog1, auditLog2, auditLog;
 
@@ -223,7 +223,12 @@ public class AuditControllerTests {
 
   @Test
   public void testGetAuditLogByIdForInvalidId() throws Exception {
-    this.mockMvc.perform(get("/audit_logs/" + UUID.randomUUID()))
+    this.mockMvc.perform(
+        get(
+          "/audit_logs/" +
+          UUID.fromString("fc2984b1-5ca5-4242-a522-c83b67909fb1")
+        )
+      )
       .andExpect(status().isNotFound());
   }
 

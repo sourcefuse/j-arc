@@ -15,7 +15,7 @@ public class AuditServiceApplication {
   }
 
   /**
-   * TODO: need to remove this code when authentication 
+   * TO_DO: need to remove this code when authentication
    * service is integrated, This code is added to allow
    * access to all url in this app for temporary purpose
    */
