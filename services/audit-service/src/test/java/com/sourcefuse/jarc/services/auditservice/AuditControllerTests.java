@@ -10,16 +10,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.sourcefuse.jarc.core.adapters.LocalDateTimeTypeAdapter;
 import com.sourcefuse.jarc.core.enums.AuditActions;
 import com.sourcefuse.jarc.services.auditservice.models.AuditLog;
 import com.sourcefuse.jarc.services.auditservice.repositories.AuditLogRepository;
+import com.sourcefuse.jarc.services.auditservice.test.models.Role;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import java.util.Arrays;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +33,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AuditControllerTests {
+class AuditControllerTests {
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -44,8 +47,14 @@ public class AuditControllerTests {
   ObjectMapper objectMapper = new ObjectMapper();
 
   UUID mockUserId = UUID.fromString("db66f86d-a7e8-45b7-a6ad-8a5024158377");
+  UUID mockTempRoleId = UUID.fromString("c87a2848-ce70-41a9-95c7-d7ab230ebcac");
+  UUID mockUserRoleId = UUID.fromString("0836f6a1-a75e-4468-999a-fa7e61492c98");
 
   AuditLog auditLog1, auditLog2, auditLog;
+
+  Gson gson = new GsonBuilder()
+    .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
+    .create();
 
   @BeforeEach
   void clearUserAndAuditLog() {
@@ -54,7 +63,7 @@ public class AuditControllerTests {
   }
 
   @Test
-  public void testCreateAuditLog() throws Exception {
+  void testCreateAuditLog() throws Exception {
     this.mockMvc.perform(
         post("/audit_logs")
           .contentType("application/json")
@@ -64,7 +73,7 @@ public class AuditControllerTests {
   }
 
   @Test
-  public void shouldFailedDueToEmptyAction() throws Exception {
+  void shouldFailedDueToEmptyAction() throws Exception {
     auditLog.setAction(null);
 
     this.mockMvc.perform(
@@ -76,7 +85,7 @@ public class AuditControllerTests {
   }
 
   @Test
-  public void shouldFailedDueToWrongActionIsProvided() throws Exception {
+  void shouldFailedDueToWrongActionIsProvided() throws Exception {
     auditLog.setAction(null);
     String requestBody = objectMapper.writeValueAsString(auditLog);
     requestBody =
@@ -89,7 +98,7 @@ public class AuditControllerTests {
   }
 
   @Test
-  public void shouldFailedDueToEmptyActedAt() throws Exception {
+  void shouldFailedDueToEmptyActedAt() throws Exception {
     auditLog.setActedAt(null);
 
     this.mockMvc.perform(
@@ -101,7 +110,7 @@ public class AuditControllerTests {
   }
 
   @Test
-  public void shouldFailedDueToWrongActedAtIsProvided() throws Exception {
+  void shouldFailedDueToWrongActedAtIsProvided() throws Exception {
     auditLog.setActedAt(null);
     String requestBody = objectMapper.writeValueAsString(auditLog);
     requestBody =
@@ -115,7 +124,7 @@ public class AuditControllerTests {
   }
 
   @Test
-  public void shouldFailedDueToEmptyActedOn() throws Exception {
+  void shouldFailedDueToEmptyActedOn() throws Exception {
     auditLog.setActedOn(null);
 
     this.mockMvc.perform(
@@ -127,7 +136,7 @@ public class AuditControllerTests {
   }
 
   @Test
-  public void shouldFailedDueToEmptyActionKey() throws Exception {
+  void shouldFailedDueToEmptyActionKey() throws Exception {
     auditLog.setActionKey(null);
 
     this.mockMvc.perform(
@@ -139,7 +148,7 @@ public class AuditControllerTests {
   }
 
   @Test
-  public void shouldFailedDueToEmptyEntityId() throws Exception {
+  void shouldFailedDueToEmptyEntityId() throws Exception {
     auditLog.setEntityId(null);
 
     this.mockMvc.perform(
@@ -151,7 +160,7 @@ public class AuditControllerTests {
   }
 
   @Test
-  public void shouldFailedDueToEmptyActor() throws Exception {
+  void shouldFailedDueToEmptyActor() throws Exception {
     auditLog.setActor(null);
 
     this.mockMvc.perform(
@@ -163,7 +172,7 @@ public class AuditControllerTests {
   }
 
   @Test
-  public void shouldFailedDueToEmptyActionGroup() throws Exception {
+  void shouldFailedDueToEmptyActionGroup() throws Exception {
     auditLog.setActionGroup(null);
 
     this.mockMvc.perform(
@@ -175,14 +184,14 @@ public class AuditControllerTests {
   }
 
   @Test
-  public void testGetAuditLogCount() throws Exception {
+  void testGetAuditLogCount() throws Exception {
     this.mockMvc.perform(get("/audit_logs/count"))
       .andExpect(status().isOk())
       .andExpect(content().string(equalTo("2")));
   }
 
   @Test
-  public void testGetAllAuditLogs() throws Exception {
+  void testGetAllAuditLogs() throws Exception {
     MvcResult mvcResult =
       this.mockMvc.perform(get("/audit_logs"))
         .andExpect(status().isOk())
@@ -193,17 +202,32 @@ public class AuditControllerTests {
       actualResponseBody,
       new TypeReference<List<AuditLog>>() {}
     );
+    List<AuditLog> expectedResult = new ArrayList<>();
+    expectedResult.add(auditLog1);
+    expectedResult.add(auditLog2);
 
+    /**
+     * Need to sanitize the before and after object, since this since H2 DB Don't
+     * support JsonB it stores the JsonB data in stringify format
+     */
+    if (isH2DB()) {
+      responseAuditLogs.forEach(ele -> {
+        if (ele.getBefore() != null) {
+          ele.setBefore(gson.fromJson((String) ele.getBefore(), Role.class));
+        }
+        if (ele.getAfter() != null) {
+          ele.setAfter(gson.fromJson((String) ele.getAfter(), Role.class));
+        }
+      });
+    }
     assertEquals(
-      this.sanitizeJsonbString(
-          objectMapper.writeValueAsString(responseAuditLogs)
-        ),
-      objectMapper.writeValueAsString(Arrays.asList(auditLog1, auditLog2))
+      gson.toJsonTree(responseAuditLogs),
+      gson.toJsonTree(expectedResult)
     );
   }
 
   @Test
-  public void testGetAuditLogById() throws Exception {
+  void testGetAuditLogById() throws Exception {
     MvcResult mvcResult =
       this.mockMvc.perform(get("/audit_logs/" + auditLog1.getId()))
         .andExpect(status().isOk())
@@ -214,15 +238,27 @@ public class AuditControllerTests {
       actualResponseBody,
       AuditLog.class
     );
-
-    assertEquals(
-      this.sanitizeJsonbString(new Gson().toJson(responseAuditLog)),
-      new Gson().toJson(auditLog1)
-    );
+    /**
+     * Need to sanitize the before and after object, since this since H2 DB Don't
+     * support JsonB it stores the JsonB data in stringify format
+     */
+    if (isH2DB()) {
+      if (responseAuditLog.getBefore() != null) {
+        responseAuditLog.setBefore(
+          gson.fromJson((String) responseAuditLog.getBefore(), Role.class)
+        );
+      }
+      if (responseAuditLog.getAfter() != null) {
+        responseAuditLog.setAfter(
+          gson.fromJson((String) responseAuditLog.getAfter(), Role.class)
+        );
+      }
+    }
+    assertEquals(gson.toJsonTree(responseAuditLog), gson.toJsonTree(auditLog1));
   }
 
   @Test
-  public void testGetAuditLogByIdForInvalidId() throws Exception {
+  void testGetAuditLogByIdForInvalidId() throws Exception {
     this.mockMvc.perform(
         get(
           "/audit_logs/" +
@@ -232,7 +268,7 @@ public class AuditControllerTests {
       .andExpect(status().isNotFound());
   }
 
-  public void clearTables() {
+  void clearTables() {
     EntityManager em = entityManager
       .getEntityManagerFactory()
       .createEntityManager();
@@ -249,7 +285,7 @@ public class AuditControllerTests {
     }
   }
 
-  public void addDefaultLogs() {
+  void addDefaultLogs() {
     this.setAuditLog();
     this.setAuditLog1();
     this.setAuditLog2();
@@ -259,70 +295,55 @@ public class AuditControllerTests {
   }
 
   private void setAuditLog1() {
-    auditLog1 = new AuditLog();
-    auditLog1.setAction(AuditActions.SAVE);
-    auditLog1.setActedAt(new Date());
-    auditLog1.setActedOn("role");
-    auditLog1.setActionKey("Role_Logs");
-    auditLog1.setBefore(null);
-    auditLog1.setAfter(
-      "{\"id\": \"c87a2848-ce70-41a9-95c7-d7ab230ebcac\", \"name\": \"Temp\", \"deleted\": false, \"permissons\": \"Get\"}"
-    );
-    auditLog1.setEntityId(
-      UUID.fromString("c87a2848-ce70-41a9-95c7-d7ab230ebcac")
-    );
-    auditLog1.setActor(mockUserId);
-    auditLog1.setActionGroup("Role");
+    Role after = new Role(mockTempRoleId, "Temp", "Get");
+    auditLog1 =
+      new AuditLog(
+        null,
+        AuditActions.SAVE,
+        new Date(),
+        "role",
+        "Role_Logs",
+        mockTempRoleId,
+        mockUserId,
+        null,
+        after,
+        "Role"
+      );
   }
 
   private void setAuditLog2() {
-    auditLog2 = new AuditLog();
-    auditLog2.setAction(AuditActions.UPDATE);
-    auditLog2.setActedAt(new Date());
-    auditLog2.setActedOn("role");
-    auditLog2.setActionKey("Role_Logs");
-    auditLog2.setBefore(
-      "{\"id\": \"c87a2848-ce70-41a9-95c7-d7ab230ebcac\", \"name\": \"Temp\", \"deleted\": false, \"permissons\": \"Get\"}"
-    );
-    auditLog2.setAfter(
-      "{\"id\": \"c87a2848-ce70-41a9-95c7-d7ab230ebcac\", \"name\": \"Temp Updated\", \"deleted\": false, \"permissons\": \"Get\"}"
-    );
-    auditLog2.setEntityId(
-      UUID.fromString("c87a2848-ce70-41a9-95c7-d7ab230ebcac")
-    );
-    auditLog2.setActor(mockUserId);
-    auditLog2.setActionGroup("Role");
+    Role before = new Role(mockTempRoleId, "Temp", "Get");
+    Role after = new Role(mockTempRoleId, "Temp Updated", "Get");
+    auditLog2 =
+      new AuditLog(
+        null,
+        AuditActions.UPDATE,
+        new Date(),
+        "role",
+        "Role_Logs",
+        mockTempRoleId,
+        mockUserId,
+        before,
+        after,
+        "Role"
+      );
   }
 
   private void setAuditLog() {
-    auditLog = new AuditLog();
-    auditLog.setAction(AuditActions.SAVE);
-    auditLog.setActedAt(new Date());
-    auditLog.setActedOn("role");
-    auditLog.setActionKey("Role_Logs");
-    auditLog.setBefore(
-      "{\"id\": \"c87a2848-ce70-41a9-95c7-d7ab230ebcac\", \"name\": \"Temp Updated\", \"deleted\": false, \"permissons\": \"Get\"}"
-    );
-    auditLog.setEntityId(
-      UUID.fromString("c87a2848-ce70-41a9-95c7-d7ab230ebcac")
-    );
-    auditLog.setAfter(null);
-    auditLog.setActor(mockUserId);
-    auditLog.setActionGroup("Role");
-  }
-
-  /**
-   * in case of h2 db it does not have jsonb so it format changes in jsonb column
-   *
-   * @throws JSONException
-   */
-  private String sanitizeJsonbString(String jsonB) throws JSONException {
-    if (jsonB != null && this.isH2DB()) {
-      jsonB = jsonB.replace("\\\\\\", "\\");
-      jsonB = jsonB.replace("}\\\"", "}");
-      jsonB = jsonB.replace("\\\"{", "{");
-    }
-    return jsonB;
+    Role after = new Role(mockUserRoleId, "Temp", "Get");
+    auditLog =
+      new AuditLog(
+        null,
+        AuditActions.SAVE,
+        new Date(),
+        "role",
+        "Role_Logs",
+        mockUserRoleId,
+        mockUserId,
+        null,
+        after,
+        "Role"
+      );
   }
 
   private Boolean isH2DB() {

@@ -59,11 +59,11 @@ public class AuditLog {
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = true)
-  private String before;
+  private Object before;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = true)
-  private String after;
+  private Object after;
 
   @NotNull
   @Column(name = "action_group", nullable = false)
