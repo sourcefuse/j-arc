@@ -1,24 +1,26 @@
 package com.sourcefuse.jarc.core.repositories;
 
-import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
+
+import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 
 @NoRepositoryBean
 public interface SoftDeletesRepository<
   T extends SoftDeleteEntity, E extends Serializable
 >
-  extends JpaRepository<T, E> {
+  extends JpaRepositoryImplementation<T, E> {
   void deleteByIdHard(E id);
 
   void deleteHard(T entity);
