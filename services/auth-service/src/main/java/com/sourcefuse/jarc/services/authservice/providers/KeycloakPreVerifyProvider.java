@@ -1,11 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
-import java.util.Optional;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
-
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.services.authservice.dtos.keycloak.KeycloakUserDTO;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
@@ -14,8 +8,11 @@ import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
-
+import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 @AllArgsConstructor
 @Service
@@ -38,7 +35,9 @@ public class KeycloakPreVerifyProvider {
       this.userRepository.save(user);
     }
     Optional<UserTenant> userTenant =
-      this.userTenantRepository.findOne(UserTenantSpecification.byUserId(user.getId()));
+      this.userTenantRepository.findOne(
+          UserTenantSpecification.byUserId(user.getId())
+        );
     if (userTenant.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,

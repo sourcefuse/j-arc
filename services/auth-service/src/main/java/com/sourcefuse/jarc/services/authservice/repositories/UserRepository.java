@@ -1,6 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.repositories;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -10,7 +9,6 @@ import com.sourcefuse.jarc.core.repositories.SoftDeletesRepository;
 import com.sourcefuse.jarc.services.authservice.models.User;
 
 public interface UserRepository  extends SoftDeletesRepository<User, UUID> {
-  List<User> findByLastName(String lastName);
 
   Optional<User> findByEmail(String email);
 

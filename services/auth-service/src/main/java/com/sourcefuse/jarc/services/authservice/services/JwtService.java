@@ -43,7 +43,7 @@ public class JwtService {
 
   public JWTAuthResponse getTokenByCode(AuthTokenRequest authTokenRequest) {
     JwtTokenRedis jwtTokenObject = 
-    (JwtTokenRedis) this.redisTemplate.opsForValue()
+      (JwtTokenRedis) this.redisTemplate.opsForValue()
       .get(authTokenRequest.getCode());
     if (jwtTokenObject == null) {
       throw new CommonRuntimeException(
@@ -76,7 +76,8 @@ public class JwtService {
     String authorizationHeader,
     RefreshTokenDTO refreshTokenDTO
   ) {
-    RefreshTokenRedis refreshTokenRedis = (RefreshTokenRedis) this.redisTemplate.opsForValue()
+    RefreshTokenRedis refreshTokenRedis = 
+      (RefreshTokenRedis) this.redisTemplate.opsForValue()
       .get(refreshTokenDTO.getRefreshToken().toString());
 
     ObjectMapper objectMapper = new ObjectMapper();

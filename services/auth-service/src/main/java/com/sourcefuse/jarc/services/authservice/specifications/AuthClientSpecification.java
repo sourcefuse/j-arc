@@ -18,9 +18,7 @@ public final class AuthClientSpecification {
       Root<AuthClient> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.equal(root.get("clientId"), clientId);
-    };
+    ) -> builder.equal(root.get("clientId"), clientId);
   }
 
   public static Specification<AuthClient> byClientSecret(String clientSecret) {
@@ -28,9 +26,7 @@ public final class AuthClientSpecification {
       Root<AuthClient> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.equal(root.get("clientSecret"), clientSecret);
-    };
+    ) -> builder.equal(root.get("clientSecret"), clientSecret);
   }
   public static Specification<AuthClient> byAllowedClients(
     List<String> allowedClients
@@ -39,9 +35,7 @@ public final class AuthClientSpecification {
       Root<AuthClient> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.in(root.get("allowedClients")).value(allowedClients);
-    };
+    ) -> builder.in(root.get("allowedClients")).value(allowedClients);
   }
 
   public static Specification<AuthClient> byClientIdAndClientSecret(

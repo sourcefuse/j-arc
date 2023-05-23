@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
-public class Utils {
+public final class Utils {
   private Utils() {}
 
   public static ObjectMapper getObjectMapperInstance() {

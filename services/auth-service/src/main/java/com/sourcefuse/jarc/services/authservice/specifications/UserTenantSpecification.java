@@ -18,9 +18,7 @@ public final class UserTenantSpecification {
       Root<UserTenant> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.equal(root.get("userId"), userId);
-    };
+    ) -> builder.equal(root.get("userId"), userId);
   }
 
   public static Specification<UserTenant> byTenantId(UUID tenantId) {
@@ -28,9 +26,7 @@ public final class UserTenantSpecification {
       Root<UserTenant> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.equal(root.get("tenantId"), tenantId);
-    };
+    ) -> builder.equal(root.get("tenantId"), tenantId);
   }
 
   public static Specification<UserTenant> byNotInStatuses(
@@ -40,9 +36,7 @@ public final class UserTenantSpecification {
       Root<UserTenant> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.not(root.get("status").in(statuses));
-    };
+    ) -> builder.not(root.get("status").in(statuses));
   }
 
   public static Specification<UserTenant> byUserIdAndTenantId(

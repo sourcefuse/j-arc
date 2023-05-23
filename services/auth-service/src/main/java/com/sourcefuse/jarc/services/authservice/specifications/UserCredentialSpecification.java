@@ -16,9 +16,7 @@ public final class UserCredentialSpecification {
       Root<UserCredential> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.equal(root.get("userId"), userId);
-    };
+    ) -> builder.equal(root.get("userId"), userId);
   }
 
   public static Specification<UserCredential> byAuthId(String authId) {
@@ -26,9 +24,7 @@ public final class UserCredentialSpecification {
       Root<UserCredential> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.equal(root.get("authId"), authId);
-    };
+    ) -> builder.equal(root.get("authId"), authId);
   }
 
   public static Specification<UserCredential> byAuthProvider(
@@ -38,9 +34,7 @@ public final class UserCredentialSpecification {
       Root<UserCredential> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.equal(root.get("authProvider"), authProvider);
-    };
+    ) -> builder.equal(root.get("authProvider"), authProvider);
   }
 
   public static Specification<UserCredential> byAuthIdAndAuthProvider(

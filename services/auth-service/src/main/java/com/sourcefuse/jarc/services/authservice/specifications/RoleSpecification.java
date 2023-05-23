@@ -16,9 +16,7 @@ public final class RoleSpecification {
       Root<Role> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.equal(root.get("name"), name);
-    };
+    ) -> builder.equal(root.get("name"), name);
   }
 
   public static Specification<Role> byRoleType(RoleKey roleType) {
@@ -26,8 +24,6 @@ public final class RoleSpecification {
       Root<Role> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.equal(root.get("roleType"), roleType);
-    };
+    ) -> builder.equal(root.get("roleType"), roleType);
   }
 }

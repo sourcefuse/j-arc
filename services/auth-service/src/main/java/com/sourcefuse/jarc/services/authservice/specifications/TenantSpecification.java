@@ -15,8 +15,6 @@ public final class TenantSpecification {
       Root<Tenant> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> {
-      return builder.equal(root.get("key"), key);
-    };
+    ) -> builder.equal(root.get("key"), key);
   }
 }

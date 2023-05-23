@@ -1,13 +1,12 @@
 package com.sourcefuse.jarc.services.authservice.repositories;
 
-import com.sourcefuse.jarc.core.enums.UserStatus;
-import com.sourcefuse.jarc.core.repositories.SoftDeletesRepository;
-import com.sourcefuse.jarc.services.authservice.models.UserTenant;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+
+import com.sourcefuse.jarc.core.repositories.SoftDeletesRepository;
+import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 
 public interface UserTenantRepository
   extends SoftDeletesRepository<UserTenant, UUID> {

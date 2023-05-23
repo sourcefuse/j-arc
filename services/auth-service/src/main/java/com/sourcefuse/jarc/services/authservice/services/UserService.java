@@ -104,7 +104,8 @@ public class UserService {
   }
 
   User createUser(RegisterDto registerDto, Tenant tenant, Role defaultRole) {
-    ArrayList<AuthClient> authClients = (ArrayList<AuthClient>) this.authClientRepository.findAll(
+    ArrayList<AuthClient> authClients = 
+        (ArrayList<AuthClient>) this.authClientRepository.findAll(
         AuthClientSpecification.byAllowedClients(
           defaultRole.getAllowedClients()
         )
