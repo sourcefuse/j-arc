@@ -19,6 +19,7 @@
 
         <sonar.organization>sourcefuse-cloud</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    	<spring-boot.repackage.skip>true</spring-boot.repackage.skip>
 	</properties>
 
 	<modules>
