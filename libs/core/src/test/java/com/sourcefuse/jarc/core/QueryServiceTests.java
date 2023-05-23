@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.sourcefuse.jarc.core.constants.TestConstants;
-import com.sourcefuse.jarc.core.models.filters.Filter;
-import com.sourcefuse.jarc.core.models.filters.IncludeRelation;
+import com.sourcefuse.jarc.core.filters.models.Filter;
+import com.sourcefuse.jarc.core.filters.models.IncludeRelation;
+import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.core.repositories.SoftDeletesRepositoryImpl;
-import com.sourcefuse.jarc.core.services.QueryService;
 import com.sourcefuse.jarc.core.test.models.Role;
 import com.sourcefuse.jarc.core.test.models.User;
 import com.sourcefuse.jarc.core.test.repositories.RoleRepository;
@@ -109,7 +109,7 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterForEqualsOperator() {
+  void testFilter_ForEqualsOperator() {
     fieldsOperation.put("eq", "User");
     filter.getWhere().put("name", fieldsOperation);
 
@@ -121,7 +121,7 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterForNotEqualsOperator() {
+  void testFilter_ForNotEqualsOperator() {
     fieldsOperation.put("neq", "User");
     filter.getWhere().put("name", fieldsOperation);
 
@@ -131,74 +131,66 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterForGreaterThanOperator() {
+  void testFilter_ForGreaterThanOperator() {
     List<User> users = this.filterWithOperatorAndAge("gt", "20");
     assertThat(users).hasSize(2).contains(user2, user3);
   }
 
   @Test
-  void testFilterForGreaterThanOperatorWithString() {
+  void testFilter_ForGreaterThanOperatorWithString() {
     assertThrows(
       NumberFormatException.class,
-      () -> {
-        this.filterWithOperatorAndAge("gt", "24s");
-      }
+      () -> this.filterWithOperatorAndAge("gt", "24s")
     );
   }
 
   @Test
-  void testFilterForGreaterThanOrEqulsToOperator() {
+  void testFilter_ForGreaterThanOrEqulsToOperator() {
     List<User> users = this.filterWithOperatorAndAge("gte", "20");
 
     assertThat(users).hasSize(3).contains(user1, user2, user3);
   }
 
   @Test
-  void testFilterForGreaterThanOrEqulsToOperatorWithString() {
+  void testFilter_ForGreaterThanOrEqulsToOperatorWithString() {
     assertThrows(
       NumberFormatException.class,
-      () -> {
-        this.filterWithOperatorAndAge("gte", "24s");
-      }
+      () -> this.filterWithOperatorAndAge("gte", "24s")
     );
   }
 
   @Test
-  void testFilterForLessThanOperator() {
+  void testFilter_ForLessThanOperator() {
     List<User> users = this.filterWithOperatorAndAge("lt", 24);
 
     assertThat(users).hasSize(2).contains(user1, user2);
   }
 
   @Test
-  void testFilterForLessThanOperatorWithString() {
+  void testFilter_ForLessThanOperatorWithString() {
     assertThrows(
       NumberFormatException.class,
-      () -> {
-        this.filterWithOperatorAndAge("lt", "24s");
-      }
+      () -> this.filterWithOperatorAndAge("lt", "24s")
     );
   }
 
   @Test
-  void testFilterForLessThanOrEqualsToOperator() {
+  void testFilter_ForLessThanOrEqualsToOperator() {
     List<User> users = this.filterWithOperatorAndAge("lte", "24");
 
     assertThat(users).hasSize(3).contains(user1, user2, user3);
   }
 
   @Test
-  void testFilterForLessThanOrEqualsToOperatorWithString() {
+  void testFilter_ForLessThanOrEqualsToOperatorWithString() {
     assertThrows(
       NumberFormatException.class,
-      () -> {
-        this.filterWithOperatorAndAge("lte", "24s");
-      }
+      () -> this.filterWithOperatorAndAge("lte", "24s")
     );
   }
 
   @Test
-  void testFilterForLikeOperator() {
+  void testFilter_ForLikeOperator() {
     fieldsOperation.put("like", "Update");
     filter.getWhere().put("permissions", fieldsOperation);
 
@@ -208,7 +200,7 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterForNotLikeOperator() {
+  void testFilter_ForNotLikeOperator() {
     fieldsOperation.put("nlike", "Update");
     filter.getWhere().put("permissions", fieldsOperation);
 
@@ -219,7 +211,7 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterFieldSelectionTest() {
+  void testFilter_FieldSelectionTest() {
     filter.getFields().put("name", true);
     fieldsOperation.put("nlike", "Update");
     filter.getWhere().put("permissions", fieldsOperation);
@@ -234,7 +226,7 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterForInOerator() {
+  void testFilter_ForInOerator() {
     List<UUID> uuids = new ArrayList<>();
     uuids.add(tempRole.getId());
     uuids.add(adminRole.getId());
@@ -247,7 +239,7 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterForNotInOerator() {
+  void testFilter_ForNotInOerator() {
     List<UUID> uuids = new ArrayList<>();
     uuids.add(tempRole.getId());
     uuids.add(adminRole.getId());
@@ -260,7 +252,7 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterFieldSelectionTestForMultipleRoles() {
+  void testFilter_FieldSelectionTestForMultipleRoles() {
     filter.getFields().put("name", true);
     fieldsOperation.put("like", "Update");
     filter.getWhere().put("permissions", fieldsOperation);
@@ -279,7 +271,7 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterAndOperation() {
+  void testFilter_AndOperation() {
     filter.getFields().put("name", true);
     Map<String, Object> fieldsCondOperation = new HashMap<String, Object>();
     fieldsOperation.put("like", "Update");
@@ -293,7 +285,7 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterOrInsideAndOperation() {
+  void testFilter_OrInsideAndOperation() {
     filter.getFields().put("name", true);
     fieldsOperation.put("like", "Update");
     Map<String, Object> orCondOperation = new HashMap<String, Object>();
@@ -310,7 +302,7 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterAndInsideOrOperation() {
+  void testFilter_AndInsideOrOperation() {
     filter.getFields().put("name", true);
     fieldsOperation.put("like", "Update");
     Map<String, Object> orCondOperation = new HashMap<String, Object>();
@@ -327,7 +319,7 @@ class QueryServiceTests {
   }
 
   @Test
-  void testFilterOrOperation() {
+  void testFilter_OrOperation() {
     filter.getFields().put("name", true);
     Map<String, Object> fieldsCondOperation = new HashMap<String, Object>();
     fieldsOperation.put("like", "Update");
@@ -338,5 +330,247 @@ class QueryServiceTests {
     List<Role> roles = filterService.executeQuery(filter, Role.class);
 
     assertThat(roles).hasSize(3).contains(adminRole, userRole, tempRole);
+  }
+
+  @Test
+  void testFilterWithJson_ForEqualsOperator() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"name\":{\"eq\":\"User\"}}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(1);
+
+    assertThat(userRole.getId()).isEqualTo(roles.get(0).getId());
+  }
+
+  @Test
+  void testFilterWithJson_ForNotEqualsOperator() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"name\":{\"neq\":\"User\"}}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(2).contains(adminRole, tempRole);
+  }
+
+  @Test
+  void testFilterWithJson_ForGreaterThanOperator() {
+    List<User> users = filterService.executeQuery(
+      "{\"where\":{\"age\":{\"gt\":\"20\"}}}",
+      User.class
+    );
+    assertThat(users).hasSize(2).contains(user2, user3);
+  }
+
+  @Test
+  void testFilterWithJson_ForGreaterThanOperatorWithString() {
+    assertThrows(
+      NumberFormatException.class,
+      () ->
+        filterService.executeQuery(
+          "{\"where\":{\"age\":{\"gt\":\"24s\"}}}",
+          User.class
+        )
+    );
+  }
+
+  @Test
+  void testFilterWithJson_ForGreaterThanOrEqulsToOperator() {
+    List<User> users = filterService.executeQuery(
+      "{\"where\":{\"age\":{\"gte\":\"20\"}}}",
+      User.class
+    );
+
+    assertThat(users).hasSize(3).contains(user1, user2, user3);
+  }
+
+  @Test
+  void testFilterWithJson_ForGreaterThanOrEqulsToOperatorWithString() {
+    assertThrows(
+      NumberFormatException.class,
+      () ->
+        filterService.executeQuery(
+          "{\"where\":{\"age\":{\"gte\":\"20s\"}}}",
+          User.class
+        )
+    );
+  }
+
+  @Test
+  void testFilterWithJson_ForLessThanOperator() {
+    List<User> users = filterService.executeQuery(
+      "{\"where\":{\"age\":{\"lt\":\"24\"}}}",
+      User.class
+    );
+
+    assertThat(users).hasSize(2).contains(user1, user2);
+  }
+
+  @Test
+  void testFilterWithJson_ForLessThanOperatorWithString() {
+    assertThrows(
+      NumberFormatException.class,
+      () ->
+        filterService.executeQuery(
+          "{\"where\":{\"age\":{\"lt\":\"24s\"}}}",
+          User.class
+        )
+    );
+  }
+
+  @Test
+  void testFilterWithJson_ForLessThanOrEqualsToOperator() {
+    List<User> users = filterService.executeQuery(
+      "{\"where\":{\"age\":{\"lte\":\"24\"}}}",
+      User.class
+    );
+
+    assertThat(users).hasSize(3).contains(user1, user2, user3);
+  }
+
+  @Test
+  void testFilterWithJson_ForLessThanOrEqualsToOperatorWithString() {
+    assertThrows(
+      NumberFormatException.class,
+      () ->
+        filterService.executeQuery(
+          "{\"where\":{\"age\":{\"lte\":\"24s\"}}}",
+          User.class
+        )
+    );
+  }
+
+  @Test
+  void testFilterWithJson_ForLikeOperator() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"permissions\":{\"like\":\"Update\"}}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(2).contains(adminRole, userRole);
+  }
+
+  @Test
+  void testFilterWithJson_ForNotLikeOperator() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"permissions\":{\"nlike\":\"Update\"}}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(1);
+    assertThat(tempRole.getId()).isEqualTo(roles.get(0).getId());
+  }
+
+  @Test
+  void testFilterWithJson_FieldSelectionTest() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"permissions\":{\"nlike\":\"Update\"}},\"fields\":{\"name\":true}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(1);
+
+    assertNull(roles.get(0).getId());
+    assertNull(roles.get(0).getPermissions());
+    assertThat(tempRole.getName()).isEqualTo(roles.get(0).getName());
+  }
+
+  @Test
+  void testFilterWithJson_ForInOerator() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"id\":{\"in\": [\"" +
+      tempRole.getId() +
+      "\", \"" +
+      adminRole.getId() +
+      "\"]}}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(2).contains(tempRole, adminRole);
+  }
+
+  @Test
+  void testFilterWithJson_ForNotInOerator() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"id\":{\"nin\": [\"" +
+      tempRole.getId() +
+      "\", \"" +
+      adminRole.getId() +
+      "\"]}}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(1).contains(userRole);
+  }
+
+  @Test
+  void testFilterWithJson_FieldSelectionTestForMultipleRoles() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"permissions\":{\"like\":\"Update\"}},\"fields\":{\"name\":true}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(2);
+
+    assertNull(roles.get(0).getId());
+    assertNull(roles.get(0).getPermissions());
+    assertNotNull(roles.get(0).getName());
+
+    assertNull(roles.get(1).getId());
+    assertNull(roles.get(1).getPermissions());
+    assertNotNull(roles.get(1).getName());
+  }
+
+  @Test
+  void testFilterWithJson_AndOperation() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"and\":{\"permissions\":{\"like\":\"Update\"},\"name\":\"Admin\"}}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(1).contains(adminRole);
+  }
+
+  @Test
+  void testFilterWithJson_OrInsideAndOperation() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"and\":{\"or\":{\"permissions\":{\"like\":\"Update\"},\"name\":\"Admin\"},\"permissions\":\"Get,Update,Find,Delete\"}}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(1).contains(adminRole);
+  }
+
+  @Test
+  void testFilterWithJson_AndInsideOrOperation() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"or\":{\"and\":{\"permissions\":{\"like\":\"Update\"},\"name\":\"Admin\"},\"permissions\":\"Get\"}}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(2).contains(adminRole, tempRole);
+  }
+
+  @Test
+  void testFilterWithJson_OrOperation() {
+    List<Role> roles = filterService.executeQuery(
+      "{\"where\":{\"or\":{\"permissions\":{\"like\":\"Update\"},\"name\":\"Temp\"}}}",
+      Role.class
+    );
+
+    assertThat(roles).hasSize(3).contains(adminRole, userRole, tempRole);
+  }
+
+  @Test
+  void testFilterWithJson_InvalidJson() {
+    assertThrows(
+      IllegalArgumentException.class,
+      () ->
+        filterService.executeQuery(
+          "{\"where1\":{\"or\":{\"permissions\":{\"like\":\"Update\"},\"name\":\"Temp\"}}}",
+          Role.class
+        )
+    );
   }
 }

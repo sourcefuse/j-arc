@@ -1,8 +1,11 @@
-package com.sourcefuse.jarc.core.services;
+package com.sourcefuse.jarc.core.filters.services;
 
-import com.sourcefuse.jarc.core.constants.OperationPredicates;
-import com.sourcefuse.jarc.core.models.filters.Filter;
-import com.sourcefuse.jarc.core.models.filters.IncludeRelation;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sourcefuse.jarc.core.constants.Logger;
+import com.sourcefuse.jarc.core.filters.constants.OperationPredicates;
+import com.sourcefuse.jarc.core.filters.models.Filter;
+import com.sourcefuse.jarc.core.filters.models.IncludeRelation;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -17,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,20 @@ public class QueryService {
 
   @PersistenceContext
   private EntityManager entityManager;
+
+  public <T> List<T> executeQuery(String filterJson, Class<T> entityClass) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    Filter filter;
+    try {
+      filter = objectMapper.readValue(filterJson, Filter.class);
+    } catch (JsonProcessingException e) {
+      Logger.error(e);
+      throw new IllegalArgumentException(
+        "provided json is not valid: " + filterJson
+      );
+    }
+    return this.executeQuery(filter, entityClass);
+  }
 
   public <T> List<T> executeQuery(Filter filter, Class<T> entityClass) {
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();

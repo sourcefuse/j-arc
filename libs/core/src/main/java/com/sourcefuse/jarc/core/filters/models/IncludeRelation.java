@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.core.models.filters;
+package com.sourcefuse.jarc.core.filters.models;
 
 import lombok.Getter;
 import lombok.Setter;
