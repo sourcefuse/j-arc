@@ -6,6 +6,8 @@ import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
 import com.sourcefuse.jarc.services.authservice.services.KeycloakAuthService;
+import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
+
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +47,7 @@ public class KeycloakController {
   ) {
     String authClientId = state.split("=")[1];
     AuthClient authClient = authClientRepository
-      .findAuthClientByClientId(authClientId)
+      .findOne(AuthClientSpecification.byClientId(authClientId))
       .orElseThrow(() ->
         new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,

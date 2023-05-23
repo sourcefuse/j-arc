@@ -11,6 +11,8 @@ import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.TenantRepository;
 import com.sourcefuse.jarc.services.authservice.services.UserService;
+import com.sourcefuse.jarc.services.authservice.specifications.RoleSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.TenantSpecification;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,7 +28,8 @@ public class KeycloakSignupProvider {
   private final RoleRepository roleRepository;
 
   public Optional<User> provide(KeycloakUserDTO keycloakUserDTO) {
-    Optional<Tenant> tenant = this.tenantRepository.findByKey("master");
+    Optional<Tenant> tenant =
+      this.tenantRepository.findOne(TenantSpecification.byKey("master"));
     if (tenant.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
@@ -34,7 +37,9 @@ public class KeycloakSignupProvider {
       );
     }
     Optional<Role> defaultRole =
-      this.roleRepository.findByRoleType(RoleKey.DEFAULT);
+      this.roleRepository.findOne(
+          RoleSpecification.byRoleType(RoleKey.DEFAULT)
+        );
     if (defaultRole.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.INTERNAL_SERVER_ERROR,

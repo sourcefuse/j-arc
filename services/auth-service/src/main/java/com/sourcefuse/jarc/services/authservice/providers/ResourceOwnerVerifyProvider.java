@@ -12,12 +12,13 @@ import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepositor
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.services.AuthService;
+import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
@@ -49,10 +50,12 @@ public class ResourceOwnerVerifyProvider {
       throw throwUnauthorizedException(AuthErrorKeys.INVALID_CREDENTIALS);
     }
     Optional<UserTenant> userTenant =
-      this.userTenantRepository.findUserBy(
-          user.get().getId(),
-          user.get().getDefaultTenantId(),
-          Arrays.asList(UserStatus.REJECTED, UserStatus.INACTIVE)
+      this.userTenantRepository.findOne(
+          UserTenantSpecification.byUserIdTenantIdAndStatusNotIn(
+            user.get().getId(),
+            user.get().getDefaultTenantId(),
+            Arrays.asList(UserStatus.REJECTED, UserStatus.INACTIVE)
+          )
         );
     if (userTenant.isEmpty()) {
       throw new HttpServerErrorException(
@@ -61,7 +64,9 @@ public class ResourceOwnerVerifyProvider {
       );
     }
     AuthClient client =
-      this.authClientRepository.findAuthClientByClientId(loginDto.getClientId())
+      this.authClientRepository.findOne(
+          AuthClientSpecification.byClientId(loginDto.getClientId())
+        )
         .orElseThrow(() ->
           throwUnauthorizedException(AuthErrorKeys.CLIENT_INVALID)
         );

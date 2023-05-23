@@ -1,14 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.services.authservice.dtos.AuthTokenRequest;
 import com.sourcefuse.jarc.services.authservice.dtos.JWTAuthResponse;
@@ -29,8 +20,15 @@ import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
-
+import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 @RequiredArgsConstructor
 @Service
@@ -44,9 +42,21 @@ public class JwtService {
   private final RedisTemplate<String, Object> redisTemplate;
 
   public JWTAuthResponse getTokenByCode(AuthTokenRequest authTokenRequest) {
+    JwtTokenRedis jwtTokenObject = 
+    (JwtTokenRedis) this.redisTemplate.opsForValue()
+      .get(authTokenRequest.getCode());
+    if (jwtTokenObject == null) {
+      throw new CommonRuntimeException(
+        HttpStatus.UNAUTHORIZED,
+        AuthErrorKeys.CLIENT_INVALID.toString()
+      );
+    }
+    CurrentUser currentUser = jwtTokenProvider.getUserDetails(
+      jwtTokenObject.getToken()
+    );
     AuthClient authClient =
-      this.authClientRepository.findAuthClientByClientId(
-          authTokenRequest.getClientId()
+      this.authClientRepository.findOne(
+          AuthClientSpecification.byClientId(authTokenRequest.getClientId())
         )
         .orElseThrow(() ->
           new CommonRuntimeException(
@@ -54,13 +64,6 @@ public class JwtService {
             AuthErrorKeys.CLIENT_INVALID.toString()
           )
         );
-    JwtTokenRedis jwtTokenObject = (JwtTokenRedis) this.redisTemplate.opsForValue()
-      .get(authTokenRequest.getCode());
-
-    CurrentUser currentUser = jwtTokenProvider.getUserDetails(
-      jwtTokenObject.getToken()
-    );
-
     return this.jwtTokenProvider.createJwt(
         currentUser.getUser(),
         currentUser.getUserTenant(),
@@ -73,17 +76,17 @@ public class JwtService {
     String authorizationHeader,
     RefreshTokenDTO refreshTokenDTO
   ) {
-    RefreshTokenRedis refreshTokenRedis = 
-    (RefreshTokenRedis) this.redisTemplate.opsForValue()
+    RefreshTokenRedis refreshTokenRedis = (RefreshTokenRedis) this.redisTemplate.opsForValue()
       .get(refreshTokenDTO.getRefreshToken().toString());
 
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.findAndRegisterModules();
     String accessToken = authorizationHeader.split(" ")[1];
 
-   
-    if (refreshTokenRedis==null ||
-    !accessToken.equals(refreshTokenRedis.getExternalAuthToken())) {
+    if (
+      refreshTokenRedis == null ||
+      !accessToken.equals(refreshTokenRedis.getExternalAuthToken())
+    ) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
         AuthErrorKeys.TOKEN_INVALID.toString()
@@ -94,7 +97,9 @@ public class JwtService {
       RefreshTokenRedis.class
     );
     AuthClient client = authClientRepository
-      .findAuthClientByClientId(refreshTokenRedis2.getClientId())
+      .findOne(
+        AuthClientSpecification.byClientId(refreshTokenRedis2.getClientId())
+      )
       .orElseThrow(() ->
         new HttpServerErrorException(
           HttpStatus.UNAUTHORIZED,

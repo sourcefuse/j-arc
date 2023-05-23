@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
+import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 
 @NoRepositoryBean
 public interface SoftDeletesRepository<
@@ -46,7 +47,7 @@ public interface SoftDeletesRepository<
   List<T> findAllIncludeSoftDelete(Sort sort);
 
   Page<T> findAllIncludeSoftDelete(Pageable pageable);
-
+  
   Optional<T> findOneIncludeSoftDelete(Specification<T> spec);
 
   List<T> findAllIncludeSoftDelete(Specification<T> spec);

@@ -98,7 +98,7 @@ public class JwtTokenProvider {
       jwtAuthResponse.setRefreshToken(refreshToken);
       return jwtAuthResponse;
     } catch (Exception e) {
-      log.error(e.getMessage());
+      log.error(null,e);
       throw new CommonRuntimeException(
         HttpStatus.INTERNAL_SERVER_ERROR,
         "Error while generating JWT token"

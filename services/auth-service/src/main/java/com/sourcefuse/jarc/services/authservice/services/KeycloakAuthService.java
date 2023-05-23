@@ -18,6 +18,8 @@ import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserCredentialRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
+import com.sourcefuse.jarc.services.authservice.specifications.UserCredentialSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,10 +50,14 @@ public class KeycloakAuthService {
     String usernameOrEmail = keycloakUserDTO.getEmail();
     User user = this.getUserBy(usernameOrEmail, keycloakUserDTO);
     UserCredential userCredential =
-      this.userCredentialRepository.findByUserId(user.getId())
+      this.userCredentialRepository.findOne(
+          UserCredentialSpecification.byUserId(user.getId())
+        )
         .orElseThrow(this::throwUserVerificationFailed);
     if (
-      !userCredential.getAuthProvider().equals(AuthProvider.KEYCLOAK.toString()) ||
+      !userCredential
+        .getAuthProvider()
+        .equals(AuthProvider.KEYCLOAK.toString()) ||
       (
         !userCredential
           .getAuthId()
@@ -62,7 +68,9 @@ public class KeycloakAuthService {
     }
     this.keycloakPostVerifyProvider.provide(keycloakUserDTO, user);
     UserTenant userTenant =
-      this.userTenantRepository.findUserTenantByUserId(user.getId())
+      this.userTenantRepository.findOne(
+          UserTenantSpecification.byUserId(user.getId())
+        )
         .orElseThrow(this::throwUserVerificationFailed);
 
     Role role =

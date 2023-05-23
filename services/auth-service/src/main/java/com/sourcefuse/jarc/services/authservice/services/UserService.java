@@ -18,10 +18,16 @@ import com.sourcefuse.jarc.services.authservice.repositories.TenantRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserCredentialRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
+import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.RoleSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.TenantSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.UserCredentialSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,15 +54,16 @@ public class UserService {
 
   public User register(RegisterDto registerDto) {
     checkIfUserExists(registerDto);
-    Optional<Tenant> tenant = tenantRepository.findByKey("master");
+    Optional<Tenant> tenant =
+      this.tenantRepository.findOne(TenantSpecification.byKey("master"));
     if (tenant.isEmpty()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,
         AuthErrorKeys.INVALID_CREDENTIALS.toString()
       );
     }
-    Optional<Role> defaultRole = roleRepository.findByRoleType(
-      RoleKey.DEFAULT
+    Optional<Role> defaultRole = roleRepository.findOne(
+      RoleSpecification.byRoleType(RoleKey.DEFAULT)
     );
     if (defaultRole.isEmpty()) {
       throw new HttpServerErrorException(
@@ -71,9 +78,11 @@ public class UserService {
         );
     if (user.isPresent()) {
       Optional<UserTenant> userTenant =
-        this.userTenantRepository.findUserBy(
-            user.get().getId(),
-            tenant.get().getId()
+        this.userTenantRepository.findOne(
+            UserTenantSpecification.byUserIdAndTenantId(
+              user.get().getId(),
+              tenant.get().getId()
+            )
           );
       if (userTenant.isPresent()) {
         throw new CommonRuntimeException(
@@ -95,17 +104,15 @@ public class UserService {
   }
 
   User createUser(RegisterDto registerDto, Tenant tenant, Role defaultRole) {
-    ArrayList<AuthClient> authClients =
-      this.authClientRepository.findByAllowedClients(
+    ArrayList<AuthClient> authClients = (ArrayList<AuthClient>) this.authClientRepository.findAll(
+        AuthClientSpecification.byAllowedClients(
           defaultRole.getAllowedClients()
-        );
+        )
+      );
     registerDto
       .getUser()
       .setAuthClientIds(
-        authClients
-          .stream()
-          .map(AuthClient::getId)
-          .collect(java.util.stream.Collectors.toList())
+        authClients.stream().map(AuthClient::getId).collect(Collectors.toList())
       );
 
     registerDto.getUser().setDefaultTenantId(tenant.getId());
@@ -146,9 +153,11 @@ public class UserService {
     }
 
     Optional<UserCredential> userCreds =
-      this.userCredentialRepository.findByAuthIdAndAuthProvider(
-          registerDto.getAuthId(),
-          registerDto.getAuthProvider().toString()
+      this.userCredentialRepository.findOne(
+          UserCredentialSpecification.byAuthIdAndAuthProvider(
+            registerDto.getAuthId(),
+            registerDto.getAuthProvider().toString()
+          )
         );
     if (userCreds.isPresent()) {
       throw new CommonRuntimeException(

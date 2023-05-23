@@ -1,11 +1,12 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
+import org.springframework.stereotype.Service;
+
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
+import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
+
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 @Service
@@ -14,21 +15,12 @@ public class ClientPasswordVerifyProvider {
   private final AuthClientRepository authClientRepository;
 
   public AuthClient value(String clientId, String clientSecret) {
-    AuthClient authClient = new AuthClient();
-    authClient.setClientId(clientId);
-    authClient.setClientSecret(clientSecret);
-    Example<AuthClient> example = Example.of(
-      authClient,
-      ExampleMatcher
-        .matchingAll()
-        .withIgnoreCase()
-        .withIgnoreNullValues()
-        .withIgnorePaths(
-          "accessTokenExpiration",
-          "authCodeExpiration",
-          "refreshTokenExpiration"
+    return this.authClientRepository.findOne(
+        AuthClientSpecification.byClientIdAndClientSecret(
+          clientId,
+          clientSecret
         )
-    );
-    return this.authClientRepository.findOne(example).orElse(null);
+      )
+      .orElse(null);
   }
 }

@@ -19,6 +19,8 @@ import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserCredentialRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
+import com.sourcefuse.jarc.services.authservice.specifications.UserCredentialSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -97,7 +99,9 @@ public class AuthService {
       );
     }
     Optional<UserCredential> userCredential =
-      this.userCredentialRepository.findByUserId(user.get().getId());
+      this.userCredentialRepository.findOne(  
+      UserCredentialSpecification.byUserId(user.get().getId()));
+      
     if (
       userCredential.isPresent() &&
       (
@@ -126,9 +130,8 @@ public class AuthService {
   ) {
     User currentUser = user;
 
-    Optional<UserTenant> userTenant =
-     userTenantRepository.findUserTenantByUserId(
-      currentUser.getId()
+    Optional<UserTenant> userTenant = userTenantRepository.findOne(
+      UserTenantSpecification.byUserId(currentUser.getId())
     );
     if (userTenant.isEmpty()) {
       throw new HttpServerErrorException(
