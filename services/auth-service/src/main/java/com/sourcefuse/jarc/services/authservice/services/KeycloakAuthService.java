@@ -19,6 +19,7 @@ import com.sourcefuse.jarc.services.authservice.repositories.UserCredentialRepos
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.specifications.UserCredentialSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -87,7 +88,9 @@ public class KeycloakAuthService {
 
   User getUserBy(String usernameOrEmail, KeycloakUserDTO keycloakUserDTO) {
     Optional<User> user =
-      this.userRepository.findFirstUserByUsernameOrEmail(usernameOrEmail);
+      this.userRepository.findOne(
+          UserSpecification.byUserNameOrEmail(usernameOrEmail)
+        );
     if (user.isPresent()) {
       user =
         this.keycloakPreVerifyProvider.provide(user.get(), keycloakUserDTO);

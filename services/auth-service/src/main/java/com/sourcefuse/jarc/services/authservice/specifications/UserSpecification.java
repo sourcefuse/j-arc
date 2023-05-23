@@ -23,11 +23,10 @@ public final class UserSpecification {
   }
 
   public static Specification<User> byUserNameOrEmail(
-    String username,
-    String email
+    String identifier
   ) {
     return Specification
-      .where(UserSpecification.byUsername(username))
-      .or(UserSpecification.byEmail(email));
+      .where(UserSpecification.byUsername(identifier))
+      .or(UserSpecification.byEmail(identifier));
   }
 }
