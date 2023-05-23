@@ -22,6 +22,7 @@ import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecifi
 import com.sourcefuse.jarc.services.authservice.specifications.RoleSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.TenantSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserCredentialSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -73,8 +74,8 @@ public class UserService {
     }
 
     Optional<User> user =
-      this.userRepository.findFirstUserByUsernameOrEmail(
-          registerDto.getUser().getUsername().toLowerCase(Locale.getDefault())
+      this.userRepository.findOne(
+          UserSpecification.byUsername(registerDto.getUser().getUsername())
         );
     if (user.isPresent()) {
       Optional<UserTenant> userTenant =
@@ -104,8 +105,7 @@ public class UserService {
   }
 
   User createUser(RegisterDto registerDto, Tenant tenant, Role defaultRole) {
-    ArrayList<AuthClient> authClients = 
-        (ArrayList<AuthClient>) this.authClientRepository.findAll(
+    ArrayList<AuthClient> authClients = (ArrayList<AuthClient>) this.authClientRepository.findAll(
         AuthClientSpecification.byAllowedClients(
           defaultRole.getAllowedClients()
         )
@@ -135,7 +135,9 @@ public class UserService {
   void checkIfUserExists(RegisterDto registerDto) {
     if (
       Boolean.TRUE.equals(
-        userRepository.existsByUsername(registerDto.getUser().getUsername())
+        userRepository.exists(
+          UserSpecification.byUsername(registerDto.getUser().getUsername())
+        )
       )
     ) {
       throw new CommonRuntimeException(
@@ -143,8 +145,8 @@ public class UserService {
         "Username is already exists!."
       );
     }
-    Optional<User> userExists = userRepository.findByEmail(
-      registerDto.getAuthId()
+    Optional<User> userExists = userRepository.findOne(
+      UserSpecification.byEmail(registerDto.getAuthId())
     );
     if (userExists.isPresent()) {
       throw new CommonRuntimeException(
@@ -170,8 +172,9 @@ public class UserService {
 
   User createUser(User user, AuthProvider provider, String authId) {
     try {
-      Optional<User> userExists =
-        this.userRepository.findUserByUsername(user.getUsername());
+      Optional<User> userExists = userRepository.findOne(
+        UserSpecification.byUsername(user.getUsername())
+      );
       if (userExists.isPresent()) {
         throw new CommonRuntimeException(
           HttpStatus.BAD_REQUEST,

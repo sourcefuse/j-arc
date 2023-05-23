@@ -20,6 +20,7 @@ import com.sourcefuse.jarc.services.authservice.repositories.UserCredentialRepos
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.specifications.UserCredentialSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
 import java.util.Objects;
 import java.util.Optional;
@@ -91,7 +92,9 @@ public class AuthService {
 
   public Optional<User> verifyPassword(String username, String password) {
     Optional<User> user =
-      this.userRepository.findUserByUsername(username.toLowerCase());
+      userRepository.findOne(
+      UserSpecification.byUsername(username.toLowerCase())
+    );
     if (user.isEmpty() || user.get().isDeleted()) {
       throw new HttpServerErrorException(
         HttpStatus.UNAUTHORIZED,

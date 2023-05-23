@@ -13,6 +13,7 @@ import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.services.AuthService;
 import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
+import com.sourcefuse.jarc.services.authservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
 import java.util.Arrays;
 import java.util.Objects;
@@ -44,7 +45,9 @@ public class ResourceOwnerVerifyProvider {
           );
     } catch (Exception error) {
       log.error(null, error);
-      user = this.userRepository.findUserByUsername(loginDto.getUsername());
+      user = userRepository.findOne(
+      UserSpecification.byUsername(loginDto.getUsername())
+    );
     }
     if (user.isEmpty()) {
       throw throwUnauthorizedException(AuthErrorKeys.INVALID_CREDENTIALS);
