@@ -105,7 +105,8 @@ public class UserService {
   }
 
   User createUser(RegisterDto registerDto, Tenant tenant, Role defaultRole) {
-    ArrayList<AuthClient> authClients = (ArrayList<AuthClient>) this.authClientRepository.findAll(
+    ArrayList<AuthClient> authClients = 
+        (ArrayList<AuthClient>) this.authClientRepository.findAll(
         AuthClientSpecification.byAllowedClients(
           defaultRole.getAllowedClients()
         )
@@ -113,7 +114,7 @@ public class UserService {
     registerDto
       .getUser()
       .setAuthClientIds(
-        authClients.stream().map(AuthClient::getId).collect(Collectors.toList())
+        authClients.stream().map(AuthClient::getId).toList()
       );
 
     registerDto.getUser().setDefaultTenantId(tenant.getId());

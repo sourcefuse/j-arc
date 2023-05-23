@@ -83,7 +83,6 @@ public class JwtService {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.findAndRegisterModules();
     String accessToken = authorizationHeader.split(" ")[1];
-
     if (
       refreshTokenRedis == null ||
       !accessToken.equals(refreshTokenRedis.getExternalAuthToken())
@@ -111,38 +110,32 @@ public class JwtService {
       .getContext()
       .getAuthentication()
       .getPrincipal();
+
     this.setWithTtl(
         accessToken,
         new RevokedTokenRedis(accessToken, accessToken),
         client.getRefreshTokenExpiration()
       );
     this.redisTemplate.delete(refreshTokenRedis.getId());
+    return this.createJwt(refreshTokenRedis, client, currentUser);
+  }
+
+  JWTAuthResponse createJwt(
+    RefreshTokenRedis refreshTokenRedis,
+    AuthClient client,
+    CurrentUser currentUser
+  ) {
     User user = userRepository
       .findById(refreshTokenRedis.getUserId())
-      .orElseThrow(() ->
-        new HttpServerErrorException(
-          HttpStatus.UNAUTHORIZED,
-          AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString()
-        )
-      );
+      .orElseThrow(this::throwUserDoesNotExistException);
 
     UserTenant userTenant = userTenantRepository
       .findById(currentUser.getUserTenant().getId())
-      .orElseThrow(() ->
-        new HttpServerErrorException(
-          HttpStatus.UNAUTHORIZED,
-          AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString()
-        )
-      );
+      .orElseThrow(this::throwUserDoesNotExistException);
 
     Role role = roleRepository
       .findById(currentUser.getUserTenant().getRoleId())
-      .orElseThrow(() ->
-        new HttpServerErrorException(
-          HttpStatus.UNAUTHORIZED,
-          AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString()
-        )
-      );
+      .orElseThrow(this::throwUserDoesNotExistException);
 
     return jwtTokenProvider.createJwt(user, userTenant, role, client);
   }
@@ -150,5 +143,12 @@ public class JwtService {
   public void setWithTtl(String key, Object value, long ttl) {
     ValueOperations<String, Object> ops = redisTemplate.opsForValue();
     ops.set(key, value, ttl, TimeUnit.SECONDS);
+  }
+
+  HttpServerErrorException throwUserDoesNotExistException() {
+    return new HttpServerErrorException(
+      HttpStatus.UNAUTHORIZED,
+      AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString()
+    );
   }
 }
