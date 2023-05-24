@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -38,7 +39,7 @@ public class UserLevelPermission
   @Column(nullable = false)
   private String permission;
 
-  @NotBlank
+  @NotNull
   @Column(nullable = false)
   private boolean allowed = true;
 

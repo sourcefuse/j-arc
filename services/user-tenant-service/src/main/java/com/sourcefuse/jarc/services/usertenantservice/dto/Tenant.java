@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class Tenant extends UserModifiableEntity implements Serializable {
   @Column(nullable = false)
   private String name;
 
-  @NotBlank
+  @NotNull
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private TenantStatus status;

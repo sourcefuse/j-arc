@@ -14,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
@@ -39,12 +38,12 @@ public class UserTenantPrefs
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @NotBlank
+  @NotNull
   @Column(name = "config_key", nullable = false)
   @Enumerated(EnumType.STRING)
   private UserConfigKey configKey;
 
-  @NotBlank
+  @NotNull
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "config_value", columnDefinition = "jsonb")
   private Object configValue;

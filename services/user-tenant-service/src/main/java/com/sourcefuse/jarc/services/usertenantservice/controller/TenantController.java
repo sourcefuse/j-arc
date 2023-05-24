@@ -1,8 +1,8 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
+import com.sourcefuse.jarc.core.commonutils.CommonUtils;
+import com.sourcefuse.jarc.core.dto.Count;
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
-import com.sourcefuse.jarc.services.usertenantservice.commonutils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.dto.Count;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.enums.PermissionKey;

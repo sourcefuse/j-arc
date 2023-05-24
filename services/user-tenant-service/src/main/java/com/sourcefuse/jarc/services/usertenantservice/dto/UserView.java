@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
@@ -82,11 +83,11 @@ public class UserView extends UserModifiableEntity implements Serializable {
   @Enumerated(EnumType.STRING)
   private UserStatus status;
 
-  @NotBlank
+  @NotNull
   @Column(name = "tenant_id", nullable = false)
   private UUID tenantId;
 
-  @NotBlank
+  @NotNull
   @Column(name = "role_id", nullable = false)
   private UUID roleId;
 
@@ -103,7 +104,7 @@ public class UserView extends UserModifiableEntity implements Serializable {
   @Column(name = "roletype")
   private Integer roleType;
 
-  @NotBlank
+  @NotNull
   @Column(name = "user_tenant_id", nullable = false)
   private UUID userTenantId;
 

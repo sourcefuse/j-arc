@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.usertenantservice.commons;
+package com.sourcefuse.jarc.services.usertenantservice.enums;
 
 public enum ConfigKey {
   PASSWORD_POLICY("password-policy"),

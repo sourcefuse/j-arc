@@ -1,9 +1,9 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
+import com.sourcefuse.jarc.core.commonutils.CommonUtils;
+import com.sourcefuse.jarc.core.constants.CommonConstants;
+import com.sourcefuse.jarc.core.dto.Count;
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
-import com.sourcefuse.jarc.services.usertenantservice.commons.CommonConstants;
-import com.sourcefuse.jarc.services.usertenantservice.commonutils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.dto.Count;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.enums.RoleKey;
@@ -17,6 +17,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,6 +41,15 @@ public class UserGroupController {
   private final GroupRepository groupRepository;
 
   private final UserGroupsRepository userGroupsRepo;
+
+  @Value("${one.owner.msg}")
+  private String oneOwnerMsg;
+
+  @Value("${user.group.not.found}")
+  private String usrGrpNotFound;
+
+  @Value("${only.grp.owner.access}")
+  private String grpOwnerAccess;
 
   @PostMapping("{id}/user-groups")
   public ResponseEntity<Object> createRole(
@@ -93,10 +103,7 @@ public class UserGroupController {
           userGroupsRepo.findByGroupIdAndIdAndIsOwner(id, userGroupId, true);
 
         if (usrGrp.isPresent() && !usrGrp.get().isOwner()) {
-          throw new ResponseStatusException(
-            HttpStatus.FORBIDDEN,
-            "${one.owner.msg}"
-          );
+          throw new ResponseStatusException(HttpStatus.FORBIDDEN, oneOwnerMsg);
         }
       }
       if (userGroup.getId() == null) {
@@ -155,10 +162,7 @@ public class UserGroupController {
         .findFirst();
       UserGroup userGroup;
       if (!userGroupRecord.isPresent()) {
-        throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN,
-          "${user.group.not.found}"
-        );
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, usrGrpNotFound);
       } else {
         userGroup = userGroupRecord.get();
       }
@@ -168,10 +172,7 @@ public class UserGroupController {
         .totalCnt(userGroupsRepo.countByGroupId(id))
         .build();
       if (count.getTotalCnt() == 1) {
-        throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN,
-          "${one.owner.msg}"
-        );
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, oneOwnerMsg);
       }
       userGroupsRepo.deleteById(userGroupId);
       group.get().setModifiedOn(LocalDateTime.now());
@@ -215,7 +216,7 @@ public class UserGroupController {
     ) {
       throw new ResponseStatusException(
         HttpStatus.FORBIDDEN,
-        "${only.grp.owner.access}"
+        "Only group owners can access"
       );
     }
 
@@ -228,7 +229,7 @@ public class UserGroupController {
     ) {
       throw new ResponseStatusException(
         HttpStatus.FORBIDDEN,
-        "${owner.cannot.remove.himself}"
+        "An owner cannot remove himself as the owner"
       );
     }
   }

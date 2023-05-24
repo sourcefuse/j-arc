@@ -1,6 +1,8 @@
 package com.sourcefuse.jarc.services.usertenantservice.exceptions;
 
-import com.sourcefuse.jarc.services.usertenantservice.dto.ErrorDetails;
+import com.sourcefuse.jarc.core.dto.ErrorDetails;
+import com.sourcefuse.jarc.core.exceptions.CommonRuntimeException;
+import com.sourcefuse.jarc.core.exceptions.ResourceNotFoundException;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,6 +40,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       exception.getMessage(),
       webRequest.getDescription(true)
     );
+    exception.printStackTrace();
     return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 

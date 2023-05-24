@@ -1,8 +1,8 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
+import com.sourcefuse.jarc.core.constants.CommonConstants;
+import com.sourcefuse.jarc.core.dto.Count;
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
-import com.sourcefuse.jarc.services.usertenantservice.commons.CommonConstants;
-import com.sourcefuse.jarc.services.usertenantservice.dto.Count;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,6 +50,9 @@ public class TenantUserController {
   UpdateTntUserServiceImpl updateTntUserService;
   DeleteTntUserServiceImpl deleteTntUserService;
 
+  @Value("${tenant.id.not.specified}")
+  private String tenantIdNotSpecified;
+
   @PersistenceContext
   private EntityManager em;
 
@@ -60,7 +64,7 @@ public class TenantUserController {
     if (id == null) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
-        "${tenant.id.not.specified}"
+        tenantIdNotSpecified
       );
     }
 

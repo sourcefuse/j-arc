@@ -1,8 +1,8 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
+import com.sourcefuse.jarc.core.commonutils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.commons.TypeRole;
-import com.sourcefuse.jarc.services.usertenantservice.commonutils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.User;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,6 +28,9 @@ public class UpdateTntUserServiceImpl implements UpdateTntUserService {
   private final UserTenantRepository userTenantRepository;
 
   private final UserRepository userRepository;
+
+  @Value("${user.name.exits}")
+  private String usrNameExits;
 
   @Override
   public void updateById(
@@ -42,10 +46,7 @@ public class UpdateTntUserServiceImpl implements UpdateTntUserService {
         userView.getUsername()
       );
       if (usrCount > 0) {
-        throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN,
-          "${user.name.exits}"
-        );
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, usrNameExits);
       }
     }
     User tempUser = new User();
