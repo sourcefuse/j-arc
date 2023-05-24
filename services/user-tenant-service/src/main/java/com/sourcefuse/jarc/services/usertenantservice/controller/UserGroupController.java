@@ -96,9 +96,9 @@ public class UserGroupController {
     if (group.isPresent()) {
       Count count = Count
         .builder()
-        .totalCnt(userGroupsRepo.countByGroupIdAndIsOwner(id, true))
+        .totalCount(userGroupsRepo.countByGroupIdAndIsOwner(id, true))
         .build();
-      if (count.getTotalCnt() == 1) {
+      if (count.getTotalCount() == 1) {
         Optional<UserGroup> usrGrp =
           userGroupsRepo.findByGroupIdAndIdAndIsOwner(id, userGroupId, true);
 
@@ -169,9 +169,9 @@ public class UserGroupController {
       extracted(currentUser, usrTenantId, usrGrp, userGroup);
       Count count = Count
         .builder()
-        .totalCnt(userGroupsRepo.countByGroupId(id))
+        .totalCount(userGroupsRepo.countByGroupId(id))
         .build();
-      if (count.getTotalCnt() == 1) {
+      if (count.getTotalCount() == 1) {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, oneOwnerMsg);
       }
       userGroupsRepo.deleteById(userGroupId);
@@ -257,7 +257,7 @@ public class UserGroupController {
   @GetMapping("{id}/user-groups/count")
   public ResponseEntity<Object> countUserGroup(@PathVariable("id") UUID id) {
     Long grpCnt = userGroupsRepo.countByGroupId(id);
-    Count count = Count.builder().totalCnt(grpCnt).build();
+    Count count = Count.builder().totalCount(grpCnt).build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
 }

@@ -52,7 +52,7 @@ public class TenantController {
    */
   @GetMapping("/count")
   public ResponseEntity<Object> countTenants() {
-    Count count = Count.builder().totalCnt(tenantRepository.count()).build();
+    Count count = Count.builder().totalCount(tenantRepository.count()).build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
 

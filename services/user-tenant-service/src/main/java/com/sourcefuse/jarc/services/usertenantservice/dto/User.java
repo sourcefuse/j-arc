@@ -2,8 +2,8 @@ package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sourcefuse.jarc.core.enums.Gender;
 import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
-import com.sourcefuse.jarc.services.usertenantservice.enums.Gender;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

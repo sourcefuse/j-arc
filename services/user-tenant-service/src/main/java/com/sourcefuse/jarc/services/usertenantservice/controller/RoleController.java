@@ -41,7 +41,7 @@ public class RoleController {
 
   @GetMapping("/count")
   public ResponseEntity<Object> count() {
-    Count count = Count.builder().totalCnt(roleRepository.count()).build();
+    Count count = Count.builder().totalCount(roleRepository.count()).build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
 

@@ -186,7 +186,7 @@ public class TenantUserController {
 
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(
-      Count.builder().totalCnt(userCount).build(),
+      Count.builder().totalCount(userCount).build(),
       HttpStatus.OK
     );
   }

@@ -112,7 +112,7 @@ public class RoleUserTenantController {
   @DeleteMapping("{id}/user-tenants")
   public ResponseEntity<Object> deleteRolesById(@PathVariable("id") UUID id) {
     long count = roleUserTRepository.deleteByRoleId(id);
-    Count cnt = Count.builder().totalCnt(count).build();
+    Count cnt = Count.builder().totalCount(count).build();
     return new ResponseEntity<>(cnt, HttpStatus.OK);
   }
 }

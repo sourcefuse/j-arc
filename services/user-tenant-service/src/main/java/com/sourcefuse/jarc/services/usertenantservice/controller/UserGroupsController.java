@@ -31,7 +31,7 @@ public class UserGroupsController {
   public ResponseEntity<Object> countTenants() {
     List<UserGroup> userGroupsList = userGroupsRepo.findAll();
     return new ResponseEntity<>(
-      Count.builder().totalCnt((long) userGroupsList.size()).build(),
+      Count.builder().totalCount((long) userGroupsList.size()).build(),
       HttpStatus.OK
     );
   }
