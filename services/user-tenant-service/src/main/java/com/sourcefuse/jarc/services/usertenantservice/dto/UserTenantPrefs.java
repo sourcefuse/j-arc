@@ -15,13 +15,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -29,10 +29,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "user_tenant_prefs", schema = "main")
 public class UserTenantPrefs
-  extends UserModifiableEntity
-  implements Serializable {
-
-  private static final long serialVersionUID = 1905122041950251217L;
+  extends UserModifiableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
