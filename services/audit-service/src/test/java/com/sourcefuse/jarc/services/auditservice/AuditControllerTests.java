@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sourcefuse.jarc.core.adapters.LocalDateTimeTypeAdapter;
 import com.sourcefuse.jarc.core.enums.AuditActions;
+import com.sourcefuse.jarc.core.enums.ContentTypes;
 import com.sourcefuse.jarc.services.auditservice.models.AuditLog;
 import com.sourcefuse.jarc.services.auditservice.repositories.AuditLogRepository;
 import com.sourcefuse.jarc.services.auditservice.test.models.Role;
@@ -56,6 +57,8 @@ class AuditControllerTests {
     .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
     .create();
 
+  private final String BASE_PATH = "/audit_logs";
+
   @BeforeEach
   void clearUserAndAuditLog() {
     this.clearTables();
@@ -65,8 +68,8 @@ class AuditControllerTests {
   @Test
   void testCreateAuditLog() throws Exception {
     this.mockMvc.perform(
-        post("/audit_logs")
-          .contentType("application/json")
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isCreated());
@@ -77,8 +80,8 @@ class AuditControllerTests {
     auditLog.setAction(null);
 
     this.mockMvc.perform(
-        post("/audit_logs")
-          .contentType("application/json")
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
@@ -92,7 +95,9 @@ class AuditControllerTests {
       requestBody.replace("\"action\":null", "\"action\":\"SAVEALL\"");
 
     this.mockMvc.perform(
-        post("/audit_logs").contentType("application/json").content(requestBody)
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .content(requestBody)
       )
       .andExpect(status().isBadRequest());
   }
@@ -102,8 +107,8 @@ class AuditControllerTests {
     auditLog.setActedAt(null);
 
     this.mockMvc.perform(
-        post("/audit_logs")
-          .contentType("application/json")
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
@@ -118,7 +123,9 @@ class AuditControllerTests {
 
     System.out.println(requestBody);
     this.mockMvc.perform(
-        post("/audit_logs").contentType("application/json").content(requestBody)
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .content(requestBody)
       )
       .andExpect(status().isBadRequest());
   }
@@ -128,8 +135,8 @@ class AuditControllerTests {
     auditLog.setActedOn(null);
 
     this.mockMvc.perform(
-        post("/audit_logs")
-          .contentType("application/json")
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
@@ -140,8 +147,8 @@ class AuditControllerTests {
     auditLog.setActionKey(null);
 
     this.mockMvc.perform(
-        post("/audit_logs")
-          .contentType("application/json")
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
@@ -152,8 +159,8 @@ class AuditControllerTests {
     auditLog.setEntityId(null);
 
     this.mockMvc.perform(
-        post("/audit_logs")
-          .contentType("application/json")
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
@@ -164,8 +171,8 @@ class AuditControllerTests {
     auditLog.setActor(null);
 
     this.mockMvc.perform(
-        post("/audit_logs")
-          .contentType("application/json")
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
@@ -176,8 +183,8 @@ class AuditControllerTests {
     auditLog.setActionGroup(null);
 
     this.mockMvc.perform(
-        post("/audit_logs")
-          .contentType("application/json")
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
@@ -193,7 +200,7 @@ class AuditControllerTests {
   @Test
   void testGetAllAuditLogs() throws Exception {
     MvcResult mvcResult =
-      this.mockMvc.perform(get("/audit_logs"))
+      this.mockMvc.perform(get(BASE_PATH))
         .andExpect(status().isOk())
         .andReturn();
     String actualResponseBody = mvcResult.getResponse().getContentAsString();
