@@ -6,9 +6,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 @EnableJpaAuditing
+//@EnableJpaRepositories(basePackages = { "com.sourcefuse.jarc.core.repositories" })
 public class CoreApplication {
 
-  public static void main(String[] args) {
-    SpringApplication.run(CoreApplication.class, args);
-  }
+	public static void main(String[] args) {
+		SpringApplication.run(CoreApplication.class, args);
+	}
 }
