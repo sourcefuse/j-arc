@@ -3,6 +3,8 @@ package com.sourcefuse.jarc.services.auditservice.models;
 import com.sourcefuse.jarc.core.enums.AuditActions;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,6 +35,7 @@ public class AuditLog {
   private UUID id;
 
   @NotNull
+  @Enumerated(EnumType.STRING)
   @Column(name = "action", nullable = false)
   private AuditActions action;
 
