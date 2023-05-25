@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.usertenantservice.model;
+package com.sourcefuse.jarc.services.usertenantservice.views;
 
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import jakarta.persistence.Column;

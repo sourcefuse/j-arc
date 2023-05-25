@@ -1,12 +1,13 @@
-package com.sourcefuse.jarc.services.usertenantservice.model;
+package com.sourcefuse.jarc.services.usertenantservice.views;
 
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor

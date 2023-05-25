@@ -9,10 +9,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -24,7 +26,7 @@ public class UserCredentials extends BaseEntity implements Serializable {
   private static final long serialVersionUID = 1905122041950251212L;
 
   @Id
-  private String id;
+  private UUID id;
 
   @NotBlank
   @Column(name = "auth_provider", nullable = false)
