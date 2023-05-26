@@ -1,14 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.dtos.AuthTokenRequest;
@@ -30,8 +21,14 @@ import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
-
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 @RequiredArgsConstructor
 @Service
@@ -42,18 +39,12 @@ public class JwtService {
   private final AuthClientRepository authClientRepository;
   private final UserTenantRepository userTenantRepository;
   private final JwtTokenProvider jwtTokenProvider;
-  private final RedisTemplate<String, Object> redisTemplate;
+  private final JwtRedisService jwtRedisService;
 
   public JWTAuthResponse getTokenByCode(AuthTokenRequest authTokenRequest) {
-    JwtTokenRedis jwtTokenObject = 
-      (JwtTokenRedis) this.redisTemplate.opsForValue()
-      .get(authTokenRequest.getCode());
-    if (jwtTokenObject == null) {
-      throw new CommonRuntimeException(
-        HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.CLIENT_INVALID.toString()
-      );
-    }
+    JwtTokenRedis jwtTokenObject = jwtRedisService.getJwtTokenRedis(
+      authTokenRequest.getCode()
+    );
     CurrentUser currentUser = jwtTokenProvider.getUserDetails(
       jwtTokenObject.getToken()
     );
@@ -79,29 +70,14 @@ public class JwtService {
     String authorizationHeader,
     RefreshTokenDTO refreshTokenDTO
   ) {
-    RefreshTokenRedis refreshTokenRedis = 
-      (RefreshTokenRedis) this.redisTemplate.opsForValue()
-      .get(refreshTokenDTO.getRefreshToken().toString());
-
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.findAndRegisterModules();
     String accessToken = authorizationHeader.split(" ")[1];
-    if (
-      refreshTokenRedis == null ||
-      !accessToken.equals(refreshTokenRedis.getExternalAuthToken())
-    ) {
-      throw new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthErrorKeys.TOKEN_INVALID.toString()
-      );
-    }
-    RefreshTokenRedis refreshTokenRedis2 = objectMapper.convertValue(
-      refreshTokenRedis,
-      RefreshTokenRedis.class
+    RefreshTokenRedis refreshTokenRedis = jwtRedisService.getRefreshTokenRedis(
+      refreshTokenDTO.getRefreshToken().toString(),
+      accessToken
     );
     AuthClient client = authClientRepository
       .findOne(
-        AuthClientSpecification.byClientId(refreshTokenRedis2.getClientId())
+        AuthClientSpecification.byClientId(refreshTokenRedis.getClientId())
       )
       .orElseThrow(() ->
         new HttpServerErrorException(
@@ -114,12 +90,12 @@ public class JwtService {
       .getAuthentication()
       .getPrincipal();
 
-    this.setWithTtl(
-        accessToken,
-        new RevokedTokenRedis(accessToken, accessToken),
-        client.getRefreshTokenExpiration()
-      );
-    this.redisTemplate.delete(refreshTokenRedis.getId());
+    jwtRedisService.setWithTtl(
+      accessToken,
+      new RevokedTokenRedis(accessToken, accessToken),
+      client.getRefreshTokenExpiration()
+    );
+    this.jwtRedisService.deleteRedisKeyById(refreshTokenRedis.getId());
     return this.createJwt(refreshTokenRedis, client, currentUser);
   }
 
@@ -141,11 +117,6 @@ public class JwtService {
       .orElseThrow(this::throwUserDoesNotExistException);
 
     return jwtTokenProvider.createJwt(user, userTenant, role, client);
-  }
-
-  public void setWithTtl(String key, Object value, long ttl) {
-    ValueOperations<String, Object> ops = redisTemplate.opsForValue();
-    ops.set(key, value, ttl, TimeUnit.SECONDS);
   }
 
   HttpServerErrorException throwUserDoesNotExistException() {
