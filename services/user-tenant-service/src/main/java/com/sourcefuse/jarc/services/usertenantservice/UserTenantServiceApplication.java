@@ -8,10 +8,17 @@ import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
 @PropertySource({ "classpath:message.properties" })
-@ComponentScan(basePackages = {"com.sourcefuse.jarc.services.usertenantservice",
-        "com.sourcefuse.jarc.core"})
+@ComponentScan(
+  basePackages = {
+    "com.sourcefuse.jarc.services.usertenantservice",
+    "com.sourcefuse.jarc.core",
+  }
+)
 @EntityScan(
-  basePackages = { "com.sourcefuse.jarc.services.usertenantservice.dto","com.sourcefuse.jarc.core.models" }
+  basePackages = {
+    "com.sourcefuse.jarc.services.usertenantservice.dto",
+    "com.sourcefuse.jarc.core.models",
+  }
 )
 public class UserTenantServiceApplication {
 

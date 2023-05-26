@@ -40,11 +40,11 @@ public class Role extends UserModifiableEntity implements Serializable {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @NotBlank
+  @NotBlank(message = "Name must not be null")
   @Column(nullable = false)
   private String name;
 
-  @NotNull
+  @NotNull(message = "roleType must not be null")
   @Column(nullable = false, name = "role_type")
   //doubt::
   @Enumerated(EnumType.STRING)

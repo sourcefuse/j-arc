@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.usertenantservice.exceptions;
+package com.sourcefuse.jarc.core.exceptions;
 
 import com.sourcefuse.jarc.core.dto.ErrorDetails;
 import com.sourcefuse.jarc.core.exceptions.CommonRuntimeException;
@@ -41,7 +41,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       exception.getMessage(),
       webRequest.getDescription(true)
     );
-    return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(ResourceNotFoundException.class)
