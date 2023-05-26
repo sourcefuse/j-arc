@@ -1,11 +1,21 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
+
 import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.enums.UserStatus;
+import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.dtos.RegisterDto;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
-import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.Tenant;
@@ -24,19 +34,9 @@ import com.sourcefuse.jarc.services.authservice.specifications.TenantSpecificati
 import com.sourcefuse.jarc.services.authservice.specifications.UserCredentialSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
-
 @RequiredArgsConstructor
 @Service
 @Slf4j

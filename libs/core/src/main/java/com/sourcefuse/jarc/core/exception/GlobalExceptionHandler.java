@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.authservice.exception;
+package com.sourcefuse.jarc.core.exception;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -9,13 +9,15 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.sourcefuse.jarc.services.authservice.dtos.ErrorDetails;
+import com.sourcefuse.jarc.core.dtos.ErrorDetails;
+
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -70,7 +72,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ex
       .getBindingResult()
       .getAllErrors()
-      .forEach(error -> {
+      .forEach((ObjectError error) -> {
         String fieldName = ((FieldError) error).getField();
         String message = error.getDefaultMessage();
         errors.put(fieldName, message);

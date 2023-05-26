@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.authservice.dtos;
+package com.sourcefuse.jarc.core.dtos;
 
 import java.time.LocalDateTime;
 

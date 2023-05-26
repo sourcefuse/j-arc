@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.authservice.exception;
+package com.sourcefuse.jarc.core.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

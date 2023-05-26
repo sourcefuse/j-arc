@@ -1,12 +1,21 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.dtos.AuthTokenRequest;
 import com.sourcefuse.jarc.services.authservice.dtos.JWTAuthResponse;
 import com.sourcefuse.jarc.services.authservice.dtos.RefreshTokenDTO;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthenticateErrorKeys;
-import com.sourcefuse.jarc.services.authservice.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.JwtTokenRedis;
 import com.sourcefuse.jarc.services.authservice.models.RefreshTokenRedis;
@@ -21,14 +30,8 @@ import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
-import java.util.concurrent.TimeUnit;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
 
 @RequiredArgsConstructor
 @Service

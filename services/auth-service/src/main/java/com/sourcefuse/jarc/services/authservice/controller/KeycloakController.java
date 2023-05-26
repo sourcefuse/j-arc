@@ -7,7 +7,6 @@ import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
 import com.sourcefuse.jarc.services.authservice.services.KeycloakAuthService;
 import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
-
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +40,8 @@ public class KeycloakController {
 
   @GetMapping("/auth-redirect-callback")
   public void authRedirectCallback(
-          @Valid @RequestParam("code") String code,
-          @Valid @RequestParam("state") String state,
+    @Valid @RequestParam("code") String code,
+    @Valid @RequestParam("state") String state,
     HttpServletResponse httpServletResponse
   ) {
     String authClientId = state.split("=")[1];
@@ -77,17 +76,16 @@ public class KeycloakController {
       redirectUrl,
       clientDTO.getClientId()
     );
-    String url =
-      "{0}?response_type=code&client_id={1}&scope=openid&redirect_uri={2}&auth_client_id={3}";
-    String location = java.text.MessageFormat.format(
-      url,
-      keycloakUrl,
-      clientId,
-      redirectUrlWithParam,
-      clientDTO.getClientId()
-    );
+
+    String location =
+      keycloakUrl +
+      "?response_type=code&client_id=" +
+      clientId +
+      "&scope=openid&redirect_uri=" +
+      redirectUrlWithParam +
+      "&auth_client_id=" +
+      clientDTO.getClientId();
     httpServletResponse.setHeader("Location", location);
     httpServletResponse.setStatus(HttpStatus.FOUND.value());
-
   }
 }
