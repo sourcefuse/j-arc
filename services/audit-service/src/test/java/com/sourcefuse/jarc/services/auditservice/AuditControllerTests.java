@@ -78,11 +78,13 @@ class AuditControllerTests {
   @Test
   void shouldFailedDueToEmptyAction() throws Exception {
     auditLog.setAction(null);
+    String requestBody = objectMapper.writeValueAsString(auditLog);
+    requestBody = requestBody.replace("\"action\":null", "\"action\":\"\"");
 
     this.mockMvc.perform(
         post(BASE_PATH)
           .contentType(ContentTypes.APPLICATION_JSON.toString())
-          .content(objectMapper.writeValueAsString(auditLog))
+          .content(requestBody)
       )
       .andExpect(status().isBadRequest());
   }
@@ -106,10 +108,13 @@ class AuditControllerTests {
   void shouldFailedDueToEmptyActedAt() throws Exception {
     auditLog.setActedAt(null);
 
+    String requestBody = objectMapper.writeValueAsString(auditLog);
+    requestBody = requestBody.replace("\"actedAt\":null", "\"actedAt\":\"\"");
+
     this.mockMvc.perform(
         post(BASE_PATH)
           .contentType(ContentTypes.APPLICATION_JSON.toString())
-          .content(objectMapper.writeValueAsString(auditLog))
+          .content(requestBody)
       )
       .andExpect(status().isBadRequest());
   }
@@ -132,7 +137,7 @@ class AuditControllerTests {
 
   @Test
   void shouldFailedDueToEmptyActedOn() throws Exception {
-    auditLog.setActedOn(null);
+    auditLog.setActedOn("");
 
     this.mockMvc.perform(
         post(BASE_PATH)
@@ -144,7 +149,7 @@ class AuditControllerTests {
 
   @Test
   void shouldFailedDueToEmptyActionKey() throws Exception {
-    auditLog.setActionKey(null);
+    auditLog.setActionKey("");
 
     this.mockMvc.perform(
         post(BASE_PATH)
@@ -158,6 +163,36 @@ class AuditControllerTests {
   void shouldFailedDueToEmptyEntityId() throws Exception {
     auditLog.setEntityId(null);
 
+    String requestBody = objectMapper.writeValueAsString(auditLog);
+    requestBody = requestBody.replace("\"entityId\":null", "\"entityId\":\"\"");
+
+    this.mockMvc.perform(
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .content(requestBody)
+      )
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldFailedDueToEmptyActor() throws Exception {
+    auditLog.setActor(null);
+
+    String requestBody = objectMapper.writeValueAsString(auditLog);
+    requestBody = requestBody.replace("\"actor\":null", "\"actor\":\"\"");
+
+    this.mockMvc.perform(
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .content(requestBody)
+      )
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldFailedDueToEmptyActionGroup() throws Exception {
+    auditLog.setActionGroup("");
+
     this.mockMvc.perform(
         post(BASE_PATH)
           .contentType(ContentTypes.APPLICATION_JSON.toString())
@@ -167,7 +202,67 @@ class AuditControllerTests {
   }
 
   @Test
-  void shouldFailedDueToEmptyActor() throws Exception {
+  void shouldFailedDueToNullAction() throws Exception {
+    auditLog.setAction(null);
+
+    this.mockMvc.perform(
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .content(objectMapper.writeValueAsString(auditLog))
+      )
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldFailedDueToNullActedAt() throws Exception {
+    auditLog.setActedAt(null);
+
+    this.mockMvc.perform(
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .content(objectMapper.writeValueAsString(auditLog))
+      )
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldFailedDueToNullActedOn() throws Exception {
+    auditLog.setActedOn(null);
+
+    this.mockMvc.perform(
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .content(objectMapper.writeValueAsString(auditLog))
+      )
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldFailedDueToNullActionKey() throws Exception {
+    auditLog.setActionKey(null);
+
+    this.mockMvc.perform(
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .content(objectMapper.writeValueAsString(auditLog))
+      )
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldFailedDueToNullEntityId() throws Exception {
+    auditLog.setEntityId(null);
+
+    this.mockMvc.perform(
+        post(BASE_PATH)
+          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .content(objectMapper.writeValueAsString(auditLog))
+      )
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldFailedDueToNullActor() throws Exception {
     auditLog.setActor(null);
 
     this.mockMvc.perform(
@@ -179,7 +274,7 @@ class AuditControllerTests {
   }
 
   @Test
-  void shouldFailedDueToEmptyActionGroup() throws Exception {
+  void shouldFailedDueToNullActionGroup() throws Exception {
     auditLog.setActionGroup(null);
 
     this.mockMvc.perform(

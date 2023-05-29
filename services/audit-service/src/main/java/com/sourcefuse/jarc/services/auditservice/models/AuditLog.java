@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.UUID;
@@ -45,10 +46,12 @@ public class AuditLog {
   private Date actedAt;
 
   @NotNull
+  @NotEmpty
   @Column(name = "acted_on", nullable = false)
   private String actedOn;
 
   @NotNull
+  @NotEmpty
   @Column(name = "action_key", nullable = false)
   private String actionKey;
 
@@ -69,6 +72,7 @@ public class AuditLog {
   private Object after;
 
   @NotNull
+  @NotEmpty
   @Column(name = "action_group", nullable = false)
   private String actionGroup;
 }
