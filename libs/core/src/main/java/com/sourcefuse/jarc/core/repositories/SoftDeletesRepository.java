@@ -1,10 +1,10 @@
 package com.sourcefuse.jarc.core.repositories;
 
+import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,8 +13,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
-
-import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 
 @NoRepositoryBean
 public interface SoftDeletesRepository<

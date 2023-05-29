@@ -1,8 +1,5 @@
 package com.sourcefuse.jarc.core.entitylisteners;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.sourcefuse.jarc.core.adapters.LocalDateTimeTypeAdapter;
 import com.sourcefuse.jarc.core.awares.ApplicationAwareBeanUtils;
 import com.sourcefuse.jarc.core.enums.AuditActions;
 import com.sourcefuse.jarc.core.models.audit.AuditLog;
@@ -13,9 +10,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostRemove;
 import jakarta.persistence.PostUpdate;
-import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -49,30 +47,26 @@ public class AuditLogEntityListener<T extends BaseEntity> {
     this.saveAuditLog(AuditActions.DELETE, target);
   }
 
+  @SuppressWarnings("unchecked")
   private void saveAuditLog(AuditActions action, T entity) {
     EntityManager em = applicationAwareBeanUtils.getNewEntityManager();
     try {
-      Gson gson = new GsonBuilder()
-        .registerTypeAdapter(
-          LocalDateTime.class,
-          new LocalDateTimeTypeAdapter()
-        )
-        .create();
-      String before = null;
-      String after = gson.toJson(entity);
+      T before = null;
+      T after = entity;
+
       if (!action.toString().contains("SAVE")) {
-        @SuppressWarnings("unchecked")
-        T oldEntity = (T) em.find(entity.getClass(), entity.getId());
-        before = oldEntity != null ? gson.toJson(oldEntity) : null;
+        before = (T) em.find(entity.getClass(), entity.getId());
       }
       if (action.toString().contains("DELETE")) {
         after = null;
       }
       em.getTransaction().begin();
-      CurrentUser<?> currentUser = (CurrentUser<?>) SecurityContextHolder
+      Authentication authentication = SecurityContextHolder
         .getContext()
-        .getAuthentication()
-        .getPrincipal();
+        .getAuthentication();
+      UUID actor = authentication != null
+        ? ((CurrentUser<?>) authentication.getPrincipal()).getUser().getId()
+        : null;
       AuditLog auditLog = new AuditLog();
       auditLog.setAction(action);
       auditLog.setActedOn(entity.getTableName());
@@ -80,7 +74,7 @@ public class AuditLogEntityListener<T extends BaseEntity> {
       auditLog.setBefore(before);
       auditLog.setAfter(after);
       auditLog.setEntityId(entity.getId());
-      auditLog.setActor(currentUser.getUser().getId());
+      auditLog.setActor(actor);
       log.info("audit Log {}", auditLog.toString());
       em.persist(auditLog);
       em.getTransaction().commit();
