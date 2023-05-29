@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +31,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "roles", schema = "main")
+@EqualsAndHashCode
 public class Role extends UserModifiableEntity {
 
   @Id

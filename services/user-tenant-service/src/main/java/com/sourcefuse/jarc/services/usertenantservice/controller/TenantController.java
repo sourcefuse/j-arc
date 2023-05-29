@@ -108,7 +108,7 @@ public class TenantController {
       currentUser.getTenantId().equals(id) &&
       !currentUser
         .getPermissions()
-        .contains(PermissionKey.ViewOwnTenant.toString())
+        .contains(PermissionKey.VIEW_OWN_TENANT.getValue())
     ) {
       throw new ResponseStatusException(
         HttpStatus.FORBIDDEN,
@@ -144,7 +144,7 @@ public class TenantController {
       currentUser.getTenantId().equals(id) &&
       !currentUser
         .getPermissions()
-        .contains(PermissionKey.ViewOwnTenant.toString())
+        .contains(PermissionKey.VIEW_OWN_TENANT.getValue())
     ) {
       throw new ResponseStatusException(
         HttpStatus.FORBIDDEN,
