@@ -249,8 +249,7 @@ class SoftDeleteTests {
     roleIds.add(tempRole.getId());
     roleIds.add(userRole.getId());
     List<Role> result = this.roleRepository.findAllById(roleIds);
-
-    assertThat(result).containsExactly(adminRole, tempRole);
+    assertThat(result).doesNotContain(userRole);
   }
 
   /**

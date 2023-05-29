@@ -1,5 +1,10 @@
 package com.sourcefuse.jarc.core.models.base;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.sourcefuse.jarc.core.entitylisteners.SoftDeleteEntityListner;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
@@ -20,6 +25,12 @@ public abstract class SoftDeleteEntity implements BaseEntity {
   @Column(columnDefinition = "boolean default false")
   boolean deleted;
 
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @JsonFormat(
+    pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+    shape = JsonFormat.Shape.STRING
+  )
   LocalDateTime deletedOn;
 
   UUID deletedBy;
