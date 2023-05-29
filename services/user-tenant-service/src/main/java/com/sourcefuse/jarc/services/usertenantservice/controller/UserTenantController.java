@@ -1,10 +1,10 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
+import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
-import com.sourcefuse.jarc.services.usertenantservice.enums.PermissionKey;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewRepository;
 import java.util.Optional;
@@ -47,22 +47,22 @@ public class UserTenantController {
           .equals(userTenant.get().getTenant().getId()) &&
         !currentUser
           .getPermissions()
-          .contains(PermissionKey.VIEW_ANY_USER.toString())
+          .contains(PermissionKey.ViewAnyUser.toString())
       ) {
         throw new ResponseStatusException(
           HttpStatus.FORBIDDEN,
-          AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+          AuthorizeErrorKeys.NotAllowedAccess.toString()
         );
       }
       if (
         !currentUser.getId().equals(userTenant.get().getUser().getId()) &&
         currentUser
           .getPermissions()
-          .contains(PermissionKey.VIEW_OWN_USER.toString())
+          .contains(PermissionKey.ViewOwnUser.toString())
       ) {
         throw new ResponseStatusException(
           HttpStatus.FORBIDDEN,
-          AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+          AuthorizeErrorKeys.NotAllowedAccess.toString()
         );
       }
     } else {

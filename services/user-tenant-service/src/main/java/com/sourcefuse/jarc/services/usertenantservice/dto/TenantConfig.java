@@ -2,7 +2,7 @@ package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
+import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import com.sourcefuse.jarc.services.usertenantservice.enums.ConfigKey;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +13,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,9 +25,7 @@ import org.hibernate.type.SqlTypes;
 @AllArgsConstructor
 @Entity
 @Table(name = "tenant_configs", schema = "main")
-public class TenantConfig extends UserModifiableEntity implements Serializable {
-
-  private static final long serialVersionUID = 1905122041950251211L;
+public class TenantConfig extends UserModifiableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

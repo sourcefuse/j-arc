@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.sourcefuse.jarc.core.enums.Gender;
-import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
+import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import com.sourcefuse.jarc.services.usertenantservice.enums.UserStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -27,9 +26,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "v_users", schema = "main")
-public class UserView extends UserModifiableEntity implements Serializable {
-
-  private static final long serialVersionUID = 1905122041950251219L;
+public class UserView extends UserModifiableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

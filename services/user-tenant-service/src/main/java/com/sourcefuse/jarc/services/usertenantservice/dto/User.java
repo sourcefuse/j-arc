@@ -3,7 +3,7 @@ package com.sourcefuse.jarc.services.usertenantservice.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sourcefuse.jarc.core.enums.Gender;
-import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
+import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +22,6 @@ import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -37,12 +36,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Entity
 @Table(name = "users", schema = "main")
-public class User extends UserModifiableEntity implements Serializable {
+public class User extends UserModifiableEntity {
 
-  private static final long serialVersionUID = 1905122041950251212L;
-
-  //doubt:
-  //implements IAuthUser
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;

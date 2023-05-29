@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
-import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
+import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import com.sourcefuse.jarc.services.usertenantservice.enums.TenantStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -14,7 +14,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -26,9 +25,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "tenants", schema = "main")
-public class Tenant extends UserModifiableEntity implements Serializable {
-
-  private static final long serialVersionUID = 1905122032150251213L;
+public class Tenant extends UserModifiableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

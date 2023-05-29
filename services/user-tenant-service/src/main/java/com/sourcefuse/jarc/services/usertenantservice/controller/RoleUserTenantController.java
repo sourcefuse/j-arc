@@ -84,6 +84,7 @@ public class RoleUserTenantController {
     );
   }
 
+  @Transactional
   @PatchMapping("{id}/user-tenants")
   public ResponseEntity<Count> updateAll(
     @PathVariable("id") UUID id,

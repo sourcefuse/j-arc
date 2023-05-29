@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
-import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
+import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import com.sourcefuse.jarc.services.usertenantservice.enums.UserTenantGroupType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +14,6 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -27,9 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "groups", schema = "main")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class Group extends UserModifiableEntity implements Serializable {
-
-  private static final long serialVersionUID = 1905122031950251212L;
+public class Group extends UserModifiableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

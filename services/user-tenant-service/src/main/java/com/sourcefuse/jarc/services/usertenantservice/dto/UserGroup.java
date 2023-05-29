@@ -2,7 +2,7 @@ package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
+import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,9 +28,7 @@ import lombok.Setter;
 @Builder
 @Table(name = "user_groups", schema = "main")
 @EqualsAndHashCode(callSuper = false)
-public class UserGroup extends UserModifiableEntity implements Serializable {
-
-  private static final long serialVersionUID = 1905122041950251213L;
+public class UserGroup extends UserModifiableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

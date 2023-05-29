@@ -1,12 +1,13 @@
 package com.sourcefuse.jarc.services.usertenantservice.repository;
 
+import com.sourcefuse.jarc.core.repositories.SoftDeletesRepository;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserTenantRepository extends JpaRepository<UserTenant, UUID> {
+public interface UserTenantRepository
+  extends SoftDeletesRepository<UserTenant, UUID> {
   Optional<UserTenant> findFirstByUserIdAndTenantIdOrderByIdAsc(
     UUID userId,
     UUID tenantId

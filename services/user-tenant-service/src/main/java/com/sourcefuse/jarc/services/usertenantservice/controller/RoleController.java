@@ -5,11 +5,16 @@ import com.sourcefuse.jarc.core.dto.Count;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -20,11 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -52,19 +52,20 @@ public class RoleController {
     return new ResponseEntity<>(role, HttpStatus.OK);
   }
 
+  @Transactional
   @PatchMapping("")
-  public ResponseEntity<Count> updateAll(@RequestBody Role socRole) {
+  public ResponseEntity<Count> updateAll(@RequestBody Role sourceRole) {
     List<Role> updatedRoleLis = new ArrayList<>();
 
-    List<Role> tarLisRole = roleRepository.findAll();
+    List<Role> targetRoleList = roleRepository.findAll();
 
     long count = 0;
-    if (!tarLisRole.isEmpty()) {
-      for (Role tarRole : tarLisRole) {
+    if (!targetRoleList.isEmpty()) {
+      for (Role tarRole : targetRoleList) {
         BeanUtils.copyProperties(
-          socRole,
+          sourceRole,
           tarRole,
-          CommonUtils.getNullPropertyNames(socRole)
+          CommonUtils.getNullPropertyNames(sourceRole)
         );
         updatedRoleLis.add(tarRole);
       }
@@ -86,19 +87,20 @@ public class RoleController {
     }
   }
 
+  @Transactional
   @PatchMapping("{id}")
   public ResponseEntity<Object> updateRole(
     @PathVariable("id") UUID id,
-    @RequestBody Role sorcRole
+    @RequestBody Role sourceRole
   ) {
     Role targetRole;
     Optional<Role> updateRole = roleRepository.findById(id);
     if (updateRole.isPresent()) {
       targetRole = updateRole.get();
       BeanUtils.copyProperties(
-        sorcRole,
+        sourceRole,
         targetRole,
-        CommonUtils.getNullPropertyNames(sorcRole)
+        CommonUtils.getNullPropertyNames(sourceRole)
       );
       roleRepository.save(targetRole);
     } else {
@@ -110,6 +112,7 @@ public class RoleController {
     return new ResponseEntity<>("Role PATCH success", HttpStatus.NO_CONTENT);
   }
 
+  @Transactional
   @PutMapping("{id}")
   public ResponseEntity<Object> replaceRoleById(
     @PathVariable("id") UUID id,
@@ -120,6 +123,7 @@ public class RoleController {
     return new ResponseEntity<>("Role PUT success", HttpStatus.NO_CONTENT);
   }
 
+  @Transactional
   @DeleteMapping("{id}")
   public ResponseEntity<String> deleteRolesById(@PathVariable("id") UUID id) {
     roleRepository.deleteById(id);

@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
-import com.sourcefuse.jarc.services.usertenantservice.commons.BaseEntity;
+import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,7 +9,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import java.io.Serializable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,9 +19,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "user_credentials")
-public class UserCredentials extends BaseEntity implements Serializable {
-
-  private static final long serialVersionUID = 1905122041950251212L;
+public class UserCredentials extends UserModifiableEntity {
 
   @Id
   private UUID id;

@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
-import com.sourcefuse.jarc.services.usertenantservice.commons.UserModifiableEntity;
+import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,7 +11,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,14 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "user_permissions", schema = "main")
-public class UserLevelPermission
-  extends UserModifiableEntity
-  implements Serializable {
-
-  private static final long serialVersionUID = 1905122041950251215L;
-
-  //doubt:
-  //implements UserPermission<String>
+public class UserLevelPermission extends UserModifiableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

@@ -109,10 +109,12 @@ public class UserGroupController {
       if (userGroup.getId() == null) {
         userGroup.setId(userGroupId);
       }
-      Optional<UserGroup> tarUsrGrpOpt = userGroupsRepo.findById(userGroupId);
+      Optional<UserGroup> targetUserGroupOptional = userGroupsRepo.findById(
+        userGroupId
+      );
       UserGroup tarUserGroup = new UserGroup();
-      if (tarUsrGrpOpt.isPresent()) {
-        tarUserGroup = tarUsrGrpOpt.get();
+      if (targetUserGroupOptional.isPresent()) {
+        tarUserGroup = targetUserGroupOptional.get();
       }
       BeanUtils.copyProperties(
         userGroup,
@@ -151,14 +153,15 @@ public class UserGroupController {
     Optional<Group> group = groupRepository.findById(id);
     if (group.isPresent()) {
       UUID usrTenantId = currentUser.getUserTenantId();
-      List<UserGroup> usrGrp = userGroupsRepo.findByGroupIdOrIdOrUserTenantId(
-        id,
-        userGroupId,
-        usrTenantId
-      );
-      Optional<UserGroup> userGroupRecord = usrGrp
+      List<UserGroup> savedUserGroup =
+        userGroupsRepo.findByGroupIdOrIdOrUserTenantId(
+          id,
+          userGroupId,
+          usrTenantId
+        );
+      Optional<UserGroup> userGroupRecord = savedUserGroup
         .stream()
-        .filter(usrGp -> usrGp.getId().equals(userGroupId))
+        .filter(userGroup -> userGroup.getId().equals(userGroupId))
         .findFirst();
       UserGroup userGroup;
       if (!userGroupRecord.isPresent()) {
@@ -166,7 +169,7 @@ public class UserGroupController {
       } else {
         userGroup = userGroupRecord.get();
       }
-      extracted(currentUser, usrTenantId, usrGrp, userGroup);
+      extracted(currentUser, usrTenantId, savedUserGroup, userGroup);
       Count count = Count
         .builder()
         .totalCount(userGroupsRepo.countByGroupId(id))
@@ -192,15 +195,14 @@ public class UserGroupController {
     List<UserGroup> usrGrp,
     UserGroup userGroupRecord
   ) {
-    boolean isAdmin =
-      Integer.parseInt(currentUser.getRole()) == RoleKey.ADMIN.getValue();
-    Optional<UserGroup> currentUserGroupOpt = usrGrp
+    boolean isAdmin = currentUser.getRole() == RoleKey.ADMIN.toString();
+    Optional<UserGroup> firstCurrentUserGroup = usrGrp
       .stream()
       .filter(usrGp -> usrGp.getUserTenant().getId().equals(usrTenantId))
       .findFirst();
     UserGroup currentUserGroup = new UserGroup();
-    if (currentUserGroupOpt.isPresent()) {
-      currentUserGroup = currentUserGroupOpt.get();
+    if (firstCurrentUserGroup.isPresent()) {
+      currentUserGroup = firstCurrentUserGroup.get();
     }
     if (
       !(

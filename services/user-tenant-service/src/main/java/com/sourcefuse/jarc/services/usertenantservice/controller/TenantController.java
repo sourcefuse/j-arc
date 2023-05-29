@@ -2,10 +2,10 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.core.commonutils.CommonUtils;
 import com.sourcefuse.jarc.core.dto.Count;
+import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
-import com.sourcefuse.jarc.services.usertenantservice.enums.PermissionKey;
 import com.sourcefuse.jarc.services.usertenantservice.enums.TenantStatus;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import jakarta.validation.Valid;
@@ -108,11 +108,11 @@ public class TenantController {
       currentUser.getTenantId().equals(id) &&
       !currentUser
         .getPermissions()
-        .contains(PermissionKey.VIEW_OWN_TENANT.toString())
+        .contains(PermissionKey.ViewOwnTenant.toString())
     ) {
       throw new ResponseStatusException(
         HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+        AuthorizeErrorKeys.NotAllowedAccess.toString()
       );
     }
     Tenant savedTenant;
@@ -132,7 +132,7 @@ public class TenantController {
   @PatchMapping("{id}")
   public ResponseEntity<Object> updateTenantsById(
     @PathVariable("id") UUID id,
-    @RequestBody Tenant srcTenant
+    @RequestBody Tenant sourceTenant
   ) {
     IAuthUserWithPermissions currentUser =
       (IAuthUserWithPermissions) SecurityContextHolder
@@ -144,23 +144,23 @@ public class TenantController {
       currentUser.getTenantId().equals(id) &&
       !currentUser
         .getPermissions()
-        .contains(PermissionKey.VIEW_OWN_TENANT.toString())
+        .contains(PermissionKey.ViewOwnTenant.toString())
     ) {
       throw new ResponseStatusException(
         HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+        AuthorizeErrorKeys.NotAllowedAccess.toString()
       );
     }
 
     Tenant tarTenant;
-    Optional<Tenant> svdTenant = tenantRepository.findById(id);
-    if (svdTenant.isPresent()) {
-      tarTenant = svdTenant.get();
+    Optional<Tenant> savedTenant = tenantRepository.findById(id);
+    if (savedTenant.isPresent()) {
+      tarTenant = savedTenant.get();
 
       BeanUtils.copyProperties(
-        srcTenant,
+        sourceTenant,
         tarTenant,
-        CommonUtils.getNullPropertyNames(srcTenant)
+        CommonUtils.getNullPropertyNames(sourceTenant)
       );
       tenantRepository.save(tarTenant);
     } else {
@@ -173,7 +173,7 @@ public class TenantController {
   }
 
   @Transactional
-  @DeleteMapping("")
+  @DeleteMapping("{id}")
   public ResponseEntity<String> deleteTenantsById(@PathVariable("id") UUID id) {
     tenantRepository.deleteById(id);
     return new ResponseEntity<>("Tenant DELETE success", HttpStatus.NO_CONTENT);

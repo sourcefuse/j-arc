@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -47,9 +48,7 @@ public class GroupController {
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    UserGroup userGroup = new UserGroup();
-
-    UserGroup
+    UserGroup userGroup = UserGroup
       .builder()
       .group(new Group(savedGroups.getId()))
       .userTenant(new UserTenant(currentUser.getUserTenantId()))
@@ -84,6 +83,7 @@ public class GroupController {
     }
   }
 
+  @Transactional
   @PatchMapping("{id}")
   public ResponseEntity<Object> updateGroup(
     @PathVariable("id") UUID id,
@@ -108,6 +108,7 @@ public class GroupController {
     return new ResponseEntity<>("Group PATCH success", HttpStatus.NO_CONTENT);
   }
 
+  @Transactional
   @DeleteMapping("{id}")
   public ResponseEntity<String> deleteRolesById(@PathVariable("id") UUID id) {
     userGroupsRepo.deleteAllByGroupId(id);
