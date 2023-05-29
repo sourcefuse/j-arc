@@ -10,8 +10,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostRemove;
 import jakarta.persistence.PostUpdate;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -59,10 +61,12 @@ public class AuditLogEntityListener<T extends BaseEntity> {
         after = null;
       }
       em.getTransaction().begin();
-      CurrentUser<?> currentUser = (CurrentUser<?>) SecurityContextHolder
+      Authentication authentication = SecurityContextHolder
         .getContext()
-        .getAuthentication()
-        .getPrincipal();
+        .getAuthentication();
+      UUID actor = authentication != null
+        ? ((CurrentUser<?>) authentication.getPrincipal()).getUser().getId()
+        : null;
       AuditLog auditLog = new AuditLog();
       auditLog.setAction(action);
       auditLog.setActedOn(entity.getTableName());
@@ -70,7 +74,7 @@ public class AuditLogEntityListener<T extends BaseEntity> {
       auditLog.setBefore(before);
       auditLog.setAfter(after);
       auditLog.setEntityId(entity.getId());
-      auditLog.setActor(currentUser.getUser().getId());
+      auditLog.setActor(actor);
       log.info("audit Log {}", auditLog.toString());
       em.persist(auditLog);
       em.getTransaction().commit();
