@@ -3,7 +3,7 @@ package com.sourcefuse.jarc.services.usertenantservice.enums;
 public enum UserTenantGroupType {
   TENANT("Tenant");
 
-  String value;
+  private String value;
 
   UserTenantGroupType(String value) {
     this.value = value;

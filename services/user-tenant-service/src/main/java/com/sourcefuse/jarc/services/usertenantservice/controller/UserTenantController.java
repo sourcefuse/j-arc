@@ -7,8 +7,6 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewRepository;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -51,7 +52,7 @@ public class UserTenantController {
       ) {
         throw new ResponseStatusException(
           HttpStatus.FORBIDDEN,
-          AuthorizeErrorKeys.NotAllowedAccess.toString()
+          AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
         );
       }
       if (
@@ -62,7 +63,7 @@ public class UserTenantController {
       ) {
         throw new ResponseStatusException(
           HttpStatus.FORBIDDEN,
-          AuthorizeErrorKeys.NotAllowedAccess.toString()
+          AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
         );
       }
     } else {
