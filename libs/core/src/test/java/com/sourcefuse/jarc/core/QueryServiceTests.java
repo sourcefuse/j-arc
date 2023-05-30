@@ -84,19 +84,16 @@ class QueryServiceTests {
 
   private void setUpUser() {
     user1.setFirstName("User One");
-    user1.setRole(adminRole);
     user1.setLastName("Admin");
     user1.setAge(20);
     user1 = this.userRepository.save(user1);
 
     user2.setFirstName("User Two");
-    user2.setRole(tempRole);
     user2.setLastName("Temp");
     user2.setAge(22);
     user2 = this.userRepository.save(user2);
 
     user3.setFirstName("User Three");
-    user3.setRole(tempRole);
     user3.setLastName("User");
     user3.setAge(24);
     user3 = this.userRepository.save(user3);
@@ -272,7 +269,6 @@ class QueryServiceTests {
 
   @Test
   void testFilter_AndOperation() {
-    filter.getFields().put("name", true);
     Map<String, Object> fieldsCondOperation = new HashMap<String, Object>();
     fieldsOperation.put("like", "Update");
     fieldsCondOperation.put("permissions", fieldsOperation);
@@ -286,7 +282,6 @@ class QueryServiceTests {
 
   @Test
   void testFilter_OrInsideAndOperation() {
-    filter.getFields().put("name", true);
     fieldsOperation.put("like", "Update");
     Map<String, Object> orCondOperation = new HashMap<String, Object>();
     orCondOperation.put("permissions", fieldsOperation);
@@ -303,7 +298,6 @@ class QueryServiceTests {
 
   @Test
   void testFilter_AndInsideOrOperation() {
-    filter.getFields().put("name", true);
     fieldsOperation.put("like", "Update");
     Map<String, Object> orCondOperation = new HashMap<String, Object>();
     orCondOperation.put("permissions", fieldsOperation);
@@ -320,7 +314,6 @@ class QueryServiceTests {
 
   @Test
   void testFilter_OrOperation() {
-    filter.getFields().put("name", true);
     Map<String, Object> fieldsCondOperation = new HashMap<String, Object>();
     fieldsOperation.put("like", "Update");
     fieldsCondOperation.put("permissions", fieldsOperation);
