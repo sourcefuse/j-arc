@@ -103,9 +103,7 @@ public class UserGroupController {
         Optional<UserGroup> savedUserGrp =
           userGroupsRepo.findByGroupIdAndIdAndIsOwner(id, userGroupId, true);
 
-        if (
-          savedUserGrp.isPresent() && userGroup != null && !userGroup.isOwner()
-        ) {
+        if (savedUserGrp.isPresent() && !userGroup.isOwner()) {
           throw new ResponseStatusException(HttpStatus.FORBIDDEN, oneOwnerMsg);
         }
       }
@@ -243,16 +241,16 @@ public class UserGroupController {
          if group table does not have the records then  it will also not be
          available in userGroups table */
     List<UserGroup> userGroupList;
-    groupRepository
-      .findById(id)
-      .orElseThrow(() ->
-        new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          "No group is present against given value"
-        )
+    Optional<Group> group = groupRepository.findById(id);
+    if (group.isPresent()) {
+      userGroupList = userGroupsRepo.findAllByGroupId(id);
+      return new ResponseEntity<>(userGroupList, HttpStatus.OK);
+    } else {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        "No group is present against given value"
       );
-    userGroupList = userGroupsRepo.findAllByGroupId(id);
-    return new ResponseEntity<>(userGroupList, HttpStatus.OK);
+    }
   }
 
   @GetMapping("{id}/user-groups/count")
