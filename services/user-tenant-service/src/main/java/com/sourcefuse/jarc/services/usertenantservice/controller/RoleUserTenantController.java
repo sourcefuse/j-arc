@@ -1,14 +1,11 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
-import com.sourcefuse.jarc.core.commonutils.CommonUtils;
 import com.sourcefuse.jarc.core.dto.Count;
+import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -25,6 +22,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Slf4j
