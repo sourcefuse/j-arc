@@ -27,7 +27,7 @@ public class UserLevelPermission extends UserModifiableEntity {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @NotBlank
+  @NotBlank(message = "permission must not be Empty")
   @Column(nullable = false)
   private String permission;
 

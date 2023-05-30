@@ -31,7 +31,7 @@ public class Tenant extends UserModifiableEntity {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @NotBlank
+  @NotBlank(message = "name must not be Empty")
   @Column(nullable = false)
   private String name;
 

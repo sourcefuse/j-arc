@@ -7,7 +7,6 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +40,7 @@ public class RoleController {
   }
 
   @GetMapping("/count")
-  public ResponseEntity<Object> count() {
+  public ResponseEntity<Object> countRole() {
     Count count = Count.builder().totalCount(roleRepository.count()).build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
@@ -54,20 +53,20 @@ public class RoleController {
 
   @Transactional
   @PatchMapping("")
-  public ResponseEntity<Count> updateAll(@RequestBody Role sourceRole) {
+  public ResponseEntity<Count> updateAllRole(@RequestBody Role sourceRole) {
     List<Role> updatedRoleLis = new ArrayList<>();
 
     List<Role> targetRoleList = roleRepository.findAll();
 
     long count = 0;
     if (!targetRoleList.isEmpty()) {
-      for (Role tarRole : targetRoleList) {
+      for (Role targetRole : targetRoleList) {
         BeanUtils.copyProperties(
           sourceRole,
-          tarRole,
+          targetRole,
           CommonUtils.getNullPropertyNames(sourceRole)
         );
-        updatedRoleLis.add(tarRole);
+        updatedRoleLis.add(targetRole);
       }
       count = roleRepository.saveAll(updatedRoleLis).size();
     }
@@ -76,15 +75,15 @@ public class RoleController {
 
   @GetMapping("{id}")
   public ResponseEntity<Object> getRoleByID(@PathVariable("id") UUID id) {
-    Optional<Role> role = roleRepository.findById(id);
-    if (role.isPresent()) {
-      return new ResponseEntity<>(role.get(), HttpStatus.OK);
-    } else {
-      throw new ResponseStatusException(
-        HttpStatus.NOT_FOUND,
-        "No role is present against given value"
+    Role role = roleRepository
+      .findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          "No group is present against given value"
+        )
       );
-    }
+    return new ResponseEntity<>(role, HttpStatus.OK);
   }
 
   @Transactional
@@ -93,28 +92,26 @@ public class RoleController {
     @PathVariable("id") UUID id,
     @RequestBody Role sourceRole
   ) {
-    Role targetRole;
-    Optional<Role> updateRole = roleRepository.findById(id);
-    if (updateRole.isPresent()) {
-      targetRole = updateRole.get();
-      BeanUtils.copyProperties(
-        sourceRole,
-        targetRole,
-        CommonUtils.getNullPropertyNames(sourceRole)
+    Role targetRole = roleRepository
+      .findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          "No group is present against given value"
+        )
       );
-      roleRepository.save(targetRole);
-    } else {
-      throw new ResponseStatusException(
-        HttpStatus.NOT_FOUND,
-        "No role is present against given value"
-      );
-    }
+    BeanUtils.copyProperties(
+      sourceRole,
+      targetRole,
+      CommonUtils.getNullPropertyNames(sourceRole)
+    );
+    roleRepository.save(targetRole);
     return new ResponseEntity<>("Role PATCH success", HttpStatus.NO_CONTENT);
   }
 
   @Transactional
   @PutMapping("{id}")
-  public ResponseEntity<Object> replaceRoleById(
+  public ResponseEntity<Object> updateRoleById(
     @PathVariable("id") UUID id,
     @RequestBody Role role
   ) {

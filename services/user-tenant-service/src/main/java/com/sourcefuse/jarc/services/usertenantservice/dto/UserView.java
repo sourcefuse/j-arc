@@ -32,7 +32,7 @@ public class UserView extends UserModifiableEntity {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @NotBlank
+  @NotBlank(message = "firstName must not be Empty")
   @Column(name = "first_name", nullable = false)
   private String firstName;
 
@@ -42,11 +42,11 @@ public class UserView extends UserModifiableEntity {
   @Column(name = "middle_name")
   private String middleName;
 
-  @NotBlank
+  @NotBlank(message = "username must not be Empty")
   @Column(name = "username", nullable = false)
   private String username;
 
-  @NotBlank
+  @NotBlank(message = "email must not be Empty")
   @Column(name = "email", nullable = false)
   private String email;
 
@@ -72,7 +72,7 @@ public class UserView extends UserModifiableEntity {
   @Column(name = "dob")
   private Date dob;
 
-  @NotBlank
+  @NotBlank(message = "defaultTenantId must not be Empty")
   @Column(name = "default_tenant_id", nullable = false)
   private String defaultTenantId;
 
@@ -88,7 +88,7 @@ public class UserView extends UserModifiableEntity {
   @Column(name = "role_id", nullable = false)
   private UUID roleId;
 
-  @NotBlank
+  @NotBlank(message = "tenantName must not be Empty")
   @Column(name = "name", nullable = false)
   private String tenantName;
 

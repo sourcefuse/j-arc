@@ -46,33 +46,33 @@ public class UserGroupController {
   private String oneOwnerMsg;
 
   @Value("${user.group.not.found}")
-  private String usrGrpNotFound;
+  private String userGroupNotFound;
 
   @Value("${only.grp.owner.access}")
-  private String grpOwnerAccess;
+  private String groupOwnerAccess;
 
   @PostMapping("{id}/user-groups")
-  public ResponseEntity<Object> createRole(
+  public ResponseEntity<Object> createUserGroup(
     @Valid @RequestBody UserGroup userGroup,
     @PathVariable("id") UUID id
   ) {
-    Optional<UserGroup> usrGr;
-    Group svdGroup;
+    Optional<UserGroup> savedUserGroup;
+    Group savedGroup;
     Optional<Group> group = groupRepository.findById(id);
     if (group.isPresent()) {
-      svdGroup = group.get();
+      savedGroup = group.get();
       if (userGroup.getGroup().getId() == null) {
-        userGroup.getGroup().setId(svdGroup.getId());
+        userGroup.getGroup().setId(savedGroup.getId());
       }
-      usrGr =
+      savedUserGroup =
         userGroupsRepo.findByGroupIdAndUserTenantId(
           userGroup.getGroup().getId(),
           userGroup.getUserTenant().getId()
         );
-      if (!usrGr.isPresent()) {
-        usrGr = (Optional.ofNullable(userGroupsRepo.save(userGroup)));
-        group.get().setModifiedOn(usrGr.get().getModifiedOn());
-        groupRepository.save(group.get());
+      if (!savedUserGroup.isPresent()) {
+        savedUserGroup = (Optional.ofNullable(userGroupsRepo.save(userGroup)));
+        group.get().setModifiedOn(savedUserGroup.get().getModifiedOn());
+        groupRepository.save(savedGroup);
       }
     } else {
       throw new ResponseStatusException(
@@ -80,7 +80,7 @@ public class UserGroupController {
         CommonConstants.NO_GRP_PRESENT + id
       );
     }
-    return new ResponseEntity<>(usrGr.get(), HttpStatus.CREATED);
+    return new ResponseEntity<>(savedUserGroup.get(), HttpStatus.CREATED);
   }
 
   @Transactional
@@ -90,7 +90,7 @@ public class UserGroupController {
     @RequestBody UserGroup userGroup,
     @PathVariable("userGroupId") UUID userGroupId
   ) {
-    /** fetch value in Group against primary key and also to
+    /** INFO fetch value in Group against primary key and also to
          and to update modifiedOn parameter*/
     Optional<Group> group = groupRepository.findById(id);
     if (group.isPresent()) {
@@ -99,29 +99,30 @@ public class UserGroupController {
         .totalCount(userGroupsRepo.countByGroupIdAndIsOwner(id, true))
         .build();
       if (count.getTotalCount() == 1) {
-        Optional<UserGroup> usrGrp =
+        Optional<UserGroup> savedUserGrp =
           userGroupsRepo.findByGroupIdAndIdAndIsOwner(id, userGroupId, true);
 
-        if (usrGrp.isPresent() && !usrGrp.get().isOwner()) {
+        if (
+          savedUserGrp.isPresent() && userGroup != null && !userGroup.isOwner()
+        ) {
           throw new ResponseStatusException(HttpStatus.FORBIDDEN, oneOwnerMsg);
         }
       }
-      if (userGroup.getId() == null) {
-        userGroup.setId(userGroupId);
-      }
-      Optional<UserGroup> targetUserGroupOptional = userGroupsRepo.findById(
-        userGroupId
-      );
-      UserGroup tarUserGroup = new UserGroup();
-      if (targetUserGroupOptional.isPresent()) {
-        tarUserGroup = targetUserGroupOptional.get();
-      }
+      userGroup.setId(null);
+      UserGroup targetUserGroup = userGroupsRepo
+        .findById(userGroupId)
+        .orElseThrow(() ->
+          new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            CommonConstants.NO_USR_GRP_PRESENT + " " + userGroupId
+          )
+        );
       BeanUtils.copyProperties(
         userGroup,
-        tarUserGroup,
+        targetUserGroup,
         CommonUtils.getNullPropertyNames(userGroup)
       );
-      userGroupsRepo.save(tarUserGroup);
+      userGroupsRepo.save(targetUserGroup);
 
       group.get().setModifiedOn(LocalDateTime.now());
       groupRepository.save(group.get());
@@ -148,28 +149,25 @@ public class UserGroupController {
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    /** fetch value in Group against primary key and also to
+    /** INFO fetch value in Group against primary key and also to
          and to update modifiedOn parameter*/
     Optional<Group> group = groupRepository.findById(id);
     if (group.isPresent()) {
-      UUID usrTenantId = currentUser.getUserTenantId();
+      UUID userTenantId = currentUser.getUserTenantId();
       List<UserGroup> savedUserGroup =
         userGroupsRepo.findByGroupIdOrIdOrUserTenantId(
           id,
           userGroupId,
-          usrTenantId
+          userTenantId
         );
-      Optional<UserGroup> userGroupRecord = savedUserGroup
+      UserGroup userGroup = savedUserGroup
         .stream()
-        .filter(userGroup -> userGroup.getId().equals(userGroupId))
-        .findFirst();
-      UserGroup userGroup;
-      if (!userGroupRecord.isPresent()) {
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, usrGrpNotFound);
-      } else {
-        userGroup = userGroupRecord.get();
-      }
-      extracted(currentUser, usrTenantId, savedUserGroup, userGroup);
+        .filter(userGrp -> userGrp.getId().equals(userGroupId))
+        .findFirst()
+        .orElseThrow(() ->
+          new ResponseStatusException(HttpStatus.FORBIDDEN, userGroupNotFound)
+        );
+      extracted(currentUser, userTenantId, savedUserGroup, userGroup);
       Count count = Count
         .builder()
         .totalCount(userGroupsRepo.countByGroupId(id))
@@ -192,13 +190,13 @@ public class UserGroupController {
   private static void extracted(
     IAuthUserWithPermissions currentUser,
     UUID usrTenantId,
-    List<UserGroup> usrGrp,
+    List<UserGroup> userGroup,
     UserGroup userGroupRecord
   ) {
     boolean isAdmin = currentUser.getRole() == RoleKey.ADMIN.toString();
-    Optional<UserGroup> firstCurrentUserGroup = usrGrp
+    Optional<UserGroup> firstCurrentUserGroup = userGroup
       .stream()
-      .filter(usrGp -> usrGp.getUserTenant().getId().equals(usrTenantId))
+      .filter(userGrp -> userGrp.getUserTenant().getId().equals(usrTenantId))
       .findFirst();
     UserGroup currentUserGroup = new UserGroup();
     if (firstCurrentUserGroup.isPresent()) {
@@ -240,26 +238,26 @@ public class UserGroupController {
   public ResponseEntity<Object> getAllUsTenantByRole(
     @PathVariable("id") UUID id
   ) {
-    /** fetch value in Group against primary key also a validation
+    /** INFO fetch value in Group against primary key also a validation
          if group table does not have the records then  it will also not be
          available in userGroups table */
-    List<UserGroup> usrGrpList;
-    Optional<Group> group = groupRepository.findById(id);
-    if (group.isPresent()) {
-      usrGrpList = userGroupsRepo.findAllByGroupId(id);
-    } else {
-      throw new ResponseStatusException(
-        HttpStatus.NOT_FOUND,
-        CommonConstants.NO_GRP_PRESENT
+    List<UserGroup> userGroupList;
+    groupRepository
+      .findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          "No group is present against given value"
+        )
       );
-    }
-    return new ResponseEntity<>(usrGrpList, HttpStatus.OK);
+    userGroupList = userGroupsRepo.findAllByGroupId(id);
+    return new ResponseEntity<>(userGroupList, HttpStatus.OK);
   }
 
   @GetMapping("{id}/user-groups/count")
   public ResponseEntity<Object> countUserGroup(@PathVariable("id") UUID id) {
-    Long grpCnt = userGroupsRepo.countByGroupId(id);
-    Count count = Count.builder().totalCount(grpCnt).build();
+    Long groupCount = userGroupsRepo.countByGroupId(id);
+    Count count = Count.builder().totalCount(groupCount).build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
 }

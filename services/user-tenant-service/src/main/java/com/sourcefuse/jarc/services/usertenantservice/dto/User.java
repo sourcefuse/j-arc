@@ -42,7 +42,7 @@ public class User extends UserModifiableEntity {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @NotBlank
+  @NotBlank(message = "firstName must not be Empty")
   @Column(name = "first_name", nullable = false)
   private String firstName;
 
@@ -52,11 +52,11 @@ public class User extends UserModifiableEntity {
   @Column(name = "middle_name")
   private String middleName;
 
-  @NotBlank
+  @NotBlank(message = "username must not be Empty")
   @Column(nullable = false)
   private String username;
 
-  @NotBlank
+  @NotBlank(message = "email must not be Empty")
   @Column(nullable = false)
   private String email;
 
@@ -84,8 +84,6 @@ public class User extends UserModifiableEntity {
   @JsonIgnore
   @ManyToOne
   @JoinColumn(name = "default_tenant_id")
-  //doubt:
-  //this not found at Tenant class
   private Tenant defaultTenant;
 
   @OneToOne(mappedBy = "userId", cascade = CascadeType.ALL)

@@ -38,23 +38,18 @@ public class Role extends UserModifiableEntity {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @NotBlank(message = "Name must not be null")
+  @NotBlank(message = "Name must not be Empty")
   @Column(nullable = false)
   private String name;
 
   @NotNull(message = "roleType must not be null")
   @Column(nullable = false, name = "role_type")
-  //doubt::
   @Enumerated(EnumType.STRING)
   private RoleType roleType;
 
-  //@ElementCollection
   @Column(name = "permissions")
   private List<String> permissions;
 
-  //doubt:
-  // @ElementCollection(name = "allowed_clients")
-  //@ElementCollection
   @Column(name = "allowed_clients")
   private List<String> allowedClients;
 

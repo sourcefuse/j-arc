@@ -6,10 +6,8 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
-import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,19 +42,16 @@ public class RoleUserTenantController {
     @PathVariable("id") UUID id
   ) {
     UserTenant savedUserRole;
-
-    Optional<Role> role = roleRepository.findById(id);
-    if (role.isPresent()) {
-      userTenant.getRole().setId(role.get().getId());
-
-      role.get().getUserTenants().add(userTenant);
-      savedUserRole = roleUserTRepository.save(userTenant);
-    } else {
-      throw new ResponseStatusException(
-        HttpStatus.NOT_FOUND,
-        "No role is present against given value"
+    Role role = roleRepository
+      .findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          "No group is present against given value"
+        )
       );
-    }
+    userTenant.getRole().setId(role.getId());
+    savedUserRole = roleUserTRepository.save(userTenant);
     return new ResponseEntity<>(savedUserRole, HttpStatus.CREATED);
   }
 
@@ -77,7 +72,6 @@ public class RoleUserTenantController {
     List<UserTenant> tenantList = roleUserTRepository.findUserTenantsByRoleId(
       id
     );
-
     return new ResponseEntity<>(
       new Count((long) tenantList.size()),
       HttpStatus.OK
@@ -88,23 +82,23 @@ public class RoleUserTenantController {
   @PatchMapping("{id}/user-tenants")
   public ResponseEntity<Count> updateAll(
     @PathVariable("id") UUID id,
-    @Valid @RequestBody UserTenant socUserTenant
+    @RequestBody UserTenant sourceUserTenant
   ) {
-    List<UserTenant> tarUserTenantArrayList = new ArrayList<>();
+    List<UserTenant> targetUserTenantArrayList = new ArrayList<>();
 
     List<UserTenant> userTenantArrayList =
       roleUserTRepository.findUserTenantsByRoleId(id);
     long count = 0;
     if (!userTenantArrayList.isEmpty()) {
-      for (UserTenant tarUserTenant : userTenantArrayList) {
+      for (UserTenant targetUserTenant : userTenantArrayList) {
         BeanUtils.copyProperties(
-          socUserTenant,
-          tarUserTenant,
-          CommonUtils.getNullPropertyNames(socUserTenant)
+          sourceUserTenant,
+          targetUserTenant,
+          CommonUtils.getNullPropertyNames(sourceUserTenant)
         );
-        tarUserTenantArrayList.add(tarUserTenant);
+        targetUserTenantArrayList.add(targetUserTenant);
       }
-      count = roleUserTRepository.saveAll(tarUserTenantArrayList).size();
+      count = roleUserTRepository.saveAll(targetUserTenantArrayList).size();
     }
     return new ResponseEntity<>(new Count(count), HttpStatus.OK);
   }

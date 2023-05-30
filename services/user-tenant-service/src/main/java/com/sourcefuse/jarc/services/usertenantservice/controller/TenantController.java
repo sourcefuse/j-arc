@@ -9,6 +9,9 @@ import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.enums.TenantStatus;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -25,11 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -48,54 +46,41 @@ public class TenantController {
     return new ResponseEntity<>(savedTenant, HttpStatus.CREATED);
   }
 
-  /**
-   * Need to discuss about query parameter doubt
-   */
   @GetMapping("/count")
   public ResponseEntity<Object> countTenants() {
     Count count = Count.builder().totalCount(tenantRepository.count()).build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
 
-  /**
-   * Need to discuss about query parameter doubt
-   */
   @GetMapping("")
   public ResponseEntity<Object> fetchAllTenants() {
     List<Tenant> tenantList = tenantRepository.findAll();
     return new ResponseEntity<>(tenantList, HttpStatus.OK);
   }
 
-  /**
-   * Need to discuss about query parameter doubt
-   */
   @Transactional
   @PatchMapping("")
   public ResponseEntity<Count> updateAllTenants(
-    @RequestBody Tenant souctenant
+    @RequestBody Tenant sourceTenant
   ) {
     List<Tenant> updatedListTenant = new ArrayList<>();
 
-    List<Tenant> tarLisTenant = tenantRepository.findAll();
+    List<Tenant> targetListTenant = tenantRepository.findAll();
 
     long count = 0;
-    if (!tarLisTenant.isEmpty()) {
-      for (Tenant tarTenant : tarLisTenant) {
+    if (!targetListTenant.isEmpty()) {
+      for (Tenant targetTenant : targetListTenant) {
         BeanUtils.copyProperties(
-          souctenant,
-          tarTenant,
-          CommonUtils.getNullPropertyNames(souctenant)
+          sourceTenant,
+          targetTenant,
+          CommonUtils.getNullPropertyNames(sourceTenant)
         );
-        updatedListTenant.add(tarTenant);
+        updatedListTenant.add(targetTenant);
       }
       count = tenantRepository.saveAll(updatedListTenant).size();
     }
     return new ResponseEntity<>(new Count(count), HttpStatus.OK);
   }
-
-  /**
-   * Need to discuss about query parameter doubt
-   */
 
   @GetMapping("{id}")
   public ResponseEntity<Object> fetchTenantByID(@PathVariable("id") UUID id) {
@@ -116,16 +101,14 @@ public class TenantController {
         AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
       );
     }
-    Tenant savedTenant;
-    Optional<Tenant> tenant = tenantRepository.findById(id);
-    if (tenant.isPresent()) {
-      savedTenant = tenant.get();
-    } else {
-      throw new ResponseStatusException(
-        HttpStatus.NOT_FOUND,
-        "No tenant is present against given value"
+    Tenant savedTenant = tenantRepository
+      .findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          "No tenant is present against given value"
+        )
       );
-    }
     return new ResponseEntity<>(savedTenant, HttpStatus.OK);
   }
 
@@ -152,24 +135,20 @@ public class TenantController {
         AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
       );
     }
-
-    Tenant tarTenant;
-    Optional<Tenant> savedTenant = tenantRepository.findById(id);
-    if (savedTenant.isPresent()) {
-      tarTenant = savedTenant.get();
-
-      BeanUtils.copyProperties(
-        sourceTenant,
-        tarTenant,
-        CommonUtils.getNullPropertyNames(sourceTenant)
+    Tenant targetTenant = tenantRepository
+      .findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          "No tenant is present against given value"
+        )
       );
-      tenantRepository.save(tarTenant);
-    } else {
-      throw new ResponseStatusException(
-        HttpStatus.NOT_FOUND,
-        "No tenant is present against given value"
-      );
-    }
+    BeanUtils.copyProperties(
+      sourceTenant,
+      targetTenant,
+      CommonUtils.getNullPropertyNames(sourceTenant)
+    );
+    tenantRepository.save(targetTenant);
     return new ResponseEntity<>("Tenant PATCH success", HttpStatus.NO_CONTENT);
   }
 

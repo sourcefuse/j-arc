@@ -24,7 +24,7 @@ public class UserCredentials extends UserModifiableEntity {
   @Id
   private UUID id;
 
-  @NotBlank
+  @NotBlank(message = "authProvider must not be Empty")
   @Column(name = "auth_provider", nullable = false)
   private String authProvider;
 

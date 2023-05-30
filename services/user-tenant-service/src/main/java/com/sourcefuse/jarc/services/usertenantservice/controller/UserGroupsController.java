@@ -18,18 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserGroupsController {
 
-  private final UserGroupsRepository userGroupsRepo;
+  private final UserGroupsRepository userGroupsRepository;
 
   @GetMapping
   public ResponseEntity<Object> fetchAllUserGroups() {
-    List<UserGroup> userGroupsList = userGroupsRepo.findAll();
+    List<UserGroup> userGroupsList = userGroupsRepository.findAll();
     return new ResponseEntity<>(userGroupsList, HttpStatus.OK);
   }
 
-  //doubt::
   @GetMapping("/count")
   public ResponseEntity<Object> countTenants() {
-    List<UserGroup> userGroupsList = userGroupsRepo.findAll();
+    List<UserGroup> userGroupsList = userGroupsRepository.findAll();
     return new ResponseEntity<>(
       Count.builder().totalCount((long) userGroupsList.size()).build(),
       HttpStatus.OK

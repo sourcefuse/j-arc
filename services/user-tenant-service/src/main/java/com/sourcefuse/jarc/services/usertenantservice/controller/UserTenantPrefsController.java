@@ -17,10 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * doubt::
- * filter and authentication pending
- */
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -31,9 +27,9 @@ public class UserTenantPrefsController {
 
   @PostMapping("")
   public ResponseEntity<Object> createTenantPrefs(
-    @Valid @RequestBody UserTenantPrefs userTPrefs
+    @Valid @RequestBody UserTenantPrefs userTenantPrefs
   ) {
-    UserTenantPrefs savedUTPrefs;
+    UserTenantPrefs savedUserTenantPrefs;
 
     IAuthUserWithPermissions currentUser =
       (IAuthUserWithPermissions) SecurityContextHolder
@@ -44,30 +40,30 @@ public class UserTenantPrefsController {
       currentUser != null &&
       StringUtils.isNotEmpty(currentUser.getUserTenantId().toString())
     ) {
-      userTPrefs.getUserTenant().setId(currentUser.getUserTenantId());
+      userTenantPrefs.getUserTenant().setId(currentUser.getUserTenantId());
     }
 
     UserTenantPrefs preExistsTenantPrefs =
       userTPRepository.getByUserTenantIdAndConfigKey(
-        userTPrefs.getUserTenant().getId(),
-        userTPrefs.getConfigKey()
+        userTenantPrefs.getUserTenant().getId(),
+        userTenantPrefs.getConfigKey()
       );
 
     if (preExistsTenantPrefs != null) {
-      if (userTPrefs.getConfigValue() != null) {
-        preExistsTenantPrefs.setConfigValue(userTPrefs.getConfigValue());
+      if (userTenantPrefs.getConfigValue() != null) {
+        preExistsTenantPrefs.setConfigValue(userTenantPrefs.getConfigValue());
       }
-      savedUTPrefs = userTPRepository.save(preExistsTenantPrefs);
+      savedUserTenantPrefs = userTPRepository.save(preExistsTenantPrefs);
     } else {
-      savedUTPrefs = userTPRepository.save(userTPrefs);
+      savedUserTenantPrefs = userTPRepository.save(userTenantPrefs);
     }
 
-    return new ResponseEntity<>(savedUTPrefs, HttpStatus.CREATED);
+    return new ResponseEntity<>(savedUserTenantPrefs, HttpStatus.CREATED);
   }
 
   @GetMapping("")
   public ResponseEntity<Object> getAllUsTenantPrefs() {
-    List<UserTenantPrefs> listUtPrefs = userTPRepository.findAll();
-    return new ResponseEntity<>(listUtPrefs, HttpStatus.OK);
+    List<UserTenantPrefs> userTenantPrefsList = userTPRepository.findAll();
+    return new ResponseEntity<>(userTenantPrefsList, HttpStatus.OK);
   }
 }

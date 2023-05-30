@@ -72,15 +72,15 @@ public class GroupController {
 
   @GetMapping("{id}")
   public ResponseEntity<Object> getGroupById(@PathVariable("id") UUID id) {
-    Optional<Group> group = groupRepository.findById(id);
-    if (group.isPresent()) {
-      return new ResponseEntity<>(group.get(), HttpStatus.OK);
-    } else {
-      throw new ResponseStatusException(
-        HttpStatus.NOT_FOUND,
-        "No group is present against given value"
+    Group group = groupRepository
+      .findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          "No group is present against given value"
+        )
       );
-    }
+    return new ResponseEntity<>(group, HttpStatus.OK);
   }
 
   @Transactional
@@ -89,22 +89,20 @@ public class GroupController {
     @PathVariable("id") UUID id,
     @RequestBody Group group
   ) {
-    Group target;
-    Optional<Group> savedGroup = groupRepository.findById(id);
-    if (savedGroup.isPresent()) {
-      target = savedGroup.get();
-      BeanUtils.copyProperties(
-        group,
-        target,
-        CommonUtils.getNullPropertyNames(group)
+    Group targetGroup = groupRepository
+      .findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          "No group is present against given value"
+        )
       );
-      groupRepository.save(target);
-    } else {
-      throw new ResponseStatusException(
-        HttpStatus.NOT_FOUND,
-        "No group is present against given value"
-      );
-    }
+    BeanUtils.copyProperties(
+      group,
+      targetGroup,
+      CommonUtils.getNullPropertyNames(group)
+    );
+    groupRepository.save(targetGroup);
     return new ResponseEntity<>("Group PATCH success", HttpStatus.NO_CONTENT);
   }
 

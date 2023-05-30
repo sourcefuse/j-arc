@@ -25,7 +25,7 @@ public class AuthClient extends UserModifiableEntity {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @NotBlank
+  @NotBlank(message = "clientId must not be Empty")
   @Column(name = "client_id", nullable = false)
   private String clientId;
 
@@ -35,7 +35,7 @@ public class AuthClient extends UserModifiableEntity {
   @Column(name = "redirect_url")
   private String redirectUrl;
 
-  @NotBlank
+  @NotBlank(message = "secret must not be Empty")
   @Column(nullable = false)
   private String secret;
 
@@ -51,9 +51,6 @@ public class AuthClient extends UserModifiableEntity {
   @Column(name = "auth_code_expiration", nullable = false)
   private Long authCodeExpiration;
 
-  /**
-   * for stubbing test case commnet on PROD::
-   */
   public AuthClient(UUID id) {
     this.id = id;
   }

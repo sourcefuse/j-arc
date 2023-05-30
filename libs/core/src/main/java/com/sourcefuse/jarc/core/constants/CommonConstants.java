@@ -4,7 +4,8 @@ public final class CommonConstants {
 
   public static final String NO_GRP_PRESENT =
     "No group is present against given value";
-
+  public static final String NO_USR_GRP_PRESENT =
+    "No User group is present against given value";
   public static final String FIND = "FIND";
   public static final Integer SUPER_ADMIN_ROLE_TYPE = 10;
   public static final int TWO = 2;
