@@ -12,13 +12,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -44,6 +45,7 @@ public class UserGroup extends UserModifiableEntity {
   @JoinColumn(name = "user_tenant_id", nullable = false)
   private UserTenant userTenant;
 
+  @JsonProperty("isOwner")
   @Column(name = "is_owner")
   private boolean isOwner;
 
@@ -69,7 +71,6 @@ public class UserGroup extends UserModifiableEntity {
     }
     return null;
   }
-
   @JsonProperty("userTenantId")
   public void setUsrTnt(UUID userTenantId) {
     this.userTenant = new UserTenant(userTenantId);

@@ -62,7 +62,7 @@ public class UserGroupController {
     Optional<Group> group = groupRepository.findById(id);
     if (group.isPresent()) {
       savedGroup = group.get();
-      if (userGroup.getGroup().getId() == null) {
+      if (!userGroup.getGroup().getId().equals(savedGroup.getId())) {
         userGroup.getGroup().setId(savedGroup.getId());
       }
       savedUserGroup =
