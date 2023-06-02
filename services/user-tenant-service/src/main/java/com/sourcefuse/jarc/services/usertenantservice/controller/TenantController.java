@@ -11,9 +11,6 @@ import com.sourcefuse.jarc.services.usertenantservice.enums.TenantStatus;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantConfigRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import jakarta.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -30,6 +27,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -185,7 +186,7 @@ public class TenantController {
     }
     ArrayList<TenantConfig> tenantConfig =
       tenantConfigRepository.findByTenantId(id);
-    return new ResponseEntity<ArrayList<TenantConfig>>(
+    return new ResponseEntity<>(
       tenantConfig,
       HttpStatus.OK
     );

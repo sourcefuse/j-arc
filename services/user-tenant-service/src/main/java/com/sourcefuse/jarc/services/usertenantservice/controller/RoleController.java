@@ -1,13 +1,11 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
+import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.core.dto.Count;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import jakarta.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -24,6 +22,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -80,7 +82,7 @@ public class RoleController {
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
-          "No role is present against given value"
+          CommonConstants.NO_ROLE_PRESENT
         )
       );
     return new ResponseEntity<>(role, HttpStatus.OK);
@@ -97,7 +99,7 @@ public class RoleController {
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
-          "No role is present against given value"
+        CommonConstants.NO_ROLE_PRESENT
         )
       );
     BeanUtils.copyProperties(
@@ -120,7 +122,7 @@ public class RoleController {
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
-          "No role is present against given value"
+                CommonConstants.NO_ROLE_PRESENT
         )
       );
     role.setId(savedRole.getId());
