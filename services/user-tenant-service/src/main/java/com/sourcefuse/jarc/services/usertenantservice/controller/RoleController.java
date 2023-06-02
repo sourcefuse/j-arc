@@ -5,6 +5,9 @@ import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -21,10 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -81,7 +80,7 @@ public class RoleController {
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
-          "No group is present against given value"
+          "No role is present against given value"
         )
       );
     return new ResponseEntity<>(role, HttpStatus.OK);
@@ -98,7 +97,7 @@ public class RoleController {
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
-          "No group is present against given value"
+          "No role is present against given value"
         )
       );
     BeanUtils.copyProperties(
@@ -114,9 +113,17 @@ public class RoleController {
   @PutMapping("{id}")
   public ResponseEntity<Object> updateRoleById(
     @PathVariable("id") UUID id,
-    @RequestBody Role role
+    @Valid @RequestBody Role role
   ) {
-    role.setId(id);
+    Role savedRole = roleRepository
+      .findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          "No role is present against given value"
+        )
+      );
+    role.setId(savedRole.getId());
     roleRepository.save(role);
     return new ResponseEntity<>("Role PUT success", HttpStatus.NO_CONTENT);
   }

@@ -47,7 +47,7 @@ public class RoleUserTenantController {
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
-          "No group is present against given value"
+          "No role is present against given value"
         )
       );
     userTenant.getRole().setId(role.getId());

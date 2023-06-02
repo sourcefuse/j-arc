@@ -5,7 +5,9 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface UserTenantRepository
   extends SoftDeletesRepository<UserTenant, UUID> {
   Optional<UserTenant> findFirstByUserIdAndTenantIdOrderByIdAsc(

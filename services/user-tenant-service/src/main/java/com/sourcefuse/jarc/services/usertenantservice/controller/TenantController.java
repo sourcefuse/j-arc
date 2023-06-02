@@ -5,8 +5,10 @@ import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
+import com.sourcefuse.jarc.services.usertenantservice.dto.TenantConfig;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.enums.TenantStatus;
+import com.sourcefuse.jarc.services.usertenantservice.repository.TenantConfigRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
@@ -36,6 +38,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class TenantController {
 
   private final TenantRepository tenantRepository;
+  private final TenantConfigRepository tenantConfigRepository;
 
   @PostMapping("")
   public ResponseEntity<Object> createTenants(
@@ -157,5 +160,34 @@ public class TenantController {
   public ResponseEntity<String> deleteTenantsById(@PathVariable("id") UUID id) {
     tenantRepository.deleteById(id);
     return new ResponseEntity<>("Tenant DELETE success", HttpStatus.NO_CONTENT);
+  }
+
+  @GetMapping("/{id}/config")
+  public ResponseEntity<ArrayList<TenantConfig>> getTenantConfig(
+    @PathVariable("id") UUID id
+  ) {
+    IAuthUserWithPermissions currentUser =
+      (IAuthUserWithPermissions) SecurityContextHolder
+        .getContext()
+        .getAuthentication()
+        .getPrincipal();
+
+    if (
+      !currentUser.getTenantId().equals(id) &&
+      !currentUser
+        .getPermissions()
+        .contains(PermissionKey.VIEW_OWN_TENANT.getValue())
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.FORBIDDEN,
+        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
+      );
+    }
+    ArrayList<TenantConfig> tenantConfig =
+      tenantConfigRepository.findByTenantId(id);
+    return new ResponseEntity<ArrayList<TenantConfig>>(
+      tenantConfig,
+      HttpStatus.OK
+    );
   }
 }
