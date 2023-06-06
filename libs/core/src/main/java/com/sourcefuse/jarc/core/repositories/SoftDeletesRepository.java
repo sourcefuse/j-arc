@@ -46,7 +46,7 @@ public interface SoftDeletesRepository<
   List<T> findAllIncludeSoftDelete(Sort sort);
 
   Page<T> findAllIncludeSoftDelete(Pageable pageable);
-  
+
   Optional<T> findOneIncludeSoftDelete(Specification<T> spec);
 
   List<T> findAllIncludeSoftDelete(Specification<T> spec);

@@ -10,6 +10,6 @@ import org.springframework.stereotype.Service;
 public class KeycloakPostVerifyProvider {
 
   public Optional<User> provide(KeycloakUserDTO keycloakUserDTO, User user) {
-    return null;
+    return Optional.empty();
   }
 }

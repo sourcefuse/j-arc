@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.authservice.providers.JwtTokenProvider;
-import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     if (StringUtils.hasText(token)) {
       CurrentUser user = jwtTokenProvider.getUserDetails(token);
       List<GrantedAuthority> listAuthorities = new ArrayList<>();
-      for (String permission : user.getRole().getPermissions()) {
+      for (String permission : user.getPermissions()) {
         listAuthorities.add(new SimpleGrantedAuthority(permission));
       }
       UsernamePasswordAuthenticationToken authenticationToken = 

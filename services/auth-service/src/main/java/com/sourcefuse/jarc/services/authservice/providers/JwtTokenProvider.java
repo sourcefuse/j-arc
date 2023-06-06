@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.sourcefuse.jarc.core.constants.AuthConstants;
 import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.authservice.Utils;
 import com.sourcefuse.jarc.services.authservice.dtos.JWTAuthResponse;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
@@ -20,7 +21,6 @@ import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 import com.sourcefuse.jarc.services.authservice.security.CustomJwtBuilder;
-import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -51,7 +51,7 @@ public class JwtTokenProvider {
     Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
     Claims claims = Jwts
       .claims()
-      .setSubject(currentUser.getUser().getUsername());
+      .setSubject(currentUser.getUsername());
     claims.put(AuthConstants.CURRENT_USER_KEY, currentUser);
     return new CustomJwtBuilder()
       .setClaims(claims)
@@ -80,8 +80,8 @@ public class JwtTokenProvider {
       RefreshTokenRedis refreshTokenRedis = new RefreshTokenRedis();
 
       refreshTokenRedis.setClientId(authClient.getClientId());
-      refreshTokenRedis.setUserId(user.getId());
-      refreshTokenRedis.setUsername(user.getUsername());
+      refreshTokenRedis.setUserId(currentUser.getId());
+      refreshTokenRedis.setUsername(currentUser.getUsername());
       refreshTokenRedis.setExternalAuthToken(accessToken);
       refreshTokenRedis.setExternalRefreshToken(refreshToken);
       refreshTokenRedis.setId(refreshToken);

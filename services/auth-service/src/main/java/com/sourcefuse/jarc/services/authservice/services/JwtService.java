@@ -2,6 +2,7 @@ package com.sourcefuse.jarc.services.authservice.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.authservice.dtos.AuthTokenRequest;
 import com.sourcefuse.jarc.services.authservice.dtos.JWTAuthResponse;
 import com.sourcefuse.jarc.services.authservice.dtos.RefreshTokenDTO;
@@ -19,7 +20,6 @@ import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepositor
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
-import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -58,10 +58,23 @@ public class JwtService {
             AuthErrorKeys.CLIENT_INVALID.toString()
           )
         );
+
+    User user = userRepository
+      .findById(currentUser.getId())
+      .orElseThrow(this::throwUserDoesNotExistException);
+
+    UserTenant userTenant = userTenantRepository
+      .findById(currentUser.getUserTenantId())
+      .orElseThrow(this::throwUserDoesNotExistException);
+
+    Role role = roleRepository
+      .findById(currentUser.getRoleId())
+      .orElseThrow(this::throwUserDoesNotExistException);
+      
     return this.jwtTokenProvider.createJwt(
-        currentUser.getUser(),
-        currentUser.getUserTenant(),
-        currentUser.getRole(),
+        user,
+        userTenant,
+        role,
         authClient
       );
   }
@@ -109,11 +122,11 @@ public class JwtService {
       .orElseThrow(this::throwUserDoesNotExistException);
 
     UserTenant userTenant = userTenantRepository
-      .findById(currentUser.getUserTenant().getId())
+      .findById(currentUser.getUserTenantId())
       .orElseThrow(this::throwUserDoesNotExistException);
 
     Role role = roleRepository
-      .findById(currentUser.getUserTenant().getRoleId())
+      .findById(currentUser.getRoleId())
       .orElseThrow(this::throwUserDoesNotExistException);
 
     return jwtTokenProvider.createJwt(user, userTenant, role, client);

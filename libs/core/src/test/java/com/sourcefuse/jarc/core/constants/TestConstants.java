@@ -34,14 +34,14 @@ public class TestConstants {
 
   public static void setCurrentLoggedInUser() {
     // Create a dummy user object
-    User user = new User();
-    user.setId(mockUserId);
-    user.setFirstName("Oasis");
-    user.setLastName("Admin");
-    user.setEmail("oasis_admin@sourcefuse.com");
-    user.setUsername("oasis_admin@sourcefuse.com");
-    CurrentUser<User> currentUser = new CurrentUser<User>();
-    currentUser.setUser(user);
+    CurrentUser currentUser = new CurrentUser();
+    currentUser.setId(mockUserId);
+    currentUser.setFirstName("Oasis");
+    currentUser.setLastName("Admin");
+    currentUser.setEmail("oasis_admin@sourcefuse.com");
+    currentUser.setUsername("oasis_admin@sourcefuse.com");
+    
+
     // Create an authentication object with the dummy user and set it in the
     // SecurityContext
     UsernamePasswordAuthenticationToken auth =

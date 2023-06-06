@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.authservice.controller;
 
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.authservice.dtos.AuthTokenRequest;
 import com.sourcefuse.jarc.services.authservice.dtos.CodeResponse;
 import com.sourcefuse.jarc.services.authservice.dtos.JWTAuthResponse;
@@ -11,7 +12,7 @@ import com.sourcefuse.jarc.services.authservice.providers.ClientPasswordVerifyPr
 import com.sourcefuse.jarc.services.authservice.providers.ResourceOwnerVerifyProvider;
 import com.sourcefuse.jarc.services.authservice.services.AuthService;
 import com.sourcefuse.jarc.services.authservice.services.JwtService;
-import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
+
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
