@@ -1,0 +1,152 @@
+package com.sourcefuse.jarc.services.notificationservice.unit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpServerErrorException;
+
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.BatchResponse;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.MulticastMessage;
+import com.sourcefuse.jarc.core.enums.NotificationError;
+import com.sourcefuse.jarc.services.notificationservice.mocks.MockNotifications;
+import com.sourcefuse.jarc.services.notificationservice.models.Notification;
+import com.sourcefuse.jarc.services.notificationservice.providers.push.fcm.FcmProvider;
+import com.sourcefuse.jarc.services.notificationservice.providers.push.fcm.types.FcmConnectionConfig;
+import com.sourcefuse.jarc.services.notificationservice.providers.push.fcm.types.FcmSubscriberType;
+import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
+
+class FcmProviderTests {
+	@Mock
+	private FcmConnectionConfig fcmConnectionConfig;
+
+	@Mock
+	private FirebaseApp firebaseApp;
+
+	@Mock
+	private FirebaseMessaging firebaseMessaging;
+
+	@InjectMocks
+	private FcmProvider fcmProvider;
+
+	Notification message;
+
+	@BeforeEach
+	public void setup() throws FirebaseMessagingException {
+		MockitoAnnotations.openMocks(this);
+
+		Mockito.when(fcmConnectionConfig.getFirebaseApp()).thenReturn(firebaseApp);
+		Mockito.when(fcmConnectionConfig.getFirebaseMessaging()).thenReturn(firebaseMessaging);
+		Mockito.when(firebaseMessaging.sendMulticast(Mockito.any(MulticastMessage.class), Mockito.any(Boolean.class)))
+				.thenReturn(Mockito.any(BatchResponse.class));
+		Mockito.when(firebaseMessaging.send(Mockito.any(Message.class), false)).thenReturn("messageId");
+
+		message = MockNotifications.getFcmNotificationObj();
+
+	}
+
+	/**
+	 * successfully sends single notification to all receivers on token
+	 * 
+	 * @throws FirebaseMessagingException
+	 */
+	@Test
+	public void testPublish_SendsNotificationToReceiversOnTokens() throws FirebaseMessagingException {
+		fcmProvider.publish(message);
+
+		Mockito.verify(firebaseMessaging, Mockito.times(1)).sendMulticast(Mockito.any(MulticastMessage.class),
+				Mockito.anyBoolean());
+	}
+
+	/**
+	 * successfully sends single notification to all receivers on topic
+	 * 
+	 * @throws FirebaseMessagingException
+	 */
+	@Test
+	public void testPublish_SendsNotificationToReceiversOnTopic() throws FirebaseMessagingException {
+		message.getReceiver().getTo().stream().forEach(item -> item.setType(FcmSubscriberType.FCMTopic));
+		fcmProvider.publish(message);
+
+		Mockito.verify(firebaseMessaging, Mockito.times(2)).send(Mockito.any(Message.class), Mockito.anyBoolean());
+	}
+
+	/**
+	 * successfully sends single notification to all receivers on condition
+	 * 
+	 * @throws FirebaseMessagingException
+	 */
+	@Test
+	public void testPublish_SendsNotificationToReceiversOnCondition() throws FirebaseMessagingException {
+		message.getReceiver().getTo().stream().forEach(item -> item.setType(FcmSubscriberType.FCMCondition));
+		fcmProvider.publish(message);
+
+		Mockito.verify(firebaseMessaging, Mockito.times(2)).send(Mockito.any(Message.class), Mockito.anyBoolean());
+	}
+
+	/**
+	 * Fail to execute due to receivers are empty
+	 */
+	@Test
+	public void testPublish_FailDuetoEmptyReceivers() {
+		message.getReceiver().setTo(Arrays.asList());
+
+		HttpServerErrorException exception = assertThrows(HttpServerErrorException.class,
+				() -> fcmProvider.publish(message));
+
+		assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+		assertEquals(NotificationError.MESSAGE_RECEIVER_OR_TOPIC_OR_CONDITION_NOT_FOUND.toString(),
+				exception.getStatusText());
+	}
+
+	/**
+	 * Fail to execute due to receivers exceeded max receiver count i.e 500
+	 */
+	@Test
+	public void testPublish_FailDuetoReceiversExceedsMaxReceiverCount() {
+		List<Subscriber> subscribers = new ArrayList<>();
+		for (int i = 0; i < 501; i++) {
+			Subscriber subscriber = new Subscriber();
+			subscriber.setId(UUID.randomUUID().toString());
+			subscribers.add(subscriber);
+		}
+		message.getReceiver().setTo(subscribers);
+
+		HttpServerErrorException exception = assertThrows(HttpServerErrorException.class,
+				() -> fcmProvider.publish(message));
+
+		assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+		assertEquals(NotificationError.RECEIVERS_EXCEEDS_500.toString(), exception.getStatusText());
+	}
+
+	/**
+	 * Fail to execute due to subject of mail is empty
+	 */
+	@Test
+	public void testPublish_FailDuetoEmptySubject() {
+		message.setSubject(null);
+
+		HttpServerErrorException exception = assertThrows(HttpServerErrorException.class,
+				() -> fcmProvider.publish(message));
+
+		assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+		assertEquals(NotificationError.MESSAGE_TITLE_NOT_FOUND.toString(), exception.getStatusText());
+
+	}
+
+}

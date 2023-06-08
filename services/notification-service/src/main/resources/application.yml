@@ -1,0 +1,23 @@
+### datasource config (required)
+spring:
+  datasource:
+    username: postgres
+    password: Source@123
+    url: jdbc:postgresql://localhost:5432/jarc_audit_test
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+#server:
+#  port: 8089
