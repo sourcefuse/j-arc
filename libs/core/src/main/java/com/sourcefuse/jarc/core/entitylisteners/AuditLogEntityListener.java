@@ -65,7 +65,7 @@ public class AuditLogEntityListener<T extends BaseEntity> {
         .getContext()
         .getAuthentication();
       UUID actor = authentication != null
-        ? ((CurrentUser<?>) authentication.getPrincipal()).getUser().getId()
+        ? ((CurrentUser) authentication.getPrincipal()).getId()
         : null;
       AuditLog auditLog = new AuditLog();
       auditLog.setAction(action);
