@@ -3,7 +3,7 @@ package com.sourcefuse.jarc.core.constants;
 public final class CommonConstants {
 
   public static final String NO_ROLE_PRESENT =
-          "No role is present against given value";
+    "No role is present against given value";
   public static final String NO_GRP_PRESENT =
     "No group is present against given value";
   public static final String NO_USR_GRP_PRESENT =

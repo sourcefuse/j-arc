@@ -35,19 +35,11 @@ public abstract class UserModifiableEntity extends SoftDeleteEntity {
 
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @JsonFormat(
-    pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
-    shape = JsonFormat.Shape.STRING
-  )
   @CreatedDate
   LocalDateTime createdOn;
 
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @JsonFormat(
-    pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
-    shape = JsonFormat.Shape.STRING
-  )
   @LastModifiedDate
   LocalDateTime modifiedOn;
 }

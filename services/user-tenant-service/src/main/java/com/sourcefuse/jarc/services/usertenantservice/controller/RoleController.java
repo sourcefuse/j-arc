@@ -6,6 +6,9 @@ import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -23,10 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 @RestController
 @Slf4j
 @RequestMapping("/roles")
@@ -35,26 +34,26 @@ public class RoleController {
 
   private final RoleRepository roleRepository;
 
-  @PostMapping("")
+  @PostMapping
   public ResponseEntity<Role> createRole(@Valid @RequestBody Role role) {
     Role savedRole = roleRepository.save(role);
     return new ResponseEntity<>(savedRole, HttpStatus.CREATED);
   }
 
   @GetMapping("/count")
-  public ResponseEntity<Object> countRole() {
+  public ResponseEntity<Count> countRole() {
     Count count = Count.builder().totalCount(roleRepository.count()).build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
 
-  @GetMapping("")
-  public ResponseEntity<Object> getAllRoles() {
+  @GetMapping
+  public ResponseEntity<List<Role>> getAllRoles() {
     List<Role> role = roleRepository.findAll();
     return new ResponseEntity<>(role, HttpStatus.OK);
   }
 
   @Transactional
-  @PatchMapping("")
+  @PatchMapping
   public ResponseEntity<Count> updateAllRole(@RequestBody Role sourceRole) {
     List<Role> updatedRoleLis = new ArrayList<>();
 
@@ -76,7 +75,7 @@ public class RoleController {
   }
 
   @GetMapping("{id}")
-  public ResponseEntity<Object> getRoleByID(@PathVariable("id") UUID id) {
+  public ResponseEntity<Role> getRoleByID(@PathVariable("id") UUID id) {
     Role role = roleRepository
       .findById(id)
       .orElseThrow(() ->
@@ -90,7 +89,7 @@ public class RoleController {
 
   @Transactional
   @PatchMapping("{id}")
-  public ResponseEntity<Object> updateRole(
+  public ResponseEntity<String> updateRole(
     @PathVariable("id") UUID id,
     @RequestBody Role sourceRole
   ) {
@@ -99,7 +98,7 @@ public class RoleController {
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
-        CommonConstants.NO_ROLE_PRESENT
+          CommonConstants.NO_ROLE_PRESENT
         )
       );
     BeanUtils.copyProperties(
@@ -113,7 +112,7 @@ public class RoleController {
 
   @Transactional
   @PutMapping("{id}")
-  public ResponseEntity<Object> updateRoleById(
+  public ResponseEntity<String> updateRoleById(
     @PathVariable("id") UUID id,
     @Valid @RequestBody Role role
   ) {
@@ -122,7 +121,7 @@ public class RoleController {
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
-                CommonConstants.NO_ROLE_PRESENT
+          CommonConstants.NO_ROLE_PRESENT
         )
       );
     role.setId(savedRole.getId());

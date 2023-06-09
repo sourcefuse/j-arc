@@ -1,22 +1,21 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.core.dto.Count;
-import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.TenantConfig;
-import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.enums.TenantStatus;
-import com.sourcefuse.jarc.services.usertenantservice.repository.TenantConfigRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
+import com.sourcefuse.jarc.services.usertenantservice.service.TenantService;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,11 +25,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -39,10 +33,10 @@ import java.util.UUID;
 public class TenantController {
 
   private final TenantRepository tenantRepository;
-  private final TenantConfigRepository tenantConfigRepository;
+  private final TenantService tenantService;
 
-  @PostMapping("")
-  public ResponseEntity<Object> createTenants(
+  @PostMapping
+  public ResponseEntity<Tenant> createTenants(
     @Valid @RequestBody Tenant tenant
   ) {
     tenant.setStatus(TenantStatus.ACTIVE);
@@ -51,19 +45,19 @@ public class TenantController {
   }
 
   @GetMapping("/count")
-  public ResponseEntity<Object> countTenants() {
+  public ResponseEntity<Count> countTenants() {
     Count count = Count.builder().totalCount(tenantRepository.count()).build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
 
-  @GetMapping("")
-  public ResponseEntity<Object> fetchAllTenants() {
+  @GetMapping
+  public ResponseEntity<List<Tenant>> fetchAllTenants() {
     List<Tenant> tenantList = tenantRepository.findAll();
     return new ResponseEntity<>(tenantList, HttpStatus.OK);
   }
 
   @Transactional
-  @PatchMapping("")
+  @PatchMapping
   public ResponseEntity<Count> updateAllTenants(
     @RequestBody Tenant sourceTenant
   ) {
@@ -87,72 +81,18 @@ public class TenantController {
   }
 
   @GetMapping("{id}")
-  public ResponseEntity<Object> fetchTenantByID(@PathVariable("id") UUID id) {
-    IAuthUserWithPermissions currentUser =
-      (IAuthUserWithPermissions) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
-
-    if (
-      currentUser.getTenantId().equals(id) &&
-      !currentUser
-        .getPermissions()
-        .contains(PermissionKey.VIEW_OWN_TENANT.getValue())
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
-      );
-    }
-    Tenant savedTenant = tenantRepository
-      .findById(id)
-      .orElseThrow(() ->
-        new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          "No tenant is present against given value"
-        )
-      );
+  public ResponseEntity<Tenant> fetchTenantByID(@PathVariable("id") UUID id) {
+    Tenant savedTenant = tenantService.fetchTenantByID(id);
     return new ResponseEntity<>(savedTenant, HttpStatus.OK);
   }
 
   @Transactional
   @PatchMapping("{id}")
-  public ResponseEntity<Object> updateTenantsById(
+  public ResponseEntity<String> updateTenantsById(
     @PathVariable("id") UUID id,
     @RequestBody Tenant sourceTenant
   ) {
-    IAuthUserWithPermissions currentUser =
-      (IAuthUserWithPermissions) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
-
-    if (
-      currentUser.getTenantId().equals(id) &&
-      !currentUser
-        .getPermissions()
-        .contains(PermissionKey.VIEW_OWN_TENANT.getValue())
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
-      );
-    }
-    Tenant targetTenant = tenantRepository
-      .findById(id)
-      .orElseThrow(() ->
-        new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          "No tenant is present against given value"
-        )
-      );
-    BeanUtils.copyProperties(
-      sourceTenant,
-      targetTenant,
-      CommonUtils.getNullPropertyNames(sourceTenant)
-    );
-    tenantRepository.save(targetTenant);
+    tenantService.updateTenantsById(sourceTenant, id);
     return new ResponseEntity<>("Tenant PATCH success", HttpStatus.NO_CONTENT);
   }
 
@@ -164,31 +104,10 @@ public class TenantController {
   }
 
   @GetMapping("/{id}/config")
-  public ResponseEntity<ArrayList<TenantConfig>> getTenantConfig(
+  public ResponseEntity<List<TenantConfig>> getTenantConfig(
     @PathVariable("id") UUID id
   ) {
-    IAuthUserWithPermissions currentUser =
-      (IAuthUserWithPermissions) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
-
-    if (
-      !currentUser.getTenantId().equals(id) &&
-      !currentUser
-        .getPermissions()
-        .contains(PermissionKey.VIEW_OWN_TENANT.getValue())
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
-      );
-    }
-    ArrayList<TenantConfig> tenantConfig =
-      tenantConfigRepository.findByTenantId(id);
-    return new ResponseEntity<>(
-      tenantConfig,
-      HttpStatus.OK
-    );
+    List<TenantConfig> tenantConfig = tenantService.getTenantConfig(id);
+    return new ResponseEntity<>(tenantConfig, HttpStatus.OK);
   }
 }

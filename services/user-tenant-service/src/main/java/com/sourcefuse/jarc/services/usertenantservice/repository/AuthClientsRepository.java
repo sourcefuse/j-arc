@@ -7,6 +7,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AuthClientsRepository
-  extends
-    SoftDeletesRepository<AuthClient, UUID>,
-    TenantRepositoryCustom<AuthClient> {}
+  extends SoftDeletesRepository<AuthClient, UUID> {}

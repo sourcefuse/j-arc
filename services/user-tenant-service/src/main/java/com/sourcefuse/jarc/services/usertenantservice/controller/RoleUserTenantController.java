@@ -6,6 +6,7 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
+import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class RoleUserTenantController {
   private final RoleUserTenantRepository roleUserTRepository;
 
   @PostMapping("{id}/user-tenants")
-  public ResponseEntity<Object> createRole(
+  public ResponseEntity<UserTenant> createRole(
     @Validated @RequestBody UserTenant userTenant,
     @PathVariable("id") UUID id
   ) {
@@ -56,21 +57,21 @@ public class RoleUserTenantController {
   }
 
   @GetMapping("{id}/user-tenants")
-  public ResponseEntity<Object> getAllUserTenantByRole(
+  public ResponseEntity<List<UserTenant>> getAllUserTenantByRole(
     @PathVariable("id") UUID id
   ) {
-    List<UserTenant> tenantList = roleUserTRepository.findUserTenantsByRoleId(
-      id
+    List<UserTenant> tenantList = roleUserTRepository.findAll(
+      UserTenantSpecification.byRoleId(id)
     );
     return new ResponseEntity<>(tenantList, HttpStatus.OK);
   }
 
   @GetMapping("{id}/user-tenants/count")
-  public ResponseEntity<Object> countUserTenantByRole(
+  public ResponseEntity<Count> countUserTenantByRole(
     @PathVariable("id") UUID id
   ) {
-    List<UserTenant> tenantList = roleUserTRepository.findUserTenantsByRoleId(
-      id
+    List<UserTenant> tenantList = roleUserTRepository.findAll(
+      UserTenantSpecification.byRoleId(id)
     );
     return new ResponseEntity<>(
       new Count((long) tenantList.size()),
@@ -86,8 +87,9 @@ public class RoleUserTenantController {
   ) {
     List<UserTenant> targetUserTenantArrayList = new ArrayList<>();
 
-    List<UserTenant> userTenantArrayList =
-      roleUserTRepository.findUserTenantsByRoleId(id);
+    List<UserTenant> userTenantArrayList = roleUserTRepository.findAll(
+      UserTenantSpecification.byRoleId(id)
+    );
     long count = 0;
     if (!userTenantArrayList.isEmpty()) {
       for (UserTenant targetUserTenant : userTenantArrayList) {
@@ -105,8 +107,10 @@ public class RoleUserTenantController {
 
   @Transactional
   @DeleteMapping("{id}/user-tenants")
-  public ResponseEntity<Object> deleteRolesById(@PathVariable("id") UUID id) {
-    long count = roleUserTRepository.deleteByRoleId(id);
+  public ResponseEntity<Count> deleteRolesById(@PathVariable("id") UUID id) {
+    long count = roleUserTRepository.delete(
+      UserTenantSpecification.byRoleId(id)
+    );
     Count cnt = Count.builder().totalCount(count).build();
     return new ResponseEntity<>(cnt, HttpStatus.OK);
   }

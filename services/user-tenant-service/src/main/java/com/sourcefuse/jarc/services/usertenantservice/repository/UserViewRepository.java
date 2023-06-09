@@ -7,7 +7,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserViewRepository
-  extends
-    SoftDeletesRepository<UserView, UUID>, TenantRepositoryCustom<UserView> {
-  UserView findByUserTenantId(UUID id);
-}
+  extends SoftDeletesRepository<UserView, UUID> {}

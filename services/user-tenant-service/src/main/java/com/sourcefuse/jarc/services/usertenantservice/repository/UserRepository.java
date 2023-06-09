@@ -6,8 +6,4 @@ import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends SoftDeletesRepository<User, UUID> {
-  User findByUsernameOrEmail(String username, String email);
-
-  long countByIdNotAndUsername(UUID id, String username);
-}
+public interface UserRepository extends SoftDeletesRepository<User, UUID> {}

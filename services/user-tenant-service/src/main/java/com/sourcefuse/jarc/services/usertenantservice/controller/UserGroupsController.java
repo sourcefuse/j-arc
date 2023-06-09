@@ -21,13 +21,13 @@ public class UserGroupsController {
   private final UserGroupsRepository userGroupsRepository;
 
   @GetMapping
-  public ResponseEntity<Object> fetchAllUserGroups() {
+  public ResponseEntity<List<UserGroup>> fetchAllUserGroups() {
     List<UserGroup> userGroupsList = userGroupsRepository.findAll();
     return new ResponseEntity<>(userGroupsList, HttpStatus.OK);
   }
 
   @GetMapping("/count")
-  public ResponseEntity<Object> countTenants() {
+  public ResponseEntity<Count> countTenants() {
     List<UserGroup> userGroupsList = userGroupsRepository.findAll();
     return new ResponseEntity<>(
       Count.builder().totalCount((long) userGroupsList.size()).build(),

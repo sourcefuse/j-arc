@@ -27,10 +27,6 @@ public abstract class SoftDeleteEntity implements BaseEntity {
 
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @JsonFormat(
-    pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
-    shape = JsonFormat.Shape.STRING
-  )
   LocalDateTime deletedOn;
 
   UUID deletedBy;

@@ -35,7 +35,7 @@ public class Tenant extends UserModifiableEntity {
   @Column(nullable = false)
   private String name;
 
-  @NotNull
+  @NotNull(message = "TenantStatus cannot be null")
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private TenantStatus status;

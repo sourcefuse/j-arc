@@ -8,9 +8,8 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
+import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -28,6 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.UUID;
+
 @RestController
 @Slf4j
 @RequestMapping("/groups")
@@ -38,8 +40,8 @@ public class GroupController {
 
   private final UserGroupsRepository userGroupsRepo;
 
-  @PostMapping("")
-  public ResponseEntity<Object> createGroups(@Valid @RequestBody Group group) {
+  @PostMapping
+  public ResponseEntity<Group> createGroups(@Valid @RequestBody Group group) {
     Group savedGroups = groupRepository.save(group);
     IAuthUserWithPermissions currentUser =
       (IAuthUserWithPermissions) SecurityContextHolder
@@ -57,19 +59,19 @@ public class GroupController {
   }
 
   @GetMapping("/count")
-  public ResponseEntity<Object> countGroups() {
+  public ResponseEntity<Count> countGroups() {
     Count count = Count.builder().totalCount(groupRepository.count()).build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
 
-  @GetMapping("")
-  public ResponseEntity<Object> getAllGroups() {
+  @GetMapping
+  public ResponseEntity<List<Group>> getAllGroups() {
     List<Group> groupList = groupRepository.findAll();
     return new ResponseEntity<>(groupList, HttpStatus.OK);
   }
 
   @GetMapping("{id}")
-  public ResponseEntity<Object> getGroupById(@PathVariable("id") UUID id) {
+  public ResponseEntity<Group> getGroupById(@PathVariable("id") UUID id) {
     Group group = groupRepository
       .findById(id)
       .orElseThrow(() ->
@@ -83,7 +85,7 @@ public class GroupController {
 
   @Transactional
   @PatchMapping("{id}")
-  public ResponseEntity<Object> updateGroup(
+  public ResponseEntity<String> updateGroup(
     @PathVariable("id") UUID id,
     @RequestBody Group group
   ) {
@@ -107,7 +109,7 @@ public class GroupController {
   @Transactional
   @DeleteMapping("{id}")
   public ResponseEntity<String> deleteRolesById(@PathVariable("id") UUID id) {
-    userGroupsRepo.deleteAllByGroupId(id);
+    userGroupsRepo.delete(UserGroupsSpecification.byGroupId(id));
 
     groupRepository.deleteById(id);
 
