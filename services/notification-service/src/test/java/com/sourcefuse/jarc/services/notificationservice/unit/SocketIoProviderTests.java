@@ -3,12 +3,13 @@ package com.sourcefuse.jarc.services.notificationservice.unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.ArrayList;
+import com.sourcefuse.jarc.core.enums.NotificationError;
+import com.sourcefuse.jarc.services.notificationservice.mocks.MockNotifications;
+import com.sourcefuse.jarc.services.notificationservice.models.Notification;
+import com.sourcefuse.jarc.services.notificationservice.providers.push.socketio.SocketIoProvider;
+import com.sourcefuse.jarc.services.notificationservice.providers.push.socketio.types.SocketIoConnectionConfig;
+import io.socket.client.Socket;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,110 +19,78 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpServerErrorException;
 
-import com.notnoop.apns.ApnsService;
-import com.sourcefuse.jarc.core.enums.NotificationError;
-import com.sourcefuse.jarc.services.notificationservice.mocks.MockNotifications;
-import com.sourcefuse.jarc.services.notificationservice.models.Notification;
-import com.sourcefuse.jarc.services.notificationservice.providers.push.apns.ApnsProvider;
-import com.sourcefuse.jarc.services.notificationservice.providers.push.apns.types.ApnsConnectionConfig;
-import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
-
 class SocketIoProviderTests {
-	@Mock
-	private ApnsConnectionConfig apnsConnectionConfig;
 
-	@Mock
-	private ApnsService apnsService;
+  @Mock
+  private SocketIoConnectionConfig socketIoConnectionConfig;
 
-	@InjectMocks
-	private ApnsProvider apnsProvider;
+  @Mock
+  private Socket socket;
 
-	Notification message;
+  @InjectMocks
+  private SocketIoProvider socketIoProvider;
 
-	@BeforeEach
-	public void setup() {
-		MockitoAnnotations.openMocks(this);
+  Notification message;
 
-		Mockito.when(apnsConnectionConfig.getApnsService()).thenReturn(apnsService);
-		Mockito.when(apnsConnectionConfig.getBadge()).thenReturn(1);
-		Mockito.when(apnsConnectionConfig.getTopic()).thenReturn("Dummy-Topic");
+  @BeforeEach
+  void setup() {
+    MockitoAnnotations.openMocks(this);
 
-		message = MockNotifications.getApnsNotificationObj();
-	}
+    Mockito.when(socketIoConnectionConfig.getSocket()).thenReturn(socket);
+    Mockito
+      .when(socketIoConnectionConfig.getDefaultPath())
+      .thenReturn("Dummy-Topic");
 
-	/**
-	 * successfully sends single mail to all receiver
-	 */
-	@Test
-	public void testPublish_SendsMailToReceivers() {
-		apnsProvider.publish(message);
+    message = MockNotifications.getApnsNotificationObj();
+  }
 
-		Mockito.verify(apnsService, Mockito.times(1)).push(Mockito.anyList(), Mockito.any(String.class),
-				Mockito.any(Date.class));
-	}
+  /**
+   * successfully sends push notification to all receiver
+   */
+  @Test
+  void testPublish_SendsNotificationToReceivers() {
+    socketIoProvider.publish(message);
 
-	/**
-	 * Fail to execute due to receivers are empty
-	 */
-	@Test
-	public void testPublish_FailDuetoEmptyReceivers() {
-		message.getReceiver().setTo(Arrays.asList());
+    Mockito
+      .verify(socket, Mockito.times(1))
+      .emit(Mockito.any(String.class), Mockito.any(String.class));
+  }
 
-		HttpServerErrorException exception = assertThrows(HttpServerErrorException.class,
-				() -> apnsProvider.publish(message));
+  /**
+   * Fail to execute due to receivers are empty
+   */
+  @Test
+  void testPublish_FailDuetoEmptyReceivers() {
+    message.getReceiver().setTo(Arrays.asList());
 
-		assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-		assertEquals(NotificationError.RECEIVERS_NOT_FOUND.toString(), exception.getStatusText());
-	}
+    HttpServerErrorException exception = assertThrows(
+      HttpServerErrorException.class,
+      () -> socketIoProvider.publish(message)
+    );
 
-	/**
-	 * Fail to execute due to receivers exceeded max receiver count i.e 500
-	 */
-	@Test
-	public void testPublish_FailDuetoReceiversExceedsMaxReceiverCount() {
-		List<Subscriber> subscribers = new ArrayList<>();
-		for (int i = 0; i < 501; i++) {
-			Subscriber subscriber = new Subscriber();
-			subscriber.setId(UUID.randomUUID().toString());
-			subscribers.add(subscriber);
-		}
-		message.getReceiver().setTo(subscribers);
-		HttpServerErrorException exception = assertThrows(HttpServerErrorException.class,
-				() -> apnsProvider.publish(message));
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+    assertEquals(
+      NotificationError.RECEIVERS_NOT_FOUND.toString(),
+      exception.getStatusText()
+    );
+  }
 
-		assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-		assertEquals(NotificationError.RECEIVERS_EXCEEDS_500.toString(), exception.getStatusText());
-	}
+  /**
+   * Fail to execute due to default path not found
+   */
+  @Test
+  void testPublish_FailDuetoDefaultPath() {
+    Mockito.when(socketIoConnectionConfig.getDefaultPath()).thenReturn(null);
 
-	/**
-	 * Fail to execute due to sender mail is empty
-	 */
-	@Test
-	public void testPublish_FailDuetoEmptyMessageFromInOptions() {
-		// set to from mail to empty
-		message.getOptions().put("messageFrom", null);
+    HttpServerErrorException exception = assertThrows(
+      HttpServerErrorException.class,
+      () -> socketIoProvider.publish(message)
+    );
 
-		HttpServerErrorException exception = assertThrows(HttpServerErrorException.class,
-				() -> apnsProvider.publish(message));
-
-		assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-		assertEquals(NotificationError.MESSAGE_FROM_NOT_FOUND.toString(), exception.getStatusText());
-
-	}
-
-	/**
-	 * Fail to execute due to subject of mail is empty
-	 */
-	@Test
-	public void testPublish_FailDuetoEmptySubject() {
-		message.setSubject(null);
-
-		HttpServerErrorException exception = assertThrows(HttpServerErrorException.class,
-				() -> apnsProvider.publish(message));
-
-		assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-		assertEquals(NotificationError.MESSAGE_TITLE_NOT_FOUND.toString(), exception.getStatusText());
-
-	}
-
+    assertEquals(HttpStatus.PRECONDITION_FAILED, exception.getStatusCode());
+    assertEquals(
+      NotificationError.CHANNEL_INFO_MISSING.toString(),
+      exception.getStatusText()
+    );
+  }
 }

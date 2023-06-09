@@ -1,12 +1,10 @@
 package com.sourcefuse.jarc.services.notificationservice.types;
 
-import java.util.HashMap;
-
 import com.sourcefuse.jarc.services.notificationservice.enums.MessageType;
-
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashMap;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

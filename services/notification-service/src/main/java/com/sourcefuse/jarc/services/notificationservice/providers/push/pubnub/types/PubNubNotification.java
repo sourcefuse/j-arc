@@ -4,7 +4,7 @@ import com.sourcefuse.jarc.services.notificationservice.providers.push.types.Pus
 import com.sourcefuse.jarc.services.notificationservice.types.Config;
 
 public interface PubNubNotification extends PushNotification {
-	public Object grantAccess(Config config);
+  public Object grantAccess(Config config);
 
-	public Object revokeAccess(Config config);
+  public Object revokeAccess(Config config);
 }

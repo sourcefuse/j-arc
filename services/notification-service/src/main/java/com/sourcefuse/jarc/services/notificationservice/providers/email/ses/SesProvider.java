@@ -1,28 +1,27 @@
-package com.sourcefuse.jarc.services.notificationservice.providers.email.javamailer;
+package com.sourcefuse.jarc.services.notificationservice.providers.email.ses;
 
 import com.sourcefuse.jarc.core.enums.NotificationError;
 import com.sourcefuse.jarc.services.notificationservice.providers.email.types.EmailNotification;
-import com.sourcefuse.jarc.services.notificationservice.providers.email.types.MailConnectionConfig;
+import com.sourcefuse.jarc.services.notificationservice.providers.email.types.SesConnectionConfig;
 import com.sourcefuse.jarc.services.notificationservice.types.Message;
 import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 
 @Service
 @ConditionalOnProperty(
   value = "notification.provider.email",
-  havingValue = "JavaMailerProvider"
+  havingValue = "SESProvider"
 )
-public class JavaMailerProvider implements EmailNotification {
+public class SesProvider implements EmailNotification {
 
   @Autowired
-  MailConnectionConfig mailConnectionConfig;
+  SesConnectionConfig mailConnectionConfig;
 
   @Override
   public void publish(Message message) {
@@ -58,11 +57,8 @@ public class JavaMailerProvider implements EmailNotification {
             message
           );
       }
-    } catch (MessagingException e) {
-      new HttpServerErrorException(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        "Something went wrong"
-      );
+    } catch (MailException e) {
+      e.printStackTrace();
     }
   }
 
@@ -98,28 +94,20 @@ public class JavaMailerProvider implements EmailNotification {
     String textContent,
     String htmlContent,
     Message message
-  ) throws MessagingException {
+  ) {
     String[] receivers = message
       .getReceiver()
       .getTo()
       .stream()
       .map((Subscriber to) -> to.getId())
       .toArray(String[]::new);
+    SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+    simpleMailMessage.setFrom(fromEmail);
+    simpleMailMessage.setTo(receivers);
+    simpleMailMessage.setSubject(message.getSubject());
+    simpleMailMessage.setText(message.getBody());
 
-    MimeMessage mimeMessage = mailConnectionConfig
-      .getJavaMailSender()
-      .createMimeMessage();
-    MimeMessageHelper helper;
-    helper = new MimeMessageHelper(mimeMessage, true);
-    helper.setFrom(fromEmail);
-    helper.setTo(receivers);
-    helper.setSubject(message.getSubject());
-    if (htmlContent.isBlank()) {
-      helper.setText(textContent, false);
-    } else {
-      helper.setText(textContent, htmlContent);
-    }
-    mailConnectionConfig.getJavaMailSender().send(mimeMessage);
+    mailConnectionConfig.getJavaMailSender().send(simpleMailMessage);
   }
 
   private void sendToEachReceiverSeperately(
@@ -127,22 +115,15 @@ public class JavaMailerProvider implements EmailNotification {
     String textContent,
     String htmlContent,
     Message message
-  ) throws MessagingException {
+  ) {
     for (Subscriber to : message.getReceiver().getTo()) {
-      MimeMessage mimeMessage = mailConnectionConfig
-        .getJavaMailSender()
-        .createMimeMessage();
-      MimeMessageHelper helper;
-      helper = new MimeMessageHelper(mimeMessage, true);
-      helper.setFrom(fromEmail);
-      helper.setTo(to.getId());
-      helper.setSubject(message.getSubject());
-      if (htmlContent.isBlank()) {
-        helper.setText(textContent, false);
-      } else {
-        helper.setText(textContent, htmlContent);
-      }
-      mailConnectionConfig.getJavaMailSender().send(mimeMessage);
+      SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+      simpleMailMessage.setFrom(fromEmail);
+      simpleMailMessage.setTo(to.getId());
+      simpleMailMessage.setSubject(message.getSubject());
+      simpleMailMessage.setText(message.getBody());
+
+      mailConnectionConfig.getJavaMailSender().send(simpleMailMessage);
     }
   }
 }

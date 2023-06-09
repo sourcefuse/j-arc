@@ -1,10 +1,8 @@
 package com.sourcefuse.jarc.services.notificationservice.providers.email.types;
 
-import java.util.List;
-
 import com.sourcefuse.jarc.services.notificationservice.types.Receiver;
 import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
-
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Data
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

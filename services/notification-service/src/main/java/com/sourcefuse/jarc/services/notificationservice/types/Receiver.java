@@ -1,8 +1,7 @@
 package com.sourcefuse.jarc.services.notificationservice.types;
 
-import java.util.List;
-
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;

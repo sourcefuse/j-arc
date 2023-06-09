@@ -2,14 +2,13 @@ package com.sourcefuse.jarc.services.notificationservice.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
 
 import com.sourcefuse.jarc.core.enums.NotificationError;
 import com.sourcefuse.jarc.services.notificationservice.mocks.MockNotifications;
 import com.sourcefuse.jarc.services.notificationservice.models.Notification;
-import com.sourcefuse.jarc.services.notificationservice.providers.email.javamailer.JavaMailerProvider;
+import com.sourcefuse.jarc.services.notificationservice.providers.email.ses.SesProvider;
 import com.sourcefuse.jarc.services.notificationservice.providers.email.types.MailConnectionConfig;
-import jakarta.mail.internet.MimeMessage;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,10 +17,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.client.HttpServerErrorException;
 
-class JavaMailerProviderTests {
+class SesProviderTests {
 
   @Mock
   private MailConnectionConfig mailConnectionConfig;
@@ -30,7 +30,7 @@ class JavaMailerProviderTests {
   private JavaMailSender javaMailSender;
 
   @InjectMocks
-  private JavaMailerProvider javaMailerProvider;
+  private SesProvider sesProvider;
 
   Notification message;
 
@@ -38,10 +38,6 @@ class JavaMailerProviderTests {
   void setup() {
     MockitoAnnotations.openMocks(this);
 
-    MimeMessage mockMimeMessage = mock(MimeMessage.class);
-    Mockito
-      .when(javaMailSender.createMimeMessage())
-      .thenReturn(mockMimeMessage);
     Mockito
       .when(mailConnectionConfig.getJavaMailSender())
       .thenReturn(javaMailSender);
@@ -60,11 +56,11 @@ class JavaMailerProviderTests {
    */
   @Test
   void testPublish_SendsMailToReceivers() {
-    javaMailerProvider.publish(message);
+    sesProvider.publish(message);
 
     Mockito
       .verify(javaMailSender, Mockito.times(1))
-      .send(Mockito.any(MimeMessage.class));
+      .send(any(SimpleMailMessage.class));
   }
 
   /**
@@ -77,11 +73,11 @@ class JavaMailerProviderTests {
       .when(mailConnectionConfig.shouldSendToMultipleReceivers())
       .thenReturn(false);
 
-    javaMailerProvider.publish(message);
+    sesProvider.publish(message);
 
     Mockito
       .verify(javaMailSender, Mockito.times(2))
-      .send(Mockito.any(MimeMessage.class));
+      .send(any(SimpleMailMessage.class));
   }
 
   /**
@@ -93,7 +89,7 @@ class JavaMailerProviderTests {
 
     HttpServerErrorException exception = assertThrows(
       HttpServerErrorException.class,
-      () -> javaMailerProvider.publish(message)
+      () -> sesProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -113,7 +109,7 @@ class JavaMailerProviderTests {
 
     HttpServerErrorException exception = assertThrows(
       HttpServerErrorException.class,
-      () -> javaMailerProvider.publish(message)
+      () -> sesProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -132,7 +128,7 @@ class JavaMailerProviderTests {
 
     HttpServerErrorException exception = assertThrows(
       HttpServerErrorException.class,
-      () -> javaMailerProvider.publish(message)
+      () -> sesProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -151,7 +147,7 @@ class JavaMailerProviderTests {
 
     HttpServerErrorException exception = assertThrows(
       HttpServerErrorException.class,
-      () -> javaMailerProvider.publish(message)
+      () -> sesProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());

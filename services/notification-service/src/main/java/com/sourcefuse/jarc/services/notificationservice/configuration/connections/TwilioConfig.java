@@ -1,60 +1,60 @@
 package com.sourcefuse.jarc.services.notificationservice.configuration.connections;
 
+import com.sourcefuse.jarc.services.notificationservice.providers.sms.twilio.types.TwilioConnectionConfig;
+import com.twilio.Twilio;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import com.sourcefuse.jarc.services.notificationservice.providers.sms.twilio.types.TwilioConnectionConfig;
-import com.twilio.Twilio;
-
 @Service
-@ConditionalOnProperty(value = "notification.provider.sms", havingValue = "TwilioProvider")
+@ConditionalOnProperty(
+  value = "notification.provider.sms",
+  havingValue = "TwilioProvider"
+)
 public class TwilioConfig implements TwilioConnectionConfig {
-	@Value("${twilio.accountSid}")
-	private String accountSid;
 
-	@Value("${twilio.authToken}")
-	private String authToken;
+  @Value("${twilio.accountSid}")
+  private String accountSid;
 
-	@Value("${twilio.sms-from}")
-	private String smsFrom;
+  @Value("${twilio.authToken}")
+  private String authToken;
 
-	@Value("${twilio.whatsapp-from}")
-	private String whatsappFrom;
+  @Value("${twilio.sms-from}")
+  private String smsFrom;
 
-	private TwilioConfig() {
-		this.initTwilio();
-	}
+  @Value("${twilio.whatsapp-from}")
+  private String whatsappFrom;
 
-	@Override
-	public void initTwilio() {
-		System.out.println("called");
-		try {
-			Twilio.init(accountSid, authToken);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-		}
-	}
+  private TwilioConfig() {
+    this.initTwilio();
+  }
 
-	@Override
-	public String getSmsFrom() {
-		return smsFrom;
-	}
+  @Override
+  public void initTwilio() {
+    try {
+      Twilio.init(accountSid, authToken);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
-	@Override
-	public String getWhatsappFrom() {
-		return whatsappFrom;
-	}
+  @Override
+  public String getSmsFrom() {
+    return smsFrom;
+  }
 
-	@Override
-	public String getSmsStatusCallback() {
-		return null;
-	}
+  @Override
+  public String getWhatsappFrom() {
+    return whatsappFrom;
+  }
 
-	@Override
-	public String getWhatsappStatusCallback() {
-		return null;
-	}
+  @Override
+  public String getSmsStatusCallback() {
+    return null;
+  }
 
+  @Override
+  public String getWhatsappStatusCallback() {
+    return null;
+  }
 }

@@ -12,6 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccessResponseDto {
-	Integer ttl;
-	String cipherKey;
+
+  Integer ttl;
+  String cipherKey;
 }

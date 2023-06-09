@@ -14,10 +14,10 @@ import lombok.Setter;
 @Setter
 public class Subscriber {
 
-	@NotNull
-	private String id;
+  @NotNull
+  private String id;
 
-	private String name;
+  private String name;
 
-	private Object type;
+  private Object type;
 }

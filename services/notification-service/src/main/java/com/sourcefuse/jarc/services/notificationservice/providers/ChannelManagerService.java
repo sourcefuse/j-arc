@@ -4,5 +4,5 @@ import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.notificationservice.types.Config;
 
 public interface ChannelManagerService {
-	public Boolean isChannelAccessAllowed(CurrentUser currentUser, Config config);
+  Boolean isChannelAccessAllowed(CurrentUser currentUser, Config config);
 }
