@@ -152,7 +152,12 @@ public class UserGroupServiceImpl implements UserGroupService {
         .orElseThrow(() ->
           new ResponseStatusException(HttpStatus.FORBIDDEN, userGroupNotFound)
         );
-      checkGroupOwnerAccessPermission(currentUser, userTenantId, savedUserGroup, userGroup);
+      checkGroupOwnerAccessPermission(
+        currentUser,
+        userTenantId,
+        savedUserGroup,
+        userGroup
+      );
       Count count = Count
         .builder()
         .totalCount(
@@ -179,8 +184,10 @@ public class UserGroupServiceImpl implements UserGroupService {
     List<UserGroup> userGroup,
     UserGroup userGroupRecord
   ) {
-    boolean isAdmin =
-      currentUser.getRoleType().toString().equals(RoleKey.ADMIN.toString());
+    boolean isAdmin = currentUser
+      .getRoleType()
+      .toString()
+      .equals(RoleKey.ADMIN.toString());
     Optional<UserGroup> firstCurrentUserGroup = userGroup
       .stream()
       .filter(userGrp -> userGrp.getUserTenant().getId().equals(usrTenantId))
