@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
-import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenantPrefs;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantPrefsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantPrefsSpecification;
@@ -20,11 +20,10 @@ public class UserTenantPrefsServiceImpl implements UserTenantPrefsService {
   public UserTenantPrefs createTenantPrefs(UserTenantPrefs userTenantPrefs) {
     UserTenantPrefs savedUserTenantPrefs;
 
-    IAuthUserWithPermissions currentUser =
-      (IAuthUserWithPermissions) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
+    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
+      .getContext()
+      .getAuthentication()
+      .getPrincipal();
     if (
       currentUser != null &&
       StringUtils.isNotEmpty(currentUser.getUserTenantId().toString())

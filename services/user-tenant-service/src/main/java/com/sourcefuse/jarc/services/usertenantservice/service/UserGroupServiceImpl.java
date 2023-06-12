@@ -2,11 +2,11 @@ package com.sourcefuse.jarc.services.usertenantservice.service;
 
 import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.core.dto.Count;
+import com.sourcefuse.jarc.core.enums.RoleKey;
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
-import com.sourcefuse.jarc.services.usertenantservice.enums.RoleKey;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
@@ -128,11 +128,10 @@ public class UserGroupServiceImpl implements UserGroupService {
 
   @Override
   public void deleteUserGroup(UUID groupId, UUID userGroupId) {
-    IAuthUserWithPermissions currentUser =
-      (IAuthUserWithPermissions) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
+    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
+      .getContext()
+      .getAuthentication()
+      .getPrincipal();
     /** INFO fetch value in Group against primary key and also to
          and to update modifiedOn parameter*/
     Optional<Group> group = groupRepository.findById(groupId);
@@ -174,12 +173,13 @@ public class UserGroupServiceImpl implements UserGroupService {
   }
 
   private static void extracted(
-    IAuthUserWithPermissions currentUser,
+    CurrentUser currentUser,
     UUID usrTenantId,
     List<UserGroup> userGroup,
     UserGroup userGroupRecord
   ) {
-    boolean isAdmin = currentUser.getRole() == RoleKey.ADMIN.toString();
+    boolean isAdmin =
+      currentUser.getRoleType().toString() == RoleKey.ADMIN.toString();
     Optional<UserGroup> firstCurrentUserGroup = userGroup
       .stream()
       .filter(userGrp -> userGrp.getUserTenant().getId().equals(usrTenantId))

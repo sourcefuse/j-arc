@@ -1,8 +1,8 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.core.dto.Count;
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
@@ -43,11 +43,10 @@ public class GroupController {
   @PostMapping
   public ResponseEntity<Group> createGroups(@Valid @RequestBody Group group) {
     Group savedGroups = groupRepository.save(group);
-    IAuthUserWithPermissions currentUser =
-      (IAuthUserWithPermissions) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
+    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
+      .getContext()
+      .getAuthentication()
+      .getPrincipal();
     UserGroup userGroup = UserGroup
       .builder()
       .group(new Group(savedGroups.getId()))

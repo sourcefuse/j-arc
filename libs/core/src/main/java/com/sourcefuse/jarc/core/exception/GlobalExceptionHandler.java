@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.core.exception;
 
+import com.sourcefuse.jarc.core.dtos.ErrorDetails;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,9 +16,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import com.sourcefuse.jarc.core.dtos.ErrorDetails;
-
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {

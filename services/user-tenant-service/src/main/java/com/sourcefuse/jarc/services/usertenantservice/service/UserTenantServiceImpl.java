@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
 import com.sourcefuse.jarc.core.enums.PermissionKey;
-import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
@@ -25,11 +25,10 @@ public class UserTenantServiceImpl implements UserTenantService {
 
   @Override
   public UserView getUserTenantById(UUID id) {
-    IAuthUserWithPermissions currentUser =
-      (IAuthUserWithPermissions) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
+    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
+      .getContext()
+      .getAuthentication()
+      .getPrincipal();
     UserTenant userTenant = roleUserTenantRepository
       .findById(id)
       .orElseThrow(() ->
@@ -60,15 +59,15 @@ public class UserTenantServiceImpl implements UserTenantService {
         AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
       );
     }
-    /*** INFO :As discussed by samarpan bhattacharya currently
-         checkViewTenantRestrictedPermissions we dont have to implement..
-         One tenant cannot see others tenant data (this logic needs to be implement
-         need to discuss with yesha or team for this)*/
-    UserView userView = userViewRepository
+    /*** INFO :As discussed by samarpan currently
+     checkViewTenantRestrictedPermissions we
+     dont have to implement..
+     One tenant cannot see others tenant data
+     need to implement***/
+    return userViewRepository
       .findOne(UserViewSpecification.byUserTenantId(id))
       .orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND, "User Not found")
       );
-    return userView;
   }
 }

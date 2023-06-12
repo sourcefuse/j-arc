@@ -1,8 +1,8 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.sourcefuse.jarc.core.enums.Gender;
+import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
-import com.sourcefuse.jarc.services.usertenantservice.enums.UserStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

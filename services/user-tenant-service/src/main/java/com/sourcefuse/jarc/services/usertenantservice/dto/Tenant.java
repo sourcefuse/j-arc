@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
+import com.sourcefuse.jarc.core.enums.TenantStatus;
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
-import com.sourcefuse.jarc.services.usertenantservice.enums.TenantStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,8 +1,8 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
 import com.sourcefuse.jarc.core.enums.PermissionKey;
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.auth.IAuthUserWithPermissions;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.TenantConfig;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
@@ -28,7 +28,7 @@ public class TenantServiceImpl implements TenantService {
   @Override
   public Tenant fetchTenantByID(UUID tenantId) {
     extracted(tenantId);
-    Tenant savedTenant = tenantRepository
+    return tenantRepository
       .findById(tenantId)
       .orElseThrow(() ->
         new ResponseStatusException(
@@ -36,7 +36,6 @@ public class TenantServiceImpl implements TenantService {
           "No tenant is present against given value"
         )
       );
-    return savedTenant;
   }
 
   @Override
@@ -60,11 +59,10 @@ public class TenantServiceImpl implements TenantService {
 
   @Override
   public List<TenantConfig> getTenantConfig(UUID tenantId) {
-    IAuthUserWithPermissions currentUser =
-      (IAuthUserWithPermissions) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
+    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
+      .getContext()
+      .getAuthentication()
+      .getPrincipal();
 
     if (
       !currentUser.getTenantId().equals(tenantId) &&
@@ -77,18 +75,16 @@ public class TenantServiceImpl implements TenantService {
         AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
       );
     }
-    List<TenantConfig> tenantConfig = tenantConfigRepository.findAll(
+    return tenantConfigRepository.findAll(
       TenantConfigSpecification.byTenantId(tenantId)
     );
-    return tenantConfig;
   }
 
   private static void extracted(UUID tenantId) {
-    IAuthUserWithPermissions currentUser =
-      (IAuthUserWithPermissions) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
+    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
+      .getContext()
+      .getAuthentication()
+      .getPrincipal();
 
     if (
       currentUser.getTenantId().equals(tenantId) &&
