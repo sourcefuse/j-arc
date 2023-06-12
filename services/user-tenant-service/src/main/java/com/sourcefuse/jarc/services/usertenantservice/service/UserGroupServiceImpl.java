@@ -10,10 +10,6 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -151,7 +152,7 @@ public class UserGroupServiceImpl implements UserGroupService {
         .orElseThrow(() ->
           new ResponseStatusException(HttpStatus.FORBIDDEN, userGroupNotFound)
         );
-      extracted(currentUser, userTenantId, savedUserGroup, userGroup);
+      checkGroupOwnerAccessPermission(currentUser, userTenantId, savedUserGroup, userGroup);
       Count count = Count
         .builder()
         .totalCount(
@@ -172,14 +173,14 @@ public class UserGroupServiceImpl implements UserGroupService {
     }
   }
 
-  private static void extracted(
+  private static void checkGroupOwnerAccessPermission(
     CurrentUser currentUser,
     UUID usrTenantId,
     List<UserGroup> userGroup,
     UserGroup userGroupRecord
   ) {
     boolean isAdmin =
-      currentUser.getRoleType().toString() == RoleKey.ADMIN.toString();
+      currentUser.getRoleType().toString().equals(RoleKey.ADMIN.toString());
     Optional<UserGroup> firstCurrentUserGroup = userGroup
       .stream()
       .filter(userGrp -> userGrp.getUserTenant().getId().equals(usrTenantId))

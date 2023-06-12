@@ -9,14 +9,15 @@ import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantConfigRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.TenantConfigSpecification;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -27,7 +28,7 @@ public class TenantServiceImpl implements TenantService {
 
   @Override
   public Tenant fetchTenantByID(UUID tenantId) {
-    extracted(tenantId);
+    checkViewTenantAccessPermission(tenantId);
     return tenantRepository
       .findById(tenantId)
       .orElseThrow(() ->
@@ -40,7 +41,7 @@ public class TenantServiceImpl implements TenantService {
 
   @Override
   public void updateTenantsById(Tenant sourceTenant, UUID tenantId) {
-    extracted(tenantId);
+    checkViewTenantAccessPermission(tenantId);
     Tenant targetTenant = tenantRepository
       .findById(tenantId)
       .orElseThrow(() ->
@@ -80,7 +81,7 @@ public class TenantServiceImpl implements TenantService {
     );
   }
 
-  private static void extracted(UUID tenantId) {
+  private static void checkViewTenantAccessPermission(UUID tenantId) {
     CurrentUser currentUser = (CurrentUser) SecurityContextHolder
       .getContext()
       .getAuthentication()
