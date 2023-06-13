@@ -7,37 +7,35 @@ import com.sourcefuse.jarc.services.notificationservice.providers.push.types.Pus
 import com.sourcefuse.jarc.services.notificationservice.providers.sms.types.SmsNotification;
 import com.sourcefuse.jarc.services.notificationservice.types.INotification;
 import com.sourcefuse.jarc.services.notificationservice.types.Message;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class NotificationProvider implements INotification {
 
-  @Autowired(required = false)
-  EmailNotification emailNotification;
+  @Nullable
+  private final EmailNotification emailNotification;
 
-  @Autowired(required = false)
-  PushNotification pushNotification;
+  @Nullable
+  private final PushNotification pushNotification;
 
-  @Autowired(required = false)
-  SmsNotification smsNotification;
+  @Nullable
+  private final SmsNotification smsNotification;
 
   @Override
   public void publish(Message message) {
-    if (
-      message.getType().equals(MessageType.EMAIL) && emailNotification != null
-    ) {
+    if (message.getType() == MessageType.EMAIL && emailNotification != null) {
       emailNotification.publish(message);
     } else if (
-      message.getType().equals(MessageType.PUSH) && pushNotification != null
+      message.getType() == MessageType.PUSH && pushNotification != null
     ) {
       pushNotification.publish(message);
     } else if (
-      message.getType().equals(MessageType.SMS) && smsNotification != null
+      message.getType() == MessageType.SMS && smsNotification != null
     ) {
       smsNotification.publish(message);
     } else {

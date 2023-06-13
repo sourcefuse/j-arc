@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -91,7 +90,7 @@ class ApnsProviderTests {
     List<Subscriber> subscribers = new ArrayList<>();
     for (int i = 0; i < 501; i++) {
       Subscriber subscriber = new Subscriber();
-      subscriber.setId(UUID.randomUUID().toString());
+      subscriber.setId("userId" + i);
       subscribers.add(subscriber);
     }
     message.getReceiver().setTo(subscribers);

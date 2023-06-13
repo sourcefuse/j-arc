@@ -5,6 +5,7 @@ import com.sourcefuse.jarc.services.notificationservice.providers.email.types.Em
 import com.sourcefuse.jarc.services.notificationservice.providers.email.types.SesConnectionConfig;
 import com.sourcefuse.jarc.services.notificationservice.types.Message;
 import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -23,16 +24,16 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 public class SesProvider implements EmailNotification {
 
-  private final SesConnectionConfig sesConnectionConfig;
-
   private static final String FROM_KEY = "from";
+
+  private final SesConnectionConfig sesConnectionConfig;
 
   @Override
   public void publish(Message message) {
-    String fromEmail = message.getOptions() != null &&
-      message.getOptions().get(FROM_KEY) != null
-      ? (String) message.getOptions().get(FROM_KEY)
-      : this.sesConnectionConfig.getSenderMail();
+    String fromEmail = Optional
+      .ofNullable(message.getOptions())
+      .map(options -> (String) options.get(FROM_KEY))
+      .orElse(this.sesConnectionConfig.getSenderMail());
 
     this.initialValidations(fromEmail, message);
 
@@ -44,7 +45,7 @@ public class SesProvider implements EmailNotification {
       }
     } catch (MailException e) {
       log.error(null, e);
-      new ResponseStatusException(
+      throw new ResponseStatusException(
         HttpStatus.INTERNAL_SERVER_ERROR,
         NotificationError.SOMETHING_WNET_WRONG.toString()
       );
@@ -59,7 +60,7 @@ public class SesProvider implements EmailNotification {
       );
     }
 
-    if (message.getReceiver().getTo().size() == 0) {
+    if (message.getReceiver().getTo().isEmpty()) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_NOT_FOUND.toString()
@@ -83,7 +84,7 @@ public class SesProvider implements EmailNotification {
       .getReceiver()
       .getTo()
       .stream()
-      .map((Subscriber to) -> to.getId())
+      .map(Subscriber::getId)
       .toArray(String[]::new);
     SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
     simpleMailMessage.setFrom(fromEmail);

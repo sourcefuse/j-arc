@@ -35,18 +35,24 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class FcmProvider implements PushNotification {
 
-  private final FcmConnectionConfig fcmConnection;
-
   private static final int MAX_RECEIVERS = 500;
   private static final String TOPIC_KEY = "topic";
-  private static final String CONDITION_KEY = "topic";
+  private static final String CONDITION_KEY = "condition";
+  private static final String IMAGE_URL_KEY = "imageUrl";
+  private static final String DRY_RUN_KEY = "dryRun";
+  private static final String ANDROID_KEY = "android";
+  private static final String APNS_KEY = "apns";
+  private static final String FCM_OPTIONS_KEY = "fcmOptions";
+  private static final String WEB_PUSH_KEY = "webPush";
+
+  private final FcmConnectionConfig fcmConnection;
 
   public void initialValidations(Message message) {
     if (message.getOptions() == null) {
-      message.setOptions(new HashMap<String, Object>());
+      message.setOptions(new HashMap<>());
     }
     if (
-      message.getReceiver().getTo().size() == 0 &&
+      message.getReceiver().getTo().isEmpty() &&
       message.getOptions().get(TOPIC_KEY) == null &&
       message.getOptions().get(CONDITION_KEY) == null
     ) {
@@ -92,7 +98,7 @@ public class FcmProvider implements PushNotification {
     if (!receiverTokens.isEmpty()) {
       List<String> tokens = receiverTokens
         .stream()
-        .map(item -> item.getId())
+        .map(Subscriber::getId)
         .toList();
 
       MulticastMessage fcmMessage = MulticastMessage
@@ -105,8 +111,8 @@ public class FcmProvider implements PushNotification {
         .setNotification(generalMessageObj.getNotification())
         .build();
 
-      boolean dryRun = Boolean.valueOf(
-        String.valueOf(message.getOptions().get("dryRun"))
+      boolean dryRun = Boolean.parseBoolean(
+        String.valueOf(message.getOptions().get(DRY_RUN_KEY))
       );
       responses.add(
         fcmConnection.getFirebaseMessaging().sendMulticast(fcmMessage, dryRun)
@@ -144,8 +150,8 @@ public class FcmProvider implements PushNotification {
             .setNotification(generalMessageObj.getNotification())
             .build();
 
-        boolean dryRun = Boolean.valueOf(
-          String.valueOf(message.getOptions().get("dryRun"))
+        boolean dryRun = Boolean.parseBoolean(
+          String.valueOf(message.getOptions().get(DRY_RUN_KEY))
         );
 
         responses.add(
@@ -188,8 +194,8 @@ public class FcmProvider implements PushNotification {
             .setNotification(generalMessageObj.getNotification())
             .build();
 
-        boolean dryRun = Boolean.valueOf(
-          String.valueOf(message.getOptions().get("dryRun"))
+        boolean dryRun = Boolean.parseBoolean(
+          String.valueOf(message.getOptions().get(DRY_RUN_KEY))
         );
         responses.add(
           fcmConnection.getFirebaseMessaging().send(fcmMessage, dryRun)
@@ -214,12 +220,14 @@ public class FcmProvider implements PushNotification {
      * i.e title and body
      *
      */
-
+    String imageUrl = message.getOptions().get(IMAGE_URL_KEY) != null
+      ? message.getOptions().get(IMAGE_URL_KEY).toString()
+      : null;
     Notification standardNotifForFCM = Notification
       .builder()
       .setBody(message.getBody())
       .setTitle(message.getSubject())
-      .setImage((String) message.getOptions().get("imageUrl"))
+      .setImage(imageUrl)
       .build();
 
     /**
@@ -234,23 +242,26 @@ public class FcmProvider implements PushNotification {
       .builder()
       .android(
         mapper.convertValue(
-          message.getOptions().get("android"),
+          message.getOptions().get(ANDROID_KEY),
           AndroidConfig.class
         )
       )
       .apns(
-        mapper.convertValue(message.getOptions().get("apns"), ApnsConfig.class)
+        mapper.convertValue(
+          message.getOptions().get(APNS_KEY),
+          ApnsConfig.class
+        )
       )
       .fcmOptions(
         mapper.convertValue(
-          message.getOptions().get("fcmOptions"),
+          message.getOptions().get(FCM_OPTIONS_KEY),
           FcmOptions.class
         )
       )
       .notification(standardNotifForFCM)
       .webpush(
         mapper.convertValue(
-          message.getOptions().get("webpush"),
+          message.getOptions().get(WEB_PUSH_KEY),
           WebpushConfig.class
         )
       )

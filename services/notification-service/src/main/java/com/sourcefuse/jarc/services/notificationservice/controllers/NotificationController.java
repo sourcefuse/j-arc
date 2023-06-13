@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,24 +33,20 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/notifications")
+@RequiredArgsConstructor
 public class NotificationController {
 
-  private static final int maxBodyLen = 1000;
+  private static final int MAX_BODY_LENGTH = 1000;
 
-  @Autowired
-  private NotificationRepository notificationRepository;
+  private final NotificationRepository notificationRepository;
 
-  @Autowired
-  private NotificationUserRepository notificationUserRepository;
+  private final NotificationUserRepository notificationUserRepository;
 
-  @Autowired
-  private Validator validator;
+  private final Validator validator;
 
-  @Autowired
-  private NotificationUserService notificationUserService;
+  private final NotificationUserService notificationUserService;
 
-  @Autowired
-  private INotification notificationProvider;
+  private final INotification notificationProvider;
 
   @PostMapping
   @PreAuthorize("isAuthenticated()")
@@ -59,8 +55,10 @@ public class NotificationController {
   ) {
     notification.setId(null);
     notificationProvider.publish(notification);
-    if (notification.getBody().length() > maxBodyLen) {
-      notification.setBody(notification.getBody().substring(0, maxBodyLen - 1));
+    if (notification.getBody().length() > MAX_BODY_LENGTH) {
+      notification.setBody(
+        notification.getBody().substring(0, MAX_BODY_LENGTH - 1)
+      );
     }
     Notification notif = this.notificationRepository.save(notification);
 
@@ -84,9 +82,9 @@ public class NotificationController {
       .forEach((Notification notification) -> {
         notification.setId(null);
         notificationProvider.publish(notification);
-        if (notification.getBody().length() > maxBodyLen) {
+        if (notification.getBody().length() > MAX_BODY_LENGTH) {
           notification.setBody(
-            notification.getBody().substring(0, maxBodyLen - 1)
+            notification.getBody().substring(0, MAX_BODY_LENGTH - 1)
           );
         }
       });

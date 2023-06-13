@@ -24,13 +24,13 @@ import software.amazon.awssdk.services.sns.model.PublishRequest.Builder;
 @RequiredArgsConstructor
 public class SnsProvider implements SmsNotification {
 
-  private final SnsConnectionConfig snsConnection;
-
   private static final String SMS_TYPE_KEY = "smsType";
+
+  private final SnsConnectionConfig snsConnection;
 
   @Override
   public void publish(Message message) {
-    if (message.getReceiver().getTo().size() == 0) {
+    if (message.getReceiver().getTo().isEmpty()) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         "Message receiver not found in request"

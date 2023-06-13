@@ -12,6 +12,7 @@ import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,14 +29,14 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class PubNubProvider implements PubNubNotification {
 
-  private final PubNubConnectionConfig pubnubConnection;
-
   private static final String TOKEN_KEY = "token";
   private static final String TTL_KEY = "ttl";
   private static final String ALLOW_READ_KEY = "allowRead";
   private static final String ALLOW_WRITE_KEY = "allowWrite";
   private static final String PAYLOAD_TYPE_KEY = "payloadType";
   private static final String SOUND_KEY = "sound";
+
+  private final PubNubConnectionConfig pubnubConnection;
 
   private Map<String, Object> getGeneralMessageObject(Message message) {
     Map<String, Object> commonDataNotification = new HashMap<>();
@@ -60,7 +61,7 @@ public class PubNubProvider implements PubNubNotification {
     apsData.put("alert", commonDataNotification);
     apsData.put("key", message.getSubject());
     apsData.put(
-      "sound",
+      SOUND_KEY,
       message.getOptions().getOrDefault(SOUND_KEY, "default").toString()
     );
 
@@ -86,14 +87,14 @@ public class PubNubProvider implements PubNubNotification {
 
   @Override
   public void publish(Message message) {
-    if (message.getReceiver().getTo().size() == 0) {
+    if (message.getReceiver().getTo().isEmpty()) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_NOT_FOUND.toString()
       );
     }
     if (message.getOptions() == null) {
-      message.setOptions(new HashMap<String, Object>());
+      message.setOptions(new HashMap<>());
     }
     Map<String, Object> generalMessageObj = getGeneralMessageObject(message);
     Map<String, Object> pubnubMessage = new HashMap<>();
@@ -139,14 +140,19 @@ public class PubNubProvider implements PubNubNotification {
       config.getOptions().get(TTL_KEY) != null
     ) {
       try {
-        Boolean allowRead = config.getOptions() != null &&
-          config.getOptions().get(ALLOW_READ_KEY) != null
-          ? Boolean.valueOf(config.getOptions().get(ALLOW_READ_KEY).toString())
-          : true;
-        Boolean allowWrite = config.getOptions() != null &&
-          config.getOptions().get(ALLOW_WRITE_KEY) != null
-          ? Boolean.valueOf(config.getOptions().get(ALLOW_WRITE_KEY).toString())
-          : false;
+        Boolean allowRead = Optional
+          .ofNullable(config.getOptions())
+          .map(options -> options.get(ALLOW_READ_KEY))
+          .map(Object::toString)
+          .map(Boolean::parseBoolean)
+          .orElse(true);
+        Boolean allowWrite = Optional
+          .ofNullable(config.getOptions())
+          .map(options -> options.get(ALLOW_WRITE_KEY))
+          .map(Object::toString)
+          .map(Boolean::parseBoolean)
+          .orElse(false);
+
         pubnubConnection
           .getPubNub()
           .grant()
@@ -160,7 +166,7 @@ public class PubNubProvider implements PubNubNotification {
               .getReceiver()
               .getTo()
               .stream()
-              .map(item -> item.getId())
+              .map(Subscriber::getId)
               .toList()
           )
           .read(allowRead)
@@ -175,7 +181,7 @@ public class PubNubProvider implements PubNubNotification {
         );
       }
       Map<String, Object> result = new HashMap<>();
-      result.put("ttl", config.getOptions().get(TTL_KEY));
+      result.put(TTL_KEY, config.getOptions().get(TTL_KEY));
       return result;
     }
     throw new ResponseStatusException(
@@ -189,7 +195,6 @@ public class PubNubProvider implements PubNubNotification {
     if (
       config.getOptions() != null && config.getOptions().get(TOKEN_KEY) != null
     ) {
-      Map<String, Object> result = new HashMap<>();
       try {
         pubnubConnection
           .getPubNub()
@@ -204,7 +209,7 @@ public class PubNubProvider implements PubNubNotification {
               .getReceiver()
               .getTo()
               .stream()
-              .map(item -> item.getId())
+              .map(Subscriber::getId)
               .toList()
           )
           .read(false)
@@ -217,7 +222,8 @@ public class PubNubProvider implements PubNubNotification {
           NotificationError.SOMETHING_WNET_WRONG.toString()
         );
       }
-      result.put("ttl", config.getOptions().get(TTL_KEY));
+      Map<String, Object> result = new HashMap<>();
+      result.put(TTL_KEY, config.getOptions().get(TTL_KEY));
       return result;
     }
     throw new ResponseStatusException(

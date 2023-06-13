@@ -10,7 +10,8 @@ import com.sourcefuse.jarc.services.notificationservice.repositories.redis.Notif
 import com.sourcefuse.jarc.services.notificationservice.types.Config;
 import jakarta.validation.Valid;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,16 +27,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/notifications/access/{id}")
+@RequiredArgsConstructor
 public class PubNubNotificationController {
 
-  @Autowired(required = false)
-  PubNubNotification pubNubNotification;
+  private final PubNubNotification pubNubNotification;
 
-  @Autowired(required = false)
-  ChannelManagerService channelManagerService;
+  @Nullable
+  private final ChannelManagerService channelManagerService;
 
-  @Autowired
-  NotificationAccessRepository notificationAccessRepository;
+  @Nullable
+  private final NotificationAccessRepository notificationAccessRepository;
 
   @PatchMapping
   @PreAuthorize("isAuthenticated()")

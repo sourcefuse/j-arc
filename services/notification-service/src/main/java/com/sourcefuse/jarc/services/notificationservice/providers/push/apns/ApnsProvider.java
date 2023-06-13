@@ -26,14 +26,14 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class ApnsProvider implements PushNotification {
 
-  private final ApnsConnectionConfig apnsConnection;
-
   private static final int DEFAULT_BADGE_COUNT = 3;
   private static final int MAX_RECEIVERS = 500;
   // in milli-seconds
   private static final int EXPIRES_IN = 3600000;
 
   private static final String MESSAGE_FROM_KEY = "messageFrom";
+
+  private final ApnsConnectionConfig apnsConnection;
 
   void initialValidations(Message message) {
     if (
@@ -46,7 +46,7 @@ public class ApnsProvider implements PushNotification {
         NotificationError.MESSAGE_FROM_NOT_FOUND.toString()
       );
     }
-    if (message.getReceiver().getTo().size() == 0) {
+    if (message.getReceiver().getTo().isEmpty()) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_NOT_FOUND.toString()
@@ -107,7 +107,7 @@ public class ApnsProvider implements PushNotification {
     if (!receiverTokens.isEmpty()) {
       List<String> tokens = receiverTokens
         .stream()
-        .map(item -> item.getId())
+        .map(Subscriber::getId)
         .toList();
       this.apnsConnection.getApnsService()
         .push(tokens, this.getMainNote(message), expiresDate);

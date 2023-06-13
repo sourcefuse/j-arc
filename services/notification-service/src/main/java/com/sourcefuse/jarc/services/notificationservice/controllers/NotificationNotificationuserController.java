@@ -11,8 +11,8 @@ import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,13 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/notifications/{id}/notification-users")
+@RequiredArgsConstructor
 public class NotificationNotificationuserController {
 
-  @Autowired
-  private NotificationUserRepository notificationUserRepository;
+  private final NotificationUserRepository notificationUserRepository;
 
-  @Autowired
-  private Validator validator;
+  private final Validator validator;
 
   @GetMapping
   @PreAuthorize("isAuthenticated()")
@@ -95,7 +94,10 @@ public class NotificationNotificationuserController {
       }
     }
     this.notificationUserRepository.saveAll(notificationUsers);
-    return new ResponseEntity<>(null, HttpStatus.OK);
+    return new ResponseEntity<>(
+      "Notification user updated successfully",
+      HttpStatus.OK
+    );
   }
 
   @DeleteMapping

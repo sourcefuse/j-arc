@@ -7,6 +7,7 @@ import com.sourcefuse.jarc.services.notificationservice.types.Message;
 import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,28 +25,30 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 public class JavaMailerProvider implements EmailNotification {
 
-  private final MailConnectionConfig mailConnectionConfig;
-
   private static final String FROM_KEY = "from";
+  private static final String TEXT_KEY = "text";
+  private static final String HTML_KEY = "html";
+
+  private final MailConnectionConfig mailConnectionConfig;
 
   @Override
   public void publish(Message message) {
-    String fromEmail = message.getOptions() != null &&
-      message.getOptions().get(FROM_KEY) != null
-      ? (String) message.getOptions().get(FROM_KEY)
-      : this.mailConnectionConfig.getSenderMail();
+    String fromEmail = Optional
+      .ofNullable(message.getOptions())
+      .map(options -> (String) options.get(FROM_KEY))
+      .orElse(this.mailConnectionConfig.getSenderMail());
 
     this.initialValidations(fromEmail, message);
 
-    String textContent = message.getOptions() != null &&
-      message.getOptions().get("text") != null
-      ? (String) message.getOptions().get("text")
-      : message.getBody();
+    String textContent = Optional
+      .ofNullable(message.getOptions())
+      .map(options -> (String) options.get(TEXT_KEY))
+      .orElse(message.getBody());
 
-    String htmlContent = message.getOptions() != null &&
-      message.getOptions().get("html") != null
-      ? (String) message.getOptions().get("html")
-      : "";
+    String htmlContent = Optional
+      .ofNullable(message.getOptions())
+      .map(options -> (String) options.get(HTML_KEY))
+      .orElse("");
     try {
       if (this.mailConnectionConfig.shouldSendToMultipleReceivers()) {
         this.sendToReceiversCombine(
@@ -64,7 +67,7 @@ public class JavaMailerProvider implements EmailNotification {
       }
     } catch (MessagingException e) {
       log.error(null, e);
-      new ResponseStatusException(
+      throw new ResponseStatusException(
         HttpStatus.INTERNAL_SERVER_ERROR,
         NotificationError.SOMETHING_WNET_WRONG.toString()
       );
@@ -79,7 +82,7 @@ public class JavaMailerProvider implements EmailNotification {
       );
     }
 
-    if (message.getReceiver().getTo().size() == 0) {
+    if (message.getReceiver().getTo().isEmpty()) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_NOT_FOUND.toString()
@@ -108,7 +111,7 @@ public class JavaMailerProvider implements EmailNotification {
       .getReceiver()
       .getTo()
       .stream()
-      .map((Subscriber to) -> to.getId())
+      .map(Subscriber::getId)
       .toArray(String[]::new);
 
     MimeMessage mimeMessage = mailConnectionConfig

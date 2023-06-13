@@ -23,13 +23,13 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class TwilioProvider implements SmsNotification {
 
-  private final TwilioConnectionConfig twilioConnection;
-
   private static final String MEDIA_URL_KEY = "mediaUrl";
+
+  private final TwilioConnectionConfig twilioConnection;
 
   @Override
   public void publish(Message message) {
-    if (message.getReceiver().getTo().size() == 0) {
+    if (message.getReceiver().getTo().isEmpty()) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         "Message receiver not found in request"

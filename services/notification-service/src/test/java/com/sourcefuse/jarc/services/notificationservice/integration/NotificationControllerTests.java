@@ -30,7 +30,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -51,14 +50,14 @@ class NotificationControllerTests {
   @Mock
   NotificationUserRepository notificationUserRepository;
 
-  @InjectMocks
-  NotificationController controller;
-
   @Mock
   NotificationProvider notificationProvider;
 
   @Mock
   Validator validator;
+
+  @InjectMocks
+  NotificationController controller;
 
   MockMvc mockMvc;
 
@@ -68,7 +67,6 @@ class NotificationControllerTests {
 
   @BeforeEach
   void setup() {
-    MockitoAnnotations.openMocks(this);
     mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
   }
 

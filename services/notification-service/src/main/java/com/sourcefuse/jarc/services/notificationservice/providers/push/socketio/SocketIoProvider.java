@@ -22,13 +22,13 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class SocketIoProvider implements PushNotification {
 
-  private final SocketIoConnectionConfig socketConnection;
-
   private static final String PATH_KEY = "path";
+
+  private final SocketIoConnectionConfig socketConnection;
 
   @Override
   public void publish(Message message) {
-    if (message.getReceiver().getTo().size() == 0) {
+    if (message.getReceiver().getTo().isEmpty()) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_NOT_FOUND.toString()
