@@ -3,9 +3,9 @@ package com.sourcefuse.jarc.services.notificationservice.providers.push.apns.typ
 import com.notnoop.apns.ApnsService;
 
 public interface ApnsConnectionConfig {
-  public ApnsService getApnsService();
+  ApnsService getApnsService();
 
-  public int getBadge();
+  int getBadge();
 
-  public String getTopic();
+  String getTopic();
 }

@@ -12,77 +12,85 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+@Service
+@ConditionalOnProperty(
+  value = "notification.provider.push",
+  havingValue = "ApnsProvider"
+)
+@RequiredArgsConstructor
 public class ApnsProvider implements PushNotification {
 
-  @Autowired
-  ApnsConnectionConfig apnsConnection;
+  private final ApnsConnectionConfig apnsConnection;
 
-  private void initialValidations(Message message) {
+  private static final int DEFAULT_BADGE_COUNT = 3;
+  private static final int MAX_RECEIVERS = 500;
+  // in milli-seconds
+  private static final int EXPIRES_IN = 3600000;
+
+  private static final String MESSAGE_FROM_KEY = "messageFrom";
+
+  void initialValidations(Message message) {
     if (
-      message.getOptions().get("messageFrom") == null ||
-      message.getOptions().get("messageFrom").toString().isBlank()
+      message.getOptions() == null ||
+      message.getOptions().get(MESSAGE_FROM_KEY) == null ||
+      message.getOptions().get(MESSAGE_FROM_KEY).toString().isBlank()
     ) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.MESSAGE_FROM_NOT_FOUND.toString()
       );
     }
     if (message.getReceiver().getTo().size() == 0) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_NOT_FOUND.toString()
       );
     }
-    int maxReceivers = 500;
-    if (message.getReceiver().getTo().size() > maxReceivers) {
-      throw new HttpServerErrorException(
+    if (message.getReceiver().getTo().size() > MAX_RECEIVERS) {
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_EXCEEDS_500.toString()
       );
     }
     if (message.getSubject() == null || message.getSubject().isBlank()) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.MESSAGE_TITLE_NOT_FOUND.toString()
       );
     }
   }
 
-  private String getMainNote(Message message) {
-    int defaultBadgeCount = Optional
+  String getMainNote(Message message) {
+    int badgeCount = Optional
       .ofNullable(apnsConnection.getBadge())
-      .orElse(3);
+      .orElse(DEFAULT_BADGE_COUNT);
 
     Map<String, Object> cutomFields = new HashMap<>();
-    cutomFields.put("messageFrom", message.getOptions().get("messageFrom"));
-    cutomFields.put("messageFrom", message.getOptions().get("messageFrom"));
+    cutomFields.put(
+      MESSAGE_FROM_KEY,
+      message.getOptions().get(MESSAGE_FROM_KEY)
+    );
 
-    String payload = APNS
+    return APNS
       .newPayload()
       .alertBody(message.getBody())
       .alertTitle(message.getSubject())
-      // The category/ topic is usually the bundle identifier of your application.
+      // The category/ topic is usually bundle identifier of your app
       .category(this.apnsConnection.getTopic())
       .customFields(cutomFields)
-      .badge(defaultBadgeCount)
+      .badge(badgeCount)
       .build();
-    return payload;
   }
 
-  @Override
-  public void publish(Message message) {
-    this.initialValidations(message);
-    this.sendingPushToReceiverTokens(message);
-  }
-
-  private void sendingPushToReceiverTokens(Message message) {
-    int expiresIn = 3600 * 1000; // milli-seconds
+  void sendingPushToReceiverTokens(Message message) {
     Date expiresDate = new Date();
-    expiresDate.setTime(new Date().getTime() + expiresIn);
+    expiresDate.setTime(new Date().getTime() + EXPIRES_IN);
 
     List<Subscriber> receiverTokens = message
       .getReceiver()
@@ -93,10 +101,10 @@ public class ApnsProvider implements PushNotification {
         item
           .getType()
           .toString()
-          .equals(ApnsSubscriberType.RegistrationToken.toString())
+          .equals(ApnsSubscriberType.REGISTRATION_TOKEN.toString())
       )
       .toList();
-    if (receiverTokens.size() >= 1) {
+    if (!receiverTokens.isEmpty()) {
       List<String> tokens = receiverTokens
         .stream()
         .map(item -> item.getId())
@@ -104,5 +112,11 @@ public class ApnsProvider implements PushNotification {
       this.apnsConnection.getApnsService()
         .push(tokens, this.getMainNote(message), expiresDate);
     }
+  }
+
+  @Override
+  public void publish(Message message) {
+    this.initialValidations(message);
+    this.sendingPushToReceiverTokens(message);
   }
 }

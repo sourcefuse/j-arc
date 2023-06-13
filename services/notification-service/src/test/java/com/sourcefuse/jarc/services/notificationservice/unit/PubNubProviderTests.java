@@ -23,7 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 class PubNubProviderTests {
 
@@ -105,15 +105,15 @@ class PubNubProviderTests {
   void testPublish_FailDuetoEmptyReceivers() {
     message.getReceiver().setTo(Arrays.asList());
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> pubnubProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.RECEIVERS_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -124,14 +124,14 @@ class PubNubProviderTests {
   void testPublish_FailDueAuthorizationTokenNotExists() {
     notificationAccess.getOptions().remove("token");
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> pubnubProvider.grantAccess(notificationAccess)
     );
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.ATHORIZATION_TOKEN_OR_TTL_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -142,15 +142,15 @@ class PubNubProviderTests {
   void testGrantAccess_FailDuetoTtlNotFound() {
     notificationAccess.getOptions().remove("ttl");
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> pubnubProvider.grantAccess(notificationAccess)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.ATHORIZATION_TOKEN_OR_TTL_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -174,15 +174,15 @@ class PubNubProviderTests {
   void testRevokeAccess_FailDuetoTokenNotFound() {
     notificationAccess.getOptions().remove("token");
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> pubnubProvider.revokeAccess(notificationAccess)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.ATHORIZATION_TOKEN_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 

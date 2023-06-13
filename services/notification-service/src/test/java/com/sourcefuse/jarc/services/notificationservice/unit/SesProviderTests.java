@@ -8,7 +8,7 @@ import com.sourcefuse.jarc.core.enums.NotificationError;
 import com.sourcefuse.jarc.services.notificationservice.mocks.MockNotifications;
 import com.sourcefuse.jarc.services.notificationservice.models.Notification;
 import com.sourcefuse.jarc.services.notificationservice.providers.email.ses.SesProvider;
-import com.sourcefuse.jarc.services.notificationservice.providers.email.types.MailConnectionConfig;
+import com.sourcefuse.jarc.services.notificationservice.providers.email.types.SesConnectionConfig;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,12 +19,12 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 class SesProviderTests {
 
   @Mock
-  private MailConnectionConfig mailConnectionConfig;
+  private SesConnectionConfig sesConnectionConfig;
 
   @Mock
   private JavaMailSender javaMailSender;
@@ -39,13 +39,13 @@ class SesProviderTests {
     MockitoAnnotations.openMocks(this);
 
     Mockito
-      .when(mailConnectionConfig.getJavaMailSender())
+      .when(sesConnectionConfig.getJavaMailSender())
       .thenReturn(javaMailSender);
     Mockito
-      .when(mailConnectionConfig.getSenderMail())
+      .when(sesConnectionConfig.getSenderMail())
       .thenReturn("abc@example.com");
     Mockito
-      .when(mailConnectionConfig.shouldSendToMultipleReceivers())
+      .when(sesConnectionConfig.shouldSendToMultipleReceivers())
       .thenReturn(true);
 
     message = MockNotifications.getEmailNotificationObj();
@@ -70,7 +70,7 @@ class SesProviderTests {
   void testPublish_SendsMultipleMailToReceivers() {
     //set to send mail to each user seperately
     Mockito
-      .when(mailConnectionConfig.shouldSendToMultipleReceivers())
+      .when(sesConnectionConfig.shouldSendToMultipleReceivers())
       .thenReturn(false);
 
     sesProvider.publish(message);
@@ -87,15 +87,15 @@ class SesProviderTests {
   void testPublish_FailDuetoEmptyReceivers() {
     message.getReceiver().setTo(Arrays.asList());
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> sesProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.RECEIVERS_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -105,17 +105,17 @@ class SesProviderTests {
   @Test
   void testPublish_FailDuetoEmptyFromMail() {
     // set to from mail to empty
-    Mockito.when(mailConnectionConfig.getSenderMail()).thenReturn(null);
+    Mockito.when(sesConnectionConfig.getSenderMail()).thenReturn(null);
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> sesProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.SENDER_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -126,15 +126,15 @@ class SesProviderTests {
   void testPublish_FailDuetoEmptySubject() {
     message.setSubject(null);
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> sesProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.MESSAGE_DATA_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -145,15 +145,15 @@ class SesProviderTests {
   void testPublish_FailDuetoEmptyBody() {
     message.setSubject(null);
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> sesProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.MESSAGE_DATA_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 }

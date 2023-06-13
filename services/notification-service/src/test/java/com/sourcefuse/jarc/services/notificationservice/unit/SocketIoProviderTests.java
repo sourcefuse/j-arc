@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 class SocketIoProviderTests {
 
@@ -41,7 +41,7 @@ class SocketIoProviderTests {
       .when(socketIoConnectionConfig.getDefaultPath())
       .thenReturn("Dummy-Topic");
 
-    message = MockNotifications.getApnsNotificationObj();
+    message = MockNotifications.getSocketIoNotificationObj();
   }
 
   /**
@@ -63,15 +63,15 @@ class SocketIoProviderTests {
   void testPublish_FailDuetoEmptyReceivers() {
     message.getReceiver().setTo(Arrays.asList());
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> socketIoProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.RECEIVERS_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -82,15 +82,15 @@ class SocketIoProviderTests {
   void testPublish_FailDuetoDefaultPath() {
     Mockito.when(socketIoConnectionConfig.getDefaultPath()).thenReturn(null);
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> socketIoProvider.publish(message)
     );
 
     assertEquals(HttpStatus.PRECONDITION_FAILED, exception.getStatusCode());
     assertEquals(
       NotificationError.CHANNEL_INFO_MISSING.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 }

@@ -17,13 +17,14 @@ import com.sourcefuse.jarc.services.notificationservice.providers.push.types.Pus
 import com.sourcefuse.jarc.services.notificationservice.types.Message;
 import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Slf4j
@@ -31,32 +32,38 @@ import org.springframework.web.client.HttpServerErrorException;
   value = "notification.provider.push",
   havingValue = "FcmProvider"
 )
+@RequiredArgsConstructor
 public class FcmProvider implements PushNotification {
 
-  @Autowired
-  FcmConnectionConfig fcmConnection;
+  private final FcmConnectionConfig fcmConnection;
+
+  private static final int MAX_RECEIVERS = 500;
+  private static final String TOPIC_KEY = "topic";
+  private static final String CONDITION_KEY = "topic";
 
   public void initialValidations(Message message) {
-    int maxReceivers = 500;
+    if (message.getOptions() == null) {
+      message.setOptions(new HashMap<String, Object>());
+    }
     if (
       message.getReceiver().getTo().size() == 0 &&
-      message.getOptions().get("topic") == null &&
-      message.getOptions().get("condition") == null
+      message.getOptions().get(TOPIC_KEY) == null &&
+      message.getOptions().get(CONDITION_KEY) == null
     ) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
-        NotificationError.MESSAGE_RECEIVER_OR_TOPIC_OR_CONDITION_NOT_FOUND.toString()
+        NotificationError.RECEIVER_OR_TOPIC_OR_CONDITION_NOT_FOUND.toString()
       );
     }
-    if (message.getReceiver().getTo().size() > maxReceivers) {
-      throw new HttpServerErrorException(
+    if (message.getReceiver().getTo().size() > MAX_RECEIVERS) {
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_EXCEEDS_500.toString()
       );
     }
 
     if (message.getSubject() == null || message.getSubject().isBlank()) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.MESSAGE_TITLE_NOT_FOUND.toString()
       );
@@ -78,11 +85,11 @@ public class FcmProvider implements PushNotification {
         item
           .getType()
           .toString()
-          .equals(FcmSubscriberType.RegistrationToken.toString())
+          .equals(FcmSubscriberType.REGISTRATION_TOKEN.toString())
       )
       .toList();
 
-    if (receiverTokens.size() >= 1) {
+    if (!receiverTokens.isEmpty()) {
       List<String> tokens = receiverTokens
         .stream()
         .map(item -> item.getId())
@@ -98,9 +105,9 @@ public class FcmProvider implements PushNotification {
         .setNotification(generalMessageObj.getNotification())
         .build();
 
-      Boolean dryRun = message.getOptions().get("dryRun") != null
-        ? (Boolean) message.getOptions().get("dryRun")
-        : false;
+      boolean dryRun = Boolean.valueOf(
+        String.valueOf(message.getOptions().get("dryRun"))
+      );
       responses.add(
         fcmConnection.getFirebaseMessaging().sendMulticast(fcmMessage, dryRun)
       );
@@ -120,11 +127,11 @@ public class FcmProvider implements PushNotification {
       .stream()
       .filter(item ->
         item.getType() != null &&
-        item.getType().toString().equals(FcmSubscriberType.FCMTopic.toString())
+        item.getType().toString().equals(FcmSubscriberType.FCM_TOPIC.toString())
       )
       .toList();
 
-    if (topics.size() > 0) {
+    if (!topics.isEmpty()) {
       for (Subscriber item : topics) {
         com.google.firebase.messaging.Message fcmMessage =
           com.google.firebase.messaging.Message
@@ -137,9 +144,9 @@ public class FcmProvider implements PushNotification {
             .setNotification(generalMessageObj.getNotification())
             .build();
 
-        Boolean dryRun = message.getOptions().get("dryRun") != null
-          ? (Boolean) message.getOptions().get("dryRun")
-          : false;
+        boolean dryRun = Boolean.valueOf(
+          String.valueOf(message.getOptions().get("dryRun"))
+        );
 
         responses.add(
           fcmConnection.getFirebaseMessaging().send(fcmMessage, dryRun)
@@ -164,11 +171,11 @@ public class FcmProvider implements PushNotification {
         item
           .getType()
           .toString()
-          .equals(FcmSubscriberType.FCMCondition.toString())
+          .equals(FcmSubscriberType.FCM_CONDITION.toString())
       )
       .toList();
 
-    if (topics.size() > 0) {
+    if (!topics.isEmpty()) {
       for (Subscriber item : topics) {
         com.google.firebase.messaging.Message fcmMessage =
           com.google.firebase.messaging.Message
@@ -181,10 +188,9 @@ public class FcmProvider implements PushNotification {
             .setNotification(generalMessageObj.getNotification())
             .build();
 
-        Boolean dryRun = message.getOptions().get("dryRun") != null
-          ? (Boolean) message.getOptions().get("dryRun")
-          : false;
-
+        boolean dryRun = Boolean.valueOf(
+          String.valueOf(message.getOptions().get("dryRun"))
+        );
         responses.add(
           fcmConnection.getFirebaseMessaging().send(fcmMessage, dryRun)
         );
@@ -269,9 +275,9 @@ public class FcmProvider implements PushNotification {
       this.sendingPushToConditions(message, generalMessageObj);
     } catch (FirebaseMessagingException e) {
       log.error(e.getMessage(), e);
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.INTERNAL_SERVER_ERROR,
-        "Something went wrong"
+        NotificationError.SOMETHING_WNET_WRONG.toString()
       );
     }
   }

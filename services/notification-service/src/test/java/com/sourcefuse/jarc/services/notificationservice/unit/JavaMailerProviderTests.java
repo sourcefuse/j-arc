@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 class JavaMailerProviderTests {
 
@@ -91,15 +91,15 @@ class JavaMailerProviderTests {
   void testPublish_FailDuetoEmptyReceivers() {
     message.getReceiver().setTo(Arrays.asList());
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> javaMailerProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.RECEIVERS_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -111,15 +111,15 @@ class JavaMailerProviderTests {
     // set to from mail to empty
     Mockito.when(mailConnectionConfig.getSenderMail()).thenReturn(null);
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> javaMailerProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.SENDER_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -130,15 +130,15 @@ class JavaMailerProviderTests {
   void testPublish_FailDuetoEmptySubject() {
     message.setSubject(null);
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> javaMailerProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.MESSAGE_DATA_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -149,15 +149,15 @@ class JavaMailerProviderTests {
   void testPublish_FailDuetoEmptyBody() {
     message.setSubject(null);
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> javaMailerProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.MESSAGE_DATA_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 }

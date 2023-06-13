@@ -11,11 +11,11 @@ import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,7 +36,7 @@ public class NotificationNotificationuserController {
   private Validator validator;
 
   @GetMapping
-  // @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<List<NotificationUser>> find(
     @PathVariable("id") UUID notificationId
   ) {
@@ -49,8 +49,8 @@ public class NotificationNotificationuserController {
   }
 
   @PostMapping
-  // @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<NotificationUser> creaye(
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<NotificationUser> create(
     @PathVariable("id") UUID notificationId,
     @Valid @RequestBody NotificationUser notificationUser
   ) {
@@ -65,7 +65,7 @@ public class NotificationNotificationuserController {
   }
 
   @PatchMapping
-  // @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Object> update(
     @PathVariable("id") UUID notificationId,
     @RequestBody NotificationUser notificationUser
@@ -89,7 +89,7 @@ public class NotificationNotificationuserController {
           violations
             .stream()
             .map(ele -> ele.getPropertyPath() + " " + ele.getMessage())
-            .collect(Collectors.toList()),
+            .toList(),
           HttpStatus.BAD_REQUEST
         );
       }
@@ -99,7 +99,7 @@ public class NotificationNotificationuserController {
   }
 
   @DeleteMapping
-  // @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Object> delete(
     @PathVariable("id") UUID notificationId
   ) {

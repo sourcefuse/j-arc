@@ -9,13 +9,14 @@ public enum NotificationError {
   RECEIVERS_NOT_FOUND("Message receiver not found in request"),
   MESSAGE_DATA_NOT_FOUND("Message data incomplete"),
   CHANNEL_INFO_MISSING("Channel info is missing"),
-  MESSAGE_RECEIVER_OR_TOPIC_OR_CONDITION_NOT_FOUND(
+  RECEIVER_OR_TOPIC_OR_CONDITION_NOT_FOUND(
     "Message receiver, topic or condition not found in request"
   ),
   ATHORIZATION_TOKEN_OR_TTL_NOT_FOUND(
     "Authorization token or ttl not found in request"
   ),
-  ATHORIZATION_TOKEN_NOT_FOUND("Authorization token not found in request");
+  ATHORIZATION_TOKEN_NOT_FOUND("Authorization token not found in request"),
+  SOMETHING_WNET_WRONG("Something went wrong");
 
   private final String name;
 

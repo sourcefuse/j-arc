@@ -6,12 +6,12 @@ import com.sourcefuse.jarc.core.enums.NotificationError;
 import com.sourcefuse.jarc.services.notificationservice.providers.push.socketio.types.SocketIoConnectionConfig;
 import com.sourcefuse.jarc.services.notificationservice.providers.push.types.PushNotification;
 import com.sourcefuse.jarc.services.notificationservice.types.Message;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Slf4j
@@ -19,17 +19,17 @@ import org.springframework.web.client.HttpServerErrorException;
   value = "notification.provider.push",
   havingValue = "SocketIoProvider"
 )
+@RequiredArgsConstructor
 public class SocketIoProvider implements PushNotification {
 
-  @Autowired
-  SocketIoConnectionConfig socketConnection;
+  private final SocketIoConnectionConfig socketConnection;
 
-  ObjectMapper objectMapper = new ObjectMapper();
+  private static final String PATH_KEY = "path";
 
   @Override
   public void publish(Message message) {
     if (message.getReceiver().getTo().size() == 0) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_NOT_FOUND.toString()
       );
@@ -38,24 +38,25 @@ public class SocketIoProvider implements PushNotification {
       socketConnection.getDefaultPath() == null ||
       socketConnection.getDefaultPath().isBlank()
     ) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.PRECONDITION_FAILED,
         NotificationError.CHANNEL_INFO_MISSING.toString()
       );
     }
     String event = message.getOptions() != null &&
-      message.getOptions().get("path") != null
-      ? (String) message.getOptions().get("path")
+      message.getOptions().get(PATH_KEY) != null
+      ? (String) message.getOptions().get(PATH_KEY)
       : socketConnection.getDefaultPath();
     try {
+      ObjectMapper objectMapper = new ObjectMapper();
       socketConnection
         .getSocket()
         .emit(event, objectMapper.writeValueAsString(message));
     } catch (JsonProcessingException e) {
       log.error(e.getMessage(), e);
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.INTERNAL_SERVER_ERROR,
-        "Something went wrong"
+        NotificationError.SOMETHING_WNET_WRONG.toString()
       );
     }
   }

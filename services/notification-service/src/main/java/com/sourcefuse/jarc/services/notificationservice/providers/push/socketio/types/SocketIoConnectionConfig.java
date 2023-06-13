@@ -3,7 +3,7 @@ package com.sourcefuse.jarc.services.notificationservice.providers.push.socketio
 import io.socket.client.Socket;
 
 public interface SocketIoConnectionConfig {
-  public Socket getSocket();
+  Socket getSocket();
 
-  public String getDefaultPath();
+  String getDefaultPath();
 }

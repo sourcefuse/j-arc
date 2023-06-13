@@ -1,6 +1,8 @@
 package com.sourcefuse.jarc.services.notificationservice.controllers;
 
+import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
+import com.sourcefuse.jarc.services.notificationservice.dtos.NotificationList;
 import com.sourcefuse.jarc.services.notificationservice.models.Notification;
 import com.sourcefuse.jarc.services.notificationservice.models.NotificationUser;
 import com.sourcefuse.jarc.services.notificationservice.repositories.simple.NotificationRepository;
@@ -14,11 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -33,7 +35,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/notifications")
 public class NotificationController {
 
-  private final int maxBodyLen = 1000;
+  private static final int maxBodyLen = 1000;
 
   @Autowired
   private NotificationRepository notificationRepository;
@@ -50,13 +52,8 @@ public class NotificationController {
   @Autowired
   private INotification notificationProvider;
 
-  /*
-   * TO_DO: Remove comments of @PreAuthorize("isAuthenticated()") once
-   * authorization service is integrated
-   */
-
   @PostMapping
-  // @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Notification> create(
     @Valid @RequestBody Notification notification
   ) {
@@ -71,17 +68,18 @@ public class NotificationController {
       this.notificationUserService.getNotifUsers(notif);
     this.notificationUserRepository.saveAll(receiversToCreate);
 
-    return new ResponseEntity<>(notif, HttpStatus.CREATED);
+    return new ResponseEntity<>(notif, HttpStatus.OK);
   }
 
   @PostMapping("/bulk")
-  // @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<List<Notification>> createBulkNotificaitions(
-    @Valid @RequestBody List<Notification> notifications
+    @Valid @RequestBody NotificationList notificationList
   ) {
     List<NotificationUser> notifUsers = new ArrayList<>();
 
-    notifications
+    notificationList
+      .getNotifications()
       .stream()
       .forEach((Notification notification) -> {
         notification.setId(null);
@@ -93,30 +91,30 @@ public class NotificationController {
         }
       });
     List<Notification> notifs =
-      this.notificationRepository.saveAll(notifications);
+      this.notificationRepository.saveAll(notificationList.getNotifications());
 
     for (Notification notif : notifs) {
       notifUsers.addAll(this.notificationUserService.getNotifUsers(notif));
     }
     this.notificationUserRepository.saveAll(notifUsers);
 
-    return new ResponseEntity<>(
-      this.notificationRepository.saveAll(notifications),
-      HttpStatus.CREATED
-    );
+    return new ResponseEntity<>(notifs, HttpStatus.OK);
   }
 
   @GetMapping("/count")
-  // @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<Long> count() {
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<CountResponse> count() {
     return new ResponseEntity<>(
-      this.notificationRepository.count(),
+      CountResponse
+        .builder()
+        .count(this.notificationRepository.count())
+        .build(),
       HttpStatus.OK
     );
   }
 
   @GetMapping
-  // @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<List<Notification>> find() {
     return new ResponseEntity<>(
       this.notificationRepository.findAll(),
@@ -125,7 +123,7 @@ public class NotificationController {
   }
 
   @GetMapping("/{id}")
-  // @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Notification> findById(@PathVariable("id") UUID id) {
     Notification notification =
       this.notificationRepository.findById(id)
@@ -139,7 +137,7 @@ public class NotificationController {
   }
 
   @PatchMapping("/{id}")
-  // @PreAuthorize("isAuthenticated()")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Object> updateById(
     @PathVariable("id") UUID id,
     @RequestBody Notification notification
@@ -166,18 +164,24 @@ public class NotificationController {
         violations
           .stream()
           .map(ele -> ele.getPropertyPath() + " " + ele.getMessage())
-          .collect(Collectors.toList()),
+          .toList(),
         HttpStatus.BAD_REQUEST
       );
     }
     this.notificationRepository.save(existingNotification);
-    return new ResponseEntity<>(null, HttpStatus.OK);
+    return new ResponseEntity<>(
+      "Notification Updated Successfully",
+      HttpStatus.OK
+    );
   }
 
   @DeleteMapping
-  // @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<Void> deleteAll() {
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<Object> deleteAll() {
     this.notificationRepository.deleteAll();
-    return new ResponseEntity<>(null, HttpStatus.OK);
+    return new ResponseEntity<>(
+      "Notifications Deleted Successfully",
+      HttpStatus.OK
+    );
   }
 }

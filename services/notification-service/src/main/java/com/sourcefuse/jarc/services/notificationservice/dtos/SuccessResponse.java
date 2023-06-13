@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SuccessResponseDto {
+public class SuccessResponse {
 
   Boolean success;
 }

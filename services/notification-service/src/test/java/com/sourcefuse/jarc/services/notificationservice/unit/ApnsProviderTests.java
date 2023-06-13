@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 class ApnsProviderTests {
 
@@ -71,15 +71,15 @@ class ApnsProviderTests {
   void testPublish_FailDuetoEmptyReceivers() {
     message.getReceiver().setTo(Arrays.asList());
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> apnsProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.RECEIVERS_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -95,15 +95,15 @@ class ApnsProviderTests {
       subscribers.add(subscriber);
     }
     message.getReceiver().setTo(subscribers);
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> apnsProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.RECEIVERS_EXCEEDS_500.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -115,15 +115,15 @@ class ApnsProviderTests {
     // set to from mail to empty
     message.getOptions().put("messageFrom", null);
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> apnsProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.MESSAGE_FROM_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -134,15 +134,15 @@ class ApnsProviderTests {
   void testPublish_FailDuetoEmptySubject() {
     message.setSubject(null);
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> apnsProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.MESSAGE_TITLE_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 }

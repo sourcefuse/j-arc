@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.core.models.base;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Table;
 import java.util.UUID;
@@ -10,6 +11,7 @@ public interface BaseEntity {
     return null;
   }
 
+  @JsonIgnore
   default String getTableName() {
     Table tableAnnotation = this.getClass().getAnnotation(Table.class);
     if (tableAnnotation != null) {

@@ -10,5 +10,5 @@ public interface SesConnectionConfig {
 
   String getSenderMail();
 
-  Boolean shouldSendToMultipleReceivers();
+  boolean shouldSendToMultipleReceivers();
 }

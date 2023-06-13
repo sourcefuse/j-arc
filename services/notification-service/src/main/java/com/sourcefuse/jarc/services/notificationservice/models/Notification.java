@@ -10,8 +10,6 @@ import com.sourcefuse.jarc.services.notificationservice.types.Message;
 import com.sourcefuse.jarc.services.notificationservice.types.Receiver;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,12 +23,16 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+@Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -50,6 +52,7 @@ public class Notification extends Message {
   @Column(nullable = false, columnDefinition = "varchar(1000)")
   private String body;
 
+  @NotNull
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = true)
   @Valid
@@ -63,7 +66,6 @@ public class Notification extends Message {
 
   @NotNull
   @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
   private MessageType type;
 
   @JdbcTypeCode(SqlTypes.JSON)

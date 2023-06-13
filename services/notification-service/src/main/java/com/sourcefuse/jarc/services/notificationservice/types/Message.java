@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.sourcefuse.jarc.services.notificationservice.enums.MessageType;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import lombok.AllArgsConstructor;
@@ -20,7 +18,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public abstract class Message {
+public class Message {
 
   private String subject;
 
@@ -32,7 +30,6 @@ public abstract class Message {
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   private LocalDateTime sentDate;
 
-  @Enumerated(EnumType.STRING)
   private MessageType type;
 
   private HashMap<String, Object> options;

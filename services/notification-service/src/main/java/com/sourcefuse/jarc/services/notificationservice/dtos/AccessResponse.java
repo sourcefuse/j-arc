@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccessResponseDto {
+public class AccessResponse {
 
   Integer ttl;
   String cipherKey;

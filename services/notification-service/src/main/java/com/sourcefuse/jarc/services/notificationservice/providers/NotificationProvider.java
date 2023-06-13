@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @NoArgsConstructor
@@ -41,7 +41,7 @@ public class NotificationProvider implements INotification {
     ) {
       smsNotification.publish(message);
     } else {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.UNPROCESSABLE_ENTITY,
         NotificationError.PROVIDER_NOT_FOUND.toString()
       );

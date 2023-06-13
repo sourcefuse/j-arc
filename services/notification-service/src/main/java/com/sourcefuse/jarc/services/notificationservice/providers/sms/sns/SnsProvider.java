@@ -7,11 +7,11 @@ import com.sourcefuse.jarc.services.notificationservice.types.Message;
 import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.services.sns.model.MessageAttributeValue;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 import software.amazon.awssdk.services.sns.model.PublishRequest.Builder;
@@ -19,17 +19,19 @@ import software.amazon.awssdk.services.sns.model.PublishRequest.Builder;
 @Service
 @ConditionalOnProperty(
   value = "notification.provider.sms",
-  havingValue = "SNSProvider"
+  havingValue = "snsProvider"
 )
+@RequiredArgsConstructor
 public class SnsProvider implements SmsNotification {
 
-  @Autowired
-  SnsConnectionConfig snsConnection;
+  private final SnsConnectionConfig snsConnection;
+
+  private static final String SMS_TYPE_KEY = "smsType";
 
   @Override
   public void publish(Message message) {
     if (message.getReceiver().getTo().size() == 0) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         "Message receiver not found in request"
       );
@@ -42,7 +44,7 @@ public class SnsProvider implements SmsNotification {
 
       if (
         message.getOptions() != null &&
-        message.getOptions().get("smsType") != null
+        message.getOptions().get(SMS_TYPE_KEY) != null
       ) {
         Map<String, MessageAttributeValue> messageAttributes = new HashMap<>();
         messageAttributes.put(
@@ -50,7 +52,7 @@ public class SnsProvider implements SmsNotification {
           MessageAttributeValue
             .builder()
             .dataType("String")
-            .stringValue(message.getOptions().get("smsType").toString())
+            .stringValue(message.getOptions().get(SMS_TYPE_KEY).toString())
             .build()
         );
         msgBuilder.messageAttributes(messageAttributes);
@@ -60,12 +62,12 @@ public class SnsProvider implements SmsNotification {
         receiver
           .getType()
           .toString()
-          .equals(SnsSubscriberType.PhoneNumber.toString())
+          .equals(SnsSubscriberType.PHONE_NUMBER.toString())
       ) {
         msgBuilder.phoneNumber(receiver.getId());
       } else if (
         receiver.getType() != null &&
-        receiver.getType().toString().equals(SnsSubscriberType.Topic.toString())
+        receiver.getType().toString().equals(SnsSubscriberType.TOPIC.toString())
       ) {
         msgBuilder.topicArn(receiver.getId());
       } else {

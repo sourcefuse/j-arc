@@ -1,8 +1,8 @@
 package com.sourcefuse.jarc.services.notificationservice.controllers;
 
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
-import com.sourcefuse.jarc.services.notificationservice.dtos.AccessResponseDto;
-import com.sourcefuse.jarc.services.notificationservice.dtos.SuccessResponseDto;
+import com.sourcefuse.jarc.services.notificationservice.dtos.AccessResponse;
+import com.sourcefuse.jarc.services.notificationservice.dtos.SuccessResponse;
 import com.sourcefuse.jarc.services.notificationservice.models.NotificationAccess;
 import com.sourcefuse.jarc.services.notificationservice.providers.ChannelManagerService;
 import com.sourcefuse.jarc.services.notificationservice.providers.push.pubnub.types.PubNubNotification;
@@ -13,7 +13,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/notifications/access/{id}")
@@ -38,7 +38,8 @@ public class PubNubNotificationController {
   NotificationAccessRepository notificationAccessRepository;
 
   @PatchMapping
-  public ResponseEntity<AccessResponseDto> grantAccess(
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<AccessResponse> grantAccess(
     @Valid @RequestBody NotificationAccess notification,
     @PathVariable("id") UUID userId,
     @RequestHeader(value = "pubnubToken") String token
@@ -53,18 +54,19 @@ public class PubNubNotificationController {
     if (config.getOptions() != null) {
       config.getOptions().put("token", token);
     }
-    Authentication authentication = SecurityContextHolder
-      .getContext()
-      .getAuthentication();
-    CurrentUser currentUser = authentication != null
-      ? ((CurrentUser) authentication.getPrincipal())
-      : null;
+    CurrentUser currentUser =
+      (
+        (CurrentUser) SecurityContextHolder
+          .getContext()
+          .getAuthentication()
+          .getPrincipal()
+      );
     if (
       currentUser != null &&
       this.channelManagerService != null &&
       !this.channelManagerService.isChannelAccessAllowed(currentUser, config)
     ) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.FORBIDDEN,
         "Access Not Allowed"
       );
@@ -72,17 +74,18 @@ public class PubNubNotificationController {
     this.pubNubNotification.grantAccess(config);
     notification.setId(userId);
     this.notificationAccessRepository.save(notification);
-    return new ResponseEntity<>(new AccessResponseDto(null, ""), HttpStatus.OK);
+    return new ResponseEntity<>(new AccessResponse(null, ""), HttpStatus.OK);
   }
 
   @DeleteMapping
-  public ResponseEntity<SuccessResponseDto> revokeAccess(
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<SuccessResponse> revokeAccess(
     @PathVariable("id") UUID userId
   ) {
     NotificationAccess notification =
       this.notificationAccessRepository.findById(userId)
         .orElseThrow(() ->
-          new HttpServerErrorException(HttpStatus.NOT_FOUND, "Token not found")
+          new ResponseStatusException(HttpStatus.NOT_FOUND, "Token not found")
         );
 
     Config config = Config
@@ -95,6 +98,6 @@ public class PubNubNotificationController {
     this.pubNubNotification.revokeAccess(config);
     notification.setId(userId);
     this.notificationAccessRepository.deleteById(userId);
-    return new ResponseEntity<>(new SuccessResponseDto(true), HttpStatus.OK);
+    return new ResponseEntity<>(new SuccessResponse(true), HttpStatus.OK);
   }
 }

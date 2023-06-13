@@ -7,5 +7,5 @@ public interface MailConnectionConfig {
 
   String getSenderMail();
 
-  Boolean shouldSendToMultipleReceivers();
+  boolean shouldSendToMultipleReceivers();
 }

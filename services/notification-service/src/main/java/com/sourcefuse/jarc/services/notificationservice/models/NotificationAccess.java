@@ -3,10 +3,9 @@ package com.sourcefuse.jarc.services.notificationservice.models;
 import com.sourcefuse.jarc.services.notificationservice.enums.MessageType;
 import com.sourcefuse.jarc.services.notificationservice.types.Receiver;
 import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -33,12 +32,13 @@ public class NotificationAccess {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @NotNull
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = false)
   private Receiver receiver;
 
+  @NotNull
   @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
   private MessageType type;
 
   @JdbcTypeCode(SqlTypes.JSON)

@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 
@@ -52,7 +52,7 @@ class SnsProviderTests {
       .getReceiver()
       .getTo()
       .stream()
-      .forEach(item -> item.setType(SnsSubscriberType.PhoneNumber));
+      .forEach(item -> item.setType(SnsSubscriberType.PHONE_NUMBER));
     snsProvider.publish(message);
 
     Mockito
@@ -69,7 +69,7 @@ class SnsProviderTests {
       .getReceiver()
       .getTo()
       .stream()
-      .forEach(item -> item.setType(SnsSubscriberType.Topic));
+      .forEach(item -> item.setType(SnsSubscriberType.TOPIC));
     snsProvider.publish(message);
 
     Mockito
@@ -84,15 +84,15 @@ class SnsProviderTests {
   void testPublish_FailDuetoEmptyReceivers() {
     message.getReceiver().setTo(Arrays.asList());
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> snsProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.RECEIVERS_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 }

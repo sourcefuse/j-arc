@@ -5,73 +5,62 @@ import com.sourcefuse.jarc.services.notificationservice.providers.email.types.Em
 import com.sourcefuse.jarc.services.notificationservice.providers.email.types.SesConnectionConfig;
 import com.sourcefuse.jarc.services.notificationservice.types.Message;
 import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @ConditionalOnProperty(
   value = "notification.provider.email",
-  havingValue = "SESProvider"
+  havingValue = "sesProvider"
 )
+@RequiredArgsConstructor
+@Slf4j
 public class SesProvider implements EmailNotification {
 
-  @Autowired
-  SesConnectionConfig mailConnectionConfig;
+  private final SesConnectionConfig sesConnectionConfig;
+
+  private static final String FROM_KEY = "from";
 
   @Override
   public void publish(Message message) {
     String fromEmail = message.getOptions() != null &&
-      message.getOptions().get("from") != null
-      ? (String) message.getOptions().get("from")
-      : this.mailConnectionConfig.getSenderMail();
+      message.getOptions().get(FROM_KEY) != null
+      ? (String) message.getOptions().get(FROM_KEY)
+      : this.sesConnectionConfig.getSenderMail();
 
-    this.validate(fromEmail, message);
+    this.initialValidations(fromEmail, message);
 
-    String textContent = message.getOptions() != null &&
-      message.getOptions().get("text") != null
-      ? (String) message.getOptions().get("text")
-      : message.getBody();
-
-    String htmlContent = message.getOptions() != null &&
-      message.getOptions().get("html") != null
-      ? (String) message.getOptions().get("html")
-      : "";
     try {
-      if (this.mailConnectionConfig.shouldSendToMultipleReceivers()) {
-        this.sendToReceiversCombine(
-            fromEmail,
-            textContent,
-            htmlContent,
-            message
-          );
+      if (this.sesConnectionConfig.shouldSendToMultipleReceivers()) {
+        this.sendToReceiversCombine(fromEmail, message);
       } else {
-        this.sendToEachReceiverSeperately(
-            fromEmail,
-            textContent,
-            htmlContent,
-            message
-          );
+        this.sendToEachReceiverSeperately(fromEmail, message);
       }
     } catch (MailException e) {
-      e.printStackTrace();
+      log.error(null, e);
+      new ResponseStatusException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        NotificationError.SOMETHING_WNET_WRONG.toString()
+      );
     }
   }
 
-  private void validate(String fromEmail, Message message) {
+  void initialValidations(String fromEmail, Message message) {
     if (fromEmail == null || fromEmail.isBlank()) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.SENDER_NOT_FOUND.toString()
       );
     }
 
     if (message.getReceiver().getTo().size() == 0) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_NOT_FOUND.toString()
       );
@@ -82,19 +71,14 @@ public class SesProvider implements EmailNotification {
       message.getBody() == null ||
       message.getBody().isBlank()
     ) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.MESSAGE_DATA_NOT_FOUND.toString()
       );
     }
   }
 
-  private void sendToReceiversCombine(
-    String fromEmail,
-    String textContent,
-    String htmlContent,
-    Message message
-  ) {
+  void sendToReceiversCombine(String fromEmail, Message message) {
     String[] receivers = message
       .getReceiver()
       .getTo()
@@ -107,15 +91,10 @@ public class SesProvider implements EmailNotification {
     simpleMailMessage.setSubject(message.getSubject());
     simpleMailMessage.setText(message.getBody());
 
-    mailConnectionConfig.getJavaMailSender().send(simpleMailMessage);
+    sesConnectionConfig.getJavaMailSender().send(simpleMailMessage);
   }
 
-  private void sendToEachReceiverSeperately(
-    String fromEmail,
-    String textContent,
-    String htmlContent,
-    Message message
-  ) {
+  void sendToEachReceiverSeperately(String fromEmail, Message message) {
     for (Subscriber to : message.getReceiver().getTo()) {
       SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
       simpleMailMessage.setFrom(fromEmail);
@@ -123,7 +102,7 @@ public class SesProvider implements EmailNotification {
       simpleMailMessage.setSubject(message.getSubject());
       simpleMailMessage.setText(message.getBody());
 
-      mailConnectionConfig.getJavaMailSender().send(simpleMailMessage);
+      sesConnectionConfig.getJavaMailSender().send(simpleMailMessage);
     }
   }
 }

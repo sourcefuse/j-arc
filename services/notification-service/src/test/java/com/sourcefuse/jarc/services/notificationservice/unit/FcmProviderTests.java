@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 class FcmProviderTests {
 
@@ -95,7 +95,7 @@ class FcmProviderTests {
       .getReceiver()
       .getTo()
       .stream()
-      .forEach(item -> item.setType(FcmSubscriberType.FCMTopic));
+      .forEach(item -> item.setType(FcmSubscriberType.FCM_CONDITION));
     fcmProvider.publish(message);
 
     Mockito
@@ -115,7 +115,7 @@ class FcmProviderTests {
       .getReceiver()
       .getTo()
       .stream()
-      .forEach(item -> item.setType(FcmSubscriberType.FCMCondition));
+      .forEach(item -> item.setType(FcmSubscriberType.FCM_CONDITION));
     fcmProvider.publish(message);
 
     Mockito
@@ -130,15 +130,15 @@ class FcmProviderTests {
   void testPublish_FailDuetoEmptyReceivers() {
     message.getReceiver().setTo(Arrays.asList());
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> fcmProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
-      NotificationError.MESSAGE_RECEIVER_OR_TOPIC_OR_CONDITION_NOT_FOUND.toString(),
-      exception.getStatusText()
+      NotificationError.RECEIVER_OR_TOPIC_OR_CONDITION_NOT_FOUND.toString(),
+      exception.getReason()
     );
   }
 
@@ -155,15 +155,15 @@ class FcmProviderTests {
     }
     message.getReceiver().setTo(subscribers);
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> fcmProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.RECEIVERS_EXCEEDS_500.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 
@@ -174,15 +174,15 @@ class FcmProviderTests {
   void testPublish_FailDuetoEmptySubject() {
     message.setSubject(null);
 
-    HttpServerErrorException exception = assertThrows(
-      HttpServerErrorException.class,
+    ResponseStatusException exception = assertThrows(
+      ResponseStatusException.class,
       () -> fcmProvider.publish(message)
     );
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     assertEquals(
       NotificationError.MESSAGE_TITLE_NOT_FOUND.toString(),
-      exception.getStatusText()
+      exception.getReason()
     );
   }
 }

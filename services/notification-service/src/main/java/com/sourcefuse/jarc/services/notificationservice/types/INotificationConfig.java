@@ -10,10 +10,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public abstract class INotificationConfig {
+public class INotificationConfig {
 
   @NotNull
-  private Boolean sendToMultipleReceivers;
+  private boolean sendToMultipleReceivers;
 
   private String senderEmail;
 }

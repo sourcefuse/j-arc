@@ -17,6 +17,18 @@ import java.util.UUID;
 
 public final class MockNotifications {
 
+  public static final UUID NOTIFICATION_ID = UUID.fromString(
+    "be847974-bc6b-4781-aa21-ecf876392cc0"
+  );
+
+  public static final UUID SUBSCRIBER_ONE_ID = UUID.fromString(
+    "742f0244-7889-4d2c-a007-2906dc6ee7f7"
+  );
+
+  public static final UUID SUBSCRIBER_TWO_ID = UUID.fromString(
+    "934d17d0-4c66-48b8-bbfc-1a16a9ec10c7"
+  );
+
   private static Notification buildNotification(
     List<Subscriber> subscribers,
     MessageType type
@@ -34,7 +46,6 @@ public final class MockNotifications {
   }
 
   public static Notification getEmailNotificationObj() {
-    // Create a test message
     Subscriber subscriberOne = new Subscriber();
     subscriberOne.setId("subscriber.one@example.com");
     Subscriber subscriberTwo = new Subscriber();
@@ -47,29 +58,33 @@ public final class MockNotifications {
   }
 
   public static Notification getApnsNotificationObj() {
-    // Create a test message
     Subscriber subscriberOne = new Subscriber();
-    subscriberOne.setId(UUID.randomUUID().toString());
+    subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
     Subscriber subscriberTwo = new Subscriber();
-    subscriberTwo.setId(UUID.randomUUID().toString());
+    subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
 
     Receiver receiver = new Receiver();
     receiver.setTo(Arrays.asList(subscriberOne, subscriberTwo));
 
-    return buildNotification(
+    Notification notification = buildNotification(
       Arrays.asList(subscriberOne, subscriberTwo),
       MessageType.PUSH
     );
+
+    HashMap<String, Object> options = new HashMap<String, Object>();
+    options.put("messageFrom", "DummyMessageFrom");
+
+    notification.setOptions(options);
+    return notification;
   }
 
   public static Notification getFcmNotificationObj() {
-    // Create a test message
     Subscriber subscriberOne = new Subscriber();
-    subscriberOne.setId(UUID.randomUUID().toString());
-    subscriberOne.setType(FcmSubscriberType.RegistrationToken);
+    subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
+    subscriberOne.setType(FcmSubscriberType.REGISTRATION_TOKEN);
     Subscriber subscriberTwo = new Subscriber();
-    subscriberTwo.setId(UUID.randomUUID().toString());
-    subscriberTwo.setType(FcmSubscriberType.RegistrationToken);
+    subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
+    subscriberTwo.setType(FcmSubscriberType.REGISTRATION_TOKEN);
 
     return buildNotification(
       Arrays.asList(subscriberOne, subscriberTwo),
@@ -78,13 +93,24 @@ public final class MockNotifications {
   }
 
   public static Notification getPubnubNotificationObj() {
-    // Create a test message
     Subscriber subscriberOne = new Subscriber();
-    subscriberOne.setId(UUID.randomUUID().toString());
-    subscriberOne.setType(PubNubSubscriberType.Channel);
+    subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
+    subscriberOne.setType(PubNubSubscriberType.CHANNEL);
     Subscriber subscriberTwo = new Subscriber();
-    subscriberTwo.setId(UUID.randomUUID().toString());
-    subscriberTwo.setType(PubNubSubscriberType.Channel);
+    subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
+    subscriberTwo.setType(PubNubSubscriberType.CHANNEL);
+
+    return buildNotification(
+      Arrays.asList(subscriberOne, subscriberTwo),
+      MessageType.PUSH
+    );
+  }
+
+  public static Notification getSocketIoNotificationObj() {
+    Subscriber subscriberOne = new Subscriber();
+    subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
+    Subscriber subscriberTwo = new Subscriber();
+    subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
 
     return buildNotification(
       Arrays.asList(subscriberOne, subscriberTwo),
@@ -94,9 +120,9 @@ public final class MockNotifications {
 
   public static Config getNotificationAccess() {
     Subscriber subscriberOne = new Subscriber();
-    subscriberOne.setId(UUID.randomUUID().toString());
+    subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
     Subscriber subscriberTwo = new Subscriber();
-    subscriberTwo.setId(UUID.randomUUID().toString());
+    subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
 
     Receiver receiver = new Receiver();
     receiver.setTo(Arrays.asList(subscriberOne, subscriberTwo));
@@ -114,11 +140,11 @@ public final class MockNotifications {
 
   public static Notification getWhatsappTwilioNotificationObj() {
     Subscriber subscriberOne = new Subscriber();
-    subscriberOne.setId(UUID.randomUUID().toString());
-    subscriberOne.setType(TwilioSubscriberType.WhatsappUser);
+    subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
+    subscriberOne.setType(TwilioSubscriberType.WHATSAPP_USER);
     Subscriber subscriberTwo = new Subscriber();
-    subscriberOne.setType(TwilioSubscriberType.WhatsappUser);
-    subscriberTwo.setId(UUID.randomUUID().toString());
+    subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
+    subscriberTwo.setType(TwilioSubscriberType.WHATSAPP_USER);
 
     Notification notification = buildNotification(
       Arrays.asList(subscriberOne, subscriberTwo),
@@ -132,13 +158,12 @@ public final class MockNotifications {
   }
 
   public static Notification getSnsNotificationObj() {
-    // Create a test message
     Subscriber subscriberOne = new Subscriber();
-    subscriberOne.setId(UUID.randomUUID().toString());
-    subscriberOne.setType(SnsSubscriberType.PhoneNumber);
+    subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
+    subscriberOne.setType(SnsSubscriberType.PHONE_NUMBER);
     Subscriber subscriberTwo = new Subscriber();
-    subscriberTwo.setId(UUID.randomUUID().toString());
-    subscriberOne.setType(SnsSubscriberType.PhoneNumber);
+    subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
+    subscriberTwo.setType(SnsSubscriberType.PHONE_NUMBER);
 
     Receiver receiver = new Receiver();
     receiver.setTo(Arrays.asList(subscriberOne, subscriberTwo));
@@ -147,5 +172,12 @@ public final class MockNotifications {
       Arrays.asList(subscriberOne, subscriberTwo),
       MessageType.SMS
     );
+  }
+
+  public static Notification dummyNotification() {
+    Notification notification = getSnsNotificationObj();
+    notification.setId(UUID.fromString("626cf583-d83a-4a06-8948-ab9b7ddf769c"));
+
+    return notification;
   }
 }

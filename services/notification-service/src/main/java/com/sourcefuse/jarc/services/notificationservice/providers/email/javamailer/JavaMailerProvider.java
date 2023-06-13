@@ -7,31 +7,35 @@ import com.sourcefuse.jarc.services.notificationservice.types.Message;
 import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @ConditionalOnProperty(
   value = "notification.provider.email",
   havingValue = "JavaMailerProvider"
 )
+@RequiredArgsConstructor
+@Slf4j
 public class JavaMailerProvider implements EmailNotification {
 
-  @Autowired
-  MailConnectionConfig mailConnectionConfig;
+  private final MailConnectionConfig mailConnectionConfig;
+
+  private static final String FROM_KEY = "from";
 
   @Override
   public void publish(Message message) {
     String fromEmail = message.getOptions() != null &&
-      message.getOptions().get("from") != null
-      ? (String) message.getOptions().get("from")
+      message.getOptions().get(FROM_KEY) != null
+      ? (String) message.getOptions().get(FROM_KEY)
       : this.mailConnectionConfig.getSenderMail();
 
-    this.validate(fromEmail, message);
+    this.initialValidations(fromEmail, message);
 
     String textContent = message.getOptions() != null &&
       message.getOptions().get("text") != null
@@ -59,23 +63,24 @@ public class JavaMailerProvider implements EmailNotification {
           );
       }
     } catch (MessagingException e) {
-      new HttpServerErrorException(
+      log.error(null, e);
+      new ResponseStatusException(
         HttpStatus.INTERNAL_SERVER_ERROR,
-        "Something went wrong"
+        NotificationError.SOMETHING_WNET_WRONG.toString()
       );
     }
   }
 
-  private void validate(String fromEmail, Message message) {
+  void initialValidations(String fromEmail, Message message) {
     if (fromEmail == null || fromEmail.isBlank()) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.SENDER_NOT_FOUND.toString()
       );
     }
 
     if (message.getReceiver().getTo().size() == 0) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_NOT_FOUND.toString()
       );
@@ -86,14 +91,14 @@ public class JavaMailerProvider implements EmailNotification {
       message.getBody() == null ||
       message.getBody().isBlank()
     ) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.MESSAGE_DATA_NOT_FOUND.toString()
       );
     }
   }
 
-  private void sendToReceiversCombine(
+  void sendToReceiversCombine(
     String fromEmail,
     String textContent,
     String htmlContent,
@@ -122,7 +127,7 @@ public class JavaMailerProvider implements EmailNotification {
     mailConnectionConfig.getJavaMailSender().send(mimeMessage);
   }
 
-  private void sendToEachReceiverSeperately(
+  void sendToEachReceiverSeperately(
     String fromEmail,
     String textContent,
     String htmlContent,

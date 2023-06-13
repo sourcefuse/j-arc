@@ -1,13 +1,13 @@
 package com.sourcefuse.jarc.services.notificationservice.providers.sms.twilio.types;
 
 public interface TwilioConnectionConfig {
-  public void initTwilio();
+  void initTwilio();
 
-  public String getSmsFrom();
+  String getSmsFrom();
 
-  public String getWhatsappFrom();
+  String getWhatsappFrom();
 
-  public String getSmsStatusCallback();
+  String getSmsStatusCallback();
 
-  public String getWhatsappStatusCallback();
+  String getWhatsappStatusCallback();
 }

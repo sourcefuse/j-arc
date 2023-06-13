@@ -12,12 +12,12 @@ import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Slf4j
@@ -25,10 +25,17 @@ import org.springframework.web.client.HttpServerErrorException;
   value = "notification.provider.push",
   havingValue = "PubNubProvider"
 )
+@RequiredArgsConstructor
 public class PubNubProvider implements PubNubNotification {
 
-  @Autowired
-  PubNubConnectionConfig pubnubConnection;
+  private final PubNubConnectionConfig pubnubConnection;
+
+  private static final String TOKEN_KEY = "token";
+  private static final String TTL_KEY = "ttl";
+  private static final String ALLOW_READ_KEY = "allowRead";
+  private static final String ALLOW_WRITE_KEY = "allowWrite";
+  private static final String PAYLOAD_TYPE_KEY = "payloadType";
+  private static final String SOUND_KEY = "sound";
 
   private Map<String, Object> getGeneralMessageObject(Message message) {
     Map<String, Object> commonDataNotification = new HashMap<>();
@@ -37,12 +44,12 @@ public class PubNubProvider implements PubNubNotification {
 
     Map<String, Object> pnGcm = new HashMap<>();
     if (
-      message.getOptions().get("payloadType") != null &&
+      message.getOptions().get(PAYLOAD_TYPE_KEY) != null &&
       message
         .getOptions()
-        .get("payloadType")
+        .get(PAYLOAD_TYPE_KEY)
         .toString()
-        .equals(PubNubPayloadType.Data.toString())
+        .equals(PubNubPayloadType.DATA.toString())
     ) {
       pnGcm.put("data", commonDataNotification);
     } else {
@@ -54,9 +61,7 @@ public class PubNubProvider implements PubNubNotification {
     apsData.put("key", message.getSubject());
     apsData.put(
       "sound",
-      message.getOptions().get("sound") != null
-        ? message.getOptions().get("sound")
-        : "default"
+      message.getOptions().getOrDefault(SOUND_KEY, "default").toString()
     );
 
     Map<String, Object> targetTypeData = new HashMap<>();
@@ -82,7 +87,7 @@ public class PubNubProvider implements PubNubNotification {
   @Override
   public void publish(Message message) {
     if (message.getReceiver().getTo().size() == 0) {
-      throw new HttpServerErrorException(
+      throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         NotificationError.RECEIVERS_NOT_FOUND.toString()
       );
@@ -105,7 +110,7 @@ public class PubNubProvider implements PubNubNotification {
         receiver
           .getType()
           .toString()
-          .equals(PubNubSubscriberType.Channel.toString())
+          .equals(PubNubSubscriberType.CHANNEL.toString())
       ) {
         channel = receiver.getId();
       }
@@ -118,9 +123,9 @@ public class PubNubProvider implements PubNubNotification {
           .sync();
       } catch (PubNubException e) {
         log.error(e.getMessage(), e);
-        throw new HttpServerErrorException(
+        throw new ResponseStatusException(
           HttpStatus.INTERNAL_SERVER_ERROR,
-          "Something went wrong"
+          NotificationError.SOMETHING_WNET_WRONG.toString()
         );
       }
     }
@@ -129,25 +134,25 @@ public class PubNubProvider implements PubNubNotification {
   @Override
   public Object grantAccess(Config config) {
     if (
-      config.getOptions().get("token") != null &&
-      config.getOptions().get("ttl") != null
+      config.getOptions() != null &&
+      config.getOptions().get(TOKEN_KEY) != null &&
+      config.getOptions().get(TTL_KEY) != null
     ) {
-      Map<String, Object> result = new HashMap<>();
       try {
         Boolean allowRead = config.getOptions() != null &&
-          config.getOptions().get("allowRead") != null
-          ? Boolean.valueOf(config.getOptions().get("allowRead").toString())
+          config.getOptions().get(ALLOW_READ_KEY) != null
+          ? Boolean.valueOf(config.getOptions().get(ALLOW_READ_KEY).toString())
           : true;
         Boolean allowWrite = config.getOptions() != null &&
-          config.getOptions().get("allowRead") != null
-          ? Boolean.valueOf(config.getOptions().get("allowWrite").toString())
+          config.getOptions().get(ALLOW_WRITE_KEY) != null
+          ? Boolean.valueOf(config.getOptions().get(ALLOW_WRITE_KEY).toString())
           : false;
         pubnubConnection
           .getPubNub()
           .grant()
           .authKeys(
             Collections.singletonList(
-              config.getOptions().get("token").toString()
+              config.getOptions().get(TOKEN_KEY).toString()
             )
           )
           .channels(
@@ -160,19 +165,20 @@ public class PubNubProvider implements PubNubNotification {
           )
           .read(allowRead)
           .write(allowWrite)
-          .ttl(Integer.valueOf(config.getOptions().get("ttl").toString()))
+          .ttl(Integer.valueOf(config.getOptions().get(TTL_KEY).toString()))
           .sync();
       } catch (NumberFormatException | PubNubException e) {
         log.error(e.getMessage(), e);
-        throw new HttpServerErrorException(
+        throw new ResponseStatusException(
           HttpStatus.INTERNAL_SERVER_ERROR,
-          "Something went wrong"
+          NotificationError.SOMETHING_WNET_WRONG.toString()
         );
       }
-      result.put("ttl", config.getOptions().get("ttl"));
+      Map<String, Object> result = new HashMap<>();
+      result.put("ttl", config.getOptions().get(TTL_KEY));
       return result;
     }
-    throw new HttpServerErrorException(
+    throw new ResponseStatusException(
       HttpStatus.BAD_REQUEST,
       NotificationError.ATHORIZATION_TOKEN_OR_TTL_NOT_FOUND.toString()
     );
@@ -180,7 +186,9 @@ public class PubNubProvider implements PubNubNotification {
 
   @Override
   public Object revokeAccess(Config config) {
-    if (config.getOptions().get("token") != null) {
+    if (
+      config.getOptions() != null && config.getOptions().get(TOKEN_KEY) != null
+    ) {
       Map<String, Object> result = new HashMap<>();
       try {
         pubnubConnection
@@ -188,7 +196,7 @@ public class PubNubProvider implements PubNubNotification {
           .grant()
           .authKeys(
             Collections.singletonList(
-              config.getOptions().get("token").toString()
+              config.getOptions().get(TOKEN_KEY).toString()
             )
           )
           .channels(
@@ -204,15 +212,15 @@ public class PubNubProvider implements PubNubNotification {
           .sync();
       } catch (NumberFormatException | PubNubException e) {
         log.error(e.getMessage(), e);
-        throw new HttpServerErrorException(
+        throw new ResponseStatusException(
           HttpStatus.INTERNAL_SERVER_ERROR,
-          "Something went wrong"
+          NotificationError.SOMETHING_WNET_WRONG.toString()
         );
       }
-      result.put("ttl", config.getOptions().get("ttl"));
+      result.put("ttl", config.getOptions().get(TTL_KEY));
       return result;
     }
-    throw new HttpServerErrorException(
+    throw new ResponseStatusException(
       HttpStatus.BAD_REQUEST,
       "Authorization token not found in request"
     );
