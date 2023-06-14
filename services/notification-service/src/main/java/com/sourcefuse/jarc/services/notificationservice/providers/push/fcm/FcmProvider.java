@@ -232,7 +232,6 @@ public class FcmProvider implements PushNotification {
 
     /**
      * Message attributes for all kinds of messages
-     *
      * If android configurations are sent in options, it will take the precedence
      * over normal notification
      *
@@ -267,22 +266,8 @@ public class FcmProvider implements PushNotification {
       )
       .build();
     try {
-      /**
-       * Sending messages for all the tokens in the request
-       */
-
       this.sendingPushToReceiverTokens(message, generalMessageObj);
-
-      /**
-       * Sending messages for all the topics in the request
-       */
-
       this.sendingPushToTopics(message, generalMessageObj);
-
-      /**
-       * Sending messages for all the conditions in the request
-       */
-
       this.sendingPushToConditions(message, generalMessageObj);
     } catch (FirebaseMessagingException e) {
       log.error(e.getMessage(), e);

@@ -6,6 +6,8 @@ import com.sourcefuse.jarc.services.notificationservice.providers.sms.twilio.typ
 import com.sourcefuse.jarc.services.notificationservice.providers.sms.types.SmsNotification;
 import com.sourcefuse.jarc.services.notificationservice.types.Message;
 import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
+import com.twilio.exception.ApiConnectionException;
+import com.twilio.exception.ApiException;
 import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.type.PhoneNumber;
 import java.net.URI;
@@ -40,7 +42,15 @@ public class TwilioProvider implements SmsNotification {
     }
 
     for (Subscriber receiver : message.getReceiver().getTo()) {
-      sendMessage(message, receiver);
+      try {
+        sendMessage(message, receiver);
+      } catch (ApiConnectionException | ApiException e) {
+        log.error(null, e);
+        throw new ResponseStatusException(
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          NotificationError.SOMETHING_WNET_WRONG.toString()
+        );
+      }
     }
   }
 
@@ -66,11 +76,11 @@ public class TwilioProvider implements SmsNotification {
     );
 
     if (message.getOptions().get(MEDIA_URL_KEY) != null) {
-      List<URI> mediaUrls =
+      messageCreator.setMediaUrl(
         ((List<String>) message.getOptions().get(MEDIA_URL_KEY)).stream()
-          .map(url -> URI.create(url))
-          .toList();
-      messageCreator.setMediaUrl(mediaUrls);
+          .map(URI::create)
+          .toList()
+      );
     }
     if (
       receiver.getType() != null &&
@@ -90,14 +100,6 @@ public class TwilioProvider implements SmsNotification {
         twilioConnection.getWhatsappStatusCallback()
       );
     }
-    try {
-      messageCreator.create();
-    } catch (Exception e) {
-      log.error(null, e);
-      throw new ResponseStatusException(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        NotificationError.SOMETHING_WNET_WRONG.toString()
-      );
-    }
+    messageCreator.create();
   }
 }

@@ -140,19 +140,6 @@ public class PubNubProvider implements PubNubNotification {
       config.getOptions().get(TTL_KEY) != null
     ) {
       try {
-        Boolean allowRead = Optional
-          .ofNullable(config.getOptions())
-          .map(options -> options.get(ALLOW_READ_KEY))
-          .map(Object::toString)
-          .map(Boolean::parseBoolean)
-          .orElse(true);
-        Boolean allowWrite = Optional
-          .ofNullable(config.getOptions())
-          .map(options -> options.get(ALLOW_WRITE_KEY))
-          .map(Object::toString)
-          .map(Boolean::parseBoolean)
-          .orElse(false);
-
         pubnubConnection
           .getPubNub()
           .grant()
@@ -169,8 +156,8 @@ public class PubNubProvider implements PubNubNotification {
               .map(Subscriber::getId)
               .toList()
           )
-          .read(allowRead)
-          .write(allowWrite)
+          .read(allowRead(config))
+          .write(allowWrite(config))
           .ttl(Integer.valueOf(config.getOptions().get(TTL_KEY).toString()))
           .sync();
       } catch (NumberFormatException | PubNubException e) {
@@ -188,6 +175,24 @@ public class PubNubProvider implements PubNubNotification {
       HttpStatus.BAD_REQUEST,
       NotificationError.ATHORIZATION_TOKEN_OR_TTL_NOT_FOUND.toString()
     );
+  }
+
+  boolean allowRead(Config config) {
+    return Optional
+      .ofNullable(config.getOptions())
+      .map(options -> options.get(ALLOW_READ_KEY))
+      .map(Object::toString)
+      .map(Boolean::parseBoolean)
+      .orElse(true);
+  }
+
+  boolean allowWrite(Config config) {
+    return Optional
+      .ofNullable(config.getOptions())
+      .map(options -> options.get(ALLOW_WRITE_KEY))
+      .map(Object::toString)
+      .map(Boolean::parseBoolean)
+      .orElse(false);
   }
 
   @Override
