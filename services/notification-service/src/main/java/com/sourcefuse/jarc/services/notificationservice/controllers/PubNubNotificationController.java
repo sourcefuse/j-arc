@@ -30,12 +30,12 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class PubNubNotificationController {
 
+  @Nullable
   private final PubNubNotification pubNubNotification;
 
   @Nullable
   private final ChannelManagerService channelManagerService;
 
-  @Nullable
   private final NotificationAccessRepository notificationAccessRepository;
 
   @PatchMapping

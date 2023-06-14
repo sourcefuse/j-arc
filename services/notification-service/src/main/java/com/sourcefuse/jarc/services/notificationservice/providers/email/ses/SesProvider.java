@@ -14,6 +14,8 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 
 @Service
 @ConditionalOnProperty(
@@ -43,7 +45,7 @@ public class SesProvider implements EmailNotification {
       } else {
         this.sendToEachReceiverSeperately(fromEmail, message);
       }
-    } catch (MailException e) {
+    } catch (MailException | AwsServiceException | SdkClientException e) {
       log.error(null, e);
       throw new ResponseStatusException(
         HttpStatus.INTERNAL_SERVER_ERROR,

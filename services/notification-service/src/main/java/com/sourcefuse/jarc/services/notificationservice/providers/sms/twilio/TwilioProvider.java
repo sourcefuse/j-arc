@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.notificationservice.providers.sms.twilio;
 
+import com.sourcefuse.jarc.core.enums.NotificationError;
 import com.sourcefuse.jarc.services.notificationservice.providers.sms.twilio.types.TwilioConnectionConfig;
 import com.sourcefuse.jarc.services.notificationservice.providers.sms.twilio.types.TwilioSubscriberType;
 import com.sourcefuse.jarc.services.notificationservice.providers.sms.types.SmsNotification;
@@ -10,6 +11,7 @@ import com.twilio.type.PhoneNumber;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
   havingValue = "TwilioProvider"
 )
 @RequiredArgsConstructor
+@Slf4j
 public class TwilioProvider implements SmsNotification {
 
   private static final String MEDIA_URL_KEY = "mediaUrl";
@@ -50,7 +53,7 @@ public class TwilioProvider implements SmsNotification {
       receiver
         .getType()
         .toString()
-        .equals(TwilioSubscriberType.TEXT_SMS_USER.toString())
+        .equals(TwilioSubscriberType.WHATSAPP_USER.toString())
     ) {
       from = twilioConnection.getWhatsappFrom();
       to = "whatsapp:+" + receiver.getId();
@@ -63,9 +66,11 @@ public class TwilioProvider implements SmsNotification {
     );
 
     if (message.getOptions().get(MEDIA_URL_KEY) != null) {
-      messageCreator.setMediaUrl(
-        (List<URI>) message.getOptions().get(MEDIA_URL_KEY)
-      );
+      List<URI> mediaUrls =
+        ((List<String>) message.getOptions().get(MEDIA_URL_KEY)).stream()
+          .map(url -> URI.create(url))
+          .toList();
+      messageCreator.setMediaUrl(mediaUrls);
     }
     if (
       receiver.getType() != null &&
@@ -85,6 +90,14 @@ public class TwilioProvider implements SmsNotification {
         twilioConnection.getWhatsappStatusCallback()
       );
     }
-    messageCreator.create();
+    try {
+      messageCreator.create();
+    } catch (Exception e) {
+      log.error(null, e);
+      throw new ResponseStatusException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        NotificationError.SOMETHING_WNET_WRONG.toString()
+      );
+    }
   }
 }
