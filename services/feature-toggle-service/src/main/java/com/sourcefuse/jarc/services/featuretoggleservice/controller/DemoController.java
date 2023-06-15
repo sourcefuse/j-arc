@@ -1,12 +1,10 @@
 package com.sourcefuse.jarc.services.featuretoggleservice.controller;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
 import com.sourcefuse.jarc.services.featuretoggleservice.annotation.FeatureToggle;
 import com.sourcefuse.jarc.services.featuretoggleservice.enums.Features;
 
@@ -17,12 +15,31 @@ import lombok.AllArgsConstructor;
 @RequestMapping("/todo")
 public class DemoController {
 
-	@FeatureToggle(value = Features.MAKE_JUICE)
+	@FeatureToggle(value = Features.HELLO)
 	@GetMapping("/hello")
 	@PreAuthorize("isAuthenticated()")
 	public String sayHello() {
-		CurrentUser user = (CurrentUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return "hello";
+		// CurrentUser user = (CurrentUser)
+		// SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return "hellohellohello";
+	}
+
+	@FeatureToggle(value = Features.HI)
+	@GetMapping("/hi")
+	@PreAuthorize("isAuthenticated()")
+	public String sayHi() {
+		// CurrentUser user = (CurrentUser)
+		// SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return "hihihi";
+	}
+
+	@FeatureToggle(value = Features.HEY)
+	@GetMapping("/hey")
+	@PreAuthorize("isAuthenticated()")
+	public String sayHey() {
+		// CurrentUser user = (CurrentUser)
+		// SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return "heyheyhey";
 	}
 
 //	@PostMapping("/add")

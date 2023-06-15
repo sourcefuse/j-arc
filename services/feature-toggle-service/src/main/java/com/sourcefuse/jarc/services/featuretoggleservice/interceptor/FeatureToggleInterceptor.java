@@ -46,8 +46,7 @@ public class FeatureToggleInterceptor {
 		if (FeatureContext.getFeatureManager().isActive(featureToggle.value())) {
 			return pj.proceed();
 		} else {
-			// throw new Throwable("This feature was not enabled for this instance " +
-			// featureToggle.value());
+
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You dont have access to this particular feature");
 		}
 
