@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user-tenant-prefs")
 public class UserTenantPrefsController {
 
-  private final UserTenantPrefsRepository userTPRepository;
+  private final UserTenantPrefsRepository userTenantPrefsRepository;
   private final UserTenantPrefsService userTenantPrefsService;
 
   @PostMapping
@@ -35,7 +35,8 @@ public class UserTenantPrefsController {
 
   @GetMapping
   public ResponseEntity<List<UserTenantPrefs>> getAllUsTenantPrefs() {
-    List<UserTenantPrefs> userTenantPrefsList = userTPRepository.findAll();
+    List<UserTenantPrefs> userTenantPrefsList =
+      userTenantPrefsRepository.findAll();
     return new ResponseEntity<>(userTenantPrefsList, HttpStatus.OK);
   }
 }

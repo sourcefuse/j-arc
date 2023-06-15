@@ -3,13 +3,17 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 import com.sourcefuse.jarc.core.dto.Count;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
+import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
+import com.sourcefuse.jarc.services.usertenantservice.specifications.GroupSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -26,9 +30,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -71,8 +72,11 @@ public class GroupController {
 
   @GetMapping("{id}")
   public ResponseEntity<Group> getGroupById(@PathVariable("id") UUID id) {
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     Group group = groupRepository
-      .findById(id)
+      .findOne(
+        GroupSpecification.byGroupIdAndTenantId(id, currentUser.getTenantId())
+      )
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
@@ -84,12 +88,15 @@ public class GroupController {
 
   @Transactional
   @PatchMapping("{id}")
-  public ResponseEntity<String> updateGroup(
+  public ResponseEntity<String> updateGroupById(
     @PathVariable("id") UUID id,
     @RequestBody Group group
   ) {
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     Group targetGroup = groupRepository
-      .findById(id)
+      .findOne(
+        GroupSpecification.byGroupIdAndTenantId(id, currentUser.getTenantId())
+      )
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
@@ -107,10 +114,18 @@ public class GroupController {
 
   @Transactional
   @DeleteMapping("{id}")
-  public ResponseEntity<String> deleteRolesById(@PathVariable("id") UUID id) {
-    userGroupsRepo.delete(UserGroupsSpecification.byGroupId(id));
+  public ResponseEntity<String> deleteGroupById(@PathVariable("id") UUID id) {
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
+    userGroupsRepo.delete(
+      UserGroupsSpecification.byGroupIdAndTenantId(
+        id,
+        currentUser.getTenantId()
+      )
+    );
 
-    groupRepository.deleteById(id);
+    groupRepository.delete(
+      GroupSpecification.byGroupIdAndTenantId(id, currentUser.getTenantId())
+    );
 
     return new ResponseEntity<>("Groups DELETE success", HttpStatus.NO_CONTENT);
   }

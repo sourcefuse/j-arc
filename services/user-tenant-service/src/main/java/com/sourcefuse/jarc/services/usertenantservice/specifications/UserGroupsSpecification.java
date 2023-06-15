@@ -47,6 +47,33 @@ public final class UserGroupsSpecification {
       builder.equal(root.get("id"), id);
   }
 
+  public static Specification<UserGroup> byTenantId(UUID tenantId) {
+    return (
+        Root<UserGroup> root,
+        CriteriaQuery<?> query,
+        CriteriaBuilder builder
+      ) ->
+      builder.equal(root.get("tenantId"), tenantId);
+  }
+
+  public static Specification<UserGroup> byUserGroupIdAndTenantId(
+    UUID userGroupId,
+    UUID tenantId
+  ) {
+    return Specification
+      .where(UserGroupsSpecification.byId(userGroupId))
+      .and(UserGroupsSpecification.byTenantId(tenantId));
+  }
+
+  public static Specification<UserGroup> byGroupIdAndTenantId(
+    UUID groupId,
+    UUID tenantId
+  ) {
+    return Specification
+      .where(UserGroupsSpecification.byGroupId(groupId))
+      .and(UserGroupsSpecification.byTenantId(tenantId));
+  }
+
   public static Specification<UserGroup> byGroupIdAndUserTenantId(
     UUID groupId,
     UUID userTenantId

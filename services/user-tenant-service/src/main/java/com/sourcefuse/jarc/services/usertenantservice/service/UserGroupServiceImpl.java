@@ -5,23 +5,23 @@ import com.sourcefuse.jarc.core.dto.Count;
 import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
+import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
+import com.sourcefuse.jarc.services.usertenantservice.specifications.GroupSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -79,7 +79,13 @@ public class UserGroupServiceImpl implements UserGroupService {
   ) {
     /** INFO fetch value in Group against primary key and also to
          and to update modifiedOn parameter*/
-    Optional<Group> group = groupRepository.findById(groupId);
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
+    Optional<Group> group = groupRepository.findOne(
+      GroupSpecification.byGroupIdAndTenantId(
+        groupId,
+        currentUser.getTenantId()
+      )
+    );
     if (group.isPresent()) {
       Count count = Count
         .builder()
@@ -103,7 +109,12 @@ public class UserGroupServiceImpl implements UserGroupService {
       }
       userGroup.setId(null);
       UserGroup targetUserGroup = userGroupsRepo
-        .findById(userGroupId)
+        .findOne(
+          UserGroupsSpecification.byUserGroupIdAndTenantId(
+            userGroupId,
+            currentUser.getTenantId()
+          )
+        )
         .orElseThrow(() ->
           new ResponseStatusException(
             HttpStatus.NOT_FOUND,
@@ -129,13 +140,15 @@ public class UserGroupServiceImpl implements UserGroupService {
 
   @Override
   public void deleteUserGroup(UUID groupId, UUID userGroupId) {
-    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
-      .getContext()
-      .getAuthentication()
-      .getPrincipal();
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     /** INFO fetch value in Group against primary key and also to
          and to update modifiedOn parameter*/
-    Optional<Group> group = groupRepository.findById(groupId);
+    Optional<Group> group = groupRepository.findOne(
+      GroupSpecification.byGroupIdAndTenantId(
+        groupId,
+        currentUser.getTenantId()
+      )
+    );
     if (group.isPresent()) {
       UUID userTenantId = currentUser.getUserTenantId();
       List<UserGroup> savedUserGroup = userGroupsRepo.findAll(
@@ -167,7 +180,12 @@ public class UserGroupServiceImpl implements UserGroupService {
       if (count.getTotalCount() == 1) {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, oneOwnerMsg);
       }
-      userGroupsRepo.deleteById(userGroupId);
+      userGroupsRepo.delete(
+        UserGroupsSpecification.byUserGroupIdAndTenantId(
+          userGroupId,
+          currentUser.getTenantId()
+        )
+      );
       group.get().setModifiedOn(LocalDateTime.now());
       groupRepository.save(group.get());
     } else {

@@ -14,6 +14,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -48,6 +49,10 @@ public class Group extends UserModifiableEntity {
 
   @OneToMany(mappedBy = "group")
   private List<UserGroup> userGroups;
+
+  @NotNull(message = "Tenant ID cannot be null")
+  @Column(name = "tenant_id", nullable = false)
+  private UUID tenantId;
 
   public Group(UUID groupId) {
     this.id = groupId;

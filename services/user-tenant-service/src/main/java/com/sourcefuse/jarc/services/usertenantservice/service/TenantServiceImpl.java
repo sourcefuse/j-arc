@@ -1,23 +1,20 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
-import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
+import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.TenantConfig;
-import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantConfigRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.TenantConfigSpecification;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -59,44 +56,26 @@ public class TenantServiceImpl implements TenantService {
   }
 
   @Override
-  public List<TenantConfig> getTenantConfig(UUID tenantId) {
-    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
-      .getContext()
-      .getAuthentication()
-      .getPrincipal();
+  public void deleteById(UUID tenantId) {
+    checkDeleteTenantAccessPermission(tenantId);
+    tenantRepository.deleteById(tenantId);
+  }
 
-    if (
-      !currentUser.getTenantId().equals(tenantId) &&
-      !currentUser
-        .getPermissions()
-        .contains(PermissionKey.VIEW_OWN_TENANT.getValue())
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
-      );
-    }
+  @Override
+  public List<TenantConfig> getTenantConfig(UUID tenantId) {
+    checkViewTenantAccessPermission(tenantId);
     return tenantConfigRepository.findAll(
       TenantConfigSpecification.byTenantId(tenantId)
     );
   }
 
   private static void checkViewTenantAccessPermission(UUID tenantId) {
-    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
-      .getContext()
-      .getAuthentication()
-      .getPrincipal();
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
+    CurrentUserUtils.compareWithCurrentUserTenantId(tenantId, currentUser);
+  }
 
-    if (
-      currentUser.getTenantId().equals(tenantId) &&
-      !currentUser
-        .getPermissions()
-        .contains(PermissionKey.VIEW_OWN_TENANT.getValue())
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
-      );
-    }
+  private static void checkDeleteTenantAccessPermission(UUID tenantId) {
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
+    CurrentUserUtils.compareWithCurrentUserTenantId(tenantId, currentUser);
   }
 }

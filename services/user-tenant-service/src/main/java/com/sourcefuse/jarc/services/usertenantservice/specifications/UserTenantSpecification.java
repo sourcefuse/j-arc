@@ -3,6 +3,7 @@ package com.sourcefuse.jarc.services.usertenantservice.specifications;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
@@ -36,6 +37,24 @@ public final class UserTenantSpecification {
         CriteriaBuilder builder
       ) ->
       builder.equal(root.get("tenant"), tenantId);
+  }
+
+  public static Specification<UserTenant> orderByIdAsc() {
+    return (
+        Root<UserTenant> root,
+        CriteriaQuery<?> query,
+        CriteriaBuilder builder
+      ) ->
+      (Predicate) query.orderBy(builder.asc(root.get("id")));
+  }
+
+  public static Specification<UserTenant> byUserIdAndTenantIdOrderByIdAsc(
+    UUID userId,
+    UUID tenantId
+  ) {
+    return Specification
+      .where(UserTenantSpecification.byUserId(userId))
+      .and(UserTenantSpecification.byTenantId(tenantId));
   }
 
   public static Specification<UserTenant> byUserIdAndTenantId(

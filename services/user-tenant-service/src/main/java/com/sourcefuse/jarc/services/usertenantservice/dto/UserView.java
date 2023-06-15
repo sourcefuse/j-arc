@@ -74,7 +74,7 @@ public class UserView extends UserModifiableEntity {
 
   @NotBlank(message = "defaultTenantId must not be Empty")
   @Column(name = "default_tenant_id", nullable = false)
-  private String defaultTenantId;
+  private UUID defaultTenantId;
 
   @Column(name = "status")
   @Enumerated(EnumType.STRING)

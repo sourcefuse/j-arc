@@ -58,6 +58,7 @@ public class User extends UserModifiableEntity {
 
   @NotBlank(message = "email must not be Empty")
   @Column(nullable = false)
+  @Pattern(regexp = "^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$")
   private String email;
 
   private String designation;

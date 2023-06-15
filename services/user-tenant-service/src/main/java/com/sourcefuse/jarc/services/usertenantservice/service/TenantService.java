@@ -10,5 +10,7 @@ public interface TenantService {
 
   void updateTenantsById(Tenant sourceTenant, UUID tenantId);
 
+  void deleteById(UUID tenantId);
+
   List<TenantConfig> getTenantConfig(UUID tenantId);
 }

@@ -5,5 +5,5 @@ public enum UserStatus {
   ACTIVE,
   INACTIVE,
   PASSWORD_CHANGE_NEEDED,
-  REJECTED;
+  REJECTED,
 }

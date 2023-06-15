@@ -48,6 +48,10 @@ public class UserGroup extends UserModifiableEntity {
   @Column(name = "is_owner")
   private boolean isOwner;
 
+  @NotNull(message = "Tenant ID cannot be null")
+  @Column(name = "tenant_id", nullable = false)
+  private UUID tenantId;
+
   @JsonProperty("groupId")
   @NotNull(message = "Group ID cannot be null")
   public UUID getGrp() {

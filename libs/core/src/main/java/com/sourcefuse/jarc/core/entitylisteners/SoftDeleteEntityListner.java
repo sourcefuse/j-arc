@@ -27,8 +27,7 @@ public class SoftDeleteEntityListner<T extends SoftDeleteEntity> {
           "Forbidden :: User is not Authenticated"
         );
 
-        CurrentUser currentUser =
-          (CurrentUser) authentication.getPrincipal();
+        CurrentUser currentUser = (CurrentUser) authentication.getPrincipal();
         Assert.notNull(
           currentUser,
           "Current User is null can not set deleted by"

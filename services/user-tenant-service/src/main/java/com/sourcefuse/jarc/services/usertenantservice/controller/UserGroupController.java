@@ -1,11 +1,14 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.core.dto.Count;
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
+import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.UserGroupService;
+import com.sourcefuse.jarc.services.usertenantservice.specifications.GroupSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -48,7 +51,7 @@ public class UserGroupController {
 
   @Transactional
   @PatchMapping("{id}/user-groups/{userGroupId}")
-  public ResponseEntity<String> updateAll(
+  public ResponseEntity<String> updateUserGroupById(
     @PathVariable("id") UUID id,
     @RequestBody UserGroup userGroup,
     @PathVariable("userGroupId") UUID userGroupId
@@ -62,7 +65,7 @@ public class UserGroupController {
 
   @Transactional
   @DeleteMapping("{id}/user-groups/{userGroupId}")
-  public ResponseEntity<String> deleteUsrGrp(
+  public ResponseEntity<String> deleteUserGroupById(
     @PathVariable("id") UUID id,
     @PathVariable("userGroupId") UUID userGroupId
   ) {
@@ -71,17 +74,25 @@ public class UserGroupController {
   }
 
   @GetMapping("{id}/user-groups")
-  public ResponseEntity<List<UserGroup>> getAllUsTenantByRole(
+  public ResponseEntity<List<UserGroup>> getAllUserGroupByGroupId(
     @PathVariable("id") UUID id
   ) {
     /** INFO fetch value in Group against primary key also a validation
          if group table does not have the records then  it will also not be
          available in userGroups table */
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     List<UserGroup> userGroupList;
-    Optional<Group> group = groupRepository.findById(id);
+    Optional<Group> group = groupRepository.findOne(
+      GroupSpecification.byGroupIdAndTenantId(id, currentUser.getTenantId())
+    );
     if (group.isPresent()) {
       userGroupList =
-        userGroupsRepo.findAll(UserGroupsSpecification.byGroupId(id));
+        userGroupsRepo.findAll(
+          UserGroupsSpecification.byGroupIdAndTenantId(
+            id,
+            currentUser.getTenantId()
+          )
+        );
       return new ResponseEntity<>(userGroupList, HttpStatus.OK);
     } else {
       throw new ResponseStatusException(
@@ -93,8 +104,12 @@ public class UserGroupController {
 
   @GetMapping("{id}/user-groups/count")
   public ResponseEntity<Count> countUserGroup(@PathVariable("id") UUID id) {
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     Long groupCount = userGroupsRepo.count(
-      UserGroupsSpecification.byGroupId(id)
+      UserGroupsSpecification.byGroupIdAndTenantId(
+        id,
+        currentUser.getTenantId()
+      )
     );
     Count count = Count.builder().totalCount(groupCount).build();
     return new ResponseEntity<>(count, HttpStatus.OK);

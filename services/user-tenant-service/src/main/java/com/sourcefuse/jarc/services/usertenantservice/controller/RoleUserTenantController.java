@@ -35,7 +35,7 @@ public class RoleUserTenantController {
 
   private final RoleRepository roleRepository;
 
-  private final RoleUserTenantRepository roleUserTRepository;
+  private final RoleUserTenantRepository roleUserTenantRepository;
 
   @PostMapping("{id}/user-tenants")
   public ResponseEntity<UserTenant> createRole(
@@ -52,7 +52,7 @@ public class RoleUserTenantController {
         )
       );
     userTenant.getRole().setId(role.getId());
-    savedUserRole = roleUserTRepository.save(userTenant);
+    savedUserRole = roleUserTenantRepository.save(userTenant);
     return new ResponseEntity<>(savedUserRole, HttpStatus.CREATED);
   }
 
@@ -60,7 +60,7 @@ public class RoleUserTenantController {
   public ResponseEntity<List<UserTenant>> getAllUserTenantByRole(
     @PathVariable("id") UUID id
   ) {
-    List<UserTenant> tenantList = roleUserTRepository.findAll(
+    List<UserTenant> tenantList = roleUserTenantRepository.findAll(
       UserTenantSpecification.byRoleId(id)
     );
     return new ResponseEntity<>(tenantList, HttpStatus.OK);
@@ -70,7 +70,7 @@ public class RoleUserTenantController {
   public ResponseEntity<Count> countUserTenantByRole(
     @PathVariable("id") UUID id
   ) {
-    List<UserTenant> tenantList = roleUserTRepository.findAll(
+    List<UserTenant> tenantList = roleUserTenantRepository.findAll(
       UserTenantSpecification.byRoleId(id)
     );
     return new ResponseEntity<>(
@@ -86,8 +86,7 @@ public class RoleUserTenantController {
     @RequestBody UserTenant sourceUserTenant
   ) {
     List<UserTenant> targetUserTenantArrayList = new ArrayList<>();
-
-    List<UserTenant> userTenantArrayList = roleUserTRepository.findAll(
+    List<UserTenant> userTenantArrayList = roleUserTenantRepository.findAll(
       UserTenantSpecification.byRoleId(id)
     );
     long count = 0;
@@ -100,7 +99,8 @@ public class RoleUserTenantController {
         );
         targetUserTenantArrayList.add(targetUserTenant);
       }
-      count = roleUserTRepository.saveAll(targetUserTenantArrayList).size();
+      count =
+        roleUserTenantRepository.saveAll(targetUserTenantArrayList).size();
     }
     return new ResponseEntity<>(new Count(count), HttpStatus.OK);
   }
@@ -108,7 +108,7 @@ public class RoleUserTenantController {
   @Transactional
   @DeleteMapping("{id}/user-tenants")
   public ResponseEntity<Count> deleteRolesById(@PathVariable("id") UUID id) {
-    long count = roleUserTRepository.delete(
+    long count = roleUserTenantRepository.delete(
       UserTenantSpecification.byRoleId(id)
     );
     Count cnt = Count.builder().totalCount(count).build();

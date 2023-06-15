@@ -1,17 +1,15 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
-import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
+import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
-import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserViewSpecification;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,10 +23,7 @@ public class UserTenantServiceImpl implements UserTenantService {
 
   @Override
   public UserView getUserTenantById(UUID id) {
-    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
-      .getContext()
-      .getAuthentication()
-      .getPrincipal();
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     UserTenant userTenant = roleUserTenantRepository
       .findById(id)
       .orElseThrow(() ->
@@ -37,33 +32,19 @@ public class UserTenantServiceImpl implements UserTenantService {
           "No User-Tenant is present against given value" + id
         )
       );
-    if (
-      !currentUser.getTenantId().equals(userTenant.getTenant().getId()) &&
-      !currentUser
-        .getPermissions()
-        .contains(PermissionKey.VIEW_ANY_USER.getValue())
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
-      );
-    }
-    if (
-      !currentUser.getId().equals(userTenant.getUser().getId()) &&
+    CurrentUserUtils.compareWithCurrentUserTenantId(
+      userTenant.getTenant().getId(),
       currentUser
-        .getPermissions()
-        .contains(PermissionKey.VIEW_OWN_USER.getValue())
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.getValue()
-      );
-    }
+    );
+
+    CurrentUserUtils.compareWithCurrentUsersUserId(
+      userTenant.getUser().getId(),
+      currentUser
+    );
+
     /*** INFO :As discussed by samarpan currently
      checkViewTenantRestrictedPermissions we
-     dont have to implement..
-     One tenant cannot see others tenant data
-     need to implement***/
+     dont have to implement***/
     return userViewRepository
       .findOne(UserViewSpecification.byUserTenantId(id))
       .orElseThrow(() ->

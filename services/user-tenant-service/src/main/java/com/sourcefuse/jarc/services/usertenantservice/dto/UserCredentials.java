@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "user_credentials")
+@Table(name = "user_credentials", schema = "main")
 public class UserCredentials extends UserModifiableEntity {
 
   @Id
