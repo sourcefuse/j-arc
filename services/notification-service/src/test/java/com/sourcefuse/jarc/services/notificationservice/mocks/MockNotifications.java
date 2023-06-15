@@ -81,10 +81,10 @@ public final class MockNotifications {
   public static Notification getFcmNotificationObj() {
     Subscriber subscriberOne = new Subscriber();
     subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
-    subscriberOne.setType(FcmSubscriberType.REGISTRATION_TOKEN);
+    subscriberOne.setType(FcmSubscriberType.REGISTRATION_TOKEN.toString());
     Subscriber subscriberTwo = new Subscriber();
     subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
-    subscriberTwo.setType(FcmSubscriberType.REGISTRATION_TOKEN);
+    subscriberTwo.setType(FcmSubscriberType.REGISTRATION_TOKEN.toString());
 
     return buildNotification(
       Arrays.asList(subscriberOne, subscriberTwo),
@@ -95,10 +95,10 @@ public final class MockNotifications {
   public static Notification getPubnubNotificationObj() {
     Subscriber subscriberOne = new Subscriber();
     subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
-    subscriberOne.setType(PubNubSubscriberType.CHANNEL);
+    subscriberOne.setType(PubNubSubscriberType.CHANNEL.toString());
     Subscriber subscriberTwo = new Subscriber();
     subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
-    subscriberTwo.setType(PubNubSubscriberType.CHANNEL);
+    subscriberTwo.setType(PubNubSubscriberType.CHANNEL.toString());
 
     return buildNotification(
       Arrays.asList(subscriberOne, subscriberTwo),
@@ -141,10 +141,10 @@ public final class MockNotifications {
   public static Notification getWhatsappTwilioNotificationObj() {
     Subscriber subscriberOne = new Subscriber();
     subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
-    subscriberOne.setType(TwilioSubscriberType.WHATSAPP_USER);
+    subscriberOne.setType(TwilioSubscriberType.WHATSAPP_USER.toString());
     Subscriber subscriberTwo = new Subscriber();
     subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
-    subscriberTwo.setType(TwilioSubscriberType.WHATSAPP_USER);
+    subscriberTwo.setType(TwilioSubscriberType.WHATSAPP_USER.toString());
 
     Notification notification = buildNotification(
       Arrays.asList(subscriberOne, subscriberTwo),
@@ -160,10 +160,10 @@ public final class MockNotifications {
   public static Notification getSnsNotificationObj() {
     Subscriber subscriberOne = new Subscriber();
     subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
-    subscriberOne.setType(SnsSubscriberType.PHONE_NUMBER);
+    subscriberOne.setType(SnsSubscriberType.PHONE_NUMBER.toString());
     Subscriber subscriberTwo = new Subscriber();
     subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
-    subscriberTwo.setType(SnsSubscriberType.PHONE_NUMBER);
+    subscriberTwo.setType(SnsSubscriberType.PHONE_NUMBER.toString());
 
     Receiver receiver = new Receiver();
     receiver.setTo(Arrays.asList(subscriberOne, subscriberTwo));

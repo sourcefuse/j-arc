@@ -52,7 +52,7 @@ class SnsProviderTests {
       .getReceiver()
       .getTo()
       .stream()
-      .forEach(item -> item.setType(SnsSubscriberType.PHONE_NUMBER));
+      .forEach(item -> item.setType(SnsSubscriberType.PHONE_NUMBER.toString()));
     snsProvider.publish(message);
 
     Mockito
@@ -69,7 +69,7 @@ class SnsProviderTests {
       .getReceiver()
       .getTo()
       .stream()
-      .forEach(item -> item.setType(SnsSubscriberType.TOPIC));
+      .forEach(item -> item.setType(SnsSubscriberType.TOPIC.toString()));
     snsProvider.publish(message);
 
     Mockito

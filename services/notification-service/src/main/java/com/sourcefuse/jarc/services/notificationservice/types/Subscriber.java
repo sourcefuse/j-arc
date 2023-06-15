@@ -19,5 +19,5 @@ public class Subscriber {
 
   private String name;
 
-  private Object type;
+  private String type;
 }

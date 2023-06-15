@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.sourcefuse.jarc.services.notificationservice.enums.MessageType;
+import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ public class Message {
 
   private String body;
 
+  @Valid
   private Receiver receiver;
 
   @JsonSerialize(using = LocalDateTimeSerializer.class)

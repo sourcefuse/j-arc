@@ -94,7 +94,8 @@ class FcmProviderTests {
       .getReceiver()
       .getTo()
       .stream()
-      .forEach(item -> item.setType(FcmSubscriberType.FCM_CONDITION));
+      .forEach(item -> item.setType(FcmSubscriberType.FCM_CONDITION.toString())
+      );
     fcmProvider.publish(message);
 
     Mockito
@@ -114,7 +115,8 @@ class FcmProviderTests {
       .getReceiver()
       .getTo()
       .stream()
-      .forEach(item -> item.setType(FcmSubscriberType.FCM_CONDITION));
+      .forEach(item -> item.setType(FcmSubscriberType.FCM_CONDITION.toString())
+      );
     fcmProvider.publish(message);
 
     Mockito
