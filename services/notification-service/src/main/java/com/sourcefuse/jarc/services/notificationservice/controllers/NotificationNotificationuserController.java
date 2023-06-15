@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/notifications/{id}/notification-users")
@@ -96,6 +97,32 @@ public class NotificationNotificationuserController {
     this.notificationUserRepository.saveAll(notificationUsers);
     return new ResponseEntity<>(
       "Notification user updated successfully",
+      HttpStatus.OK
+    );
+  }
+
+  @PatchMapping("/{notificationUserId}/mark-as-read")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<Object> markAsRead(
+    @PathVariable("id") UUID notificationId,
+    @PathVariable("notificationUserId") UUID notificationUserId
+  ) {
+    NotificationUser notificationUser =
+      this.notificationUserRepository.findOne(
+          NotificationUserSpecifications
+            .byNotificationId(notificationId)
+            .and(NotificationUserSpecifications.byId(notificationUserId))
+        )
+        .orElseThrow(() ->
+          new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "entity not found for provided id"
+          )
+        );
+    notificationUser.setRead(true);
+    this.notificationUserRepository.save(notificationUser);
+    return new ResponseEntity<>(
+      "Notification User Updated Successfully",
       HttpStatus.OK
     );
   }

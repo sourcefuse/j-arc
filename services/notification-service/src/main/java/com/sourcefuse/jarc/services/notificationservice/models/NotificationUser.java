@@ -42,7 +42,7 @@ public class NotificationUser extends UserModifiableEntity {
   private String userId;
 
   @Column(columnDefinition = "boolean default false")
-  private Boolean isRead;
+  private boolean isRead;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = true)

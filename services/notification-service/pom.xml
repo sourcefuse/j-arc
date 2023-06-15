@@ -59,7 +59,6 @@
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
@@ -98,28 +97,27 @@
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
-<dependency>
-    <groupId>io.awspring.cloud</groupId>
-    <artifactId>spring-cloud-aws-dependencies</artifactId>
-    <version>3.0.1</version>
-    <type>pom</type>
-</dependency>
-<dependency>
-    <groupId>io.awspring.cloud</groupId>
-    <artifactId>spring-cloud-starter-aws-ses</artifactId>
-    <version>2.4.4</version>
-</dependency>
-<dependency>
-    <groupId>io.awspring.cloud</groupId>
-    <artifactId>spring-cloud-aws-ses</artifactId>
-    <version>3.0.1</version>
-</dependency>
-<dependency>
-    <groupId>io.awspring.cloud</groupId>
-    <artifactId>spring-cloud-aws-starter-sns</artifactId>
-    <version>3.0.0-M2</version>
-</dependency>
-
+		<dependency>
+		    <groupId>io.awspring.cloud</groupId>
+		    <artifactId>spring-cloud-aws-dependencies</artifactId>
+		    <version>3.0.1</version>
+		    <type>pom</type>
+		</dependency>
+		<dependency>
+		    <groupId>io.awspring.cloud</groupId>
+		    <artifactId>spring-cloud-starter-aws-ses</artifactId>
+		    <version>2.4.4</version>
+		</dependency>
+		<dependency>
+		    <groupId>io.awspring.cloud</groupId>
+		    <artifactId>spring-cloud-aws-ses</artifactId>
+		    <version>3.0.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>io.awspring.cloud</groupId>
+		    <artifactId>spring-cloud-aws-starter-sns</artifactId>
+		    <version>3.0.0-M2</version>
+		</dependency>
 		<dependency>
 		    <groupId>com.amazonaws</groupId>
 		    <artifactId>aws-java-sdk-ses</artifactId>

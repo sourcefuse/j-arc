@@ -21,4 +21,13 @@ public final class NotificationUserSpecifications {
       ) ->
       criteriaBuilder.equal(root.get("notification").get("id"), notificationId);
   }
+
+  public static Specification<NotificationUser> byId(UUID id) {
+    return (
+        Root<NotificationUser> root,
+        CriteriaQuery<?> query,
+        CriteriaBuilder criteriaBuilder
+      ) ->
+      criteriaBuilder.equal(root.get("id"), id);
+  }
 }
