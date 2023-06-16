@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
 import com.sourcefuse.jarc.core.constants.CommonConstants;
-import com.sourcefuse.jarc.core.dto.Count;
+import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
@@ -12,16 +12,17 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.GroupSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -87,15 +88,15 @@ public class UserGroupServiceImpl implements UserGroupService {
       )
     );
     if (group.isPresent()) {
-      Count count = Count
+      CountResponse count = CountResponse
         .builder()
-        .totalCount(
+        .count(
           userGroupsRepo.count(
             UserGroupsSpecification.byGroupIdAndIsOwner(groupId, true)
           )
         )
         .build();
-      if (count.getTotalCount() == 1) {
+      if (count.getCount() == 1) {
         Optional<UserGroup> savedUserGrp = userGroupsRepo.findOne(
           UserGroupsSpecification.byGroupIdAndIdAndIsOwner(
             groupId,
@@ -127,7 +128,7 @@ public class UserGroupServiceImpl implements UserGroupService {
   }
 
   private UserGroup getUserGroup(UUID userGroupId, CurrentUser currentUser) {
-    UserGroup targetUserGroup = userGroupsRepo
+    return userGroupsRepo
       .findOne(
         UserGroupsSpecification.byUserGroupIdAndTenantId(
           userGroupId,
@@ -140,7 +141,6 @@ public class UserGroupServiceImpl implements UserGroupService {
           CommonConstants.NO_USR_GRP_PRESENT + " " + userGroupId
         )
       );
-    return targetUserGroup;
   }
 
   @Override
@@ -170,13 +170,13 @@ public class UserGroupServiceImpl implements UserGroupService {
         savedUserGroup,
         userGroup
       );
-      Count count = Count
+      CountResponse count = CountResponse
         .builder()
-        .totalCount(
+        .count(
           userGroupsRepo.count(UserGroupsSpecification.byGroupId(groupId))
         )
         .build();
-      if (count.getTotalCount() == 1) {
+      if (count.getCount() == 1) {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, oneOwnerMsg);
       }
       userGroupsRepo.delete(
@@ -199,14 +199,13 @@ public class UserGroupServiceImpl implements UserGroupService {
     UUID userGroupId,
     List<UserGroup> savedUserGroup
   ) {
-    UserGroup userGroup = savedUserGroup
+    return savedUserGroup
       .stream()
       .filter(userGrp -> userGrp.getId().equals(userGroupId))
       .findFirst()
       .orElseThrow(() ->
         new ResponseStatusException(HttpStatus.FORBIDDEN, userGroupNotFound)
       );
-    return userGroup;
   }
 
   private static void checkGroupOwnerAccessPermission(

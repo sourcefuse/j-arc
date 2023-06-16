@@ -40,6 +40,7 @@ public class TestConstants {
     currentUser.setLastName("Admin");
     currentUser.setEmail("oasis_admin@sourcefuse.com");
     currentUser.setUsername("oasis_admin@sourcefuse.com");
+    
 
     // Create an authentication object with the dummy user and set it in the
     // SecurityContext

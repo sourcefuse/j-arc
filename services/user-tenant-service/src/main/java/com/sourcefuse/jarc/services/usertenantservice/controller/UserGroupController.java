@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
-import com.sourcefuse.jarc.core.dto.Count;
+import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
@@ -11,9 +11,6 @@ import com.sourcefuse.jarc.services.usertenantservice.service.UserGroupService;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.GroupSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -28,6 +25,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -103,7 +104,7 @@ public class UserGroupController {
   }
 
   @GetMapping("{id}/user-groups/count")
-  public ResponseEntity<Count> countUserGroup(@PathVariable("id") UUID id) {
+  public ResponseEntity<CountResponse> countUserGroup(@PathVariable("id") UUID id) {
     CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     Long groupCount = userGroupsRepo.count(
       UserGroupsSpecification.byGroupIdAndTenantId(
@@ -111,7 +112,7 @@ public class UserGroupController {
         currentUser.getTenantId()
       )
     );
-    Count count = Count.builder().totalCount(groupCount).build();
+    CountResponse count = CountResponse.builder().count(groupCount).build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
 }

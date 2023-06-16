@@ -12,9 +12,6 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -22,6 +19,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
