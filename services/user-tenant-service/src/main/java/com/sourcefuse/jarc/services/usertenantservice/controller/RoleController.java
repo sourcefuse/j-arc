@@ -6,6 +6,9 @@ import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -23,10 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 @RestController
 @Slf4j
 @RequestMapping("/roles")
@@ -43,7 +42,10 @@ public class RoleController {
 
   @GetMapping("/count")
   public ResponseEntity<CountResponse> countRole() {
-    CountResponse count = CountResponse.builder().count(roleRepository.count()).build();
+    CountResponse count = CountResponse
+      .builder()
+      .count(roleRepository.count())
+      .build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
 
@@ -55,7 +57,9 @@ public class RoleController {
 
   @Transactional
   @PatchMapping
-  public ResponseEntity<CountResponse> updateAllRole(@RequestBody Role sourceRole) {
+  public ResponseEntity<CountResponse> updateAllRole(
+    @RequestBody Role sourceRole
+  ) {
     List<Role> updatedRoleLis = new ArrayList<>();
 
     List<Role> targetRoleList = roleRepository.findAll();
