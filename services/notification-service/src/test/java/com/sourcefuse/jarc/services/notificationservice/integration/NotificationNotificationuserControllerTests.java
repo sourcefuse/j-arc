@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.services.notificationservice.controllers.NotificationNotificationuserController;
 import com.sourcefuse.jarc.services.notificationservice.mocks.MockNotificationUsers;
+import com.sourcefuse.jarc.services.notificationservice.mocks.MockNotifications;
 import com.sourcefuse.jarc.services.notificationservice.models.NotificationUser;
 import com.sourcefuse.jarc.services.notificationservice.repositories.softdelete.NotificationUserRepository;
 import jakarta.validation.ConstraintViolation;
@@ -11,6 +12,7 @@ import jakarta.validation.Validator;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.junit.jupiter.api.Assertions;
@@ -146,6 +148,56 @@ class NotificationNotificationuserControllerTests {
         new TypeReference<List<NotificationUser>>() {}
       )
     );
+  }
+
+  @Test
+  @DisplayName("Notification User's Notification Mark as Read - Success")
+  void testMarkAsRead_Success() throws Exception {
+    NotificationUser notificationUser =
+      MockNotificationUsers.getNotificationUser();
+
+    Mockito
+      .when(
+        notificationUserRepository.findOne(
+          ArgumentMatchers.<Specification<NotificationUser>>any()
+        )
+      )
+      .thenReturn(Optional.ofNullable(notificationUser));
+
+    String url = String.format(
+      basePath + "/%s/mark-as-read",
+      notificationUser.getId(),
+      MockNotifications.NOTIFICATION_ID
+    );
+
+    mockMvc
+      .perform(MockMvcRequestBuilders.patch(url))
+      .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  @DisplayName("Notification User's Notification Mark as Read - Success")
+  void testMarkAsRead_NotificationUserNotFound() throws Exception {
+    NotificationUser notificationUser =
+      MockNotificationUsers.getNotificationUser();
+
+    Mockito
+      .when(
+        notificationUserRepository.findOne(
+          ArgumentMatchers.<Specification<NotificationUser>>any()
+        )
+      )
+      .thenReturn(Optional.ofNullable(null));
+
+    String url = String.format(
+      basePath + "/%s/mark-as-read",
+      notificationUser.getId(),
+      MockNotifications.NOTIFICATION_ID
+    );
+
+    mockMvc
+      .perform(MockMvcRequestBuilders.patch(url))
+      .andExpect(MockMvcResultMatchers.status().isNotFound());
   }
 
   @Test

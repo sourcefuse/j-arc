@@ -65,7 +65,7 @@ public class Notification extends Message {
   private LocalDateTime sentDate;
 
   @NotNull
-  @Column(nullable = false)
+  @Column(nullable = false, name = "notification_type")
   private MessageType type;
 
   @JdbcTypeCode(SqlTypes.JSON)
