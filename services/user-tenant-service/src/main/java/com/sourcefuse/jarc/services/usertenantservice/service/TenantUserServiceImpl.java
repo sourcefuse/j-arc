@@ -1,9 +1,9 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
 import com.sourcefuse.jarc.core.constants.CommonConstants;
-import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
+import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.AuthClient;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
@@ -11,7 +11,6 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.User;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
-import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.repository.AuthClientsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserRepository;
@@ -81,7 +80,7 @@ public class TenantUserServiceImpl implements TenantUserService {
     if (existingUser != null) {
       return existingUser;
     }
-    //extracted(userData, currentUser, roleType);
+    /*** INFO:Restricted permission check removed*/
     List<AuthClient> authClients = authClientsRepository.findAll(
       AuthClientsSpecification.byClientIdIn(role.getAllowedClients())
     );
@@ -122,25 +121,6 @@ public class TenantUserServiceImpl implements TenantUserService {
     );
   }
 
-  private static void extracted(
-    UserDto userData,
-    CurrentUser currentUser,
-    String roleType
-  ) {
-    if (
-      currentUser.getTenantId().equals(userData.getTenantId()) &&
-      currentUser
-        .getPermissions()
-        .contains(PermissionKey.CREATE_TENANT_USER_RESTRICTED.toString()) &&
-      !currentUser.getPermissions().contains("CreateTenant" + roleType)
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
-      );
-    }
-  }
-
   private UserDto getUserDto(
     UserDto userData,
     Map<String, String> mapOption,
@@ -159,7 +139,7 @@ public class TenantUserServiceImpl implements TenantUserService {
       if (existingUserTenant.isPresent()) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, userExits);
       } else {
-        // extracted(userData, currentUser, roleType);
+        /*** INFO: Restricted permission check removed */
         log.info("User exist but not registered");
         UserTenant userTenant = createUserTenantData(
           userData,
@@ -205,8 +185,6 @@ public class TenantUserServiceImpl implements TenantUserService {
       userDto.setUserDetails(user);
       userDtoList.add(userDto);
     }
-    user = null;
-    userDto = null;
     return userDtoList;
   }
 
@@ -237,7 +215,10 @@ public class TenantUserServiceImpl implements TenantUserService {
     CurrentUser currentUser,
     Map<String, String> options
   ) {
-    extracted(userData, currentUser);
+    CurrentUserUtils.compareWithCurrentUserTenantId(
+      userData.getTenantId(),
+      currentUser
+    );
 
     // Check for allowed domains
     String[] allowedDomains = (System.getenv("AUTO_SIGNUP_DOMAINS") != null)
@@ -245,11 +226,11 @@ public class TenantUserServiceImpl implements TenantUserService {
       : new String[0];
     String[] email = user.getEmail().split("@");
 
-    extracted(options, allowedDomains, email);
+    assignAuthProvider(options, allowedDomains, email);
     // Implement user creation validation logic here
   }
 
-  private static void extracted(
+  private static void assignAuthProvider(
     Map<String, String> options,
     String[] allowedDomains,
     String[] email
@@ -270,15 +251,6 @@ public class TenantUserServiceImpl implements TenantUserService {
       );
     } else {
       log.info("Cannot configured Auth_PROVIDER");
-    }
-  }
-
-  private static void extracted(UserDto userData, CurrentUser currentUser) {
-    if (!currentUser.getTenantId().equals(userData.getTenantId())) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
-      );
     }
   }
 

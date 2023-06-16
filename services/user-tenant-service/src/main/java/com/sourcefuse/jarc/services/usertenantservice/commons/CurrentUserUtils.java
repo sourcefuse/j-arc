@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 @Component
-public class CurrentUserUtils {
+public final class CurrentUserUtils {
 
   private CurrentUserUtils() {}
 
@@ -38,11 +38,10 @@ public class CurrentUserUtils {
   }
 
   public static CurrentUser getCurrentUser() {
-    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
+    return (CurrentUser) SecurityContextHolder
       .getContext()
       .getAuthentication()
       .getPrincipal();
-    return currentUser;
   }
 
   public static CurrentUser getCurrentWithPermissions(UUID tenantId) {

@@ -26,7 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class UpdateTntUserServiceImpl implements UpdateTntUserService {
+public class UpdateTenantUserServiceImpl implements UpdateTenantUserService {
 
   private final UserTenantRepository userTenantRepository;
 
@@ -72,7 +72,7 @@ public class UpdateTntUserServiceImpl implements UpdateTntUserService {
     UUID id,
     UUID tenantId
   ) {
-    extracted(currentUser, id, tenantId);
+    checkForUserId(currentUser, id);
 
     /*** INFO: :if condition to check
      * UPDATE_TENANT_USER removed***/
@@ -92,7 +92,7 @@ public class UpdateTntUserServiceImpl implements UpdateTntUserService {
     CurrentUserUtils.compareWithCurrentUserTenantId(tenantId, currentUser);
   }
 
-  private void extracted(CurrentUser currentUser, UUID id, UUID tenantId) {
+  private static void checkForUserId(CurrentUser currentUser, UUID id) {
     CurrentUserUtils.compareWithCurrentUsersUserId(id, currentUser);
     //Restricted permission removed.
   }

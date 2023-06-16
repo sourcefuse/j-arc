@@ -108,19 +108,7 @@ public class UserGroupServiceImpl implements UserGroupService {
         }
       }
       userGroup.setId(null);
-      UserGroup targetUserGroup = userGroupsRepo
-        .findOne(
-          UserGroupsSpecification.byUserGroupIdAndTenantId(
-            userGroupId,
-            currentUser.getTenantId()
-          )
-        )
-        .orElseThrow(() ->
-          new ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            CommonConstants.NO_USR_GRP_PRESENT + " " + userGroupId
-          )
-        );
+      UserGroup targetUserGroup = getUserGroup(userGroupId, currentUser);
       BeanUtils.copyProperties(
         userGroup,
         targetUserGroup,
@@ -136,6 +124,23 @@ public class UserGroupServiceImpl implements UserGroupService {
         CommonConstants.NO_GRP_PRESENT
       );
     }
+  }
+
+  private UserGroup getUserGroup(UUID userGroupId, CurrentUser currentUser) {
+    UserGroup targetUserGroup = userGroupsRepo
+      .findOne(
+        UserGroupsSpecification.byUserGroupIdAndTenantId(
+          userGroupId,
+          currentUser.getTenantId()
+        )
+      )
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          CommonConstants.NO_USR_GRP_PRESENT + " " + userGroupId
+        )
+      );
+    return targetUserGroup;
   }
 
   @Override
@@ -158,13 +163,7 @@ public class UserGroupServiceImpl implements UserGroupService {
           userTenantId
         )
       );
-      UserGroup userGroup = savedUserGroup
-        .stream()
-        .filter(userGrp -> userGrp.getId().equals(userGroupId))
-        .findFirst()
-        .orElseThrow(() ->
-          new ResponseStatusException(HttpStatus.FORBIDDEN, userGroupNotFound)
-        );
+      UserGroup userGroup = getUserGroup(userGroupId, savedUserGroup);
       checkGroupOwnerAccessPermission(
         currentUser,
         userTenantId,
@@ -194,6 +193,20 @@ public class UserGroupServiceImpl implements UserGroupService {
         CommonConstants.NO_GRP_PRESENT
       );
     }
+  }
+
+  private UserGroup getUserGroup(
+    UUID userGroupId,
+    List<UserGroup> savedUserGroup
+  ) {
+    UserGroup userGroup = savedUserGroup
+      .stream()
+      .filter(userGrp -> userGrp.getId().equals(userGroupId))
+      .findFirst()
+      .orElseThrow(() ->
+        new ResponseStatusException(HttpStatus.FORBIDDEN, userGroupNotFound)
+      );
+    return userGroup;
   }
 
   private static void checkGroupOwnerAccessPermission(

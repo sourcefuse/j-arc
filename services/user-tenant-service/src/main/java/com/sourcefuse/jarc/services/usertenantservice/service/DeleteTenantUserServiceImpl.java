@@ -19,7 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
 @Service
-public class DeleteTntUserServiceImpl implements DeleteTntUserService {
+public class DeleteTenantUserServiceImpl implements DeleteTenantUserService {
 
   private final UserRepository userRepository;
   private final UserTenantRepository userTenantRepository;

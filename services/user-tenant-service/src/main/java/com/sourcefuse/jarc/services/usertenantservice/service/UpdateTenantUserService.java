@@ -5,7 +5,7 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import jakarta.validation.Valid;
 import java.util.UUID;
 
-public interface UpdateTntUserService {
+public interface UpdateTenantUserService {
   void updateById(
     CurrentUser currentUser,
     UUID userId,

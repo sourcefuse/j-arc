@@ -6,9 +6,9 @@ import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
-import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTntUserService;
+import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserService;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserService;
-import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTntUserService;
+import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserService;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +36,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class TenantUserController {
 
   private final TenantUserService tenantUserService;
-  private final UpdateTntUserService updateTenantUserService;
-  private final DeleteTntUserService deleteTenantUserService;
+  private final UpdateTenantUserService updateTenantUserService;
+  private final DeleteTenantUserService deleteTenantUserService;
 
   @Value("${tenant.id.not.specified}")
   private String tenantIdNotSpecified;
