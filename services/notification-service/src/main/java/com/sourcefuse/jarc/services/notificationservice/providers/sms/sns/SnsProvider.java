@@ -23,7 +23,7 @@ import software.amazon.awssdk.services.sns.model.PublishRequest.Builder;
 @Service
 @ConditionalOnProperty(
   value = "notification.provider.sms",
-  havingValue = "snsProvider"
+  havingValue = "SnsProvider"
 )
 @RequiredArgsConstructor
 @Slf4j

@@ -20,7 +20,7 @@ import software.amazon.awssdk.core.exception.SdkClientException;
 @Service
 @ConditionalOnProperty(
   value = "notification.provider.email",
-  havingValue = "sesProvider"
+  havingValue = "SesProvider"
 )
 @RequiredArgsConstructor
 @Slf4j
