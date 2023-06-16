@@ -50,6 +50,13 @@ public class UserGroupServiceImpl implements UserGroupService {
       if (!userGroup.getGroup().getId().equals(savedGroup.getId())) {
         userGroup.getGroup().setId(savedGroup.getId());
       }
+      /*** INFO :check for mismatch tenantId*/
+      if (!savedGroup.getTenantId().equals(userGroup.getTenantId())) {
+        throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          "tenantId in Request does not match with existing group" + "tenantId"
+        );
+      }
       savedUserGroup =
         userGroupsRepo.findOne(
           UserGroupsSpecification.byGroupIdAndUserTenantId(
