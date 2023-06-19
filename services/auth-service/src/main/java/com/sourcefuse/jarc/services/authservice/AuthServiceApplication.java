@@ -8,7 +8,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @ComponentScan(
-  { AuthServiceApplication.CORE_PACKAGE, AuthServiceApplication.AUTH_LIB_PACKAGE, AuthServiceApplication.AUTH_PACKAGE }
+  {
+    AuthServiceApplication.CORE_PACKAGE,
+    AuthServiceApplication.AUTH_LIB_PACKAGE,
+    AuthServiceApplication.AUTH_PACKAGE,
+  }
 )
 @EnableJpaRepositories(repositoryBaseClass = SoftDeletesRepositoryImpl.class)
 public class AuthServiceApplication {
