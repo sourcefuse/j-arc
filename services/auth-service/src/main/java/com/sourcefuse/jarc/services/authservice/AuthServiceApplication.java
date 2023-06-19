@@ -8,12 +8,13 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @ComponentScan(
-  { AuthServiceApplication.CORE_PACKAGE, AuthServiceApplication.AUTH_PACKAGE }
+  { AuthServiceApplication.CORE_PACKAGE, AuthServiceApplication.AUTH_LIB_PACKAGE, AuthServiceApplication.AUTH_PACKAGE }
 )
 @EnableJpaRepositories(repositoryBaseClass = SoftDeletesRepositoryImpl.class)
 public class AuthServiceApplication {
 
   public static final String CORE_PACKAGE = "com.sourcefuse.jarc.core";
+  public static final String AUTH_LIB_PACKAGE = "com.sourcefuse.jarc.authlib";
   public static final String AUTH_PACKAGE =
     "com.sourcefuse.jarc.services.authservice";
 
