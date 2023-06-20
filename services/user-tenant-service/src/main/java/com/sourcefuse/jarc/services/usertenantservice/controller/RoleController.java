@@ -36,8 +36,7 @@ public class RoleController {
 
   @PostMapping
   public ResponseEntity<Role> createRole(@Valid @RequestBody Role role) {
-    Role savedRole = roleRepository.save(role);
-    return new ResponseEntity<>(savedRole, HttpStatus.CREATED);
+    return new ResponseEntity<>(roleRepository.save(role), HttpStatus.CREATED);
   }
 
   @GetMapping("/count")
@@ -51,8 +50,7 @@ public class RoleController {
 
   @GetMapping
   public ResponseEntity<List<Role>> getAllRoles() {
-    List<Role> role = roleRepository.findAll();
-    return new ResponseEntity<>(role, HttpStatus.OK);
+    return new ResponseEntity<>(roleRepository.findAll(), HttpStatus.OK);
   }
 
   @Transactional
@@ -76,7 +74,10 @@ public class RoleController {
       }
       count = roleRepository.saveAll(updatedRoleLis).size();
     }
-    return new ResponseEntity<>(new CountResponse(count), HttpStatus.OK);
+    return new ResponseEntity<>(
+      CountResponse.builder().count(count).build(),
+      HttpStatus.OK
+    );
   }
 
   @GetMapping("{id}")

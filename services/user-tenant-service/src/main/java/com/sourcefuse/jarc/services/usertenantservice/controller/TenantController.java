@@ -46,17 +46,15 @@ public class TenantController {
 
   @GetMapping("/count")
   public ResponseEntity<CountResponse> countTenants() {
-    CountResponse count = CountResponse
-      .builder()
-      .count(tenantRepository.count())
-      .build();
-    return new ResponseEntity<>(count, HttpStatus.OK);
+    return new ResponseEntity<>(
+      CountResponse.builder().count(tenantRepository.count()).build(),
+      HttpStatus.OK
+    );
   }
 
   @GetMapping
   public ResponseEntity<List<Tenant>> fetchAllTenants() {
-    List<Tenant> tenantList = tenantRepository.findAll();
-    return new ResponseEntity<>(tenantList, HttpStatus.OK);
+    return new ResponseEntity<>(tenantRepository.findAll(), HttpStatus.OK);
   }
 
   @Transactional
@@ -80,13 +78,18 @@ public class TenantController {
       }
       count = tenantRepository.saveAll(updatedListTenant).size();
     }
-    return new ResponseEntity<>(new CountResponse(count), HttpStatus.OK);
+    return new ResponseEntity<>(
+      CountResponse.builder().count(count).build(),
+      HttpStatus.OK
+    );
   }
 
   @GetMapping("{id}")
   public ResponseEntity<Tenant> fetchTenantByID(@PathVariable("id") UUID id) {
-    Tenant savedTenant = tenantService.fetchTenantByID(id);
-    return new ResponseEntity<>(savedTenant, HttpStatus.OK);
+    return new ResponseEntity<>(
+      tenantService.fetchTenantByID(id),
+      HttpStatus.OK
+    );
   }
 
   @Transactional
@@ -110,7 +113,9 @@ public class TenantController {
   public ResponseEntity<List<TenantConfig>> getTenantConfig(
     @PathVariable("id") UUID id
   ) {
-    List<TenantConfig> tenantConfig = tenantService.getTenantConfig(id);
-    return new ResponseEntity<>(tenantConfig, HttpStatus.OK);
+    return new ResponseEntity<>(
+      tenantService.getTenantConfig(id),
+      HttpStatus.OK
+    );
   }
 }

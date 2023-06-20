@@ -3,7 +3,6 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
@@ -11,6 +10,7 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.GroupSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
+import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -69,8 +69,7 @@ public class GroupController {
 
   @GetMapping
   public ResponseEntity<List<Group>> getAllGroups() {
-    List<Group> groupList = groupRepository.findAll();
-    return new ResponseEntity<>(groupList, HttpStatus.OK);
+    return new ResponseEntity<>(groupRepository.findAll(), HttpStatus.OK);
   }
 
   @GetMapping("{id}")

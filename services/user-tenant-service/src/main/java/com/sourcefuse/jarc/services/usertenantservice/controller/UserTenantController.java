@@ -28,7 +28,9 @@ public class UserTenantController {
      checkViewTenantRestrictedPermissions we
      dont have to implement..
      One tenant cannot see others tenant data ***/
-    UserView userView = userTenantService.getUserTenantById(id);
-    return new ResponseEntity<>(userView, HttpStatus.OK);
+    return new ResponseEntity<>(
+      userTenantService.getUserTenantById(id),
+      HttpStatus.OK
+    );
   }
 }

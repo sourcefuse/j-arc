@@ -22,8 +22,7 @@ public class UserGroupsController {
 
   @GetMapping
   public ResponseEntity<List<UserGroup>> fetchAllUserGroups() {
-    List<UserGroup> userGroupsList = userGroupsRepository.findAll();
-    return new ResponseEntity<>(userGroupsList, HttpStatus.OK);
+    return new ResponseEntity<>(userGroupsRepository.findAll(), HttpStatus.OK);
   }
 
   @GetMapping("/count")

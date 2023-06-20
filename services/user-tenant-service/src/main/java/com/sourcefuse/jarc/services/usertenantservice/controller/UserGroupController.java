@@ -2,7 +2,6 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
-import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
@@ -10,6 +9,7 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepos
 import com.sourcefuse.jarc.services.usertenantservice.service.UserGroupService;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.GroupSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
+import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -45,8 +45,10 @@ public class UserGroupController {
     @Valid @RequestBody UserGroup userGroup,
     @PathVariable("id") UUID id
   ) {
-    UserGroup savedUserGroup = userGroupService.createUserGroup(userGroup, id);
-    return new ResponseEntity<>(savedUserGroup, HttpStatus.CREATED);
+    return new ResponseEntity<>(
+      userGroupService.createUserGroup(userGroup, id),
+      HttpStatus.CREATED
+    );
   }
 
   @Transactional

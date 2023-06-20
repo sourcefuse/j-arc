@@ -3,7 +3,6 @@ package com.sourcefuse.jarc.services.usertenantservice.service;
 import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
-import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.AuthClient;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
@@ -20,6 +19,7 @@ import com.sourcefuse.jarc.services.usertenantservice.specifications.AuthClients
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserViewSpecification;
+import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -59,13 +59,13 @@ public class TenantUserServiceImpl implements TenantUserService {
   public UserDto create(
     UserDto userData,
     CurrentUser currentUser,
-    Object options
+    Map<String, String> options
   ) {
     Map<String, String> mapOption = new HashMap<>();
 
     User user = userData.getUserDetails();
     if (options != null) {
-      mapOption = (Map) options;
+      mapOption = options;
     }
     validateUserCreation(user, userData, currentUser, mapOption);
     Optional<Role> savedRole = roleRepository.findById(userData.getRoleId());
@@ -101,14 +101,14 @@ public class TenantUserServiceImpl implements TenantUserService {
 
     user.setUsername(user.getUsername().toLowerCase(Locale.getDefault()));
     user.getDefaultTenant().setId(userData.getTenantId());
-    User savedUser = userRepository.save(user);
+    user = userRepository.save(user);
     UserTenant userTenant = createUserTenantData(
       userData,
       UserStatus.REGISTERED,
-      savedUser.getId()
+      user.getId()
     );
     return new UserDto(
-      savedUser,
+      user,
       userTenant.getRole().getId(),
       userTenant.getStatus(),
       userTenant.getTenant().getId(),
@@ -169,10 +169,10 @@ public class TenantUserServiceImpl implements TenantUserService {
     List<UserView> userViewsList = userViewRepository.findAll(
       UserViewSpecification.byTenantId(id)
     );
-    return getUserDto(userViewsList);
+    return getUserDtoList(userViewsList);
   }
 
-  private static List<UserDto> getUserDto(List<UserView> userViewsList) {
+  private static List<UserDto> getUserDtoList(List<UserView> userViewsList) {
     List<UserDto> userDtoList = new ArrayList<>();
     User user;
     UserDto userDto;
@@ -194,7 +194,7 @@ public class TenantUserServiceImpl implements TenantUserService {
       UserViewSpecification.byTenantId(tenantId)
     );
 
-    return getUserDto(userViewList);
+    return getUserDtoList(userViewList);
   }
 
   @Override
@@ -227,7 +227,6 @@ public class TenantUserServiceImpl implements TenantUserService {
     String[] email = user.getEmail().split("@");
 
     assignAuthProvider(options, allowedDomains, email);
-    // Implement user creation validation logic here
   }
 
   private static void assignAuthProvider(
@@ -267,8 +266,6 @@ public class TenantUserServiceImpl implements TenantUserService {
       .status(status)
       .build();
 
-    userTenant = userTenantRepository.save(userTenant);
-    return userTenant;
-    // Implement user tenant creation logic here
+    return userTenantRepository.save(userTenant);
   }
 }

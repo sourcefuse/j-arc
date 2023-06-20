@@ -74,7 +74,7 @@ public class RoleUserTenantController {
       UserTenantSpecification.byRoleId(id)
     );
     return new ResponseEntity<>(
-      new CountResponse((long) tenantList.size()),
+      CountResponse.builder().count((long) tenantList.size()).build(),
       HttpStatus.OK
     );
   }
@@ -102,7 +102,10 @@ public class RoleUserTenantController {
       count =
         roleUserTenantRepository.saveAll(targetUserTenantArrayList).size();
     }
-    return new ResponseEntity<>(new CountResponse(count), HttpStatus.OK);
+    return new ResponseEntity<>(
+      CountResponse.builder().count(count).build(),
+      HttpStatus.OK
+    );
   }
 
   @Transactional
@@ -113,7 +116,9 @@ public class RoleUserTenantController {
     long count = roleUserTenantRepository.delete(
       UserTenantSpecification.byRoleId(id)
     );
-    CountResponse cnt = CountResponse.builder().count(count).build();
-    return new ResponseEntity<>(cnt, HttpStatus.OK);
+    return new ResponseEntity<>(
+      CountResponse.builder().count(count).build(),
+      HttpStatus.OK
+    );
   }
 }

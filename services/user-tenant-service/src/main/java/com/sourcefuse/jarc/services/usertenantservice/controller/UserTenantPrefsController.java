@@ -28,15 +28,17 @@ public class UserTenantPrefsController {
   public ResponseEntity<UserTenantPrefs> createTenantPrefs(
     @Valid @RequestBody UserTenantPrefs userTenantPrefs
   ) {
-    UserTenantPrefs savedUserTenantPrefs =
-      userTenantPrefsService.createTenantPrefs(userTenantPrefs);
-    return new ResponseEntity<>(savedUserTenantPrefs, HttpStatus.CREATED);
+    return new ResponseEntity<>(
+      userTenantPrefsService.createTenantPrefs(userTenantPrefs),
+      HttpStatus.CREATED
+    );
   }
 
   @GetMapping
   public ResponseEntity<List<UserTenantPrefs>> getAllUsTenantPrefs() {
-    List<UserTenantPrefs> userTenantPrefsList =
-      userTenantPrefsRepository.findAll();
-    return new ResponseEntity<>(userTenantPrefsList, HttpStatus.OK);
+    return new ResponseEntity<>(
+      userTenantPrefsRepository.findAll(),
+      HttpStatus.OK
+    );
   }
 }

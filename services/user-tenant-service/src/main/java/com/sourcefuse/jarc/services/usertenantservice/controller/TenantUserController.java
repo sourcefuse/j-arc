@@ -2,13 +2,13 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
-import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserService;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserService;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserService;
+import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
@@ -93,8 +93,8 @@ public class TenantUserController {
     @PathVariable("id") UUID id
   ) {
     CurrentUserUtils.getCurrentWithPermissions(id);
-    long userCount;
-    userCount = tenantUserService.getUserView(id).size();
+
+    long userCount = tenantUserService.getUserView(id).size();
 
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(
@@ -104,7 +104,7 @@ public class TenantUserController {
   }
 
   @GetMapping("/{userId}")
-  public ResponseEntity<Object> findAllUsers(
+  public ResponseEntity<UserView> findAllUsers(
     @PathVariable("id") UUID id,
     @PathVariable("userId") UUID userId
   ) {
@@ -117,7 +117,7 @@ public class TenantUserController {
   }
 
   @PatchMapping("/{userId}")
-  public ResponseEntity<Object> updateUserById(
+  public ResponseEntity<String> updateUserById(
     @RequestBody UserView userView,
     @PathVariable("id") UUID id,
     @PathVariable("userId") UUID userId
@@ -139,7 +139,7 @@ public class TenantUserController {
   }
 
   @DeleteMapping("/{userId}")
-  public ResponseEntity<Object> deleteUserTenantById(
+  public ResponseEntity<String> deleteUserTenantById(
     @PathVariable("id") UUID id,
     @PathVariable("userId") UUID userId
   ) {

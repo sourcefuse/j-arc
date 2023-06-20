@@ -1,7 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
-import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.User;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
@@ -10,6 +9,7 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
+import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

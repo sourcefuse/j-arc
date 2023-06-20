@@ -2,7 +2,6 @@ package com.sourcefuse.jarc.services.usertenantservice.service;
 
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.User;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
@@ -12,6 +11,7 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
+import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,16 +51,16 @@ public class UpdateTenantUserServiceImpl implements UpdateTenantUserService {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, userNameExits);
       }
     }
-    User tempUser = new User();
-    BeanUtils.copyProperties(userView, tempUser);
+    /***INFO :Removed type safety
+     * as discussed with harshad*/
     User savedUser;
     Optional<User> user = userRepository.findById(id);
     if (user.isPresent()) {
       savedUser = user.get();
       BeanUtils.copyProperties(
-        tempUser,
+        userView,
         savedUser,
-        CommonUtils.getNullPropertyNames(tempUser)
+        CommonUtils.getNullPropertyNames(userView)
       );
       userRepository.save(savedUser);
     }

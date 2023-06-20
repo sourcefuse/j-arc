@@ -2,12 +2,12 @@ package com.sourcefuse.jarc.services.usertenantservice.service;
 
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.commons.CurrentUserUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.TenantConfig;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantConfigRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.TenantConfigSpecification;
+import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class TenantServiceImpl implements TenantService {
 
   @Override
   public Tenant fetchTenantByID(UUID tenantId) {
-    checkViewTenantAccessPermission(tenantId);
+    checkViewDeleteTenantAccessPermission(tenantId);
     return tenantRepository
       .findById(tenantId)
       .orElseThrow(() ->
@@ -40,7 +40,7 @@ public class TenantServiceImpl implements TenantService {
 
   @Override
   public void updateTenantsById(Tenant sourceTenant, UUID tenantId) {
-    checkViewTenantAccessPermission(tenantId);
+    checkViewDeleteTenantAccessPermission(tenantId);
     Tenant targetTenant = tenantRepository
       .findById(tenantId)
       .orElseThrow(() ->
@@ -59,25 +59,19 @@ public class TenantServiceImpl implements TenantService {
 
   @Override
   public void deleteById(UUID tenantId) {
-    checkDeleteTenantAccessPermission(tenantId);
+    checkViewDeleteTenantAccessPermission(tenantId);
     tenantRepository.deleteById(tenantId);
   }
 
   @Override
   public List<TenantConfig> getTenantConfig(UUID tenantId) {
-    checkViewTenantAccessPermission(tenantId);
+    checkViewDeleteTenantAccessPermission(tenantId);
     return tenantConfigRepository.findAll(
       TenantConfigSpecification.byTenantId(tenantId)
     );
   }
 
-  private static void checkViewTenantAccessPermission(UUID tenantId) {
-    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
-    CurrentUserUtils.compareWithCurrentUserTenantId(tenantId, currentUser);
-  }
-
-  private static void checkDeleteTenantAccessPermission(UUID tenantId) {
-    log.info("compare current user and received tenantId" + tenantId);
+  private static void checkViewDeleteTenantAccessPermission(UUID tenantId) {
     CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     CurrentUserUtils.compareWithCurrentUserTenantId(tenantId, currentUser);
   }

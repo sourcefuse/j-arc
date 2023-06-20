@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.usertenantservice.commons;
+package com.sourcefuse.jarc.services.usertenantservice.utils;
 
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
