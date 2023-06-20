@@ -101,14 +101,14 @@ public class TenantUserServiceImpl implements TenantUserService {
 
     user.setUsername(user.getUsername().toLowerCase(Locale.getDefault()));
     user.getDefaultTenant().setId(userData.getTenantId());
-    user = userRepository.save(user);
+    User savedUser = userRepository.save(user);
     UserTenant userTenant = createUserTenantData(
       userData,
       UserStatus.REGISTERED,
-      user.getId()
+      savedUser.getId()
     );
     return new UserDto(
-      user,
+      savedUser,
       userTenant.getRole().getId(),
       userTenant.getStatus(),
       userTenant.getTenant().getId(),

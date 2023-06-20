@@ -42,7 +42,6 @@ public class UserGroupServiceImpl implements UserGroupService {
 
   @Override
   public UserGroup createUserGroup(UserGroup userGroup, UUID groupId) {
-    Optional<UserGroup> savedUserGroup;
     Group savedGroup = groupRepository
       .findById(groupId)
       .orElseThrow(() ->
@@ -61,6 +60,7 @@ public class UserGroupServiceImpl implements UserGroupService {
         "tenantId in Request does not match with existing group" + "tenantId"
       );
     }
+    Optional<UserGroup> savedUserGroup;
     savedUserGroup =
       userGroupsRepo.findOne(
         UserGroupsSpecification.byGroupIdAndUserTenantId(
@@ -102,7 +102,7 @@ public class UserGroupServiceImpl implements UserGroupService {
       .builder()
       .count(
         userGroupsRepo.count(
-          UserGroupsSpecification.byGroupIdAndIsOwner(groupId, true)
+          UserGroupsSpecification.byGroupIdAndIsOwner(group.getId(), true)
         )
       )
       .build();
@@ -168,7 +168,7 @@ public class UserGroupServiceImpl implements UserGroupService {
     UUID userTenantId = currentUser.getUserTenantId();
     List<UserGroup> savedUserGroup = userGroupsRepo.findAll(
       UserGroupsSpecification.byGroupIdOrIdOrUserTenantId(
-        groupId,
+        group.getId(),
         userGroupId,
         userTenantId
       )
