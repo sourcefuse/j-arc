@@ -106,6 +106,7 @@ class NotificationControllerBlockedListTests {
       .toList();
     Assertions
       .assertThat(allowedUserIds)
+      .isNotEmpty()
       .doesNotContain(
         MockNotifications.BLOCKED_USER_ONE_ID.toString(),
         MockNotifications.BLOCKED_USER_TWO_ID.toString()
