@@ -10,7 +10,7 @@ import org.togglz.core.spi.ActivationStrategy;
 import org.togglz.core.user.FeatureUser;
 import org.togglz.core.util.Strings;
 
-import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.featuretoggleservice.enums.StrategyEnums;
 
 //Strategy that will check if the particular userTenant has access to the provided feature
@@ -44,8 +44,8 @@ public class UserTenantLevelActivationStrategy implements ActivationStrategy {
 
 			CurrentUser currUser = (CurrentUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-			if (currUser != null && Strings.isNotBlank(currUser.getUserTenant().getId().toString())) {
-				String currUserUTenantId = currUser.getUserTenant().getId().toString();
+			if (currUser != null && Strings.isNotBlank(currUser.getUserTenantId().toString())) {
+				String currUserUTenantId = currUser.getUserTenantId().toString();
 
 				return userTenantList.contains(currUserUTenantId) ? true : false;
 			}

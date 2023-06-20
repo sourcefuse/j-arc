@@ -13,4 +13,5 @@ import com.sourcefuse.jarc.services.featuretoggleservice.enums.Features;
 public @interface FeatureToggle {
 
 	Features value();
+	String handler() default "";
 }

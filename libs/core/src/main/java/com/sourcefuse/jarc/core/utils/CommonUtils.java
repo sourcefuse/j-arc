@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 @Component
 public final class CommonUtils {
 
-  private CommonUtils() {}
+  private CommonUtils() {
+  }
 
   public static String[] getNullPropertyNames(Object source) {
     final BeanWrapper src = new BeanWrapperImpl(source);

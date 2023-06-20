@@ -13,6 +13,7 @@ import org.togglz.core.context.FeatureContext;
 import org.togglz.core.manager.FeatureManager;
 
 import com.sourcefuse.jarc.services.featuretoggleservice.annotation.FeatureToggle;
+import com.sourcefuse.jarc.services.featuretoggleservice.services.FeatureHandlerService;
 
 @Aspect
 @Component
@@ -21,29 +22,28 @@ public class FeatureToggleInterceptor {
 	private final Logger log = LoggerFactory.getLogger(FeatureToggleInterceptor.class);
 	@Autowired
 	private FeatureManager featureManager;
+	@Autowired
+	private FeatureHandlerService featureHandlerService;
 
 	// @Around("@annotation(com.sourcefuse.jarc.services.featuretoggleservice.annotation.FeatureToggle)")
 	@Around("@annotation(featureToggle)")
-//	@Before("@annotation(com.sourcefuse.jarc.services.featuretoggleservice.annotation.FeatureToggle)")
+	// @Before("@annotation(com.sourcefuse.jarc.services.featuretoggleservice.annotation.FeatureToggle)")
 
 	public Object checkIfAllowed(final ProceedingJoinPoint pj, FeatureToggle featureToggle) throws Throwable {
-//		ObjectMapper om = new ObjectMapper();
-
-//		log.info("this is request" + om.writeValueAsString(pj.getArgs()));
-//		MethodSignature signature = (MethodSignature) pj.getSignature();
-//
-//		Method method = signature.getMethod();
-//
-//		FeatureToggle annotation = method.getAnnotation(FeatureToggle.class);
-//		String key = annotation.value();
-//		log.info("feature ki key---" + key);
-
-		// log.info("this is response" + om.writeValueAsString(pj.proceed()));
-		// return pj.proceed();
 
 		FeatureContext.clearCache();
 
 		if (FeatureContext.getFeatureManager().isActive(featureToggle.value())) {
+			if (featureToggle.handler().length() > 0) {
+
+				boolean response = featureHandlerService.featureHandle(featureToggle);
+				if (response) {
+					return pj.proceed();
+				} else {
+					throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+							"You dont have access to this particular feature");
+				}
+			}
 			return pj.proceed();
 		} else {
 

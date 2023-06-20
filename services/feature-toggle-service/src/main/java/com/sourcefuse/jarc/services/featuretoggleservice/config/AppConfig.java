@@ -24,7 +24,7 @@ public class AppConfig {
 
 	@Autowired
 	private DataSource dataSource;
-	private ActivationStrategy activationStrategy = new SystemLevelActivationStrategy();
+	//private ActivationStrategy activationStrategy = new SystemLevelActivationStrategy();
 
 	private List<ActivationStrategy> activationStrategies = List.of(new SystemLevelActivationStrategy(),
 			new UserTenantLevelActivationStrategy(), new TenantLevelActivationStrategy());

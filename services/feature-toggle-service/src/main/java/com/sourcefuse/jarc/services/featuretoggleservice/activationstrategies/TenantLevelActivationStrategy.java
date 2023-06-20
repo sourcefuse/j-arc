@@ -10,7 +10,7 @@ import org.togglz.core.spi.ActivationStrategy;
 import org.togglz.core.user.FeatureUser;
 import org.togglz.core.util.Strings;
 
-import com.sourcefuse.jarc.services.authservice.session.CurrentUser;
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.featuretoggleservice.enums.StrategyEnums;
 
 public class TenantLevelActivationStrategy implements ActivationStrategy {
@@ -42,8 +42,8 @@ public class TenantLevelActivationStrategy implements ActivationStrategy {
 
 			CurrentUser currUser = (CurrentUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-			if (currUser != null && Strings.isNotBlank(currUser.getUserTenant().getTenantId().toString())) {
-				String currUserTenantId = currUser.getUserTenant().getTenantId().toString();
+			if (currUser != null && Strings.isNotBlank(currUser.getTenantId().toString())) {
+				String currUserTenantId = currUser.getTenantId().toString();
 				System.out.println("Current User Tenant ----" + currUserTenantId);
 
 				return tenantList.contains(currUserTenantId) ? true : false;

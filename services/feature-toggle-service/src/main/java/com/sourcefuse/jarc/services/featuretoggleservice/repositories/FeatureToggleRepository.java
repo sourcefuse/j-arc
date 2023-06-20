@@ -2,10 +2,9 @@ package com.sourcefuse.jarc.services.featuretoggleservice.repositories;
 
 import java.util.UUID;
 
-import org.springframework.data.repository.CrudRepository;
+import com.sourcefuse.jarc.core.repositories.SoftDeletesRepository;
+import com.sourcefuse.jarc.services.featuretoggleservice.model.FeatureToggle;
 
-import com.sourcefuse.jarc.services.featuretoggleservice.annotation.FeatureToggle;
-
-public interface FeatureToggleRepository extends CrudRepository<FeatureToggle, UUID> {
+public interface FeatureToggleRepository extends SoftDeletesRepository<FeatureToggle, UUID> {
 
 }

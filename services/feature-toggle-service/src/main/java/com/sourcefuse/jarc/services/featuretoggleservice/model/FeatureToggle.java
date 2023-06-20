@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -41,6 +42,7 @@ public class FeatureToggle extends UserModifiableEntity {
 	private String strategyId;
 
 	@Column(name = "strategy_params")
+	@Nullable
 	private String strategyParams;
 
 }

@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,7 +31,8 @@ public class FeatureList extends UserModifiableEntity {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	private String key;
+	@Column(name="feature_name")
+	private String featureName;
 
 	private String description;
 

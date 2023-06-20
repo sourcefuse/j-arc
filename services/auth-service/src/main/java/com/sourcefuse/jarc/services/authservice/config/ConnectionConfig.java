@@ -17,7 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableRedisRepositories
 @NoArgsConstructor
 public class ConnectionConfig {
-  private ConnectionConfig(){
 
   @Value("${app.datasource.redis.host}")
   private String redisHost;
@@ -33,8 +32,9 @@ public class ConnectionConfig {
   @Bean
   public LettuceConnectionFactory redisConnectionFactory() {
     RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(
-        redisHost,
-        redisPort);
+      redisHost,
+      redisPort
+    );
     return new LettuceConnectionFactory(config);
   }
 

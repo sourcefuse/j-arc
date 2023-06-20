@@ -15,12 +15,11 @@ import lombok.AllArgsConstructor;
 @RequestMapping("/todo")
 public class DemoController {
 
-	@FeatureToggle(value = Features.HELLO)
+	@FeatureToggle(value = Features.HELLO, handler = "com.sourcefuse.jarc.services.featuretoggleservice.handlers.HelloHandler")
+	//@FeatureToggle(value = Features.HELLO)
 	@GetMapping("/hello")
 	@PreAuthorize("isAuthenticated()")
 	public String sayHello() {
-		// CurrentUser user = (CurrentUser)
-		// SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return "hellohellohello";
 	}
 
@@ -28,17 +27,14 @@ public class DemoController {
 	@GetMapping("/hi")
 	@PreAuthorize("isAuthenticated()")
 	public String sayHi() {
-		// CurrentUser user = (CurrentUser)
-		// SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return "hihihi";
 	}
 
+	//@FeatureToggle(value = Features.HEY, handler = "com.sourcefuse.jarc.services.featuretoggleservice.handlers.HeyHandler")
 	@FeatureToggle(value = Features.HEY)
 	@GetMapping("/hey")
 	@PreAuthorize("isAuthenticated()")
 	public String sayHey() {
-		// CurrentUser user = (CurrentUser)
-		// SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return "heyheyhey";
 	}
 
