@@ -9,6 +9,8 @@ import com.sourcefuse.jarc.services.notificationservice.repositories.simple.Noti
 import com.sourcefuse.jarc.services.notificationservice.repositories.softdelete.NotificationUserRepository;
 import com.sourcefuse.jarc.services.notificationservice.service.NotificationUserService;
 import com.sourcefuse.jarc.services.notificationservice.types.INotification;
+import com.sourcefuse.jarc.services.notificationservice.types.INotificationFilterFunc;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
@@ -48,12 +51,17 @@ public class NotificationController {
 
   private final INotification notificationProvider;
 
+  @Nullable
+  private final INotificationFilterFunc notificationFilterFunc;
+
+  @Operation(summary = "Create and publish Notification")
   @PostMapping
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Notification> create(
     @Valid @RequestBody Notification notification
   ) {
     notification.setId(null);
+    notification = removeBlackListedUsers(notification);
     notificationProvider.publish(notification);
     if (notification.getBody().length() > MAX_BODY_LENGTH) {
       notification.setBody(
@@ -69,6 +77,7 @@ public class NotificationController {
     return new ResponseEntity<>(notif, HttpStatus.OK);
   }
 
+  @Operation(summary = "Create and publish Notifications")
   @PostMapping("/bulk")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<List<Notification>> createBulkNotificaitions(
@@ -81,6 +90,7 @@ public class NotificationController {
       .stream()
       .forEach((Notification notification) -> {
         notification.setId(null);
+        notification = removeBlackListedUsers(notification);
         notificationProvider.publish(notification);
         if (notification.getBody().length() > MAX_BODY_LENGTH) {
           notification.setBody(
@@ -99,6 +109,7 @@ public class NotificationController {
     return new ResponseEntity<>(notifs, HttpStatus.OK);
   }
 
+  @Operation(summary = "Get total count of notifications")
   @GetMapping("/count")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<CountResponse> count() {
@@ -111,6 +122,7 @@ public class NotificationController {
     );
   }
 
+  @Operation(summary = "get all notifications")
   @GetMapping
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<List<Notification>> find() {
@@ -120,6 +132,7 @@ public class NotificationController {
     );
   }
 
+  @Operation(summary = "get notification by id")
   @GetMapping("/{id}")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Notification> findById(@PathVariable("id") UUID id) {
@@ -134,6 +147,7 @@ public class NotificationController {
     return new ResponseEntity<>(notification, HttpStatus.OK);
   }
 
+  @Operation(summary = "update notification by id")
   @PatchMapping("/{id}")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Object> updateById(
@@ -173,6 +187,7 @@ public class NotificationController {
     );
   }
 
+  @Operation(summary = "delete all notifications")
   @DeleteMapping
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Object> deleteAll() {
@@ -181,5 +196,12 @@ public class NotificationController {
       "Notifications Deleted Successfully",
       HttpStatus.OK
     );
+  }
+
+  private Notification removeBlackListedUsers(Notification notification) {
+    if (notificationFilterFunc == null) {
+      return notification;
+    }
+    return notificationFilterFunc.filter(notification);
   }
 }

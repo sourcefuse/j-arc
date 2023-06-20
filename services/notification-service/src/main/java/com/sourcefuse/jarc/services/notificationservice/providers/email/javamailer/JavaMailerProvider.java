@@ -28,6 +28,7 @@ public class JavaMailerProvider implements EmailNotification {
   private static final String FROM_KEY = "from";
   private static final String TEXT_KEY = "text";
   private static final String HTML_KEY = "html";
+  private static final String SUBJECT_KEY = "subject";
 
   private final MailConnectionConfig mailConnectionConfig;
 
@@ -38,7 +39,12 @@ public class JavaMailerProvider implements EmailNotification {
       .map(options -> (String) options.get(FROM_KEY))
       .orElse(this.mailConnectionConfig.getSenderMail());
 
-    this.initialValidations(fromEmail, message);
+    String subject = Optional
+      .ofNullable(message.getOptions())
+      .map(options -> (String) options.get(SUBJECT_KEY))
+      .orElse(message.getSubject());
+
+    this.initialValidations(fromEmail, subject, message);
 
     String textContent = Optional
       .ofNullable(message.getOptions())
@@ -49,12 +55,14 @@ public class JavaMailerProvider implements EmailNotification {
       .ofNullable(message.getOptions())
       .map(options -> (String) options.get(HTML_KEY))
       .orElse("");
+
     try {
       if (this.mailConnectionConfig.shouldSendToMultipleReceivers()) {
         this.sendToReceiversCombine(
             fromEmail,
             textContent,
             htmlContent,
+            subject,
             message
           );
       } else {
@@ -62,6 +70,7 @@ public class JavaMailerProvider implements EmailNotification {
             fromEmail,
             textContent,
             htmlContent,
+            subject,
             message
           );
       }
@@ -74,7 +83,7 @@ public class JavaMailerProvider implements EmailNotification {
     }
   }
 
-  void initialValidations(String fromEmail, Message message) {
+  void initialValidations(String fromEmail, String subject, Message message) {
     if (fromEmail == null || fromEmail.isBlank()) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
@@ -89,8 +98,8 @@ public class JavaMailerProvider implements EmailNotification {
       );
     }
     if (
-      message.getSubject() == null ||
-      message.getSubject().isBlank() ||
+      subject == null ||
+      subject.isBlank() ||
       message.getBody() == null ||
       message.getBody().isBlank()
     ) {
@@ -105,6 +114,7 @@ public class JavaMailerProvider implements EmailNotification {
     String fromEmail,
     String textContent,
     String htmlContent,
+    String subject,
     Message message
   ) throws MessagingException {
     String[] receivers = message
@@ -121,7 +131,7 @@ public class JavaMailerProvider implements EmailNotification {
     helper = new MimeMessageHelper(mimeMessage, true);
     helper.setFrom(fromEmail);
     helper.setTo(receivers);
-    helper.setSubject(message.getSubject());
+    helper.setSubject(subject);
     if (htmlContent.isBlank()) {
       helper.setText(textContent, false);
     } else {
@@ -134,6 +144,7 @@ public class JavaMailerProvider implements EmailNotification {
     String fromEmail,
     String textContent,
     String htmlContent,
+    String subject,
     Message message
   ) throws MessagingException {
     for (Subscriber to : message.getReceiver().getTo()) {
@@ -144,7 +155,7 @@ public class JavaMailerProvider implements EmailNotification {
       helper = new MimeMessageHelper(mimeMessage, true);
       helper.setFrom(fromEmail);
       helper.setTo(to.getId());
-      helper.setSubject(message.getSubject());
+      helper.setSubject(subject);
       if (htmlContent.isBlank()) {
         helper.setText(textContent, false);
       } else {

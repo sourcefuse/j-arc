@@ -8,6 +8,7 @@ import com.sourcefuse.jarc.services.notificationservice.providers.ChannelManager
 import com.sourcefuse.jarc.services.notificationservice.providers.push.pubnub.types.PubNubNotification;
 import com.sourcefuse.jarc.services.notificationservice.repositories.redis.NotificationAccessRepository;
 import com.sourcefuse.jarc.services.notificationservice.types.Config;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -38,6 +39,7 @@ public class PubNubNotificationController {
 
   private final NotificationAccessRepository notificationAccessRepository;
 
+  @Operation(summary = "grant access of notification to user")
   @PatchMapping
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<AccessResponse> grantAccess(
@@ -78,6 +80,7 @@ public class PubNubNotificationController {
     return new ResponseEntity<>(new AccessResponse(null, ""), HttpStatus.OK);
   }
 
+  @Operation(summary = "revoke access of notification of user")
   @DeleteMapping
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<SuccessResponse> revokeAccess(

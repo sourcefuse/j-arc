@@ -29,6 +29,14 @@ public final class MockNotifications {
     "934d17d0-4c66-48b8-bbfc-1a16a9ec10c7"
   );
 
+  public static final UUID BLOCKED_USER_ONE_ID = UUID.fromString(
+    "2824093b-5f00-40f4-b0fc-66b25b51234d"
+  );
+
+  public static final UUID BLOCKED_USER_TWO_ID = UUID.fromString(
+    "a80c4cc1-ceb8-47df-8d92-8f9854e90894"
+  );
+
   private static Notification buildNotification(
     List<Subscriber> subscribers,
     MessageType type
@@ -179,5 +187,27 @@ public final class MockNotifications {
     notification.setId(UUID.fromString("626cf583-d83a-4a06-8948-ab9b7ddf769c"));
 
     return notification;
+  }
+
+  public static Notification notificationWithBlockedUsers() {
+    Subscriber subscriberOne = new Subscriber();
+    subscriberOne.setId(SUBSCRIBER_ONE_ID.toString());
+    Subscriber subscriberTwo = new Subscriber();
+    subscriberTwo.setId(SUBSCRIBER_TWO_ID.toString());
+
+    Subscriber blockedUserOne = new Subscriber();
+    blockedUserOne.setId(BLOCKED_USER_ONE_ID.toString());
+    Subscriber blockedUserTwo = new Subscriber();
+    blockedUserTwo.setId(BLOCKED_USER_TWO_ID.toString());
+
+    return buildNotification(
+      Arrays.asList(
+        subscriberOne,
+        subscriberTwo,
+        blockedUserOne,
+        blockedUserTwo
+      ),
+      MessageType.SMS
+    );
   }
 }

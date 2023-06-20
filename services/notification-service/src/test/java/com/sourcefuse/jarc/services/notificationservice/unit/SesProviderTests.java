@@ -8,7 +8,7 @@ import com.sourcefuse.jarc.core.enums.NotificationError;
 import com.sourcefuse.jarc.services.notificationservice.mocks.MockNotifications;
 import com.sourcefuse.jarc.services.notificationservice.models.Notification;
 import com.sourcefuse.jarc.services.notificationservice.providers.email.ses.SesProvider;
-import com.sourcefuse.jarc.services.notificationservice.providers.email.types.SesConnectionConfig;
+import com.sourcefuse.jarc.services.notificationservice.providers.email.types.MailConnectionConfig;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 class SesProviderTests {
 
   @Mock
-  private SesConnectionConfig sesConnectionConfig;
+  private MailConnectionConfig sesConnectionConfig;
 
   @Mock
   private JavaMailSender javaMailSender;

@@ -3,6 +3,7 @@ package com.sourcefuse.jarc.services.notificationservice.controllers;
 import com.sourcefuse.jarc.services.notificationservice.models.Notification;
 import com.sourcefuse.jarc.services.notificationservice.models.NotificationUser;
 import com.sourcefuse.jarc.services.notificationservice.repositories.softdelete.NotificationUserRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ public class NotificationuserNotificationController {
 
   private final NotificationUserRepository notificationUserRepository;
 
+  @Operation(summary = "get all notification of given notification user id")
   @GetMapping
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Notification> find(@PathVariable("id") UUID id) {

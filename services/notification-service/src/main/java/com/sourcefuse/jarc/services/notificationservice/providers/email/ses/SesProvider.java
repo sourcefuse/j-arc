@@ -2,7 +2,7 @@ package com.sourcefuse.jarc.services.notificationservice.providers.email.ses;
 
 import com.sourcefuse.jarc.core.enums.NotificationError;
 import com.sourcefuse.jarc.services.notificationservice.providers.email.types.EmailNotification;
-import com.sourcefuse.jarc.services.notificationservice.providers.email.types.SesConnectionConfig;
+import com.sourcefuse.jarc.services.notificationservice.providers.email.types.MailConnectionConfig;
 import com.sourcefuse.jarc.services.notificationservice.types.Message;
 import com.sourcefuse.jarc.services.notificationservice.types.Subscriber;
 import java.util.Optional;
@@ -28,7 +28,7 @@ public class SesProvider implements EmailNotification {
 
   private static final String FROM_KEY = "from";
 
-  private final SesConnectionConfig sesConnectionConfig;
+  private final MailConnectionConfig sesConnectionConfig;
 
   @Override
   public void publish(Message message) {

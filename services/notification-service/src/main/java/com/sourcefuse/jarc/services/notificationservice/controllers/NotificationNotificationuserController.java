@@ -5,6 +5,7 @@ import com.sourcefuse.jarc.services.notificationservice.models.Notification;
 import com.sourcefuse.jarc.services.notificationservice.models.NotificationUser;
 import com.sourcefuse.jarc.services.notificationservice.repositories.softdelete.NotificationUserRepository;
 import com.sourcefuse.jarc.services.notificationservice.specifications.NotificationUserSpecifications;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -35,6 +36,7 @@ public class NotificationNotificationuserController {
 
   private final Validator validator;
 
+  @Operation(summary = "find all notification users by notification id")
   @GetMapping
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<List<NotificationUser>> find(
@@ -48,6 +50,7 @@ public class NotificationNotificationuserController {
     );
   }
 
+  @Operation(summary = "create notification user for given notification id")
   @PostMapping
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<NotificationUser> create(
@@ -64,6 +67,7 @@ public class NotificationNotificationuserController {
     );
   }
 
+  @Operation(summary = "update notification user for given notification id")
   @PatchMapping
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Object> update(
@@ -101,6 +105,9 @@ public class NotificationNotificationuserController {
     );
   }
 
+  @Operation(
+    summary = "mark notification as read for given notification id and notification user id"
+  )
   @PatchMapping("/{notificationUserId}/mark-as-read")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Object> markAsRead(
@@ -127,6 +134,7 @@ public class NotificationNotificationuserController {
     );
   }
 
+  @Operation(summary = "delete all notification users of given notification id")
   @DeleteMapping
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Object> delete(
