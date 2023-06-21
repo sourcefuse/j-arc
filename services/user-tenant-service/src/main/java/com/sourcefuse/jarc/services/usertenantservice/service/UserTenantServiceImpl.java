@@ -7,11 +7,12 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantR
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserViewSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

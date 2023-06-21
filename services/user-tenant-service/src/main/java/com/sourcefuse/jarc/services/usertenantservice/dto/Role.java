@@ -1,7 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
+import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
-import com.sourcefuse.jarc.services.usertenantservice.enums.RoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,14 +15,15 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -45,7 +46,7 @@ public class Role extends UserModifiableEntity {
   @NotNull(message = "roleType must not be null")
   @Column(nullable = false, name = "role_type")
   @Enumerated(EnumType.STRING)
-  private RoleType roleType;
+  private RoleKey roleType;
 
   @Column(name = "permissions")
   private List<String> permissions;
