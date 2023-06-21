@@ -41,7 +41,7 @@ public final class OperationPredicates {
             Expression<String> path,
             Object value
           ) ->
-          criteriaBuilder.like(path, "%" + value + "%")
+          criteriaBuilder.like(path, String.valueOf(value))
       ),
       entry(
         "nlike",
@@ -50,7 +50,7 @@ public final class OperationPredicates {
             Expression<String> path,
             Object value
           ) ->
-          criteriaBuilder.notLike(path, "%" + value + "%")
+          criteriaBuilder.notLike(path, String.valueOf(value))
       ),
       entry(
         "gt",

@@ -188,7 +188,7 @@ class QueryServiceTests {
 
   @Test
   void testFilter_ForLikeOperator() {
-    fieldsOperation.put("like", "Update");
+    fieldsOperation.put("like", "%Update%");
     filter.getWhere().put("permissions", fieldsOperation);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
@@ -198,7 +198,7 @@ class QueryServiceTests {
 
   @Test
   void testFilter_ForNotLikeOperator() {
-    fieldsOperation.put("nlike", "Update");
+    fieldsOperation.put("nlike", "%Update%");
     filter.getWhere().put("permissions", fieldsOperation);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
@@ -210,7 +210,7 @@ class QueryServiceTests {
   @Test
   void testFilter_FieldSelectionTest() {
     filter.getFields().put("name", true);
-    fieldsOperation.put("nlike", "Update");
+    fieldsOperation.put("nlike", "%Update%");
     filter.getWhere().put("permissions", fieldsOperation);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
@@ -251,7 +251,7 @@ class QueryServiceTests {
   @Test
   void testFilter_FieldSelectionTestForMultipleRoles() {
     filter.getFields().put("name", true);
-    fieldsOperation.put("like", "Update");
+    fieldsOperation.put("like", "%Update%");
     filter.getWhere().put("permissions", fieldsOperation);
 
     List<Role> roles = filterService.executeQuery(filter, Role.class);
@@ -270,7 +270,7 @@ class QueryServiceTests {
   @Test
   void testFilter_AndOperation() {
     Map<String, Object> fieldsCondOperation = new HashMap<String, Object>();
-    fieldsOperation.put("like", "Update");
+    fieldsOperation.put("like", "%Update%");
     fieldsCondOperation.put("permissions", fieldsOperation);
     fieldsCondOperation.put("name", "Admin");
     filter.getWhere().put("and", fieldsCondOperation);
@@ -282,7 +282,7 @@ class QueryServiceTests {
 
   @Test
   void testFilter_OrInsideAndOperation() {
-    fieldsOperation.put("like", "Update");
+    fieldsOperation.put("like", "%Update%");
     Map<String, Object> orCondOperation = new HashMap<String, Object>();
     orCondOperation.put("permissions", fieldsOperation);
     orCondOperation.put("name", "Admin");
@@ -298,7 +298,7 @@ class QueryServiceTests {
 
   @Test
   void testFilter_AndInsideOrOperation() {
-    fieldsOperation.put("like", "Update");
+    fieldsOperation.put("like", "%Update%");
     Map<String, Object> orCondOperation = new HashMap<String, Object>();
     orCondOperation.put("permissions", fieldsOperation);
     orCondOperation.put("name", "Admin");
@@ -315,7 +315,7 @@ class QueryServiceTests {
   @Test
   void testFilter_OrOperation() {
     Map<String, Object> fieldsCondOperation = new HashMap<String, Object>();
-    fieldsOperation.put("like", "Update");
+    fieldsOperation.put("like", "%Update%");
     fieldsCondOperation.put("permissions", fieldsOperation);
     fieldsCondOperation.put("name", "Temp");
     filter.getWhere().put("or", fieldsCondOperation);
@@ -437,7 +437,7 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_ForLikeOperator() {
     List<Role> roles = filterService.executeQuery(
-      "{\"where\":{\"permissions\":{\"like\":\"Update\"}}}",
+      "{\"where\":{\"permissions\":{\"like\":\"%Update%\"}}}",
       Role.class
     );
 
@@ -447,7 +447,7 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_ForNotLikeOperator() {
     List<Role> roles = filterService.executeQuery(
-      "{\"where\":{\"permissions\":{\"nlike\":\"Update\"}}}",
+      "{\"where\":{\"permissions\":{\"nlike\":\"%Update%\"}}}",
       Role.class
     );
 
@@ -458,7 +458,7 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_FieldSelectionTest() {
     List<Role> roles = filterService.executeQuery(
-      "{\"where\":{\"permissions\":{\"nlike\":\"Update\"}},\"fields\":{\"name\":true}}",
+      "{\"where\":{\"permissions\":{\"nlike\":\"%Update%\"}},\"fields\":{\"name\":true}}",
       Role.class
     );
 
@@ -500,7 +500,7 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_FieldSelectionTestForMultipleRoles() {
     List<Role> roles = filterService.executeQuery(
-      "{\"where\":{\"permissions\":{\"like\":\"Update\"}},\"fields\":{\"name\":true}}",
+      "{\"where\":{\"permissions\":{\"like\":\"%Update%\"}},\"fields\":{\"name\":true}}",
       Role.class
     );
 
@@ -518,7 +518,7 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_AndOperation() {
     List<Role> roles = filterService.executeQuery(
-      "{\"where\":{\"and\":{\"permissions\":{\"like\":\"Update\"},\"name\":\"Admin\"}}}",
+      "{\"where\":{\"and\":{\"permissions\":{\"like\":\"%Update%\"},\"name\":\"Admin\"}}}",
       Role.class
     );
 
@@ -528,7 +528,7 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_OrInsideAndOperation() {
     List<Role> roles = filterService.executeQuery(
-      "{\"where\":{\"and\":{\"or\":{\"permissions\":{\"like\":\"Update\"},\"name\":\"Admin\"},\"permissions\":\"Get,Update,Find,Delete\"}}}",
+      "{\"where\":{\"and\":{\"or\":{\"permissions\":{\"like\":\"%Update%\"},\"name\":\"Admin\"},\"permissions\":\"Get,Update,Find,Delete\"}}}",
       Role.class
     );
 
@@ -538,7 +538,7 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_AndInsideOrOperation() {
     List<Role> roles = filterService.executeQuery(
-      "{\"where\":{\"or\":{\"and\":{\"permissions\":{\"like\":\"Update\"},\"name\":\"Admin\"},\"permissions\":\"Get\"}}}",
+      "{\"where\":{\"or\":{\"and\":{\"permissions\":{\"like\":\"%Update%\"},\"name\":\"Admin\"},\"permissions\":\"Get\"}}}",
       Role.class
     );
 
@@ -548,7 +548,7 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_OrOperation() {
     List<Role> roles = filterService.executeQuery(
-      "{\"where\":{\"or\":{\"permissions\":{\"like\":\"Update\"},\"name\":\"Temp\"}}}",
+      "{\"where\":{\"or\":{\"permissions\":{\"like\":\"%Update%\"},\"name\":\"Temp\"}}}",
       Role.class
     );
 
@@ -561,7 +561,7 @@ class QueryServiceTests {
       IllegalArgumentException.class,
       () ->
         filterService.executeQuery(
-          "{\"where1\":{\"or\":{\"permissions\":{\"like\":\"Update\"},\"name\":\"Temp\"}}}",
+          "{\"where1\":{\"or\":{\"permissions\":{\"like\":\"%Update%\"},\"name\":\"Temp\"}}}",
           Role.class
         )
     );

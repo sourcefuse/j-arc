@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import com.sourcefuse.jarc.core.entitylisteners.SoftDeleteEntityListner;
+import com.sourcefuse.jarc.core.entitylisteners.SoftDeleteEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
-@EntityListeners(SoftDeleteEntityListner.class)
+@EntityListeners(SoftDeleteEntityListener.class)
 public abstract class SoftDeleteEntity implements BaseEntity {
 
   @Column(columnDefinition = "boolean default false")
