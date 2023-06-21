@@ -25,5 +25,5 @@ public class Config {
   @Enumerated(EnumType.STRING)
   private MessageType type;
 
-  private HashMap<String, Object> options;
+  private HashMap<String, String> options;
 }

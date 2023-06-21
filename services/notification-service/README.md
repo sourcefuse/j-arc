@@ -1,9 +1,10 @@
+# @jArc/notification-service
+
 ## Overview
 
 Microservice for handling notifications to users through real time notifications, email, or SMS. 
 
 ### Usage
-
 - Add the `notification-service` in dependencies (in `pom.xml`).
   ```xml
     <dependencies>
@@ -14,21 +15,6 @@ Microservice for handling notifications to users through real time notifications
 	        <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
-  ```
-- Set up a properties related to the Database connection (in `src/main/resources/application.properties`).
-  ```properties
-    spring.datasource.username= <user of relational db>
-    spring.datasource.password= <password of relational db>
-    spring.datasource.url= <connection url example `jdbc:postgresql://localhost:5432/db-name`>
-    spring.jpa.show-sql= 
-
-    spring.jpa.hibernate.ddl-auto= 
-    spring.jpa.properties.hibernat.dialect= 
-    spring.liquibase.enabled=false
-
-    spring.data.redis.host= <host name of redis db>
-    spring.data.redis.port= <port of redis db>
-    spring.data.redis.password=  <password of redis db>
   ```
 - Add `notification-service` pacakge in component scan in your application
  ```java
@@ -48,7 +34,7 @@ Microservice for handling notifications to users through real time notifications
     public class ExampleApplication {
 
         public static void main(String[] args) {
-            SpringApplication.run(JavamailerApplication.class, args);
+            SpringApplication.run(ExampleApplication.class, args);
         }
 
     }
@@ -452,6 +438,43 @@ Microservice for handling notifications to users through real time notifications
         }
 
         ```
+- Start the application
+
+### Application Properties
+Do not forget to set Application properties. The examples below show a common configuration for a PostgreSQL Database running locally. (in `src/main/resources/application.properties`).
+```properties
+  spring.datasource.username=pg_service_user
+  spring.datasource.password=pg_service_user_password
+  spring.datasource.url=jdbc:postgresql://localhost:5432/notification_db
+  spring.jpa.show-sql= false
+
+  spring.jpa.hibernate.ddl-auto= update
+  spring.jpa.properties.hibernat.dialect= org.hibernate.dialect.PostgreSQLDialect
+  spring.liquibase.enabled= false
+
+  spring.data.redis.host= localhost
+  spring.data.redis.port= 6379
+  spring.data.redis.password=
+
+  notification.provider.email= 
+  notification.provider.push=
+  notification.provider.sms=
+```
+| Name          | Required | Default Value | Description                                                                                                                        |
+| ------------- | -------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| spring.datasource.username | Y |  | Login username of the database. |
+| spring.datasource.password | Y |  | Login password of the database. |
+| spring.datasource.url | Y |  | JDBC URL of the database. |
+| spring.jpa.show-sql | N | false | Whether to enable logging of SQL statements. |
+| spring.jpa.hibernate.ddl-auto | N |  | DDL mode |
+| spring.jpa.properties.hibernat.dialect | Y |  | Dialect in Hibernate class. |
+| spring.liquibase.enabled | N | true | Whether to enable Liquibase support. |
+| spring.data.redis.host | N | localhost | Redis server host. |
+| spring.data.redis.port | N | 6379 |  Redis server port. |
+| spring.data.redis.password | Y |  |  Redis server host. |
+| notification.provider.email | N |  | Email Notification provider provided by us. values can be SesProvider, JavaMailerProvider. |
+| notification.provider.push | N |  | Push Notification provider provided by us. values can be FcmProvider, PubNubProvider, SocketIoProvider. |
+| notification.provider.sms | N |  | SMS Notification provider provided by us. values can be SnsProvider, TwilioProvider. |
 
 ### Create Notification Payload Structures
 

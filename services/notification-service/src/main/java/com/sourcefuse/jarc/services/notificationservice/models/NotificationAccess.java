@@ -43,5 +43,5 @@ public class NotificationAccess {
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = true)
-  private HashMap<String, Object> options;
+  private HashMap<String, String> options;
 }

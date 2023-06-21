@@ -135,8 +135,8 @@ public final class MockNotifications {
     Receiver receiver = new Receiver();
     receiver.setTo(Arrays.asList(subscriberOne, subscriberTwo));
 
-    HashMap<String, Object> options = new HashMap<String, Object>();
-    options.put("ttl", 100);
+    HashMap<String, String> options = new HashMap<String, String>();
+    options.put("ttl", "100");
     options.put("token", "DummyToken");
 
     Config notificationAccess = new Config();
