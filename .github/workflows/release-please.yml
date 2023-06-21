@@ -15,5 +15,7 @@ jobs:
       steps:
         - uses: google-github-actions/release-please-action@v3
           with:
-            release-type: java
+            release-type: maven
             package-name: release-please-action
+            monorepo: true
+            path: src
