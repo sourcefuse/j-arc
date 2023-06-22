@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
-public class SoftDeleteEntityListner<T extends SoftDeleteEntity> {
+public class SoftDeleteEntityListener<T extends SoftDeleteEntity> {
 
   @PreUpdate
   public void beforeDelete(T entity) {
@@ -27,8 +27,7 @@ public class SoftDeleteEntityListner<T extends SoftDeleteEntity> {
           "Forbidden :: User is not Authenticated"
         );
 
-        CurrentUser currentUser =
-          (CurrentUser) authentication.getPrincipal();
+        CurrentUser currentUser = (CurrentUser) authentication.getPrincipal();
         Assert.notNull(
           currentUser,
           "Current User is null can not set deleted by"

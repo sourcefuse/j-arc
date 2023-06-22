@@ -20,8 +20,9 @@ public class TestConstants {
     System.out.println("reps");
     em.getTransaction().begin();
     try {
-      em.createNativeQuery("TRUNCATE TABLE main.roles;").executeUpdate();
-      em.createNativeQuery("TRUNCATE TABLE logs.audit_logs;").executeUpdate();
+      em.createNativeQuery("DELETE FROM main.users;").executeUpdate();
+      em.createNativeQuery("DELETE FROM main.roles;").executeUpdate();
+      em.createNativeQuery("DELETE FROM logs.audit_logs;").executeUpdate();
       em.getTransaction().commit();
     } catch (Exception e) {
       e.printStackTrace();
