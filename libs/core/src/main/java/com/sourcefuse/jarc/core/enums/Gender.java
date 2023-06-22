@@ -11,4 +11,8 @@ public enum Gender {
   Gender(String label) {
     this.label = label;
   }
+
+  public String getValue() {
+    return label;
+  }
 }

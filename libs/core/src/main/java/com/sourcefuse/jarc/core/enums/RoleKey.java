@@ -2,6 +2,7 @@ package com.sourcefuse.jarc.core.enums;
 
 public enum RoleKey {
   ADMIN,
+  OTHERS,
   DEFAULT,
   PROGRAM_MANAGER,
   GUEST_BOARD_VIEWER,

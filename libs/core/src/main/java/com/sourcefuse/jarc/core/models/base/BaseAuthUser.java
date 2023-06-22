@@ -1,10 +1,9 @@
 package com.sourcefuse.jarc.core.models.base;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.enums.UserStatus;
+import java.util.List;
+import java.util.UUID;
 
 public interface BaseAuthUser {
   UUID getId();
@@ -20,8 +19,7 @@ public interface BaseAuthUser {
   String getFirstName();
   String getMiddleName();
   String getLastName();
-  
+
   UUID getDefaultTenantId();
   RoleKey getRoleType();
-  
 }

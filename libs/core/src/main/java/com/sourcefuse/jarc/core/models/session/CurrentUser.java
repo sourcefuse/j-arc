@@ -1,10 +1,10 @@
 package com.sourcefuse.jarc.core.models.session;
 
-import java.util.List;
-import java.util.UUID;
 import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.core.models.base.BaseAuthUser;
+import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CurrentUser implements BaseAuthUser {
+
   UUID id;
   String username;
   UUID userTenantId;
@@ -28,8 +29,7 @@ public class CurrentUser implements BaseAuthUser {
   String firstName;
   String middleName;
   String lastName;
-  
+
   UUID defaultTenantId;
   RoleKey roleType;
-  
 }

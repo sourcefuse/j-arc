@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.core.exception;
 
+import com.sourcefuse.jarc.core.dtos.ErrorDetails;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +15,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import com.sourcefuse.jarc.core.dtos.ErrorDetails;
-
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -92,5 +91,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       webRequest.getDescription(false)
     );
     return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(ResponseStatusException.class)
+  private static final ResponseEntity<ErrorDetails> handleHttpError(
+    ResponseStatusException exception,
+    WebRequest webRequest
+  ) {
+    ErrorDetails errorDetails = new ErrorDetails(
+      LocalDateTime.now(),
+      exception.getReason(),
+      webRequest.getDescription(false)
+    );
+    return new ResponseEntity<>(errorDetails, exception.getStatusCode());
   }
 }

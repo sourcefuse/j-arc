@@ -1,6 +1,5 @@
 package com.sourcefuse.jarc.core.models.base;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -27,10 +26,6 @@ public abstract class SoftDeleteEntity implements BaseEntity {
 
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @JsonFormat(
-    pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
-    shape = JsonFormat.Shape.STRING
-  )
   LocalDateTime deletedOn;
 
   UUID deletedBy;
