@@ -29,6 +29,7 @@
 		<module>services/auth-service</module>
 		<module>services/feature-toggle-service</module>
 		<module>services/user-tenant-service</module>
+		<module>sandbox/feature-toggle-example</module>
 	</modules>
 
 	<build>

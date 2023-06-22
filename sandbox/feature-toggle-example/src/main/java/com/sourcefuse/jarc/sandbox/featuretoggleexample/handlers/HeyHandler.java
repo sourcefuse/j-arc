@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.featuretoggleservice.handlers;
+package com.sourcefuse.jarc.sandbox.featuretoggleexample.handlers;
 
 import org.springframework.stereotype.Component;
 
@@ -9,7 +9,6 @@ public class HeyHandler implements FeatureHandlers{
 
 	@Override
 	public boolean handle() {
-		// TODO Auto-generated method stub
 		System.out.println("inside the hey handler");
 		return true;
 	}

@@ -32,7 +32,6 @@ public class FeatureToggleServiceApplication {
 	// }
 
 	public static void main(String[] args) {
-		System.out.println("helllooooo");
 
 		SpringApplication.run(FeatureToggleServiceApplication.class, args);
 

@@ -35,5 +35,7 @@ public class FeatureList extends UserModifiableEntity {
 	private String featureName;
 
 	private String description;
+	
+	private String metadata; // extra metadata for specific handling
 
 }
