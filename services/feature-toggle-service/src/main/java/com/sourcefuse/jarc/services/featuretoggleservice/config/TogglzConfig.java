@@ -13,19 +13,24 @@ import org.togglz.core.spi.FeatureProvider;
 @Configuration
 public class TogglzConfig {
 
-	@Autowired
-	private JDBCStateRepository stateRepository;
+  @Autowired
+  private JDBCStateRepository stateRepository;
 
-	@Autowired
-	private ActivationStrategyProvider activationStrategyProvider;
+  @Autowired
+  private ActivationStrategyProvider activationStrategyProvider;
 
-	@Autowired
-	private FeatureProvider featureProvider;
+  @Autowired
+  private FeatureProvider featureProvider;
 
-	@Bean
-	public FeatureManager featureManager(StateRepository stateRepository, FeatureProvider featureProvider) {
-		return new FeatureManagerBuilder().stateRepository(stateRepository).featureProvider(featureProvider)
-				.activationStrategyProvider(activationStrategyProvider).build();
-	}
-
+  @Bean
+  public FeatureManager featureManager(
+    StateRepository stateRepository,
+    FeatureProvider featureProvider
+  ) {
+    return new FeatureManagerBuilder()
+      .stateRepository(stateRepository)
+      .featureProvider(featureProvider)
+      .activationStrategyProvider(activationStrategyProvider)
+      .build();
+  }
 }

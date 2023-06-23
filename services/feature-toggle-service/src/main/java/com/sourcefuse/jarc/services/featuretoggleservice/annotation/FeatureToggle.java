@@ -7,10 +7,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-
 public @interface FeatureToggle {
+  String value();
 
-	String value();
-
-	String handler() default "";
+  String handler() default "";
 }
