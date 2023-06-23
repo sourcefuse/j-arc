@@ -27,7 +27,6 @@ public class AppConfiguration {
 		public Feature getEnum(String enumName) throws IllegalArgumentException{
 			// TODO Auto-generated method stub
 			try {
-			System.out.println("yes idar aaya");
 			return FeaturesEnum.valueOf(enumName);
 			} catch(IllegalArgumentException e) {
 				throw new RuntimeException("Invalid Enum name passed");
