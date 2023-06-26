@@ -6,11 +6,6 @@ import com.sourcefuse.jarc.services.usertenantservice.controller.RoleController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockRole;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,9 +25,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 @DisplayName("Create ROle Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
-public class RoleControllerTests {
+ class RoleControllerTests {
 
   @Mock
   private RoleRepository roleRepository;
@@ -56,7 +57,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test:Should create the role")
-  public void testCreateRole_Success() throws Exception {
+   void testCreateRole_Success() throws Exception {
     Role savedRole = role;
 
     // Mock the behavior of roleRepository.save()
@@ -86,7 +87,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test: Should pass with invalid name")
-  public void testCreateRole_InvalidInput_EmptyName() throws Exception {
+   void testCreateRole_InvalidInput_EmptyName() throws Exception {
     // Prepare test data with invalid input
     role.setName("");
     mockMvc
@@ -108,7 +109,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test: Should pass with invalid RoleType")
-  public void testCreateRole_InvalidInput_EmptyRole() throws Exception {
+   void testCreateRole_InvalidInput_EmptyRole() throws Exception {
     // Prepare test data with invalid input
     role.setRoleType(null);
 
@@ -131,7 +132,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test case Should pass for database error")
-  public void testCreateRole_DatabaseError() throws Exception {
+   void testCreateRole_DatabaseError() throws Exception {
     // Mock the behavior of roleRepository.save() to throw an exception
     Mockito
       .when(roleRepository.save(role))
@@ -164,7 +165,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test: case for count success")
-  public void testCount_Success() throws Exception {
+   void testCount_Success() throws Exception {
     // Mock the behavior of roleRepository.count()
     Mockito.when(roleRepository.count()).thenReturn(5L); // Mock a count of 5
 
@@ -185,7 +186,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test case should pass for 0 count")
-  public void testCount_Empty() throws Exception {
+   void testCount_Empty() throws Exception {
     // Mock the behavior of roleRepository.count()
     Mockito.when(roleRepository.count()).thenReturn(0L); // Mock a count of 0
 
@@ -206,7 +207,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test: countRole with database error")
-  public void testCountRole_DatabaseError() throws Exception {
+   void testCountRole_DatabaseError() throws Exception {
     // Mock the behavior of roleRepository.save() to throw an exception
     Mockito
       .when(roleRepository.count())
@@ -238,12 +239,12 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test getAllRoles success")
-  public void testGetAllRoles_Success() throws Exception {
+   void testGetAllRoles_Success() throws Exception {
     // Prepare test data
     List<Role> roles = Arrays.asList(
-      new Role(UUID.randomUUID()),
-      new Role(UUID.randomUUID()),
-      new Role(UUID.randomUUID())
+      new Role(),
+      new Role(),
+      new Role()
     );
 
     // Mock the behavior of roleRepository.findAll()
@@ -266,7 +267,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test: getAllRoles Empty Response")
-  public void testGetAllRoles_Empty() throws Exception {
+   void testGetAllRoles_Empty() throws Exception {
     // Mock the behavior of roleRepository.findAll()
     Mockito.when(roleRepository.findAll()).thenReturn(Arrays.asList());
 
@@ -287,14 +288,14 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test updateAll success")
-  public void testUpdateAll_Success() throws Exception {
+   void testUpdateAll_Success() throws Exception {
     // Prepare test data
     role.setName("Update Name");
 
     List<Role> targetListRole = Arrays.asList(
-      new Role(UUID.randomUUID()),
-      new Role(UUID.randomUUID()),
-      new Role(UUID.randomUUID())
+      new Role(),
+      new Role(),
+      new Role()
     );
 
     // Mock the behavior of roleRepository.findAll()
@@ -326,7 +327,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test: updateAll against No existing records found")
-  public void testUpdateAll_Empty() throws Exception {
+   void testUpdateAll_Empty() throws Exception {
     role.setName("Updated Name");
 
     // Mock the behavior of roleRepository.findAll()
@@ -355,7 +356,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test: GetRoleByID with existing role")
-  public void testGetRoleByID_ExistingRole() throws Exception {
+   void testGetRoleByID_ExistingRole() throws Exception {
     // Mock the behavior of roleRepository.findById()
     UUID roleId = MockRole.ROLE_ID;
     Mockito.when(roleRepository.findById(roleId)).thenReturn(Optional.of(role));
@@ -381,7 +382,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test: getRoleByID with non-existing role")
-  public void testGetRoleByID_NonExistingRole() throws Exception {
+   void testGetRoleByID_NonExistingRole() throws Exception {
     // Mock the behavior of roleRepository.findById()
     UUID roleId = MockRole.ROLE_ID;
     Mockito.when(roleRepository.findById(roleId)).thenReturn(Optional.empty());
@@ -479,7 +480,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test: Update existing role - Success")
-  public void testUpdateRoleById_ExistingRole_Success() throws Exception {
+   void testUpdateRoleById_ExistingRole_Success() throws Exception {
     UUID roleId = MockRole.ROLE_ID;
     Role roleToUpdate = this.role;
     roleToUpdate.setId(roleId);
@@ -504,7 +505,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test: Update non-existing role - Not Found")
-  public void testUpdateRoleById_NonExistingRole_NotFound() throws Exception {
+   void testUpdateRoleById_NonExistingRole_NotFound() throws Exception {
     UUID roleId = MockRole.ROLE_ID;
     Role roleToUpdate = this.role;
 
@@ -539,7 +540,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test case Should pass with invalid name")
-  public void testUpdateRoleById_InvalidInput_EmptyName() throws Exception {
+   void testUpdateRoleById_InvalidInput_EmptyName() throws Exception {
     // Prepare test data with invalid input
     UUID roleId = MockRole.ROLE_ID;
     Role roleToUpdate = this.role;
@@ -567,7 +568,7 @@ public class RoleControllerTests {
 
   @Test
   @DisplayName("Test case Should pass with invalid RolType")
-  public void testUpdateRoleById_InvalidInput_EmptyRole() throws Exception {
+   void testUpdateRoleById_InvalidInput_EmptyRole() throws Exception {
     // Prepare test data with invalid input
 
     UUID roleId = MockRole.ROLE_ID;

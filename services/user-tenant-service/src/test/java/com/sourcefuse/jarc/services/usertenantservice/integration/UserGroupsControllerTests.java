@@ -1,16 +1,9 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.sourcefuse.jarc.services.usertenantservice.controller.UserGroupsController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,9 +16,18 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @DisplayName("User Groups Apis Integration /unit Tests")
 @ExtendWith(MockitoExtension.class)
-public class UserGroupsControllerTests {
+ class UserGroupsControllerTests {
 
   private MockMvc mockMvc;
 
@@ -45,12 +47,12 @@ public class UserGroupsControllerTests {
 
   @Test
   @DisplayName("Fetch All User Groups - Success")
-  public void testFetchAllUserGroups() throws Exception {
+   void testFetchAllUserGroups() throws Exception {
     // Arrange
-    UUID groupId = UUID.randomUUID();
+    UUID groupId = MockGroup.GROUP_ID;
     UserGroup userGroup1 = UserGroup.builder().id(groupId).build();
 
-    UUID groupId2 = UUID.randomUUID();
+    UUID groupId2 = MockGroup.GROUP_ID_TWO;
     UserGroup userGroup2 = UserGroup.builder().id(groupId2).build();
 
     List<UserGroup> userGroupsList = Arrays.asList(userGroup1, userGroup2);
@@ -72,7 +74,7 @@ public class UserGroupsControllerTests {
 
   @Test
   @DisplayName("Fetch All User Groups - Empty Response ")
-  public void testFetchAllUserGroups_Empty() throws Exception {
+   void testFetchAllUserGroups_Empty() throws Exception {
     // Arrange
 
     List<UserGroup> userGroupsList = new ArrayList<>();
@@ -92,7 +94,7 @@ public class UserGroupsControllerTests {
 
   @Test
   @DisplayName("Count User Groups - Success")
-  public void testCountUserGroups() throws Exception {
+   void testCountUserGroups() throws Exception {
     // Arrange
     UserGroup userGroup1 = UserGroup.builder().build();
     UserGroup userGroup2 = UserGroup.builder().build();
@@ -114,7 +116,7 @@ public class UserGroupsControllerTests {
 
   @Test
   @DisplayName("Count User Groups - Zero Count -No Groups Present")
-  public void testCountUserGroups_Empty() throws Exception {
+   void testCountUserGroups_Empty() throws Exception {
     List<UserGroup> userGroupsList = new ArrayList<>();
 
     // Mock the repository

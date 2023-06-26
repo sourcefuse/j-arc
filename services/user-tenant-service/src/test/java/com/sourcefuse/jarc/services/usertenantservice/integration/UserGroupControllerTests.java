@@ -1,11 +1,5 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.services.usertenantservice.controller.UserGroupController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
@@ -15,10 +9,6 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.UserGroupServiceImpl;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,9 +29,20 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @DisplayName("Create Role User Tenants Apis Integration Tests")
 @ExtendWith(MockitoExtension.class)
-public class UserGroupControllerTests {
+ class UserGroupControllerTests {
 
   @Mock
   GroupRepository groupRepository;
@@ -79,7 +80,7 @@ public class UserGroupControllerTests {
 
   @Test
   @DisplayName("Create User Group - Success")
-  public void testCreateUserGroup_Success() throws Exception {
+   void testCreateUserGroup_Success() throws Exception {
     // Mocked role
     Group mockRole = this.group;
 
@@ -111,7 +112,7 @@ public class UserGroupControllerTests {
 
   @Test
   @DisplayName("Test: Should pass with invalid userTenantId")
-  public void testUserGrp_Invalid_userTenantId() throws Exception {
+   void testUserGrp_Invalid_userTenantId() throws Exception {
     // Prepare test data with invalid input;
     userGroup.setUsrTnt(null);
 
@@ -134,7 +135,7 @@ public class UserGroupControllerTests {
 
   @Test
   @DisplayName("Test: Should pass with invalid Group ID ")
-  public void testUserGrp_Invalid_GroupID() throws Exception {
+   void testUserGrp_Invalid_GroupID() throws Exception {
     // Prepare test data with invalid input;
     userGroup.setGrp(null);
     mockMvc
@@ -183,7 +184,7 @@ public class UserGroupControllerTests {
 
   @Test
   @DisplayName("Delete User Group - Success - Integration")
-  public void testDeleteUsrGrp_Success() throws Exception {
+   void testDeleteUsrGrp_Success() throws Exception {
     // Mock current user and authentication
 
     // Mock userGroupsRepo methods
@@ -259,7 +260,7 @@ public class UserGroupControllerTests {
 
   @Test
   @DisplayName("Test countUserGroup - Success")
-  public void testCountUserGroup_Success() throws Exception {
+   void testCountUserGroup_Success() throws Exception {
     long expectedCount = 10;
 
     when(userGroupsRepo.count(ArgumentMatchers.any(Specification.class)))
@@ -281,7 +282,7 @@ public class UserGroupControllerTests {
 
   @Test
   @DisplayName("Test countUserGroup - Group Not Found")
-  public void testCountUserGroup_GroupNotFound() throws Exception {
+   void testCountUserGroup_GroupNotFound() throws Exception {
     doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
       .when(userGroupsRepo)
       .count(ArgumentMatchers.any(Specification.class));

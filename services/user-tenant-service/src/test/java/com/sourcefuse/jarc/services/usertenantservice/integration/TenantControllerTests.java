@@ -1,10 +1,5 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.services.usertenantservice.controller.TenantController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
@@ -12,10 +7,6 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.TenantConfig;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantService;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,9 +25,19 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
 @DisplayName("Create Tenant  Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
-public class TenantControllerTests {
+ class TenantControllerTests {
 
   @Mock
   private TenantRepository tenantRepository;
@@ -91,7 +92,7 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Test: Should pass with invalid name")
-  public void testCreateTenant_InvalidInput_EmptyName() throws Exception {
+   void testCreateTenant_InvalidInput_EmptyName() throws Exception {
     // Prepare test data with invalid input
     tenant.setName("");
 
@@ -114,7 +115,7 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Test: Should pass with invalid TenantStatus")
-  public void testCreateTenant_InvalidInput_TenantStatus() throws Exception {
+   void testCreateTenant_InvalidInput_TenantStatus() throws Exception {
     // Prepare test data with invalid input
     tenant.setStatus(null);
 
@@ -137,7 +138,7 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Test case Should pass for database error")
-  public void testCreateTenant_DatabaseError() throws Exception {
+   void testCreateTenant_DatabaseError() throws Exception {
     // Mock the behavior of roleRepository.save() to throw an exception
     when(tenantRepository.save(tenant))
       .thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
@@ -169,7 +170,7 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Test: case for count success")
-  public void testCount_Success() throws Exception {
+   void testCount_Success() throws Exception {
     when(tenantRepository.count()).thenReturn(5L); // Mock a count of 5
 
     // Perform the API call
@@ -189,7 +190,7 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Test case should pass for 0 count")
-  public void testCount_Empty() throws Exception {
+   void testCount_Empty() throws Exception {
     // Mock the behavior of roleRepository.count()
     when(tenantRepository.count()).thenReturn(0L); // Mock a count of 0
 
@@ -210,7 +211,7 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Test: countRole with database error")
-  public void testCountRole_DatabaseError() throws Exception {
+   void testCountRole_DatabaseError() throws Exception {
     // Mock the behavior of roleRepository.save() to throw an exception
     when(tenantRepository.count())
       .thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
@@ -241,12 +242,12 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Test getAllTenants success")
-  public void testGetAllTenants_Success() throws Exception {
+   void testGetAllTenants_Success() throws Exception {
     // Prepare test data
     List<Tenant> tenants = Arrays.asList(
-      new Tenant(UUID.randomUUID()),
-      new Tenant(UUID.randomUUID()),
-      new Tenant(UUID.randomUUID())
+      new Tenant(),
+      new Tenant(),
+      new Tenant()
     );
 
     // Mock the behavior of roleRepository.findAll()
@@ -269,7 +270,7 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Test: getAllTenants Empty Response")
-  public void testGetAllTenants_Empty() throws Exception {
+   void testGetAllTenants_Empty() throws Exception {
     // Mock the behavior of roleRepository.findAll()
     when(tenantRepository.findAll()).thenReturn(Arrays.asList());
 
@@ -289,14 +290,14 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Test updateAll success")
-  public void testUpdateAll_Success() throws Exception {
+   void testUpdateAll_Success() throws Exception {
     // Prepare test data
     tenant.setName("Update Name");
 
     List<Tenant> targetListTenant = Arrays.asList(
-      new Tenant(UUID.randomUUID()),
-      new Tenant(UUID.randomUUID()),
-      new Tenant(UUID.randomUUID())
+      new Tenant(),
+      new Tenant(),
+      new Tenant()
     );
 
     // Mock the behavior of roleRepository.findAll()
@@ -326,7 +327,7 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Test: updateAll against No existing records found ")
-  public void testUpdateAll_Empty() throws Exception {
+   void testUpdateAll_Empty() throws Exception {
     tenant.setName("Updated Name");
 
     // Mock the behavior of roleRepository.findAll()
@@ -352,7 +353,7 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Test fetchTenantByID Integration Test")
-  public void testFetchTenantByID() throws Exception {
+   void testFetchTenantByID() throws Exception {
     // Mock the tenant repository
     when(tenantService.fetchTenantByID(mockTenantId)).thenReturn(tenant);
 
@@ -418,7 +419,7 @@ public class TenantControllerTests {
 
   @Test
   @DisplayName("Get Tenant Config - Success Integration ")
-  public void testGetTenantConfig_Success() throws Exception {
+   void testGetTenantConfig_Success() throws Exception {
     ArrayList<TenantConfig> expectedConfig = new ArrayList<>();
     expectedConfig.add(new TenantConfig());
     expectedConfig.add(new TenantConfig());

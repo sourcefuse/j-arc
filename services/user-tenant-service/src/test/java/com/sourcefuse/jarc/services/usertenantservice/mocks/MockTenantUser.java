@@ -12,18 +12,36 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenantPrefs;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
+import org.springframework.beans.BeanUtils;
+
 import java.util.ArrayList;
 import java.util.UUID;
-import org.springframework.beans.BeanUtils;
 
 public final class MockTenantUser {
 
   private MockTenantUser() {}
 
-  public static final UUID ROLE_ID = UUID.randomUUID();
-  public static final UUID TENANT_ID = UUID.randomUUID();
-  public static final UUID USER_TENANT_ID = UUID.randomUUID();
-  public static final UUID USER_ID = UUID.randomUUID();
+  public static final UUID ROLE_ID = UUID.fromString(
+          "45e6bb6b-3150-4cf3-9ca2-3bb299f5e29f"
+  );
+  public static final UUID TENANT_ID = UUID.fromString(
+          "45e6bb6b-3150-4cf3-9ca2-3bb299f5e30f"
+  );
+  public static final UUID USER_TENANT_ID =UUID.fromString(
+          "45e6bb6b-3150-4cf3-9ca2-3bb299f5e31f"
+  );
+  public static final UUID USER_ID = UUID.fromString(
+          "45e6bb6b-3150-4cf3-9ca2-3bb299f5e32f"
+  );
+  public static final UUID INVALID_ID = UUID.fromString(
+          "45e6bb6b-3150-4cf3-9ca2-3bb299f5e33f"
+  );
+  public static final UUID USER_TENANT_PREFS_ID = UUID.fromString(
+          "45e6bb6b-3150-4cf3-9ca2-3bb299f5e34f"
+  );
+  public static final UUID USER_TENANT_PREFS_ID_TWO = UUID.fromString(
+          "45e6bb6b-3150-4cf3-9ca2-3bb399f5e34f"
+  );
 
   public static UserDto getUserDtoObj() {
     UserDto userDto = new UserDto();

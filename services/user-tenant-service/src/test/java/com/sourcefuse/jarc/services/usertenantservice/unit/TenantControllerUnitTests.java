@@ -1,7 +1,5 @@
 package com.sourcefuse.jarc.services.usertenantservice.unit;
 
-import static org.mockito.ArgumentMatchers.any;
-
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.TenantConfig;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
@@ -10,10 +8,6 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantConfigRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantServiceImpl;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,8 +20,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.any;
+
 @DisplayName("Create Tenant  Apis units Tests")
-public class TenantControllerUnitTests {
+ class TenantControllerUnitTests {
 
   @InjectMocks
   private TenantServiceImpl tenantService;
@@ -42,7 +43,7 @@ public class TenantControllerUnitTests {
   private Tenant tenant;
 
   @BeforeEach
-  void setUp() {
+  public void setUp() {
     MockitoAnnotations.openMocks(this);
     mockTenantID = MockTenantUser.TENANT_ID;
     tenant = MockTenantUser.geTenantObj();
@@ -94,7 +95,7 @@ public class TenantControllerUnitTests {
   void testFindTenantById_NoAccessPermission() {
     // Arrange
     MockCurrentUserSession.setCurrentLoggedInUser(
-      UUID.randomUUID(),
+      MockTenantUser.INVALID_ID,
       null,
       null
     ); // Different tenant ID than the one requested
@@ -112,7 +113,7 @@ public class TenantControllerUnitTests {
 
   @Test
   @DisplayName("Update Tenant By ID - Success")
-  public void testUpdateTenantsById_Success() {
+   void testUpdateTenantsById_Success() {
     Tenant sourceTenant = this.tenant;
 
     Tenant targetTenant = new Tenant();
@@ -139,7 +140,7 @@ public class TenantControllerUnitTests {
 
   @Test
   @DisplayName("Update Tenant By ID - Tenant Not Found")
-  public void testUpdateTenantsById_TenantNotFound() {
+   void testUpdateTenantsById_TenantNotFound() {
     Tenant sourceTenant = this.tenant;
     sourceTenant.setName("Updated Tenant");
     MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
@@ -160,12 +161,12 @@ public class TenantControllerUnitTests {
 
   @Test
   @DisplayName("Update Tenant By ID - Access Forbidden")
-  public void testUpdateTenantsById_AccessForbidden() {
+   void testUpdateTenantsById_AccessForbidden() {
     Tenant sourceTenant = new Tenant();
     sourceTenant.setName("Updated Tenant");
 
     MockCurrentUserSession.setCurrentLoggedInUser(
-      UUID.randomUUID(),
+      MockTenantUser.INVALID_ID,
       null,
       null
     );
@@ -182,7 +183,7 @@ public class TenantControllerUnitTests {
 
   @Test
   @DisplayName("Delete Tenant by ID - Successful")
-  public void testDeleteTenantById_Success() {
+   void testDeleteTenantById_Success() {
     // Mocking the checkViewDeleteTenantAccessPermission method
     MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
 
@@ -198,12 +199,12 @@ public class TenantControllerUnitTests {
 
   @Test
   @DisplayName("Delete Tenant by ID - Forbidden")
-  public void testDeleteTenantById_Forbidden() {
+   void testDeleteTenantById_Forbidden() {
     UUID tenantId = MockTenantUser.TENANT_ID;
 
     // Mocking the checkViewDeleteTenantAccessPermission method
     MockCurrentUserSession.setCurrentLoggedInUser(
-      UUID.randomUUID(),
+      MockTenantUser.INVALID_ID,
       null,
       null
     );
@@ -244,7 +245,7 @@ public class TenantControllerUnitTests {
   @Test
   @DisplayName("Test getTenantConfig with invalid tenantId")
   void testGetTenantConfigWithInvalidTenantId() {
-    UUID otherTenantId = UUID.randomUUID();
+    UUID otherTenantId = MockTenantUser.INVALID_ID;
     MockCurrentUserSession.setCurrentLoggedInUser(otherTenantId, null, null);
 
     // Call the method under test and assert that it throws an exception

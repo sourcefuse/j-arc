@@ -10,11 +10,6 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserServiceImpl;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,8 +24,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 @DisplayName("TenantUserController Integration Tests")
-public class TenantUserControllerTests {
+ class TenantUserControllerTests {
 
   private MockMvc mockMvc;
 
@@ -56,7 +57,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Create User Tenants - Success -Integration")
-  public void testCreateUserTenants_Success() throws Exception {
+   void testCreateUserTenants_Success() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
 
@@ -85,7 +86,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Test: Should pass with invalid tenant Id")
-  public void testCreate_InvalidInput_TenantId() throws Exception {
+   void testCreate_InvalidInput_TenantId() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.setTenantId(null);
@@ -103,7 +104,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Test: Should pass with invalid Role Id")
-  public void testCreate_InvalidInput_RoleId() throws Exception {
+   void testCreate_InvalidInput_RoleId() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.setRoleId(null);
@@ -121,7 +122,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Test: Should pass with invalid UserDetails ")
-  public void testCreate_InvalidInput_UserDetails() throws Exception {
+   void testCreate_InvalidInput_UserDetails() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.setUserDetails(null);
@@ -141,7 +142,7 @@ public class TenantUserControllerTests {
   @DisplayName(
     "Test: Should pass with invalid UserDetails First name blank or null"
   )
-  public void testCreate_InvalidInput_User_FirstName() throws Exception {
+   void testCreate_InvalidInput_User_FirstName() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.getUserDetails().setFirstName("");
@@ -161,7 +162,7 @@ public class TenantUserControllerTests {
   @DisplayName(
     "Test: Should pass with invalid UserDetails user name blank or null"
   )
-  public void testCreate_InvalidInput_User_UserName() throws Exception {
+   void testCreate_InvalidInput_User_UserName() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.getUserDetails().setUsername("");
@@ -179,7 +180,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Test: Should pass with invalid UserDetails Email")
-  public void testCreate_InvalidInput_User_Email() throws Exception {
+   void testCreate_InvalidInput_User_Email() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.getUserDetails().setEmail("adil*!@gmail.com");
@@ -197,7 +198,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Test: Should pass with invalid UserDetails Phone number")
-  public void testCreate_InvalidInput_User_Phone() throws Exception {
+   void testCreate_InvalidInput_User_Phone() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.getUserDetails().setPhone("+091123456789");
@@ -215,7 +216,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Test getUserTenantById - Success")
-  public void testGetUserTenantByIdSuccess() throws Exception {
+   void testGetUserTenantByIdSuccess() throws Exception {
     // Arrange
     List<UserDto> userDtoList = Collections.singletonList(
       MockTenantUser.getUserDtoObj()
@@ -239,7 +240,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Test getUserTenantById - forbidden")
-  public void testGetUserTenantByIdUnauthorized() throws Exception {
+   void testGetUserTenantByIdUnauthorized() throws Exception {
     // Arrange
     MockCurrentUserSession.setCurrentLoggedInUser(
       MockTenantUser.TENANT_ID,
@@ -251,7 +252,7 @@ public class TenantUserControllerTests {
     mockMvc
       .perform(
         MockMvcRequestBuilders
-          .get(basePath, UUID.randomUUID())
+          .get(basePath, MockTenantUser.INVALID_ID)
           .accept(MediaType.APPLICATION_JSON)
       )
       .andExpect(MockMvcResultMatchers.status().isForbidden());
@@ -259,7 +260,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Test getUserTenantById - Success")
-  public void testGetAllUserViews() throws Exception {
+   void testGetAllUserViews() throws Exception {
     // Arrange
     List<UserDto> userDtoList = Collections.singletonList(
       MockTenantUser.getUserDtoObj()
@@ -281,7 +282,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Test Count UserTenant - Success")
-  public void testCountTenantUser() throws Exception {
+   void testCountTenantUser() throws Exception {
     // Arrange
     List<UserDto> userDtoList = Collections.singletonList(
       MockTenantUser.getUserDtoObj()
@@ -306,7 +307,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Test find All User by userId - Success")
-  public void testFindAllUserByUserId() throws Exception {
+   void testFindAllUserByUserId() throws Exception {
     // Arrange
     UUID tenantId = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
@@ -328,13 +329,13 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Test find All User by userId - forbidden")
-  public void testFindAllUserByUserIdForbidden() throws Exception {
+   void testFindAllUserByUserIdForbidden() throws Exception {
     // Arrange
     UUID tenantId = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
     MockCurrentUserSession.setCurrentLoggedInUser(
       tenantId,
-      UUID.randomUUID(),
+      MockTenantUser.INVALID_ID,
       null
     );
     Mockito
@@ -353,7 +354,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Update User by ID - Success")
-  public void testUpdateUserByIdSuccess() throws Exception {
+   void testUpdateUserByIdSuccess() throws Exception {
     // Arrange
     UUID id = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
@@ -387,7 +388,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Update User by ID - Forbidden ")
-  public void testUpdateUserByIdForbidden() throws Exception {
+   void testUpdateUserByIdForbidden() throws Exception {
     // Arrange
     UUID id = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
@@ -420,7 +421,7 @@ public class TenantUserControllerTests {
 
   @Test
   @DisplayName("Delete User by ID - Success")
-  public void testDeleteUserByIdSuccess() throws Exception {
+   void testDeleteUserByIdSuccess() throws Exception {
     // Arrange
     UUID tenantId = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;

@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @DisplayName("User Tenant Prefs Controller Unit Tests")
-public class UserTenantPrefsControllerUnitTests {
+ class UserTenantPrefsControllerUnitTests {
 
   @Mock
   private UserTenantPrefsRepository userTenantPrefsRepository;
@@ -44,7 +44,7 @@ public class UserTenantPrefsControllerUnitTests {
 
   @Test
   @DisplayName("Create Tenant Prefs - Success")
-  public void testCreateTenantPrefs_Success() throws Exception {
+   void testCreateTenantPrefs_Success() throws Exception {
     // Set Current User
 
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, mockUserTenantId);
@@ -62,7 +62,7 @@ public class UserTenantPrefsControllerUnitTests {
 
   @Test
   @DisplayName("Create Tenant Prefs - Existing Tenant Prefs records Updated")
-  public void testCreateTenantPrefs_ExistingPrefsUpdated() throws Exception {
+   void testCreateTenantPrefs_ExistingPrefsUpdated() throws Exception {
     // Arrange
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, mockUserTenantId);
 

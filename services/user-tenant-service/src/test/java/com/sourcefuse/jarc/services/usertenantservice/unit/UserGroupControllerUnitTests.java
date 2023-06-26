@@ -5,12 +5,10 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockGroup;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.UserGroupServiceImpl;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,8 +21,12 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 @DisplayName("Create User Group units Tests")
-public class UserGroupControllerUnitTests {
+ class UserGroupControllerUnitTests {
 
   @Mock
   private GroupRepository groupRepository;
@@ -157,12 +159,12 @@ public class UserGroupControllerUnitTests {
 
   @Test
   @DisplayName(
-    "Test createUserGroup - TenantId in Request does not match with existing group"
+    "Test createUserGroup - TenantId in Request does not match with existing group tenantId"
   )
   void testCreateUserGroupTenantIdMismatch() {
     // Mock input data
     Group group = this.group;
-    group.setTenantId(UUID.randomUUID());
+    group.setTenantId(MockTenantUser.INVALID_ID);
     UserGroup userGroup = this.userGroup;
 
     // Mock repository methods
@@ -194,7 +196,7 @@ public class UserGroupControllerUnitTests {
   @DisplayName("Test updateAllUserGroup: Success")
   void testUpdateAllUserGroupSuccess() {
     // Mock input data
-    UUID userGroupId = UUID.randomUUID();
+    UUID userGroupId = MockGroup.USER_GROUP_ID;
     UserGroup userGroup = this.userGroup;
     MockCurrentUserSession.setCurrentLoggedInUser(
       this.group.getTenantId(),
@@ -243,7 +245,7 @@ public class UserGroupControllerUnitTests {
   void testUpdateAllUserGroupGroupNotFound() {
     // Mock input data
 
-    UUID userGroupId = UUID.randomUUID();
+    UUID userGroupId = MockGroup.USER_GROUP_ID;
     UserGroup userGroup = this.userGroup;
     MockCurrentUserSession.setCurrentLoggedInUser(
       group.getTenantId(),
@@ -316,7 +318,7 @@ public class UserGroupControllerUnitTests {
   @Test
   @DisplayName("Update User Group - User Group Not Found")
   void testUpdateUserGroup_UserGroupNotFound() throws Exception {
-    UUID userGroupID = UUID.randomUUID();
+    UUID userGroupID = MockGroup.USER_GROUP_ID;
     Mockito
       .when(groupRepository.findById(mockGroupId))
       .thenReturn(Optional.of(group));
@@ -349,7 +351,7 @@ public class UserGroupControllerUnitTests {
 
   @Test
   @DisplayName("Delete User Group - Success")
-  public void testDeleteUsrGrp_Success() throws Exception {
+   void testDeleteUsrGrp_Success() throws Exception {
     // Mock current user and authentication
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
 
@@ -375,7 +377,7 @@ public class UserGroupControllerUnitTests {
 
   @Test
   @DisplayName("Delete User Group - Group not found")
-  public void testDeleteUsrGrp_GroupNotFound() throws Exception {
+   void testDeleteUsrGrp_GroupNotFound() throws Exception {
     // Mock current user and authentication
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
     // Mock Group not found
@@ -385,7 +387,7 @@ public class UserGroupControllerUnitTests {
 
     Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> userGroupService.deleteUserGroup(mockGroupId, userGroup.getId())
+      () -> userGroupService.deleteUserGroup(mockGroupId, MockGroup.USER_GROUP_ID)
     );
 
     Mockito
@@ -396,11 +398,11 @@ public class UserGroupControllerUnitTests {
 
   @Test
   @DisplayName("Delete User Group - Forbidden")
-  public void testDeleteUsrGrp_Forbidden() throws Exception {
+   void testDeleteUsrGrp_Forbidden() throws Exception {
     // Mock current user and authentication
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
 
-    userGroup.setUserTenant(new UserTenant(UUID.randomUUID())); // Set different user tenant
+    userGroup.setUserTenant(new UserTenant(MockTenantUser.USER_TENANT_ID)); // Set different user tenant
 
     // Mock userGroupsRepo method
     Mockito
@@ -415,7 +417,7 @@ public class UserGroupControllerUnitTests {
 
     Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> userGroupService.deleteUserGroup(mockGroupId, userGroup.getId())
+      () -> userGroupService.deleteUserGroup(mockGroupId, MockGroup.USER_GROUP_ID)
     );
 
     //verify deleteById and save never call due to failure
@@ -427,7 +429,7 @@ public class UserGroupControllerUnitTests {
 
   @Test
   @DisplayName("Delete User Group - Owner Removal Forbidden")
-  public void testDeleteUsrGrp_OwnerRemovalForbidden() throws Exception {
+   void testDeleteUsrGrp_OwnerRemovalForbidden() throws Exception {
     // Mock current user and authentication
     MockCurrentUserSession.setCurrentLoggedInUser(
       userGroup.getTenantId(),
@@ -446,7 +448,7 @@ public class UserGroupControllerUnitTests {
       .thenReturn(List.of(userGroup));
     Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> userGroupService.deleteUserGroup(mockGroupId, userGroup.getId())
+      () -> userGroupService.deleteUserGroup(mockGroupId, MockGroup.USER_GROUP_ID)
     );
 
     //verify deleteById and save never call due to failure

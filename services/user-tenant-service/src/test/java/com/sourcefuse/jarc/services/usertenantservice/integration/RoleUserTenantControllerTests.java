@@ -9,11 +9,6 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockRole;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,9 +29,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 @DisplayName("Create Role User Tenants Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
-public class RoleUserTenantControllerTests {
+ class RoleUserTenantControllerTests {
 
   @Mock
   private RoleRepository roleRepository;
@@ -70,7 +71,7 @@ public class RoleUserTenantControllerTests {
 
   @Test
   @DisplayName("Create Role - Success")
-  public void testCreateRole_Success() throws Exception {
+   void testCreateRole_Success() throws Exception {
     // Mocked role
     Role mockRole = this.role;
 
@@ -115,7 +116,7 @@ public class RoleUserTenantControllerTests {
 
   @Test
   @DisplayName("Create Role - Role Not Found")
-  public void testCreateRole_RoleNotFound() throws Exception {
+   void testCreateRole_RoleNotFound() throws Exception {
     // Mocking repository behavior
     Mockito
       .when(roleRepository.findById(ArgumentMatchers.any(UUID.class)))
@@ -154,7 +155,7 @@ public class RoleUserTenantControllerTests {
 
   @Test
   @DisplayName("Test: should pass : UserTenant with null tenantId")
-  public void testUserTenant_Invalid_TenantId() throws Exception {
+   void testUserTenant_Invalid_TenantId() throws Exception {
     // Prepare test data with invalid input
     mockUserTenant.setTnt(null);
     mockMvc
@@ -181,7 +182,7 @@ public class RoleUserTenantControllerTests {
 
   @Test
   @DisplayName("Test: UserTenant with null Role ID")
-  public void testUserTenant_Invalid_RoleID() throws Exception {
+   void testUserTenant_Invalid_RoleID() throws Exception {
     // Prepare test data with invalid input
     mockUserTenant.setRol(null);
 
@@ -209,7 +210,7 @@ public class RoleUserTenantControllerTests {
 
   @Test
   @DisplayName("Test: UserTenant with null User ID")
-  public void testUserTenant_Invalid_UserID() throws Exception {
+   void testUserTenant_Invalid_UserID() throws Exception {
     // Prepare test data with invalid input
     mockUserTenant.setUsr(null);
     // Perform validation manually
@@ -291,14 +292,14 @@ public class RoleUserTenantControllerTests {
 
   @Test
   @DisplayName("Test: case for count success")
-  public void testCount_Success() throws Exception {
+   void testCount_Success() throws Exception {
     // Mock the behavior of roleRepository.count()
     Mockito
       .when(roleUserTenantRepository.findAll(Mockito.any(Specification.class)))
       .thenReturn(
         Arrays.asList(
-          new UserTenant(UUID.randomUUID()),
-          new UserTenant(UUID.randomUUID())
+          new UserTenant(),
+          new UserTenant()
         )
       ); // Mock a count of 2
 
@@ -321,7 +322,7 @@ public class RoleUserTenantControllerTests {
 
   @Test
   @DisplayName("Test case should pass for 0 count")
-  public void testCount_Empty() throws Exception {
+   void testCount_Empty() throws Exception {
     // Mock the behavior of roleRepository.count()
     Mockito
       .when(roleUserTenantRepository.findAll(Mockito.any(Specification.class)))
@@ -347,13 +348,12 @@ public class RoleUserTenantControllerTests {
   @Test
   @DisplayName("Update All - Success")
   void testUpdateAll_Success() throws Exception {
-    // Arrange
 
     UserTenant sourceUserTenant = this.mockUserTenant;
 
     List<UserTenant> userTenantArrayList = Arrays.asList(
-      new UserTenant(UUID.randomUUID()),
-      new UserTenant(UUID.randomUUID())
+      new UserTenant(),
+      new UserTenant()
     );
 
     Mockito

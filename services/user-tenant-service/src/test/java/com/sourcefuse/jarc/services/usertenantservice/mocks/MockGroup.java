@@ -10,8 +10,16 @@ public final class MockGroup {
 
   private MockGroup() {}
 
-  public static final UUID GROUP_ID = UUID.randomUUID();
-  public static final UUID USER_GROUP_ID = UUID.randomUUID();
+  public static final UUID GROUP_ID =UUID.fromString(
+          "45e6bb6b-3150-4cf3-9ca2-3bb299f5e36f"
+  );
+
+  public static final UUID USER_GROUP_ID = UUID.fromString(
+          "45e6bb6b-3150-4cf3-9ca2-3bb299f5e37f"
+  );
+  public static final UUID GROUP_ID_TWO =UUID.fromString(
+          "45e6bb6b-3150-4cf3-9ca2-3bb298f5e38f"
+  );
 
   public static Group getGroupObj() {
     Group group = new Group();

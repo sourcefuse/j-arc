@@ -1,10 +1,5 @@
 package com.sourcefuse.jarc.services.usertenantservice.unit;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
@@ -12,8 +7,6 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.UserTenantServiceImpl;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,8 +18,16 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @DisplayName("Create User Tenant Controller Apis unit Tests")
-public class UserTenantControllerUnitTests {
+ class UserTenantControllerUnitTests {
 
   @Mock
   private RoleUserTenantRepository roleUserTenantRepository;
@@ -81,7 +82,7 @@ public class UserTenantControllerUnitTests {
   void testGetUserTenantByIdForbidden() throws Exception {
     // Mock the authenticated user
     MockCurrentUserSession.setCurrentLoggedInUser(
-      UUID.randomUUID(),
+            MockTenantUser.INVALID_ID,
       userTenant.getUser().getId(),
       null
     );

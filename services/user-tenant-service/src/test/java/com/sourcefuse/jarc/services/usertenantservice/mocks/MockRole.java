@@ -10,7 +10,9 @@ public final class MockRole {
 
   private MockRole() {}
 
-  public static final UUID ROLE_ID = UUID.randomUUID();
+  public static final UUID ROLE_ID = UUID.fromString(
+          "45e6bb6b-3150-4cf3-9ca2-3bb299f5e35f"
+  );
 
   public static Role getRoleObj() {
     Role role = new Role();

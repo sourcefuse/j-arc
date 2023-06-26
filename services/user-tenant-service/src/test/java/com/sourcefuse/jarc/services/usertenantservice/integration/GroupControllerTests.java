@@ -1,7 +1,5 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import static org.mockito.ArgumentMatchers.any;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.services.usertenantservice.controller.GroupController;
@@ -11,10 +9,6 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSessi
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,9 +27,16 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.any;
+
 @DisplayName("Create Group  Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
-public class GroupControllerTests {
+ class GroupControllerTests {
 
   @Mock
   private GroupRepository groupRepository;
@@ -64,7 +65,7 @@ public class GroupControllerTests {
 
   @Test
   @DisplayName("Create Groups - Success")
-  public void testCreateGroups_Success() throws Exception {
+   void testCreateGroups_Success() throws Exception {
     // Mock the necessary objects and methods
     Group savedGroup = new Group();
     savedGroup.setId(MockGroup.GROUP_ID);
@@ -178,7 +179,7 @@ public class GroupControllerTests {
 
   @Test
   @DisplayName("Test: case for count success")
-  public void testCount_Success() throws Exception {
+   void testCount_Success() throws Exception {
     // Mock the behavior of roleRepository.count()
     Mockito.when(groupRepository.count()).thenReturn(5L); // Mock a count of 5
 
@@ -199,7 +200,7 @@ public class GroupControllerTests {
 
   @Test
   @DisplayName("Test case should pass for 0 count")
-  public void testCount_Empty() throws Exception {
+   void testCount_Empty() throws Exception {
     // Mock the behavior of roleRepository.count()
     Mockito.when(groupRepository.count()).thenReturn(0L); // Mock a count of 0
 
@@ -220,7 +221,7 @@ public class GroupControllerTests {
 
   @Test
   @DisplayName("Test: countGroup with database error")
-  public void testCountGroup_DatabaseError() throws Exception {
+   void testCountGroup_DatabaseError() throws Exception {
     // Mock the behavior of roleRepository.save() to throw an exception
     Mockito
       .when(groupRepository.count())
@@ -252,12 +253,12 @@ public class GroupControllerTests {
 
   @Test
   @DisplayName("Test getAllGroups success")
-  public void testGetAllGroups_Success() throws Exception {
+   void testGetAllGroups_Success() throws Exception {
     // Prepare test data
     List<Group> groups = Arrays.asList(
-      new Group(UUID.randomUUID()),
-      new Group(UUID.randomUUID()),
-      new Group(UUID.randomUUID())
+      new Group(),
+      new Group(),
+      new Group()
     );
 
     // Mock the behavior of roleRepository.findAll()
@@ -279,7 +280,7 @@ public class GroupControllerTests {
 
   @Test
   @DisplayName("Test: getAllGroups Empty Response")
-  public void testGetAllGroup_Empty() throws Exception {
+   void testGetAllGroup_Empty() throws Exception {
     // Mock the behavior of roleRepository.findAll()
     Mockito.when(groupRepository.findAll()).thenReturn(Arrays.asList());
 
@@ -300,7 +301,7 @@ public class GroupControllerTests {
 
   @Test
   @DisplayName("Test: GetGroupByID with existing group")
-  public void testGetGroupByID_ExistingRole() throws Exception {
+   void testGetGroupByID_ExistingRole() throws Exception {
     //get Current User
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
     // Mock the behavior of roleRepository.findById()
@@ -329,7 +330,7 @@ public class GroupControllerTests {
 
   @Test
   @DisplayName("Test: getGroupByID with non-existing group")
-  public void testGetGroupByID_NonExistingRole() throws Exception {
+   void testGetGroupByID_NonExistingRole() throws Exception {
     //get Current User
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
     // Mock the behavior of roleRepository.findById()
