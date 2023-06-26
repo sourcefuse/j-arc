@@ -1,9 +1,10 @@
-package com.sourcefuse.jarc.services.authservice.security;
 
+package com.sourcefuse.jarc.authlib.security;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sourcefuse.jarc.authlib.providers.JwtTokenDecryptProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,7 +15,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
-import com.sourcefuse.jarc.services.authservice.providers.JwtTokenProvider;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,7 +27,7 @@ import lombok.AllArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private static String bearerPrefix = "Bearer ";
-  private final JwtTokenProvider jwtTokenProvider;
+  private final JwtTokenDecryptProvider jwtTokenProvider;
 
   @Override
   protected void doFilterInternal(

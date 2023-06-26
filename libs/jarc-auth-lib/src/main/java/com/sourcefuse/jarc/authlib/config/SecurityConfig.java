@@ -1,6 +1,6 @@
-package com.sourcefuse.jarc.services.authservice.config;
+package com.sourcefuse.jarc.authlib.config;
 
-import com.sourcefuse.jarc.services.authservice.security.JwtAuthenticationFilter;
+import com.sourcefuse.jarc.authlib.security.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,7 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http)
     throws Exception {
-    http.cors().and().csrf().disable();
+    http.csrf().disable();
 
     http.addFilterBefore(
       authenticationFilter,

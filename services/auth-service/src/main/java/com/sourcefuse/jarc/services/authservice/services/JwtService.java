@@ -1,6 +1,7 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sourcefuse.jarc.authlib.providers.JwtTokenDecryptProvider;
 import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.authservice.dtos.AuthTokenRequest;
@@ -39,13 +40,14 @@ public class JwtService {
   private final AuthClientRepository authClientRepository;
   private final UserTenantRepository userTenantRepository;
   private final JwtTokenProvider jwtTokenProvider;
+  private final JwtTokenDecryptProvider jwtTokenDecryptProvider;
   private final JwtRedisService jwtRedisService;
 
   public JWTAuthResponse getTokenByCode(AuthTokenRequest authTokenRequest) {
     JwtTokenRedis jwtTokenObject = jwtRedisService.getJwtTokenRedis(
       authTokenRequest.getCode()
     );
-    CurrentUser currentUser = jwtTokenProvider.getUserDetails(
+    CurrentUser currentUser = jwtTokenDecryptProvider.getUserDetails(
       jwtTokenObject.getToken()
     );
     AuthClient authClient =
