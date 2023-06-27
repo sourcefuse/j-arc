@@ -7,9 +7,6 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +24,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 @RestController
 @Slf4j
 @RequestMapping("/roles")
@@ -38,7 +39,7 @@ public class RoleUserTenantController {
   private final RoleUserTenantRepository roleUserTenantRepository;
 
   @PostMapping("{id}/user-tenants")
-  public ResponseEntity<UserTenant> createRole(
+  public ResponseEntity<UserTenant> createRoleUserTenant(
     @Validated @RequestBody UserTenant userTenant,
     @PathVariable("id") UUID id
   ) {

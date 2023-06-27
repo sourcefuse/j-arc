@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @DisplayName("User Tenant Prefs Controller Unit Tests")
- class UserTenantPrefsControllerUnitTests {
+class UserTenantPrefsControllerUnitTests {
 
   @Mock
   private UserTenantPrefsRepository userTenantPrefsRepository;
@@ -40,14 +40,14 @@ import static org.mockito.Mockito.when;
     mockUserTenantId = MockTenantUser.USER_TENANT_ID;
     userTenantPrefs.setUserTenant(new UserTenant(mockUserTenantId));
     MockitoAnnotations.openMocks(this);
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test
   @DisplayName("Create Tenant Prefs - Success")
-   void testCreateTenantPrefs_Success() throws Exception {
-    // Set Current User
-
-    MockCurrentUserSession.setCurrentLoggedInUser(null, null, mockUserTenantId);
+  void testCreateTenantPrefs_Success() throws Exception {
+    MockCurrentUserSession.getCurrentUser().setUserTenantId(mockUserTenantId);
     // Mock the repository
     when(userTenantPrefsRepository.save(any(UserTenantPrefs.class)))
       .thenReturn(userTenantPrefs);
@@ -61,11 +61,12 @@ import static org.mockito.Mockito.when;
   }
 
   @Test
-  @DisplayName("Create Tenant Prefs - Existing Tenant Prefs records Updated")
-   void testCreateTenantPrefs_ExistingPrefsUpdated() throws Exception {
-    // Arrange
-    MockCurrentUserSession.setCurrentLoggedInUser(null, null, mockUserTenantId);
-
+  @DisplayName(
+    "Create Tenant Prefs - Records already exits " +
+    "hence existing tenant Prefs records Updated"
+  )
+  void testCreateTenantPrefs_ExistingPrefsUpdated() throws Exception {
+    MockCurrentUserSession.getCurrentUser().setUserTenantId(mockUserTenantId);
     // Set up preExistsTenantPrefs object
     UserTenantPrefs preExistsTenantPrefs = new UserTenantPrefs();
 

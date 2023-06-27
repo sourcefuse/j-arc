@@ -1,14 +1,24 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.sourcefuse.jarc.services.usertenantservice.controller.UserGroupController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockGroup;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.UserGroupServiceImpl;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,20 +39,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @DisplayName("Create Role User Tenants Apis Integration Tests")
 @ExtendWith(MockitoExtension.class)
- class UserGroupControllerTests {
+class UserGroupControllerTests {
 
   @Mock
   GroupRepository groupRepository;
@@ -76,11 +75,13 @@ import static org.mockito.Mockito.when;
 
     mockGroupId = MockGroup.GROUP_ID;
     mockMvc = MockMvcBuilders.standaloneSetup(userGroupController).build();
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test
   @DisplayName("Create User Group - Success")
-   void testCreateUserGroup_Success() throws Exception {
+  void testCreateUserGroup_Success() throws Exception {
     // Mocked role
     Group mockRole = this.group;
 
@@ -93,7 +94,7 @@ import static org.mockito.Mockito.when;
         MockMvcRequestBuilders
           .post(basePath, mockGroupId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userGroup))
+          .content(JsonUtils.asJsonString(userGroup))
       )
       .andExpect(MockMvcResultMatchers.status().isCreated())
       .andExpect(
@@ -112,7 +113,7 @@ import static org.mockito.Mockito.when;
 
   @Test
   @DisplayName("Test: Should pass with invalid userTenantId")
-   void testUserGrp_Invalid_userTenantId() throws Exception {
+  void testUserGrp_Invalid_userTenantId() throws Exception {
     // Prepare test data with invalid input;
     userGroup.setUsrTnt(null);
 
@@ -121,7 +122,7 @@ import static org.mockito.Mockito.when;
         MockMvcRequestBuilders
           .post(basePath, mockGroupId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userGroup))
+          .content(JsonUtils.asJsonString(userGroup))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
       .andExpect(result ->
@@ -135,7 +136,7 @@ import static org.mockito.Mockito.when;
 
   @Test
   @DisplayName("Test: Should pass with invalid Group ID ")
-   void testUserGrp_Invalid_GroupID() throws Exception {
+  void testUserGrp_Invalid_GroupID() throws Exception {
     // Prepare test data with invalid input;
     userGroup.setGrp(null);
     mockMvc
@@ -143,7 +144,7 @@ import static org.mockito.Mockito.when;
         MockMvcRequestBuilders
           .post(basePath, mockGroupId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userGroup))
+          .content(JsonUtils.asJsonString(userGroup))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
       .andExpect(result ->
@@ -168,7 +169,7 @@ import static org.mockito.Mockito.when;
         MockMvcRequestBuilders
           .patch(basePath + "/{userGroupId}", mockGroupId, userGroup.getId())
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userGroup))
+          .content(JsonUtils.asJsonString(userGroup))
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(
@@ -184,7 +185,7 @@ import static org.mockito.Mockito.when;
 
   @Test
   @DisplayName("Delete User Group - Success - Integration")
-   void testDeleteUsrGrp_Success() throws Exception {
+  void testDeleteUsrGrp_Success() throws Exception {
     // Mock current user and authentication
 
     // Mock userGroupsRepo methods
@@ -214,7 +215,6 @@ import static org.mockito.Mockito.when;
     List<UserGroup> userGroupList = new ArrayList<>();
     userGroupList.add(new UserGroup());
     userGroupList.add(new UserGroup());
-    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
 
     when(groupRepository.findOne(ArgumentMatchers.any(Specification.class)))
       .thenReturn(Optional.of(group));
@@ -234,12 +234,11 @@ import static org.mockito.Mockito.when;
   }
 
   @Test
-  @DisplayName("Test Get All User Groups By Role - Group Not Found")
+  @DisplayName("Test Get All User Group By Role - Group Not Found")
   void testGetAllUserGroupsByRole_GroupNotFound() throws Exception {
     Mockito
       .when(groupRepository.findOne(ArgumentMatchers.any(Specification.class)))
       .thenReturn(Optional.empty());
-    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
 
     mockMvc
       .perform(MockMvcRequestBuilders.get(basePath, mockGroupId))
@@ -260,13 +259,11 @@ import static org.mockito.Mockito.when;
 
   @Test
   @DisplayName("Test countUserGroup - Success")
-   void testCountUserGroup_Success() throws Exception {
+  void testCountUserGroup_Success() throws Exception {
     long expectedCount = 10;
 
     when(userGroupsRepo.count(ArgumentMatchers.any(Specification.class)))
       .thenReturn(expectedCount);
-
-    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
 
     mockMvc
       .perform(
@@ -282,11 +279,10 @@ import static org.mockito.Mockito.when;
 
   @Test
   @DisplayName("Test countUserGroup - Group Not Found")
-   void testCountUserGroup_GroupNotFound() throws Exception {
+  void testCountUserGroup_GroupNotFound() throws Exception {
     doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
       .when(userGroupsRepo)
       .count(ArgumentMatchers.any(Specification.class));
-    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
 
     mockMvc
       .perform(
@@ -295,9 +291,5 @@ import static org.mockito.Mockito.when;
           .contentType(MediaType.APPLICATION_JSON)
       )
       .andExpect(MockMvcResultMatchers.status().isNotFound());
-  }
-
-  private static String asJsonString(Object obj) throws Exception {
-    return new ObjectMapper().writeValueAsString(obj);
   }
 }

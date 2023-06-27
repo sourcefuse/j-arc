@@ -9,6 +9,9 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.UserGroupServiceImpl;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,12 +24,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 @DisplayName("Create User Group units Tests")
- class UserGroupControllerUnitTests {
+class UserGroupControllerUnitTests {
 
   @Mock
   private GroupRepository groupRepository;
@@ -52,6 +51,8 @@ import java.util.UUID;
 
     mockGroupId = MockGroup.GROUP_ID;
     MockitoAnnotations.openMocks(this);
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test
@@ -198,11 +199,10 @@ import java.util.UUID;
     // Mock input data
     UUID userGroupId = MockGroup.USER_GROUP_ID;
     UserGroup userGroup = this.userGroup;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      this.group.getTenantId(),
-      null,
-      null
-    );
+
+    MockCurrentUserSession
+      .getCurrentUser()
+      .setTenantId(this.group.getTenantId());
     Group group = this.group;
     UserGroup savedUserGroup = this.userGroup;
 
@@ -247,11 +247,8 @@ import java.util.UUID;
 
     UUID userGroupId = MockGroup.USER_GROUP_ID;
     UserGroup userGroup = this.userGroup;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      group.getTenantId(),
-      null,
-      null
-    );
+
+    MockCurrentUserSession.getCurrentUser().setTenantId(group.getTenantId());
     // Mock groupRepository.findOne() to return Optional.empty()
     Mockito
       .when(groupRepository.findOne(ArgumentMatchers.any(Specification.class)))
@@ -281,7 +278,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName(
-    "Update User Group:Owner cannot be set to null ->team need at least one owner "
+    "Update User Group:Owner cannot be set to null/Empty ->team need at least one owner "
   )
   void testUpdateUserGroup_OneOwner() throws Exception {
     Mockito
@@ -298,12 +295,7 @@ import java.util.UUID;
     updatedUserGroup.setId(mockGroupId);
     updatedUserGroup.setOwner(false);
 
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      group.getTenantId(),
-      null,
-      null
-    );
-
+    MockCurrentUserSession.getCurrentUser().setTenantId(group.getTenantId());
     Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
@@ -328,12 +320,8 @@ import java.util.UUID;
     Mockito
       .when(userGroupsRepo.findOne(ArgumentMatchers.any(Specification.class)))
       .thenReturn(Optional.empty());
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      group.getTenantId(),
-      null,
-      null
-    );
 
+    MockCurrentUserSession.getCurrentUser().setTenantId(group.getTenantId());
     Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
@@ -351,10 +339,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Delete User Group - Success")
-   void testDeleteUsrGrp_Success() throws Exception {
-    // Mock current user and authentication
-    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
-
+  void testDeleteUsrGrp_Success() throws Exception {
     // Mock userGroupsRepo methods
     Mockito
       .when(groupRepository.findOne(ArgumentMatchers.any(Specification.class)))
@@ -377,9 +362,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Delete User Group - Group not found")
-   void testDeleteUsrGrp_GroupNotFound() throws Exception {
-    // Mock current user and authentication
-    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
+  void testDeleteUsrGrp_GroupNotFound() throws Exception {
     // Mock Group not found
     Mockito
       .when(groupRepository.findOne(ArgumentMatchers.any(Specification.class)))
@@ -387,7 +370,8 @@ import java.util.UUID;
 
     Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> userGroupService.deleteUserGroup(mockGroupId, MockGroup.USER_GROUP_ID)
+      () ->
+        userGroupService.deleteUserGroup(mockGroupId, MockGroup.USER_GROUP_ID)
     );
 
     Mockito
@@ -398,10 +382,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Delete User Group - Forbidden")
-   void testDeleteUsrGrp_Forbidden() throws Exception {
-    // Mock current user and authentication
-    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
-
+  void testDeleteUsrGrp_Forbidden() throws Exception {
     userGroup.setUserTenant(new UserTenant(MockTenantUser.USER_TENANT_ID)); // Set different user tenant
 
     // Mock userGroupsRepo method
@@ -417,7 +398,8 @@ import java.util.UUID;
 
     Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> userGroupService.deleteUserGroup(mockGroupId, MockGroup.USER_GROUP_ID)
+      () ->
+        userGroupService.deleteUserGroup(mockGroupId, MockGroup.USER_GROUP_ID)
     );
 
     //verify deleteById and save never call due to failure
@@ -429,14 +411,13 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Delete User Group - Owner Removal Forbidden")
-   void testDeleteUsrGrp_OwnerRemovalForbidden() throws Exception {
-    // Mock current user and authentication
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      userGroup.getTenantId(),
-      null,
-      userGroup.getUserTenant().getId()
-    );
-
+  void testDeleteUsrGrp_OwnerRemovalForbidden() throws Exception {
+    MockCurrentUserSession
+      .getCurrentUser()
+      .setTenantId(userGroup.getTenantId());
+    MockCurrentUserSession
+      .getCurrentUser()
+      .setUserTenantId(userGroup.getUserTenant().getId());
     userGroup.setOwner(true);
 
     // Mock userGroupsRepo methods
@@ -448,7 +429,8 @@ import java.util.UUID;
       .thenReturn(List.of(userGroup));
     Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> userGroupService.deleteUserGroup(mockGroupId, MockGroup.USER_GROUP_ID)
+      () ->
+        userGroupService.deleteUserGroup(mockGroupId, MockGroup.USER_GROUP_ID)
     );
 
     //verify deleteById and save never call due to failure

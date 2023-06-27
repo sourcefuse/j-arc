@@ -18,6 +18,13 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewReposit
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserServiceImpl;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,16 +38,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
 @DisplayName("TenantUserController Unit Tests")
- class TenantUserControllerUnitTests {
+class TenantUserControllerUnitTests {
 
   @Mock
   private UserRepository userRepository;
@@ -75,18 +74,16 @@ import java.util.UUID;
   void setUp() {
     MockitoAnnotations.openMocks(this);
     userDto = MockTenantUser.getUserDtoObj();
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test
-  @DisplayName("Create User and register in UserTenant")
+  @DisplayName("Success :Create User and register")
   void testCreateAndRegisterUser() {
     // Arrange
     UserDto userData = userDto;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      userData.getTenantId(),
-      null,
-      null
-    );
+    MockCurrentUserSession.getCurrentUser().setTenantId(userData.getTenantId());
     Map<String, String> options = new HashMap<>();
     // Mock necessary repository methods
     Mockito
@@ -132,11 +129,7 @@ import java.util.UUID;
   void testRegisterUser() {
     // Arrange
     UserDto userData = userDto;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      userData.getTenantId(),
-      null,
-      null
-    );
+    MockCurrentUserSession.getCurrentUser().setTenantId(userData.getTenantId());
     Map<String, String> options = new HashMap<>();
     // Mock necessary repository methods
     Mockito
@@ -183,12 +176,9 @@ import java.util.UUID;
   void testUserExitsAndRegistered() {
     // Arrange
     UserDto userData = userDto;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      userData.getTenantId(),
-      null,
-      null
-    );
-    CurrentUser currentUser=MockCurrentUserSession.getCurrentUser();
+
+    MockCurrentUserSession.getCurrentUser().setTenantId(userData.getTenantId());
+    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
     Map<String, String> options = new HashMap<>();
     // Mock necessary repository methods
     Mockito
@@ -217,17 +207,14 @@ import java.util.UUID;
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
-      () ->
-        tenantUserService.create(
-          userData, currentUser,
-          options
-        )
+      () -> tenantUserService.create(userData, currentUser, options)
     );
 
     // Assert
     Assertions.assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
 
-    //verify save user method is not called as it is already register
+    //verify save user and save userTenant method is
+    // not called as it is already register
     Mockito
       .verify(userRepository, Mockito.never())
       .save(ArgumentMatchers.any(User.class));
@@ -241,29 +228,22 @@ import java.util.UUID;
   void testCreateUserForbidden() {
     // Arrange
     UserDto userData = userDto;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      MockTenantUser.INVALID_ID,
-      null,
-      null
-    );
-      CurrentUser currentUser=MockCurrentUserSession.getCurrentUser();
+    MockCurrentUserSession
+      .getCurrentUser()
+      .setTenantId(MockTenantUser.INVALID_ID);
+    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
     Map<String, String> options = new HashMap<>();
     // Mock necessary repository methods
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
-      () ->
-        tenantUserService.create(
-          userData,
-                currentUser,
-          options
-        )
+      () -> tenantUserService.create(userData, currentUser, options)
     );
 
     // Assert
     Assertions.assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
 
-    //verify save user method is not called as it is already register
+    //verify save user method is not called
     Mockito
       .verify(userRepository, Mockito.never())
       .save(ArgumentMatchers.any(User.class));
@@ -273,16 +253,12 @@ import java.util.UUID;
   }
 
   @Test
-  @DisplayName("Role not present")
+  @DisplayName("Create User but Role not present")
   void testCreateUserRoleNotPresent() {
     // Arrange
     UserDto userData = userDto;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      userData.getTenantId(),
-      null,
-      null
-    );
-    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
+    MockCurrentUserSession.getCurrentUser().setTenantId(userData.getTenantId());
+    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
     Map<String, String> options = new HashMap<>();
     // Mock necessary repository methods
     Mockito
@@ -291,18 +267,13 @@ import java.util.UUID;
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
-      () ->
-        tenantUserService.create(
-          userData,
-         currentUser,
-          options
-        )
+      () -> tenantUserService.create(userData, currentUser, options)
     );
 
     // Assert
     Assertions.assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
 
-    //verify save user method is not called as it is already register
+    //verify save user method is not called
     Mockito
       .verify(userRepository, Mockito.never())
       .save(ArgumentMatchers.any(User.class));
@@ -313,7 +284,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test getUserView - Success")
-   void testGetUserViewSuccess() {
+  void testGetUserViewSuccess() {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
     userViewsList.add(MockTenantUser.getUserViewObj());
@@ -336,7 +307,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test getUserView - Empty List")
-   void testGetUserViewEmptyList() {
+  void testGetUserViewEmptyList() {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
     Mockito
@@ -356,7 +327,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test get All UserView - Success")
-   void testGetAllUserViewSuccess() {
+  void testGetAllUserViewSuccess() {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
     userViewsList.add(MockTenantUser.getUserViewObj());
@@ -380,7 +351,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test get All UserView - Empty")
-   void testGetAllUserViewEmpty() {
+  void testGetAllUserViewEmpty() {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
 
@@ -402,7 +373,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test Count TenantUser/UserView  - Success")
-   void testCountTenantUser() {
+  void testCountTenantUser() {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
     userViewsList.add(MockTenantUser.getUserViewObj());
@@ -426,7 +397,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test Count TenantUser/UserView  - Empty")
-   void testCountTenantUserEmpty() {
+  void testCountTenantUserEmpty() {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
 
@@ -448,7 +419,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test findById - Success")
-   void testFindByIdFound() {
+  void testFindByIdFound() {
     // Arrange
     UUID userId = MockTenantUser.USER_ID;
     UserView expectedUserView = MockTenantUser.getUserViewObj();
@@ -465,7 +436,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test findById - Not Found")
-   void testFindByIdNotFound() {
+  void testFindByIdNotFound() {
     // Arrange
     UUID userId = MockTenantUser.USER_ID;
 
@@ -488,12 +459,13 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Update User By ID - Success")
-   void testUpdateUserByIdSuccess() {
+  void testUpdateUserByIdSuccess() {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
 
+    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    currentUser.setTenantId(tenantId);
+    currentUser.setId(userId);
     User user = MockTenantUser.getUserObj();
     user.setId(userId);
     Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -526,18 +498,15 @@ import java.util.UUID;
 
   @Test
   @DisplayName(
-    "Update User By ID - CurrentUser UserId does not match with path variable UserId i.e "
+    "Update User By ID - CurrentUser UserId does not match with path variable UserId"
   )
-   void testUpdateUserByIdInvalidUserId() {
+  void testUpdateUserByIdInvalidUserId() {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      MockTenantUser.TENANT_ID,
-      MockTenantUser.INVALID_ID,
-      null
-    );
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
 
+    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    currentUser.setTenantId(MockTenantUser.TENANT_ID);
+    currentUser.setId(MockTenantUser.INVALID_ID);
     User user = MockTenantUser.getUserObj();
     user.setId(userId);
     Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -571,18 +540,14 @@ import java.util.UUID;
 
   @Test
   @DisplayName(
-    "Update User By ID - CurrentUser TenantId does not match with path variable TenantId i.e "
+    "Update User By ID - CurrentUser TenantId does not match with path variable TenantId  "
   )
-   void testUpdateUserByIdInvalidTenantId() {
+  void testUpdateUserByIdInvalidTenantId() {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      tenantId,
-      MockTenantUser.INVALID_ID,
-      null
-    );
     CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
-
+    currentUser.setTenantId(tenantId);
+    currentUser.setId(MockTenantUser.INVALID_ID);
     User user = MockTenantUser.getUserObj();
     user.setId(userId);
     Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -616,18 +581,15 @@ import java.util.UUID;
 
   @Test
   @DisplayName(
-    "Update User By ID - UserTenant does not exits against provided values "
+    "Update User By ID - UserTenant does not exits against userId and TenantId"
   )
-   void testUpdateUserByIdUserTenantNotPresent() {
+  void testUpdateUserByIdUserTenantNotPresent() {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      tenantId,
-      MockTenantUser.INVALID_ID,
-      null
-    );
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
 
+    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    currentUser.setTenantId(tenantId);
+    currentUser.setId(MockTenantUser.INVALID_ID);
     User user = MockTenantUser.getUserObj();
     user.setId(userId);
     Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -657,12 +619,13 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Update User By ID - UserName already exits")
-   void testUpdateUserByIdUserNameExits() {
+  void testUpdateUserByIdUserNameExits() {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
 
+    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    currentUser.setTenantId(tenantId);
+    currentUser.setId(userId);
     User user = MockTenantUser.getUserObj();
     user.setId(userId);
     Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -703,14 +666,15 @@ import java.util.UUID;
   }
 
   @Test
-  @DisplayName("Delete User By Id - User Tenant Exists")
+  @DisplayName("Success :Delete User By Id - User Tenant Exists")
   void testDeleteUserById_UserTenantExists() {
     // Arrange
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
 
+    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    currentUser.setTenantId(tenantId);
+    currentUser.setId(userId);
     UserTenant userTenant = MockTenantUser.getUserTenantObj();
 
     Mockito
@@ -743,9 +707,10 @@ import java.util.UUID;
     // Arrange
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
 
+    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    currentUser.setTenantId(tenantId);
+    currentUser.setId(userId);
     Mockito
       .when(
         userTenantRepository.findOne(ArgumentMatchers.any(Specification.class))
@@ -783,9 +748,10 @@ import java.util.UUID;
     // Arrange
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
 
+    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    currentUser.setTenantId(tenantId);
+    currentUser.setId(userId);
     UserTenant userTenant = MockTenantUser.getUserTenantObj();
 
     Mockito
@@ -818,13 +784,10 @@ import java.util.UUID;
     // Arrange
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      MockTenantUser.INVALID_ID,
-      userId,
-      null
-    );
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
 
+    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    currentUser.setTenantId(MockTenantUser.INVALID_ID);
+    currentUser.setId(userId);
     // Act & Assert
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,

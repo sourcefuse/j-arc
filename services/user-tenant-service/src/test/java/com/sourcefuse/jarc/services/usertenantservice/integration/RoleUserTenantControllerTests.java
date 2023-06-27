@@ -1,14 +1,20 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.services.usertenantservice.controller.RoleUserTenantController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockRole;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,15 +35,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 @DisplayName("Create Role User Tenants Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
- class RoleUserTenantControllerTests {
+class RoleUserTenantControllerTests {
 
   @Mock
   private RoleRepository roleRepository;
@@ -67,11 +67,13 @@ import java.util.UUID;
     mockUserTenant = MockTenantUser.getUserTenantObj();
     mockUserTenant.setRole(role);
     mockUserTenant.setId(MockTenantUser.USER_TENANT_ID);
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test
   @DisplayName("Create Role - Success")
-   void testCreateRole_Success() throws Exception {
+  void testCreateRole_Success() throws Exception {
     // Mocked role
     Role mockRole = this.role;
 
@@ -91,7 +93,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, mockRoleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(mockUserTenant))
+          .content(JsonUtils.asJsonString(mockUserTenant))
       )
       .andExpect(MockMvcResultMatchers.status().isCreated())
       .andExpect(
@@ -115,8 +117,8 @@ import java.util.UUID;
   }
 
   @Test
-  @DisplayName("Create Role - Role Not Found")
-   void testCreateRole_RoleNotFound() throws Exception {
+  @DisplayName("Create Role-UserTenant - Role Not Found")
+  void testCreateRole_RoleNotFound() throws Exception {
     // Mocking repository behavior
     Mockito
       .when(roleRepository.findById(ArgumentMatchers.any(UUID.class)))
@@ -128,7 +130,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, mockRoleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(mockUserTenant))
+          .content(JsonUtils.asJsonString(mockUserTenant))
       )
       .andExpect(MockMvcResultMatchers.status().isNotFound())
       .andExpect(result ->
@@ -155,7 +157,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: should pass : UserTenant with null tenantId")
-   void testUserTenant_Invalid_TenantId() throws Exception {
+  void testUserTenant_Invalid_TenantId() throws Exception {
     // Prepare test data with invalid input
     mockUserTenant.setTnt(null);
     mockMvc
@@ -163,7 +165,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, mockRoleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(mockUserTenant))
+          .content(JsonUtils.asJsonString(mockUserTenant))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
       .andExpect(result ->
@@ -182,7 +184,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: UserTenant with null Role ID")
-   void testUserTenant_Invalid_RoleID() throws Exception {
+  void testUserTenant_Invalid_RoleID() throws Exception {
     // Prepare test data with invalid input
     mockUserTenant.setRol(null);
 
@@ -191,7 +193,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, mockRoleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(mockUserTenant))
+          .content(JsonUtils.asJsonString(mockUserTenant))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
       .andExpect(result ->
@@ -210,7 +212,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: UserTenant with null User ID")
-   void testUserTenant_Invalid_UserID() throws Exception {
+  void testUserTenant_Invalid_UserID() throws Exception {
     // Prepare test data with invalid input
     mockUserTenant.setUsr(null);
     // Perform validation manually
@@ -219,7 +221,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, mockRoleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(mockUserTenant))
+          .content(JsonUtils.asJsonString(mockUserTenant))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
       .andExpect(result ->
@@ -292,16 +294,11 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: case for count success")
-   void testCount_Success() throws Exception {
+  void testCount_Success() throws Exception {
     // Mock the behavior of roleRepository.count()
     Mockito
       .when(roleUserTenantRepository.findAll(Mockito.any(Specification.class)))
-      .thenReturn(
-        Arrays.asList(
-          new UserTenant(),
-          new UserTenant()
-        )
-      ); // Mock a count of 2
+      .thenReturn(Arrays.asList(new UserTenant(), new UserTenant())); // Mock a count of 2
 
     // Perform the API call
     mockMvc
@@ -322,7 +319,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test case should pass for 0 count")
-   void testCount_Empty() throws Exception {
+  void testCount_Empty() throws Exception {
     // Mock the behavior of roleRepository.count()
     Mockito
       .when(roleUserTenantRepository.findAll(Mockito.any(Specification.class)))
@@ -348,7 +345,6 @@ import java.util.UUID;
   @Test
   @DisplayName("Update All - Success")
   void testUpdateAll_Success() throws Exception {
-
     UserTenant sourceUserTenant = this.mockUserTenant;
 
     List<UserTenant> userTenantArrayList = Arrays.asList(
@@ -368,7 +364,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .patch(basePath, mockRoleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(sourceUserTenant))
+          .content(JsonUtils.asJsonString(sourceUserTenant))
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(result -> Assertions.assertNotNull(result.getResponse()))
@@ -402,7 +398,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .patch(basePath, mockRoleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(sourceUserTenant))
+          .content(JsonUtils.asJsonString(sourceUserTenant))
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(result -> Assertions.assertNotNull(result.getResponse()))
@@ -417,7 +413,7 @@ import java.util.UUID;
   }
 
   @Test
-  @DisplayName("Test:Delete existing Role UserTenant by ID")
+  @DisplayName("Test:Delete existing Role UserTenant by Id")
   void testDeleteRoleById_Success() throws Exception {
     Mockito
       .when(roleUserTenantRepository.delete(Mockito.any(Specification.class)))
@@ -457,9 +453,5 @@ import java.util.UUID;
     Mockito
       .verify(roleUserTenantRepository)
       .delete(Mockito.any(Specification.class));
-  }
-
-  private static String asJsonString(Object obj) throws Exception {
-    return new ObjectMapper().writeValueAsString(obj);
   }
 }

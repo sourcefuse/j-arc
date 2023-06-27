@@ -1,5 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.unit;
 
+import static org.mockito.ArgumentMatchers.any;
+
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.TenantConfig;
 import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
@@ -8,6 +10,10 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantConfigRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantServiceImpl;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,15 +26,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.any;
-
 @DisplayName("Create Tenant  Apis units Tests")
- class TenantControllerUnitTests {
+class TenantControllerUnitTests {
 
   @InjectMocks
   private TenantServiceImpl tenantService;
@@ -48,15 +47,16 @@ import static org.mockito.ArgumentMatchers.any;
     mockTenantID = MockTenantUser.TENANT_ID;
     tenant = MockTenantUser.geTenantObj();
     tenant.setId(mockTenantID);
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test
-  @DisplayName("Should return tenant when it exists")
+  @DisplayName("Success :Should return tenant when it exists")
   void testFindTenantById_Exists() {
     // Arrange
     Tenant expectedTenant = new Tenant(mockTenantID);
-
-    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
+    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
 
     Mockito
       .when(tenantRepository.findById(mockTenantID))
@@ -74,8 +74,7 @@ import static org.mockito.ArgumentMatchers.any;
   @DisplayName("Should throw exception when tenant does not exist")
   void testFindTenantById_NotExists() {
     // Arrange
-
-    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
+    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
     Mockito
       .when(tenantRepository.findById(mockTenantID))
       .thenReturn(Optional.empty());
@@ -94,11 +93,9 @@ import static org.mockito.ArgumentMatchers.any;
   )
   void testFindTenantById_NoAccessPermission() {
     // Arrange
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      MockTenantUser.INVALID_ID,
-      null,
-      null
-    ); // Different tenant ID than the one requested
+    MockCurrentUserSession
+      .getCurrentUser()
+      .setTenantId(MockTenantUser.INVALID_ID); // Different tenant ID than the one requested
 
     // Act and Assert
     ResponseStatusException exception = Assertions.assertThrows(
@@ -113,14 +110,14 @@ import static org.mockito.ArgumentMatchers.any;
 
   @Test
   @DisplayName("Update Tenant By ID - Success")
-   void testUpdateTenantsById_Success() {
+  void testUpdateTenantsById_Success() {
     Tenant sourceTenant = this.tenant;
 
     Tenant targetTenant = new Tenant();
     targetTenant.setId(mockTenantID);
     targetTenant.setName("Original Tenant");
-    //get Current User
-    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
+
+    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
 
     Mockito
       .when(tenantRepository.findById(mockTenantID))
@@ -140,10 +137,11 @@ import static org.mockito.ArgumentMatchers.any;
 
   @Test
   @DisplayName("Update Tenant By ID - Tenant Not Found")
-   void testUpdateTenantsById_TenantNotFound() {
+  void testUpdateTenantsById_TenantNotFound() {
     Tenant sourceTenant = this.tenant;
     sourceTenant.setName("Updated Tenant");
-    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
+
+    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
     Mockito
       .when(tenantRepository.findById(mockTenantID))
       .thenReturn(Optional.empty());
@@ -161,15 +159,13 @@ import static org.mockito.ArgumentMatchers.any;
 
   @Test
   @DisplayName("Update Tenant By ID - Access Forbidden")
-   void testUpdateTenantsById_AccessForbidden() {
+  void testUpdateTenantsById_AccessForbidden() {
     Tenant sourceTenant = new Tenant();
     sourceTenant.setName("Updated Tenant");
 
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      MockTenantUser.INVALID_ID,
-      null,
-      null
-    );
+    MockCurrentUserSession
+      .getCurrentUser()
+      .setTenantId(MockTenantUser.INVALID_ID);
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () -> tenantService.updateTenantsById(sourceTenant, mockTenantID)
@@ -183,9 +179,8 @@ import static org.mockito.ArgumentMatchers.any;
 
   @Test
   @DisplayName("Delete Tenant by ID - Successful")
-   void testDeleteTenantById_Success() {
-    // Mocking the checkViewDeleteTenantAccessPermission method
-    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
+  void testDeleteTenantById_Success() {
+    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
 
     // Mocking the tenantRepository.deleteById method
     Mockito.doNothing().when(tenantRepository).deleteById(mockTenantID);
@@ -199,16 +194,12 @@ import static org.mockito.ArgumentMatchers.any;
 
   @Test
   @DisplayName("Delete Tenant by ID - Forbidden")
-   void testDeleteTenantById_Forbidden() {
+  void testDeleteTenantById_Forbidden() {
     UUID tenantId = MockTenantUser.TENANT_ID;
 
-    // Mocking the checkViewDeleteTenantAccessPermission method
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      MockTenantUser.INVALID_ID,
-      null,
-      null
-    );
-
+    MockCurrentUserSession
+      .getCurrentUser()
+      .setTenantId(MockTenantUser.INVALID_ID);
     // Calling the deleteById method and expecting a ResponseStatusException
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
@@ -223,7 +214,7 @@ import static org.mockito.ArgumentMatchers.any;
   @Test
   @DisplayName("Test getTenantConfig with valid tenantId")
   void testGetTenantConfigWithValidTenantId() {
-    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
+    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
     // Mock the tenantConfigRepository
     List<TenantConfig> expectedConfigs = new ArrayList<>();
     Mockito
@@ -246,7 +237,7 @@ import static org.mockito.ArgumentMatchers.any;
   @DisplayName("Test getTenantConfig with invalid tenantId")
   void testGetTenantConfigWithInvalidTenantId() {
     UUID otherTenantId = MockTenantUser.INVALID_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(otherTenantId, null, null);
+    MockCurrentUserSession.getCurrentUser().setTenantId(otherTenantId);
 
     // Call the method under test and assert that it throws an exception
     Assertions.assertThrows(

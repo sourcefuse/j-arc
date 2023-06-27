@@ -1,9 +1,18 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.sourcefuse.jarc.services.usertenantservice.controller.UserGroupsController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,18 +25,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @DisplayName("User Groups Apis Integration /unit Tests")
 @ExtendWith(MockitoExtension.class)
- class UserGroupsControllerTests {
+class UserGroupsControllerTests {
 
   private MockMvc mockMvc;
 
@@ -43,11 +43,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
   @BeforeEach
   public void setup() {
     mockMvc = MockMvcBuilders.standaloneSetup(userGroupsController).build();
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test
   @DisplayName("Fetch All User Groups - Success")
-   void testFetchAllUserGroups() throws Exception {
+  void testFetchAllUserGroups() throws Exception {
     // Arrange
     UUID groupId = MockGroup.GROUP_ID;
     UserGroup userGroup1 = UserGroup.builder().id(groupId).build();
@@ -60,9 +62,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     // Mock the repository
     Mockito.when(userGroupsRepository.findAll()).thenReturn(userGroupsList);
 
-    // Set up the mockMvc with the controller
-    mockMvc = MockMvcBuilders.standaloneSetup(userGroupsController).build();
-
     // Act and Assert
     mockMvc
       .perform(get(basePath).contentType(MediaType.APPLICATION_JSON))
@@ -74,16 +73,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
   @Test
   @DisplayName("Fetch All User Groups - Empty Response ")
-   void testFetchAllUserGroups_Empty() throws Exception {
+  void testFetchAllUserGroups_Empty() throws Exception {
     // Arrange
 
     List<UserGroup> userGroupsList = new ArrayList<>();
 
     // Mock the repository
     Mockito.when(userGroupsRepository.findAll()).thenReturn(userGroupsList);
-
-    // Set up the mockMvc with the controller
-    mockMvc = MockMvcBuilders.standaloneSetup(userGroupsController).build();
 
     // Act and Assert
     mockMvc
@@ -94,7 +90,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
   @Test
   @DisplayName("Count User Groups - Success")
-   void testCountUserGroups() throws Exception {
+  void testCountUserGroups() throws Exception {
     // Arrange
     UserGroup userGroup1 = UserGroup.builder().build();
     UserGroup userGroup2 = UserGroup.builder().build();
@@ -103,9 +99,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
     // Mock the repository
     Mockito.when(userGroupsRepository.findAll()).thenReturn(userGroupsList);
-
-    // Set up the mockMvc with the controller
-    mockMvc = MockMvcBuilders.standaloneSetup(userGroupsController).build();
 
     // Act and Assert
     mockMvc
@@ -116,14 +109,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
   @Test
   @DisplayName("Count User Groups - Zero Count -No Groups Present")
-   void testCountUserGroups_Empty() throws Exception {
+  void testCountUserGroups_Empty() throws Exception {
     List<UserGroup> userGroupsList = new ArrayList<>();
 
     // Mock the repository
     Mockito.when(userGroupsRepository.findAll()).thenReturn(userGroupsList);
-
-    // Set up the mockMvc with the controller
-    mockMvc = MockMvcBuilders.standaloneSetup(userGroupsController).build();
 
     // Act and Assert
     mockMvc

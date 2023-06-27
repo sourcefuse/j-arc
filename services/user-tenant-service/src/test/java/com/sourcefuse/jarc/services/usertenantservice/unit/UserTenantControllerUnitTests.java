@@ -1,5 +1,10 @@
 package com.sourcefuse.jarc.services.usertenantservice.unit;
 
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
@@ -7,6 +12,8 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.UserTenantServiceImpl;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,16 +25,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @DisplayName("Create User Tenant Controller Apis unit Tests")
- class UserTenantControllerUnitTests {
+class UserTenantControllerUnitTests {
 
   @Mock
   private RoleUserTenantRepository roleUserTenantRepository;
@@ -48,18 +47,17 @@ import static org.mockito.Mockito.when;
     MockitoAnnotations.openMocks(this);
     userTenant = MockTenantUser.getUserTenantObj();
     mockUserTenantId = MockTenantUser.USER_TENANT_ID;
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test
   @DisplayName("Get User Tenant by ID - Success")
   void testGetUserTenantByIdSuccess() throws Exception {
-    // Mock the authenticated user
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      userTenant.getTenant().getId(),
-      userTenant.getUser().getId(),
-      null
-    );
-
+    MockCurrentUserSession
+      .getCurrentUser()
+      .setTenantId(userTenant.getTenant().getId());
+    MockCurrentUserSession.getCurrentUser().setId(userTenant.getUser().getId());
     // Mock the repository
     when(roleUserTenantRepository.findById(mockUserTenantId))
       .thenReturn(Optional.of(userTenant));
@@ -80,13 +78,10 @@ import static org.mockito.Mockito.when;
   @Test
   @DisplayName("Get User Tenant by ID - Forbidden")
   void testGetUserTenantByIdForbidden() throws Exception {
-    // Mock the authenticated user
-    MockCurrentUserSession.setCurrentLoggedInUser(
-            MockTenantUser.INVALID_ID,
-      userTenant.getUser().getId(),
-      null
-    );
-
+    MockCurrentUserSession
+      .getCurrentUser()
+      .setTenantId(MockTenantUser.INVALID_ID);
+    MockCurrentUserSession.getCurrentUser().setId(userTenant.getUser().getId());
     // Mock the repository
     when(roleUserTenantRepository.findById(mockUserTenantId))
       .thenReturn(Optional.of(userTenant));
@@ -104,15 +99,10 @@ import static org.mockito.Mockito.when;
   @Test
   @DisplayName("Get User Tenant by ID - User Not Found")
   void testGetUserTenantByIdNotFound() throws Exception {
-    // Arrange
-
-    // Mock the authenticated user
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      userTenant.getTenant().getId(),
-      userTenant.getUser().getId(),
-      null
-    );
-
+    MockCurrentUserSession
+      .getCurrentUser()
+      .setTenantId(userTenant.getTenant().getId());
+    MockCurrentUserSession.getCurrentUser().setId(userTenant.getUser().getId());
     // Mock the repository
     when(roleUserTenantRepository.findById(mockUserTenantId))
       .thenReturn(Optional.empty());

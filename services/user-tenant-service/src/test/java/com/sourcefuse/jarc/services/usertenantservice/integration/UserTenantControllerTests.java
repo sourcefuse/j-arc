@@ -1,9 +1,17 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.sourcefuse.jarc.services.usertenantservice.controller.UserTenantController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.service.UserTenantServiceImpl;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,14 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.UriTemplate;
-
-import java.util.UUID;
-
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("Create UserTenant Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +42,8 @@ class UserTenantControllerTests {
     // Set up the mockMvc with the controller
     mockMvc = MockMvcBuilders.standaloneSetup(userTenantController).build();
     userTenantId = MockTenantUser.USER_TENANT_ID;
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test

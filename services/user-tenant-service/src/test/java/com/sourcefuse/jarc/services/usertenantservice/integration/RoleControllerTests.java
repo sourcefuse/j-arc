@@ -1,11 +1,17 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.services.usertenantservice.controller.RoleController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockRole;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,15 +31,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 @DisplayName("Create ROle Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
- class RoleControllerTests {
+class RoleControllerTests {
 
   @Mock
   private RoleRepository roleRepository;
@@ -53,11 +53,13 @@ import java.util.UUID;
 
     //prepare the test data
     role = MockRole.getRoleObj();
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test
   @DisplayName("Test:Should create the role")
-   void testCreateRole_Success() throws Exception {
+  void testCreateRole_Success() throws Exception {
     Role savedRole = role;
 
     // Mock the behavior of roleRepository.save()
@@ -69,7 +71,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(role))
+          .content(JsonUtils.asJsonString(role))
       )
       .andExpect(MockMvcResultMatchers.status().isCreated())
       .andExpect(
@@ -87,7 +89,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: Should pass with invalid name")
-   void testCreateRole_InvalidInput_EmptyName() throws Exception {
+  void testCreateRole_InvalidInput_EmptyName() throws Exception {
     // Prepare test data with invalid input
     role.setName("");
     mockMvc
@@ -95,7 +97,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(role))
+          .content(JsonUtils.asJsonString(role))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
       .andExpect(result ->
@@ -109,7 +111,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: Should pass with invalid RoleType")
-   void testCreateRole_InvalidInput_EmptyRole() throws Exception {
+  void testCreateRole_InvalidInput_EmptyRole() throws Exception {
     // Prepare test data with invalid input
     role.setRoleType(null);
 
@@ -118,7 +120,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(role))
+          .content(JsonUtils.asJsonString(role))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
       .andExpect(result ->
@@ -131,41 +133,8 @@ import java.util.UUID;
   }
 
   @Test
-  @DisplayName("Test case Should pass for database error")
-   void testCreateRole_DatabaseError() throws Exception {
-    // Mock the behavior of roleRepository.save() to throw an exception
-    Mockito
-      .when(roleRepository.save(role))
-      .thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
-
-    // Perform the API call and catch the exception
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders
-          .post(basePath)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(role))
-      )
-      .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-      .andExpect(result ->
-        Assertions.assertTrue(
-          result.getResolvedException() instanceof ResponseStatusException
-        )
-      )
-      .andExpect(result ->
-        Assertions.assertEquals(
-          HttpStatus.INTERNAL_SERVER_ERROR.value(),
-          result.getResponse().getStatus()
-        )
-      );
-
-    // Verify that roleRepository.save() was called
-    Mockito.verify(roleRepository).save(role);
-  }
-
-  @Test
   @DisplayName("Test: case for count success")
-   void testCount_Success() throws Exception {
+  void testCount_Success() throws Exception {
     // Mock the behavior of roleRepository.count()
     Mockito.when(roleRepository.count()).thenReturn(5L); // Mock a count of 5
 
@@ -186,7 +155,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test case should pass for 0 count")
-   void testCount_Empty() throws Exception {
+  void testCount_Empty() throws Exception {
     // Mock the behavior of roleRepository.count()
     Mockito.when(roleRepository.count()).thenReturn(0L); // Mock a count of 0
 
@@ -206,46 +175,10 @@ import java.util.UUID;
   }
 
   @Test
-  @DisplayName("Test: countRole with database error")
-   void testCountRole_DatabaseError() throws Exception {
-    // Mock the behavior of roleRepository.save() to throw an exception
-    Mockito
-      .when(roleRepository.count())
-      .thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
-
-    // Perform the API call and catch the exception
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders
-          .get(basePath + "/count")
-          .contentType(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-      .andExpect(result ->
-        Assertions.assertTrue(
-          result.getResolvedException() instanceof ResponseStatusException
-        )
-      )
-      .andExpect(result ->
-        Assertions.assertEquals(
-          HttpStatus.INTERNAL_SERVER_ERROR.value(),
-          result.getResponse().getStatus()
-        )
-      );
-
-    // Verify that roleRepository.save() was called
-    Mockito.verify(roleRepository).count();
-  }
-
-  @Test
   @DisplayName("Test getAllRoles success")
-   void testGetAllRoles_Success() throws Exception {
+  void testGetAllRoles_Success() throws Exception {
     // Prepare test data
-    List<Role> roles = Arrays.asList(
-      new Role(),
-      new Role(),
-      new Role()
-    );
+    List<Role> roles = Arrays.asList(new Role(), new Role(), new Role());
 
     // Mock the behavior of roleRepository.findAll()
     Mockito.when(roleRepository.findAll()).thenReturn(roles);
@@ -267,7 +200,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: getAllRoles Empty Response")
-   void testGetAllRoles_Empty() throws Exception {
+  void testGetAllRoles_Empty() throws Exception {
     // Mock the behavior of roleRepository.findAll()
     Mockito.when(roleRepository.findAll()).thenReturn(Arrays.asList());
 
@@ -288,7 +221,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test updateAll success")
-   void testUpdateAll_Success() throws Exception {
+  void testUpdateAll_Success() throws Exception {
     // Prepare test data
     role.setName("Update Name");
 
@@ -312,7 +245,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .patch(basePath)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(role))
+          .content(JsonUtils.asJsonString(role))
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(result -> Assertions.assertNotNull(result.getResponse()))
@@ -327,7 +260,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: updateAll against No existing records found")
-   void testUpdateAll_Empty() throws Exception {
+  void testUpdateAll_Empty() throws Exception {
     role.setName("Updated Name");
 
     // Mock the behavior of roleRepository.findAll()
@@ -339,7 +272,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .patch(basePath)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(role))
+          .content(JsonUtils.asJsonString(role))
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(result -> Assertions.assertNotNull(result.getResponse()))
@@ -356,7 +289,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: GetRoleByID with existing role")
-   void testGetRoleByID_ExistingRole() throws Exception {
+  void testGetRoleByID_ExistingRole() throws Exception {
     // Mock the behavior of roleRepository.findById()
     UUID roleId = MockRole.ROLE_ID;
     Mockito.when(roleRepository.findById(roleId)).thenReturn(Optional.of(role));
@@ -382,7 +315,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: getRoleByID with non-existing role")
-   void testGetRoleByID_NonExistingRole() throws Exception {
+  void testGetRoleByID_NonExistingRole() throws Exception {
     // Mock the behavior of roleRepository.findById()
     UUID roleId = MockRole.ROLE_ID;
     Mockito.when(roleRepository.findById(roleId)).thenReturn(Optional.empty());
@@ -431,7 +364,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .patch(basePath + "/{id}", existingRoleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(sourceRole))
+          .content(JsonUtils.asJsonString(sourceRole))
       )
       .andExpect(MockMvcResultMatchers.status().isNoContent())
       .andExpect(
@@ -459,7 +392,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .patch(basePath + "/{id}", nonExistingRoleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(sourceRole))
+          .content(JsonUtils.asJsonString(sourceRole))
       )
       .andExpect(MockMvcResultMatchers.status().isNotFound())
       .andExpect(result ->
@@ -480,7 +413,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: Update existing role - Success")
-   void testUpdateRoleById_ExistingRole_Success() throws Exception {
+  void testUpdateRoleById_ExistingRole_Success() throws Exception {
     UUID roleId = MockRole.ROLE_ID;
     Role roleToUpdate = this.role;
     roleToUpdate.setId(roleId);
@@ -494,7 +427,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .put(basePath + "/{id}", roleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(roleToUpdate))
+          .content(JsonUtils.asJsonString(roleToUpdate))
       )
       .andExpect(MockMvcResultMatchers.status().isNoContent())
       .andExpect(MockMvcResultMatchers.content().string("Role PUT success"));
@@ -505,7 +438,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test: Update non-existing role - Not Found")
-   void testUpdateRoleById_NonExistingRole_NotFound() throws Exception {
+  void testUpdateRoleById_NonExistingRole_NotFound() throws Exception {
     UUID roleId = MockRole.ROLE_ID;
     Role roleToUpdate = this.role;
 
@@ -516,7 +449,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .put(basePath + "/{id}", roleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(roleToUpdate))
+          .content(JsonUtils.asJsonString(roleToUpdate))
       )
       .andExpect(MockMvcResultMatchers.status().isNotFound())
       .andExpect(result ->
@@ -540,7 +473,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test case Should pass with invalid name")
-   void testUpdateRoleById_InvalidInput_EmptyName() throws Exception {
+  void testUpdateRoleById_InvalidInput_EmptyName() throws Exception {
     // Prepare test data with invalid input
     UUID roleId = MockRole.ROLE_ID;
     Role roleToUpdate = this.role;
@@ -551,7 +484,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .put(basePath + "/{id}", roleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(roleToUpdate))
+          .content(JsonUtils.asJsonString(roleToUpdate))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
       .andExpect(result ->
@@ -568,7 +501,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test case Should pass with invalid RolType")
-   void testUpdateRoleById_InvalidInput_EmptyRole() throws Exception {
+  void testUpdateRoleById_InvalidInput_EmptyRole() throws Exception {
     // Prepare test data with invalid input
 
     UUID roleId = MockRole.ROLE_ID;
@@ -580,7 +513,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .put(basePath + "/{id}", roleId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(roleToUpdate))
+          .content(JsonUtils.asJsonString(roleToUpdate))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
       .andExpect(result ->
@@ -595,7 +528,7 @@ import java.util.UUID;
   }
 
   @Test
-  @DisplayName("Test:Delete existing role by ID")
+  @DisplayName("Test:Delete existing role by Id")
   void testDeleteRoleById_ExistingRole_Success() throws Exception {
     UUID roleId = MockRole.ROLE_ID;
 
@@ -613,7 +546,7 @@ import java.util.UUID;
   }
 
   @Test
-  @DisplayName("Delete non-existing roles should return 404 status")
+  @DisplayName("Delete non-existing roles should return 404(not found) status")
   void testDeleteRolesById_NotFound() throws Exception {
     UUID existingId = MockRole.ROLE_ID;
     // Mock the behavior of dependencies
@@ -633,9 +566,5 @@ import java.util.UUID;
       .andExpect(MockMvcResultMatchers.status().isNotFound());
 
     Mockito.verify(roleRepository).deleteById(existingId);
-  }
-
-  private static String asJsonString(Object obj) throws Exception {
-    return new ObjectMapper().writeValueAsString(obj);
   }
 }

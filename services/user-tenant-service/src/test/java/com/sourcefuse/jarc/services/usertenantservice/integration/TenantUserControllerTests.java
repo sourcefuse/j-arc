@@ -1,15 +1,20 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.controller.TenantUserController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserServiceImpl;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,14 +29,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 @DisplayName("TenantUserController Integration Tests")
- class TenantUserControllerTests {
+class TenantUserControllerTests {
 
   private MockMvc mockMvc;
 
@@ -53,11 +52,13 @@ import java.util.UUID;
   public void setup() {
     MockitoAnnotations.openMocks(this);
     mockMvc = MockMvcBuilders.standaloneSetup(tenantUserController).build();
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test
   @DisplayName("Create User Tenants - Success -Integration")
-   void testCreateUserTenants_Success() throws Exception {
+  void testCreateUserTenants_Success() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
 
@@ -65,8 +66,6 @@ import java.util.UUID;
     Map<String, String> options = new HashMap<>();
     options.put("authId", "123456");
     options.put("authProvider", "example-provider");
-
-    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
     // Mock the tenantUserService.create() method
     UserDto expectedUserDto = MockTenantUser.getUserDtoObj();
     Mockito
@@ -79,14 +78,14 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, userDto.getUserTenantId())
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userDto))
+          .content(JsonUtils.asJsonString(userDto))
       )
       .andExpect(MockMvcResultMatchers.status().isCreated());
   }
 
   @Test
   @DisplayName("Test: Should pass with invalid tenant Id")
-   void testCreate_InvalidInput_TenantId() throws Exception {
+  void testCreate_InvalidInput_TenantId() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.setTenantId(null);
@@ -97,14 +96,14 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, userDto.getUserTenantId())
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userDto))
+          .content(JsonUtils.asJsonString(userDto))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
   @Test
   @DisplayName("Test: Should pass with invalid Role Id")
-   void testCreate_InvalidInput_RoleId() throws Exception {
+  void testCreate_InvalidInput_RoleId() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.setRoleId(null);
@@ -115,14 +114,14 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, userDto.getUserTenantId())
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userDto))
+          .content(JsonUtils.asJsonString(userDto))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
   @Test
   @DisplayName("Test: Should pass with invalid UserDetails ")
-   void testCreate_InvalidInput_UserDetails() throws Exception {
+  void testCreate_InvalidInput_UserDetails() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.setUserDetails(null);
@@ -133,7 +132,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, userDto.getUserTenantId())
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userDto))
+          .content(JsonUtils.asJsonString(userDto))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
@@ -142,7 +141,7 @@ import java.util.UUID;
   @DisplayName(
     "Test: Should pass with invalid UserDetails First name blank or null"
   )
-   void testCreate_InvalidInput_User_FirstName() throws Exception {
+  void testCreate_InvalidInput_User_FirstName() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.getUserDetails().setFirstName("");
@@ -153,7 +152,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, userDto.getUserTenantId())
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userDto))
+          .content(JsonUtils.asJsonString(userDto))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
@@ -162,7 +161,7 @@ import java.util.UUID;
   @DisplayName(
     "Test: Should pass with invalid UserDetails user name blank or null"
   )
-   void testCreate_InvalidInput_User_UserName() throws Exception {
+  void testCreate_InvalidInput_User_UserName() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.getUserDetails().setUsername("");
@@ -173,14 +172,14 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, userDto.getUserTenantId())
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userDto))
+          .content(JsonUtils.asJsonString(userDto))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
   @Test
   @DisplayName("Test: Should pass with invalid UserDetails Email")
-   void testCreate_InvalidInput_User_Email() throws Exception {
+  void testCreate_InvalidInput_User_Email() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.getUserDetails().setEmail("adil*!@gmail.com");
@@ -191,14 +190,14 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, userDto.getUserTenantId())
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userDto))
+          .content(JsonUtils.asJsonString(userDto))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
   @Test
   @DisplayName("Test: Should pass with invalid UserDetails Phone number")
-   void testCreate_InvalidInput_User_Phone() throws Exception {
+  void testCreate_InvalidInput_User_Phone() throws Exception {
     // Mock input data
     UserDto userDto = MockTenantUser.getUserDtoObj();
     userDto.getUserDetails().setPhone("+091123456789");
@@ -209,20 +208,21 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .post(basePath, userDto.getUserTenantId())
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userDto))
+          .content(JsonUtils.asJsonString(userDto))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
   @Test
   @DisplayName("Test getUserTenantById - Success")
-   void testGetUserTenantByIdSuccess() throws Exception {
+  void testGetUserTenantByIdSuccess() throws Exception {
     // Arrange
     List<UserDto> userDtoList = Collections.singletonList(
       MockTenantUser.getUserDtoObj()
     );
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, null, null);
+
+    MockCurrentUserSession.getCurrentUser().setTenantId(tenantId);
     Mockito
       .when(tenantUserService.getUserView(ArgumentMatchers.any()))
       .thenReturn(userDtoList);
@@ -240,14 +240,11 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test getUserTenantById - forbidden")
-   void testGetUserTenantByIdUnauthorized() throws Exception {
+  void testGetUserTenantByIdUnauthorized() throws Exception {
     // Arrange
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      MockTenantUser.TENANT_ID,
-      null,
-      null
-    );
-
+    MockCurrentUserSession
+      .getCurrentUser()
+      .setTenantId(MockTenantUser.TENANT_ID);
     // Act & Assert
     mockMvc
       .perform(
@@ -260,7 +257,7 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test getUserTenantById - Success")
-   void testGetAllUserViews() throws Exception {
+  void testGetAllUserViews() throws Exception {
     // Arrange
     List<UserDto> userDtoList = Collections.singletonList(
       MockTenantUser.getUserDtoObj()
@@ -282,14 +279,14 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test Count UserTenant - Success")
-   void testCountTenantUser() throws Exception {
+  void testCountTenantUser() throws Exception {
     // Arrange
     List<UserDto> userDtoList = Collections.singletonList(
       MockTenantUser.getUserDtoObj()
     );
 
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, null, null);
+    MockCurrentUserSession.getCurrentUser().setTenantId(tenantId);
     Mockito
       .when(tenantUserService.getUserView(ArgumentMatchers.any()))
       .thenReturn(userDtoList);
@@ -307,11 +304,12 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test find All User by userId - Success")
-   void testFindAllUserByUserId() throws Exception {
+  void testFindAllUserByUserId() throws Exception {
     // Arrange
     UUID tenantId = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
+    MockCurrentUserSession.getCurrentUser().setTenantId(tenantId);
+    MockCurrentUserSession.getCurrentUser().setId(userId);
     Mockito
       .when(tenantUserService.findById(ArgumentMatchers.any()))
       .thenReturn(MockTenantUser.getUserViewObj());
@@ -329,15 +327,13 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Test find All User by userId - forbidden")
-   void testFindAllUserByUserIdForbidden() throws Exception {
+  void testFindAllUserByUserIdForbidden() throws Exception {
     // Arrange
     UUID tenantId = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      tenantId,
-      MockTenantUser.INVALID_ID,
-      null
-    );
+
+    MockCurrentUserSession.getCurrentUser().setTenantId(tenantId);
+    MockCurrentUserSession.getCurrentUser().setId(MockTenantUser.INVALID_ID);
     Mockito
       .when(tenantUserService.findById(ArgumentMatchers.any()))
       .thenReturn(MockTenantUser.getUserViewObj());
@@ -354,14 +350,14 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Update User by ID - Success")
-   void testUpdateUserByIdSuccess() throws Exception {
+  void testUpdateUserByIdSuccess() throws Exception {
     // Arrange
     UUID id = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
     UserView userView = MockTenantUser.getUserViewObj();
     userView.setUsername("new username");
 
-    MockCurrentUserSession.setCurrentLoggedInUser(null, id, null);
+    MockCurrentUserSession.getCurrentUser().setId(id);
     CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
 
     Mockito
@@ -375,7 +371,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .patch(basePath + "/{userId}", id, userId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userView))
+          .content(JsonUtils.asJsonString(userView))
       )
       .andExpect(MockMvcResultMatchers.status().isNoContent())
       .andExpect(MockMvcResultMatchers.content().string("User PATCH success"));
@@ -388,14 +384,14 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Update User by ID - Forbidden ")
-   void testUpdateUserByIdForbidden() throws Exception {
+  void testUpdateUserByIdForbidden() throws Exception {
     // Arrange
     UUID id = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
     UserView userView = MockTenantUser.getUserViewObj();
     userView.setUsername("new username");
 
-    MockCurrentUserSession.setCurrentLoggedInUser(null, userId, null);
+    MockCurrentUserSession.getCurrentUser().setId(userId);
     CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
 
     Mockito
@@ -409,7 +405,7 @@ import java.util.UUID;
         MockMvcRequestBuilders
           .patch(basePath + "/{userId}", id, userId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(userView))
+          .content(JsonUtils.asJsonString(userView))
       )
       .andExpect(MockMvcResultMatchers.status().isForbidden());
 
@@ -421,12 +417,11 @@ import java.util.UUID;
 
   @Test
   @DisplayName("Delete User by ID - Success")
-   void testDeleteUserByIdSuccess() throws Exception {
+  void testDeleteUserByIdSuccess() throws Exception {
     // Arrange
     UUID tenantId = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
 
-    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
     CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
 
     Mockito
@@ -446,9 +441,5 @@ import java.util.UUID;
     Mockito
       .verify(deleteTenantUserService, Mockito.times(1))
       .deleteUserById(currentUser, userId, tenantId);
-  }
-
-  private static String asJsonString(Object obj) throws Exception {
-    return new ObjectMapper().writeValueAsString(obj);
   }
 }

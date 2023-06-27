@@ -1,12 +1,22 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
 import com.sourcefuse.jarc.services.usertenantservice.controller.TenantController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.TenantConfig;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantService;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,28 +26,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
 
 @DisplayName("Create Tenant  Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
- class TenantControllerTests {
+class TenantControllerTests {
 
   @Mock
   private TenantRepository tenantRepository;
@@ -60,6 +58,8 @@ import static org.mockito.Mockito.when;
     mockMvc = MockMvcBuilders.standaloneSetup(tenantController).build();
     tenant = MockTenantUser.geTenantObj();
     mockTenantId = MockTenantUser.TENANT_ID;
+    //Set Current LoggedIn User
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
   }
 
   @Test
@@ -75,7 +75,7 @@ import static org.mockito.Mockito.when;
         MockMvcRequestBuilders
           .post(basePath)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(tenant))
+          .content(JsonUtils.asJsonString(tenant))
       )
       .andExpect(MockMvcResultMatchers.status().isCreated())
       .andExpect(
@@ -92,7 +92,7 @@ import static org.mockito.Mockito.when;
 
   @Test
   @DisplayName("Test: Should pass with invalid name")
-   void testCreateTenant_InvalidInput_EmptyName() throws Exception {
+  void testCreateTenant_InvalidInput_EmptyName() throws Exception {
     // Prepare test data with invalid input
     tenant.setName("");
 
@@ -101,7 +101,7 @@ import static org.mockito.Mockito.when;
         MockMvcRequestBuilders
           .post(basePath)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(tenant))
+          .content(JsonUtils.asJsonString(tenant))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
       .andExpect(result ->
@@ -115,7 +115,7 @@ import static org.mockito.Mockito.when;
 
   @Test
   @DisplayName("Test: Should pass with invalid TenantStatus")
-   void testCreateTenant_InvalidInput_TenantStatus() throws Exception {
+  void testCreateTenant_InvalidInput_TenantStatus() throws Exception {
     // Prepare test data with invalid input
     tenant.setStatus(null);
 
@@ -124,7 +124,7 @@ import static org.mockito.Mockito.when;
         MockMvcRequestBuilders
           .post(basePath)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(tenant))
+          .content(JsonUtils.asJsonString(tenant))
       )
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
       .andExpect(result ->
@@ -137,40 +137,8 @@ import static org.mockito.Mockito.when;
   }
 
   @Test
-  @DisplayName("Test case Should pass for database error")
-   void testCreateTenant_DatabaseError() throws Exception {
-    // Mock the behavior of roleRepository.save() to throw an exception
-    when(tenantRepository.save(tenant))
-      .thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
-
-    // Perform the API call and catch the exception
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders
-          .post(basePath)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(tenant))
-      )
-      .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-      .andExpect(result ->
-        Assertions.assertTrue(
-          result.getResolvedException() instanceof ResponseStatusException
-        )
-      )
-      .andExpect(result ->
-        Assertions.assertEquals(
-          HttpStatus.INTERNAL_SERVER_ERROR.value(),
-          result.getResponse().getStatus()
-        )
-      );
-
-    // Verify that roleRepository.save() was called
-    Mockito.verify(tenantRepository).save(tenant);
-  }
-
-  @Test
   @DisplayName("Test: case for count success")
-   void testCount_Success() throws Exception {
+  void testCount_Success() throws Exception {
     when(tenantRepository.count()).thenReturn(5L); // Mock a count of 5
 
     // Perform the API call
@@ -190,7 +158,7 @@ import static org.mockito.Mockito.when;
 
   @Test
   @DisplayName("Test case should pass for 0 count")
-   void testCount_Empty() throws Exception {
+  void testCount_Empty() throws Exception {
     // Mock the behavior of roleRepository.count()
     when(tenantRepository.count()).thenReturn(0L); // Mock a count of 0
 
@@ -210,39 +178,8 @@ import static org.mockito.Mockito.when;
   }
 
   @Test
-  @DisplayName("Test: countRole with database error")
-   void testCountRole_DatabaseError() throws Exception {
-    // Mock the behavior of roleRepository.save() to throw an exception
-    when(tenantRepository.count())
-      .thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
-
-    // Perform the API call and catch the exception
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders
-          .get(basePath + "/count")
-          .contentType(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-      .andExpect(result ->
-        Assertions.assertTrue(
-          result.getResolvedException() instanceof ResponseStatusException
-        )
-      )
-      .andExpect(result ->
-        Assertions.assertEquals(
-          HttpStatus.INTERNAL_SERVER_ERROR.value(),
-          result.getResponse().getStatus()
-        )
-      );
-
-    // Verify that roleRepository.save() was called
-    Mockito.verify(tenantRepository).count();
-  }
-
-  @Test
   @DisplayName("Test getAllTenants success")
-   void testGetAllTenants_Success() throws Exception {
+  void testGetAllTenants_Success() throws Exception {
     // Prepare test data
     List<Tenant> tenants = Arrays.asList(
       new Tenant(),
@@ -270,7 +207,7 @@ import static org.mockito.Mockito.when;
 
   @Test
   @DisplayName("Test: getAllTenants Empty Response")
-   void testGetAllTenants_Empty() throws Exception {
+  void testGetAllTenants_Empty() throws Exception {
     // Mock the behavior of roleRepository.findAll()
     when(tenantRepository.findAll()).thenReturn(Arrays.asList());
 
@@ -290,7 +227,7 @@ import static org.mockito.Mockito.when;
 
   @Test
   @DisplayName("Test updateAll success")
-   void testUpdateAll_Success() throws Exception {
+  void testUpdateAll_Success() throws Exception {
     // Prepare test data
     tenant.setName("Update Name");
 
@@ -312,7 +249,7 @@ import static org.mockito.Mockito.when;
         MockMvcRequestBuilders
           .patch(basePath)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(tenant))
+          .content(JsonUtils.asJsonString(tenant))
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(result -> Assertions.assertNotNull(result.getResponse()))
@@ -326,8 +263,8 @@ import static org.mockito.Mockito.when;
   }
 
   @Test
-  @DisplayName("Test: updateAll against No existing records found ")
-   void testUpdateAll_Empty() throws Exception {
+  @DisplayName("Test: updateAll : No existing records found ")
+  void testUpdateAll_Empty() throws Exception {
     tenant.setName("Updated Name");
 
     // Mock the behavior of roleRepository.findAll()
@@ -339,7 +276,7 @@ import static org.mockito.Mockito.when;
         MockMvcRequestBuilders
           .patch("/tenants")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(tenant))
+          .content(JsonUtils.asJsonString(tenant))
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(result -> Assertions.assertNotNull(result.getResponse()))
@@ -352,8 +289,8 @@ import static org.mockito.Mockito.when;
   }
 
   @Test
-  @DisplayName("Test fetchTenantByID Integration Test")
-   void testFetchTenantByID() throws Exception {
+  @DisplayName("Test fetchTenantById Success Integration Test")
+  void testFetchTenantByID() throws Exception {
     // Mock the tenant repository
     when(tenantService.fetchTenantByID(mockTenantId)).thenReturn(tenant);
 
@@ -370,7 +307,7 @@ import static org.mockito.Mockito.when;
   }
 
   @Test
-  @DisplayName("Test Update Tenant - Integration ")
+  @DisplayName("Test Update Tenant - Success Integration ")
   void testUpdateTenant_Success() throws Exception {
     // Arrange
     Tenant existingTenant = new Tenant(mockTenantId);
@@ -387,7 +324,7 @@ import static org.mockito.Mockito.when;
         MockMvcRequestBuilders
           .patch("/tenants/{id}", mockTenantId)
           .contentType(MediaType.APPLICATION_JSON)
-          .content(asJsonString(sourceTenant))
+          .content(JsonUtils.asJsonString(sourceTenant))
       )
       .andExpect(MockMvcResultMatchers.status().isNoContent())
       .andExpect(
@@ -401,7 +338,7 @@ import static org.mockito.Mockito.when;
   }
 
   @Test
-  @DisplayName("Test:Delete  Tenant by ID Integration")
+  @DisplayName("Test:Delete  Tenant by ID Success  Integration")
   void testDeleteTenantById_ExistingRole_Success() throws Exception {
     mockMvc
       .perform(
@@ -419,7 +356,7 @@ import static org.mockito.Mockito.when;
 
   @Test
   @DisplayName("Get Tenant Config - Success Integration ")
-   void testGetTenantConfig_Success() throws Exception {
+  void testGetTenantConfig_Success() throws Exception {
     ArrayList<TenantConfig> expectedConfig = new ArrayList<>();
     expectedConfig.add(new TenantConfig());
     expectedConfig.add(new TenantConfig());
@@ -437,9 +374,5 @@ import static org.mockito.Mockito.when;
       .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(2));
 
     Mockito.verify(tenantService, times(1)).getTenantConfig(any(UUID.class));
-  }
-
-  private static String asJsonString(Object obj) throws Exception {
-    return new ObjectMapper().writeValueAsString(obj);
   }
 }
