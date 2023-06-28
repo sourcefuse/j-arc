@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.services.featuretoggleservice.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.togglz.core.activation.ActivationStrategyProvider;
@@ -11,16 +11,14 @@ import org.togglz.core.repository.jdbc.JDBCStateRepository;
 import org.togglz.core.spi.FeatureProvider;
 
 @Configuration
+@RequiredArgsConstructor
 public class TogglzConfig {
 
-  @Autowired
-  private JDBCStateRepository stateRepository;
+  private final JDBCStateRepository stateRepository;
 
-  @Autowired
-  private ActivationStrategyProvider activationStrategyProvider;
+  private final ActivationStrategyProvider activationStrategyProvider;
 
-  @Autowired
-  private FeatureProvider featureProvider;
+  private final FeatureProvider featureProvider;
 
   @Bean
   public FeatureManager featureManager(

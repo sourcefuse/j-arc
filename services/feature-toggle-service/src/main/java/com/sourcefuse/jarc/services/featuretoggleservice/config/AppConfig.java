@@ -5,7 +5,7 @@ import com.sourcefuse.jarc.services.featuretoggleservice.activationstrategies.Te
 import com.sourcefuse.jarc.services.featuretoggleservice.activationstrategies.UserTenantLevelActivationStrategy;
 import java.util.List;
 import javax.sql.DataSource;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.togglz.core.activation.ActivationStrategyProvider;
@@ -14,10 +14,10 @@ import org.togglz.core.repository.jdbc.JDBCStateRepository;
 import org.togglz.core.spi.ActivationStrategy;
 
 @Configuration
+@RequiredArgsConstructor
 public class AppConfig {
 
-  @Autowired
-  private DataSource dataSource;
+  private final DataSource dataSource;
 
   private List<ActivationStrategy> activationStrategies = List.of(
     new SystemLevelActivationStrategy(),
@@ -32,9 +32,7 @@ public class AppConfig {
 
   @Bean
   public ActivationStrategyProvider activationStrategyProvider() {
-    DefaultActivationStrategyProvider activationStrategyProvider =
-      new DefaultActivationStrategyProvider();
-    // activationStrategyProvider.addActivationStrategy(activationStrategy);
+    DefaultActivationStrategyProvider activationStrategyProvider = new DefaultActivationStrategyProvider();
     activationStrategyProvider.addActivationStrategies(activationStrategies);
     return activationStrategyProvider;
   }

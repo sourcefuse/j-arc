@@ -11,31 +11,26 @@ import org.togglz.core.user.FeatureUser;
 //does not depend on any parameters
 public class SystemLevelActivationStrategy implements ActivationStrategy {
 
-  private static final StrategyEnums ID = StrategyEnums.System;
-  private static final StrategyEnums NAME = StrategyEnums.System;
+  private static final StrategyEnums ID = StrategyEnums.SYSTEM;
+  private static final StrategyEnums NAME = StrategyEnums.SYSTEM;
 
   @Override
   public String getId() {
-    // TODO Auto-generated method stub
     return ID.toString();
   }
 
   @Override
   public String getName() {
-    // TODO Auto-generated method stub
     return NAME.toString();
   }
 
   @Override
   public boolean isActive(FeatureState featureState, FeatureUser user) {
-    // TODO Auto-generated method stub
     return featureState.isEnabled();
-    // return false;
   }
 
   @Override
   public Parameter[] getParameters() {
-    // TODO Auto-generated method stub
     return null;
   }
 }

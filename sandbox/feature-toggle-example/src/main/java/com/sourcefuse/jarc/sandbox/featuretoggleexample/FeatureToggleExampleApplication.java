@@ -5,11 +5,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan({"com.sourcefuse.jarc.core","com.sourcefuse.jarc.services.authservice","com.sourcefuse.jarc.services.featuretoggleservice","com.sourcefuse.jarc.sandbox.featuretoggleexample"})
+@ComponentScan(
+  {
+    "com.sourcefuse.jarc.core",
+    "com.sourcefuse.jarc.services.authservice",
+    "com.sourcefuse.jarc.services.featuretoggleservice",
+    "com.sourcefuse.jarc.sandbox.featuretoggleexample",
+  }
+)
 public class FeatureToggleExampleApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(FeatureToggleExampleApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(FeatureToggleExampleApplication.class, args);
+  }
 }

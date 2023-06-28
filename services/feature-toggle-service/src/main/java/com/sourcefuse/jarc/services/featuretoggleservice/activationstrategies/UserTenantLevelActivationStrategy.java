@@ -15,26 +15,22 @@ import org.togglz.core.util.Strings;
 
 public class UserTenantLevelActivationStrategy implements ActivationStrategy {
 
-  private static final StrategyEnums ID = StrategyEnums.UserTenant;
-  private static final StrategyEnums NAME = StrategyEnums.UserTenant;
-  private static final String USER_TENANT_PARAMETER =
-    StrategyEnums.UserTenant.toString();
+  private static final StrategyEnums ID = StrategyEnums.USER_TENANT;
+  private static final StrategyEnums NAME = StrategyEnums.USER_TENANT;
+  private static final String USER_TENANT_PARAMETER = StrategyEnums.USER_TENANT.toString();
 
   @Override
   public String getId() {
-    // TODO Auto-generated method stub
     return ID.toString();
   }
 
   @Override
   public String getName() {
-    // TODO Auto-generated method stub
     return NAME.toString();
   }
 
   @Override
   public boolean isActive(FeatureState featureState, FeatureUser user) {
-    // TODO Auto-generated method stub
     String userTenantIds = featureState.getParameter(USER_TENANT_PARAMETER);
 
     if (Strings.isNotBlank(userTenantIds)) {
@@ -59,7 +55,6 @@ public class UserTenantLevelActivationStrategy implements ActivationStrategy {
 
   @Override
   public Parameter[] getParameters() {
-    // TODO Auto-generated method stub
     return new Parameter[] {
       ParameterBuilder
         .create(USER_TENANT_PARAMETER)

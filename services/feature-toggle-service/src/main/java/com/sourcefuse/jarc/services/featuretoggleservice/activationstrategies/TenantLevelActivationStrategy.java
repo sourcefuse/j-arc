@@ -13,26 +13,22 @@ import org.togglz.core.util.Strings;
 
 public class TenantLevelActivationStrategy implements ActivationStrategy {
 
-  private static final StrategyEnums ID = StrategyEnums.Tenant;
-  private static final StrategyEnums NAME = StrategyEnums.Tenant;
-  private static final String TENANT_PARAMETER =
-    StrategyEnums.Tenant.toString();
+  private static final StrategyEnums ID = StrategyEnums.TENANT;
+  private static final StrategyEnums NAME = StrategyEnums.TENANT;
+  private static final String TENANT_PARAMETER = StrategyEnums.TENANT.toString();
 
   @Override
   public String getId() {
-    // TODO Auto-generated method stub
     return ID.toString();
   }
 
   @Override
   public String getName() {
-    // TODO Auto-generated method stub
     return NAME.toString();
   }
 
   @Override
   public boolean isActive(FeatureState featureState, FeatureUser user) {
-    // TODO Auto-generated method stub
     String tenantIds = featureState.getParameter(TENANT_PARAMETER);
 
     if (Strings.isNotBlank(tenantIds)) {
@@ -48,8 +44,6 @@ public class TenantLevelActivationStrategy implements ActivationStrategy {
         Strings.isNotBlank(currUser.getTenantId().toString())
       ) {
         String currUserTenantId = currUser.getTenantId().toString();
-        System.out.println("Current User Tenant ----" + currUserTenantId);
-
         return tenantList.contains(currUserTenantId) ? true : false;
       }
     }
@@ -58,7 +52,6 @@ public class TenantLevelActivationStrategy implements ActivationStrategy {
 
   @Override
   public Parameter[] getParameters() {
-    // TODO Auto-generated method stub
     return new Parameter[] {
       ParameterBuilder
         .create(TENANT_PARAMETER)
