@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.controller.TenantUserController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
@@ -9,11 +10,6 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserServiceImpl;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +23,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @DisplayName("TenantUserController Integration Tests")
 class TenantUserControllerTests {
@@ -362,11 +364,12 @@ class TenantUserControllerTests {
 
     MockCurrentUserSession.setCurrentLoggedInUser(null, id, null);
 
+   CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
     Mockito
       .doNothing()
       .when(updateTenantUserService)
       .updateById(
-        MockCurrentUserSession.getCurrentUser(),
+              currentUser,
         userId,
         userView,
         id
@@ -387,7 +390,7 @@ class TenantUserControllerTests {
     Mockito
       .verify(updateTenantUserService, Mockito.times(1))
       .updateById(
-        MockCurrentUserSession.getCurrentUser(),
+        currentUser,
         userId,
         userView,
         id
@@ -404,12 +407,13 @@ class TenantUserControllerTests {
     userView.setUsername("new username");
 
     MockCurrentUserSession.setCurrentLoggedInUser(null, userId, null);
+    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
 
     Mockito
       .doNothing()
       .when(updateTenantUserService)
       .updateById(
-        MockCurrentUserSession.getCurrentUser(),
+        currentUser,
         userId,
         userView,
         id
@@ -425,11 +429,12 @@ class TenantUserControllerTests {
       )
       .andExpect(MockMvcResultMatchers.status().isForbidden());
 
+
     // Verify
     Mockito
       .verify(updateTenantUserService, Mockito.never())
       .updateById(
-        MockCurrentUserSession.getCurrentUser(),
+        currentUser,
         userId,
         userView,
         id
@@ -442,12 +447,12 @@ class TenantUserControllerTests {
     // Arrange
     UUID tenantId = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
-
+    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
     Mockito
       .doNothing()
       .when(deleteTenantUserService)
       .deleteUserById(
-        MockCurrentUserSession.getCurrentUser(),
+        currentUser,
         userId,
         tenantId
       );
@@ -464,7 +469,7 @@ class TenantUserControllerTests {
     Mockito
       .verify(deleteTenantUserService, Mockito.times(1))
       .deleteUserById(
-        MockCurrentUserSession.getCurrentUser(),
+        currentUser,
         userId,
         tenantId
       );
