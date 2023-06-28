@@ -12,9 +12,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.sourcefuse.jarc.services.usertenantservice.controller.UserTenantPrefsController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenantPrefs;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
-import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantPrefsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.UserTenantPrefsService;
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ class UserTenantPrefsControllerTests {
   @Test
   @DisplayName("Create Tenant Prefs - Success")
   void testCreateTenantPrefs_Success() throws Exception {
-    MockCurrentUserSession.getCurrentUser().setUserTenantId(userTenantId);
+    MockCurrentUserSession.setCurrentLoggedInUser(null, null, userTenantId);
     // Mock the repository
     when(userTenantPrefsService.createTenantPrefs(any(UserTenantPrefs.class)))
       .thenReturn(userTenantPrefs);

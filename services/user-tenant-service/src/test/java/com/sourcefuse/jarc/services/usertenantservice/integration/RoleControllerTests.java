@@ -3,9 +3,9 @@ package com.sourcefuse.jarc.services.usertenantservice.integration;
 import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.services.usertenantservice.controller.RoleController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockRole;
-import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -330,12 +330,6 @@ class RoleControllerTests {
       .andExpect(MockMvcResultMatchers.status().isNotFound())
       .andExpect(result ->
         Assertions.assertEquals(
-          HttpStatus.NOT_FOUND.value(),
-          result.getResponse().getStatus()
-        )
-      )
-      .andExpect(result ->
-        Assertions.assertEquals(
           CommonConstants.NO_ROLE_PRESENT,
           result.getResponse().getErrorMessage()
         )
@@ -397,12 +391,6 @@ class RoleControllerTests {
       .andExpect(MockMvcResultMatchers.status().isNotFound())
       .andExpect(result ->
         Assertions.assertEquals(
-          HttpStatus.NOT_FOUND.value(),
-          result.getResponse().getStatus()
-        )
-      )
-      .andExpect(result ->
-        Assertions.assertEquals(
           CommonConstants.NO_ROLE_PRESENT,
           result.getResponse().getErrorMessage()
         )
@@ -452,12 +440,6 @@ class RoleControllerTests {
           .content(JsonUtils.asJsonString(roleToUpdate))
       )
       .andExpect(MockMvcResultMatchers.status().isNotFound())
-      .andExpect(result ->
-        Assertions.assertEquals(
-          HttpStatus.NOT_FOUND.value(),
-          result.getResponse().getStatus()
-        )
-      )
       .andExpect(result ->
         Assertions.assertEquals(
           CommonConstants.NO_ROLE_PRESENT,

@@ -1,6 +1,5 @@
 package com.sourcefuse.jarc.services.usertenantservice.unit;
 
-import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.User;
@@ -83,7 +82,11 @@ class TenantUserControllerUnitTests {
   void testCreateAndRegisterUser() {
     // Arrange
     UserDto userData = userDto;
-    MockCurrentUserSession.getCurrentUser().setTenantId(userData.getTenantId());
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      userData.getTenantId(),
+      null,
+      null
+    );
     Map<String, String> options = new HashMap<>();
     // Mock necessary repository methods
     Mockito
@@ -129,7 +132,11 @@ class TenantUserControllerUnitTests {
   void testRegisterUser() {
     // Arrange
     UserDto userData = userDto;
-    MockCurrentUserSession.getCurrentUser().setTenantId(userData.getTenantId());
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      userData.getTenantId(),
+      null,
+      null
+    );
     Map<String, String> options = new HashMap<>();
     // Mock necessary repository methods
     Mockito
@@ -177,8 +184,12 @@ class TenantUserControllerUnitTests {
     // Arrange
     UserDto userData = userDto;
 
-    MockCurrentUserSession.getCurrentUser().setTenantId(userData.getTenantId());
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      userData.getTenantId(),
+      null,
+      null
+    );
+
     Map<String, String> options = new HashMap<>();
     // Mock necessary repository methods
     Mockito
@@ -207,7 +218,12 @@ class TenantUserControllerUnitTests {
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> tenantUserService.create(userData, currentUser, options)
+      () ->
+        tenantUserService.create(
+          userData,
+          MockCurrentUserSession.getCurrentUser(),
+          options
+        )
     );
 
     // Assert
@@ -228,16 +244,22 @@ class TenantUserControllerUnitTests {
   void testCreateUserForbidden() {
     // Arrange
     UserDto userData = userDto;
-    MockCurrentUserSession
-      .getCurrentUser()
-      .setTenantId(MockTenantUser.INVALID_ID);
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.INVALID_ID,
+      null,
+      null
+    );
     Map<String, String> options = new HashMap<>();
     // Mock necessary repository methods
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> tenantUserService.create(userData, currentUser, options)
+      () ->
+        tenantUserService.create(
+          userData,
+          MockCurrentUserSession.getCurrentUser(),
+          options
+        )
     );
 
     // Assert
@@ -257,8 +279,11 @@ class TenantUserControllerUnitTests {
   void testCreateUserRoleNotPresent() {
     // Arrange
     UserDto userData = userDto;
-    MockCurrentUserSession.getCurrentUser().setTenantId(userData.getTenantId());
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      userData.getTenantId(),
+      null,
+      null
+    );
     Map<String, String> options = new HashMap<>();
     // Mock necessary repository methods
     Mockito
@@ -267,7 +292,12 @@ class TenantUserControllerUnitTests {
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> tenantUserService.create(userData, currentUser, options)
+      () ->
+        tenantUserService.create(
+          userData,
+          MockCurrentUserSession.getCurrentUser(),
+          options
+        )
     );
 
     // Assert
@@ -463,9 +493,8 @@ class TenantUserControllerUnitTests {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
 
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
-    currentUser.setTenantId(tenantId);
-    currentUser.setId(userId);
+    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
+
     User user = MockTenantUser.getUserObj();
     user.setId(userId);
     Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -487,7 +516,12 @@ class TenantUserControllerUnitTests {
 
     UserView userView = MockTenantUser.getUserViewObj();
     userView.setUsername("new username");
-    updateTenantUserService.updateById(currentUser, userId, userView, tenantId);
+    updateTenantUserService.updateById(
+      MockCurrentUserSession.getCurrentUser(),
+      userId,
+      userView,
+      tenantId
+    );
 
     // Add assertions to validate the expected behavior
     // For example, we can assert that the user's username, role, and status have been updated correctly
@@ -504,9 +538,12 @@ class TenantUserControllerUnitTests {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
 
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
-    currentUser.setTenantId(MockTenantUser.TENANT_ID);
-    currentUser.setId(MockTenantUser.INVALID_ID);
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.TENANT_ID,
+      MockTenantUser.INVALID_ID,
+      null
+    );
+
     User user = MockTenantUser.getUserObj();
     user.setId(userId);
     Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -527,7 +564,7 @@ class TenantUserControllerUnitTests {
       ResponseStatusException.class,
       () ->
         updateTenantUserService.updateById(
-          currentUser,
+          MockCurrentUserSession.getCurrentUser(),
           userId,
           userView,
           tenantId
@@ -545,9 +582,12 @@ class TenantUserControllerUnitTests {
   void testUpdateUserByIdInvalidTenantId() {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
-    currentUser.setTenantId(tenantId);
-    currentUser.setId(MockTenantUser.INVALID_ID);
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      tenantId,
+      MockTenantUser.INVALID_ID,
+      null
+    );
+
     User user = MockTenantUser.getUserObj();
     user.setId(userId);
     Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -568,7 +608,7 @@ class TenantUserControllerUnitTests {
       ResponseStatusException.class,
       () ->
         updateTenantUserService.updateById(
-          currentUser,
+          MockCurrentUserSession.getCurrentUser(),
           userId,
           userView,
           tenantId
@@ -587,9 +627,12 @@ class TenantUserControllerUnitTests {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
 
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
-    currentUser.setTenantId(tenantId);
-    currentUser.setId(MockTenantUser.INVALID_ID);
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      tenantId,
+      MockTenantUser.INVALID_ID,
+      null
+    );
+
     User user = MockTenantUser.getUserObj();
     user.setId(userId);
     Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -606,7 +649,7 @@ class TenantUserControllerUnitTests {
       ResponseStatusException.class,
       () ->
         updateTenantUserService.updateById(
-          currentUser,
+          MockCurrentUserSession.getCurrentUser(),
           userId,
           userView,
           tenantId
@@ -623,9 +666,8 @@ class TenantUserControllerUnitTests {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
 
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
-    currentUser.setTenantId(tenantId);
-    currentUser.setId(userId);
+    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
+
     User user = MockTenantUser.getUserObj();
     user.setId(userId);
     Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -654,7 +696,7 @@ class TenantUserControllerUnitTests {
       ResponseStatusException.class,
       () ->
         updateTenantUserService.updateById(
-          currentUser,
+          MockCurrentUserSession.getCurrentUser(),
           userId,
           userView,
           tenantId
@@ -672,9 +714,8 @@ class TenantUserControllerUnitTests {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
 
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
-    currentUser.setTenantId(tenantId);
-    currentUser.setId(userId);
+    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
+
     UserTenant userTenant = MockTenantUser.getUserTenantObj();
 
     Mockito
@@ -686,7 +727,11 @@ class TenantUserControllerUnitTests {
       .when(userRepository.findById(ArgumentMatchers.any()))
       .thenReturn(Optional.of(MockTenantUser.getUserObj()));
     // Act
-    deleteTenantUserService.deleteUserById(currentUser, userId, tenantId);
+    deleteTenantUserService.deleteUserById(
+      MockCurrentUserSession.getCurrentUser(),
+      userId,
+      tenantId
+    );
 
     // Assert
     Mockito
@@ -707,10 +752,7 @@ class TenantUserControllerUnitTests {
     // Arrange
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
-
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
-    currentUser.setTenantId(tenantId);
-    currentUser.setId(userId);
+    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
     Mockito
       .when(
         userTenantRepository.findOne(ArgumentMatchers.any(Specification.class))
@@ -721,7 +763,11 @@ class TenantUserControllerUnitTests {
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
-        deleteTenantUserService.deleteUserById(currentUser, userId, tenantId)
+        deleteTenantUserService.deleteUserById(
+          MockCurrentUserSession.getCurrentUser(),
+          userId,
+          tenantId
+        )
     );
     Assertions.assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
     Assertions.assertEquals("NOT_ALLOWED_ACCESS", exception.getReason());
@@ -748,10 +794,8 @@ class TenantUserControllerUnitTests {
     // Arrange
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
+    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
 
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
-    currentUser.setTenantId(tenantId);
-    currentUser.setId(userId);
     UserTenant userTenant = MockTenantUser.getUserTenantObj();
 
     Mockito
@@ -763,7 +807,11 @@ class TenantUserControllerUnitTests {
       .when(userRepository.findById(ArgumentMatchers.any()))
       .thenReturn(Optional.empty());
     // Act
-    deleteTenantUserService.deleteUserById(currentUser, userId, tenantId);
+    deleteTenantUserService.deleteUserById(
+      MockCurrentUserSession.getCurrentUser(),
+      userId,
+      tenantId
+    );
 
     // Assert
     Mockito
@@ -785,14 +833,20 @@ class TenantUserControllerUnitTests {
     UUID userId = MockTenantUser.USER_ID;
     UUID tenantId = MockTenantUser.TENANT_ID;
 
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
-    currentUser.setTenantId(MockTenantUser.INVALID_ID);
-    currentUser.setId(userId);
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.INVALID_ID,
+      userId,
+      null
+    );
     // Act & Assert
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
-        deleteTenantUserService.deleteUserById(currentUser, userId, tenantId)
+        deleteTenantUserService.deleteUserById(
+          MockCurrentUserSession.getCurrentUser(),
+          userId,
+          tenantId
+        )
     );
     Assertions.assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
     Assertions.assertEquals("NOT_ALLOWED_ACCESS", exception.getReason());

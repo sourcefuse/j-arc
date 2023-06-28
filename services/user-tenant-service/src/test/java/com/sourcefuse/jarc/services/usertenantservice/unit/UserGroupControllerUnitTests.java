@@ -200,9 +200,11 @@ class UserGroupControllerUnitTests {
     UUID userGroupId = MockGroup.USER_GROUP_ID;
     UserGroup userGroup = this.userGroup;
 
-    MockCurrentUserSession
-      .getCurrentUser()
-      .setTenantId(this.group.getTenantId());
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      this.group.getTenantId(),
+      null,
+      null
+    );
     Group group = this.group;
     UserGroup savedUserGroup = this.userGroup;
 
@@ -247,8 +249,11 @@ class UserGroupControllerUnitTests {
 
     UUID userGroupId = MockGroup.USER_GROUP_ID;
     UserGroup userGroup = this.userGroup;
-
-    MockCurrentUserSession.getCurrentUser().setTenantId(group.getTenantId());
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      group.getTenantId(),
+      null,
+      null
+    );
     // Mock groupRepository.findOne() to return Optional.empty()
     Mockito
       .when(groupRepository.findOne(ArgumentMatchers.any(Specification.class)))
@@ -295,7 +300,11 @@ class UserGroupControllerUnitTests {
     updatedUserGroup.setId(mockGroupId);
     updatedUserGroup.setOwner(false);
 
-    MockCurrentUserSession.getCurrentUser().setTenantId(group.getTenantId());
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      group.getTenantId(),
+      null,
+      null
+    );
     Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
@@ -321,7 +330,11 @@ class UserGroupControllerUnitTests {
       .when(userGroupsRepo.findOne(ArgumentMatchers.any(Specification.class)))
       .thenReturn(Optional.empty());
 
-    MockCurrentUserSession.getCurrentUser().setTenantId(group.getTenantId());
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      group.getTenantId(),
+      null,
+      null
+    );
     Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
@@ -412,12 +425,11 @@ class UserGroupControllerUnitTests {
   @Test
   @DisplayName("Delete User Group - Owner Removal Forbidden")
   void testDeleteUsrGrp_OwnerRemovalForbidden() throws Exception {
-    MockCurrentUserSession
-      .getCurrentUser()
-      .setTenantId(userGroup.getTenantId());
-    MockCurrentUserSession
-      .getCurrentUser()
-      .setUserTenantId(userGroup.getUserTenant().getId());
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      userGroup.getTenantId(),
+      null,
+      userGroup.getUserTenant().getId()
+    );
     userGroup.setOwner(true);
 
     // Mock userGroupsRepo methods

@@ -1,12 +1,11 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.controller.TenantUserController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
-import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserServiceImpl;
@@ -222,7 +221,7 @@ class TenantUserControllerTests {
     );
     UUID tenantId = MockTenantUser.TENANT_ID;
 
-    MockCurrentUserSession.getCurrentUser().setTenantId(tenantId);
+    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, null, null);
     Mockito
       .when(tenantUserService.getUserView(ArgumentMatchers.any()))
       .thenReturn(userDtoList);
@@ -242,9 +241,11 @@ class TenantUserControllerTests {
   @DisplayName("Test getUserTenantById - forbidden")
   void testGetUserTenantByIdUnauthorized() throws Exception {
     // Arrange
-    MockCurrentUserSession
-      .getCurrentUser()
-      .setTenantId(MockTenantUser.TENANT_ID);
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.TENANT_ID,
+      null,
+      null
+    );
     // Act & Assert
     mockMvc
       .perform(
@@ -286,7 +287,7 @@ class TenantUserControllerTests {
     );
 
     UUID tenantId = MockTenantUser.TENANT_ID;
-    MockCurrentUserSession.getCurrentUser().setTenantId(tenantId);
+    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, null, null);
     Mockito
       .when(tenantUserService.getUserView(ArgumentMatchers.any()))
       .thenReturn(userDtoList);
@@ -308,8 +309,7 @@ class TenantUserControllerTests {
     // Arrange
     UUID tenantId = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
-    MockCurrentUserSession.getCurrentUser().setTenantId(tenantId);
-    MockCurrentUserSession.getCurrentUser().setId(userId);
+    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
     Mockito
       .when(tenantUserService.findById(ArgumentMatchers.any()))
       .thenReturn(MockTenantUser.getUserViewObj());
@@ -332,8 +332,11 @@ class TenantUserControllerTests {
     UUID tenantId = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
 
-    MockCurrentUserSession.getCurrentUser().setTenantId(tenantId);
-    MockCurrentUserSession.getCurrentUser().setId(MockTenantUser.INVALID_ID);
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      tenantId,
+      MockTenantUser.INVALID_ID,
+      null
+    );
     Mockito
       .when(tenantUserService.findById(ArgumentMatchers.any()))
       .thenReturn(MockTenantUser.getUserViewObj());
@@ -357,13 +360,17 @@ class TenantUserControllerTests {
     UserView userView = MockTenantUser.getUserViewObj();
     userView.setUsername("new username");
 
-    MockCurrentUserSession.getCurrentUser().setId(id);
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    MockCurrentUserSession.setCurrentLoggedInUser(null, id, null);
 
     Mockito
       .doNothing()
       .when(updateTenantUserService)
-      .updateById(currentUser, userId, userView, id);
+      .updateById(
+        MockCurrentUserSession.getCurrentUser(),
+        userId,
+        userView,
+        id
+      );
 
     // Act & Assert
     mockMvc
@@ -379,7 +386,12 @@ class TenantUserControllerTests {
     // Verify
     Mockito
       .verify(updateTenantUserService, Mockito.times(1))
-      .updateById(currentUser, userId, userView, id);
+      .updateById(
+        MockCurrentUserSession.getCurrentUser(),
+        userId,
+        userView,
+        id
+      );
   }
 
   @Test
@@ -391,13 +403,17 @@ class TenantUserControllerTests {
     UserView userView = MockTenantUser.getUserViewObj();
     userView.setUsername("new username");
 
-    MockCurrentUserSession.getCurrentUser().setId(userId);
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
+    MockCurrentUserSession.setCurrentLoggedInUser(null, userId, null);
 
     Mockito
       .doNothing()
       .when(updateTenantUserService)
-      .updateById(currentUser, userId, userView, id);
+      .updateById(
+        MockCurrentUserSession.getCurrentUser(),
+        userId,
+        userView,
+        id
+      );
 
     // Act & Assert
     mockMvc
@@ -412,7 +428,12 @@ class TenantUserControllerTests {
     // Verify
     Mockito
       .verify(updateTenantUserService, Mockito.never())
-      .updateById(currentUser, userId, userView, id);
+      .updateById(
+        MockCurrentUserSession.getCurrentUser(),
+        userId,
+        userView,
+        id
+      );
   }
 
   @Test
@@ -422,12 +443,14 @@ class TenantUserControllerTests {
     UUID tenantId = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
 
-    CurrentUser currentUser = MockCurrentUserSession.getCurrentUser();
-
     Mockito
       .doNothing()
       .when(deleteTenantUserService)
-      .deleteUserById(currentUser, userId, tenantId);
+      .deleteUserById(
+        MockCurrentUserSession.getCurrentUser(),
+        userId,
+        tenantId
+      );
 
     // Act & Assert
     mockMvc
@@ -440,6 +463,10 @@ class TenantUserControllerTests {
     // Verify
     Mockito
       .verify(deleteTenantUserService, Mockito.times(1))
-      .deleteUserById(currentUser, userId, tenantId);
+      .deleteUserById(
+        MockCurrentUserSession.getCurrentUser(),
+        userId,
+        tenantId
+      );
   }
 }

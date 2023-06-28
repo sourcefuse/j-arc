@@ -4,10 +4,10 @@ import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.services.usertenantservice.controller.RoleUserTenantController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockRole;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
-import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
 import java.util.ArrayList;
@@ -133,12 +133,6 @@ class RoleUserTenantControllerTests {
           .content(JsonUtils.asJsonString(mockUserTenant))
       )
       .andExpect(MockMvcResultMatchers.status().isNotFound())
-      .andExpect(result ->
-        Assertions.assertEquals(
-          HttpStatus.NOT_FOUND.value(),
-          result.getResponse().getStatus()
-        )
-      )
       .andExpect(result ->
         Assertions.assertEquals(
           CommonConstants.NO_ROLE_PRESENT,

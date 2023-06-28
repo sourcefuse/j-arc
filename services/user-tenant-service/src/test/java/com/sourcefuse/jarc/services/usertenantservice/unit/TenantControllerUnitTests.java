@@ -56,7 +56,7 @@ class TenantControllerUnitTests {
   void testFindTenantById_Exists() {
     // Arrange
     Tenant expectedTenant = new Tenant(mockTenantID);
-    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
+    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
 
     Mockito
       .when(tenantRepository.findById(mockTenantID))
@@ -74,7 +74,7 @@ class TenantControllerUnitTests {
   @DisplayName("Should throw exception when tenant does not exist")
   void testFindTenantById_NotExists() {
     // Arrange
-    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
+    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
     Mockito
       .when(tenantRepository.findById(mockTenantID))
       .thenReturn(Optional.empty());
@@ -93,9 +93,11 @@ class TenantControllerUnitTests {
   )
   void testFindTenantById_NoAccessPermission() {
     // Arrange
-    MockCurrentUserSession
-      .getCurrentUser()
-      .setTenantId(MockTenantUser.INVALID_ID); // Different tenant ID than the one requested
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.INVALID_ID,
+      null,
+      null
+    ); // Different tenant ID than the one requested
 
     // Act and Assert
     ResponseStatusException exception = Assertions.assertThrows(
@@ -117,7 +119,7 @@ class TenantControllerUnitTests {
     targetTenant.setId(mockTenantID);
     targetTenant.setName("Original Tenant");
 
-    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
+    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
 
     Mockito
       .when(tenantRepository.findById(mockTenantID))
@@ -141,7 +143,7 @@ class TenantControllerUnitTests {
     Tenant sourceTenant = this.tenant;
     sourceTenant.setName("Updated Tenant");
 
-    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
+    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
     Mockito
       .when(tenantRepository.findById(mockTenantID))
       .thenReturn(Optional.empty());
@@ -163,9 +165,11 @@ class TenantControllerUnitTests {
     Tenant sourceTenant = new Tenant();
     sourceTenant.setName("Updated Tenant");
 
-    MockCurrentUserSession
-      .getCurrentUser()
-      .setTenantId(MockTenantUser.INVALID_ID);
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.INVALID_ID,
+      null,
+      null
+    );
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () -> tenantService.updateTenantsById(sourceTenant, mockTenantID)
@@ -180,7 +184,7 @@ class TenantControllerUnitTests {
   @Test
   @DisplayName("Delete Tenant by ID - Successful")
   void testDeleteTenantById_Success() {
-    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
+    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
 
     // Mocking the tenantRepository.deleteById method
     Mockito.doNothing().when(tenantRepository).deleteById(mockTenantID);
@@ -197,9 +201,11 @@ class TenantControllerUnitTests {
   void testDeleteTenantById_Forbidden() {
     UUID tenantId = MockTenantUser.TENANT_ID;
 
-    MockCurrentUserSession
-      .getCurrentUser()
-      .setTenantId(MockTenantUser.INVALID_ID);
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.INVALID_ID,
+      null,
+      null
+    );
     // Calling the deleteById method and expecting a ResponseStatusException
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
@@ -214,7 +220,7 @@ class TenantControllerUnitTests {
   @Test
   @DisplayName("Test getTenantConfig with valid tenantId")
   void testGetTenantConfigWithValidTenantId() {
-    MockCurrentUserSession.getCurrentUser().setTenantId(mockTenantID);
+    MockCurrentUserSession.setCurrentLoggedInUser(mockTenantID, null, null);
     // Mock the tenantConfigRepository
     List<TenantConfig> expectedConfigs = new ArrayList<>();
     Mockito
@@ -237,8 +243,7 @@ class TenantControllerUnitTests {
   @DisplayName("Test getTenantConfig with invalid tenantId")
   void testGetTenantConfigWithInvalidTenantId() {
     UUID otherTenantId = MockTenantUser.INVALID_ID;
-    MockCurrentUserSession.getCurrentUser().setTenantId(otherTenantId);
-
+    MockCurrentUserSession.setCurrentLoggedInUser(otherTenantId, null, null);
     // Call the method under test and assert that it throws an exception
     Assertions.assertThrows(
       ResponseStatusException.class,

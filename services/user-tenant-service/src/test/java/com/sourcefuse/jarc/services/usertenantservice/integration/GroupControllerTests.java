@@ -6,9 +6,9 @@ import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.services.usertenantservice.controller.GroupController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockGroup;
-import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import java.util.Arrays;
@@ -239,12 +239,6 @@ class GroupControllerTests {
       )
       .andExpect(result ->
         Assertions.assertEquals(
-          HttpStatus.NOT_FOUND.value(),
-          result.getResponse().getStatus()
-        )
-      )
-      .andExpect(result ->
-        Assertions.assertEquals(
           CommonConstants.NO_GRP_PRESENT,
           result.getResponse().getErrorMessage()
         )
@@ -309,12 +303,6 @@ class GroupControllerTests {
       .andExpect(result ->
         Assertions.assertTrue(
           result.getResolvedException() instanceof ResponseStatusException
-        )
-      )
-      .andExpect(result ->
-        Assertions.assertEquals(
-          HttpStatus.NOT_FOUND.value(),
-          result.getResponse().getStatus()
         )
       )
       .andExpect(result ->

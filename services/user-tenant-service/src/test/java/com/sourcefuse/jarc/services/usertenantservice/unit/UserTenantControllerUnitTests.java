@@ -54,10 +54,11 @@ class UserTenantControllerUnitTests {
   @Test
   @DisplayName("Get User Tenant by ID - Success")
   void testGetUserTenantByIdSuccess() throws Exception {
-    MockCurrentUserSession
-      .getCurrentUser()
-      .setTenantId(userTenant.getTenant().getId());
-    MockCurrentUserSession.getCurrentUser().setId(userTenant.getUser().getId());
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      userTenant.getTenant().getId(),
+      userTenant.getUser().getId(),
+      null
+    );
     // Mock the repository
     when(roleUserTenantRepository.findById(mockUserTenantId))
       .thenReturn(Optional.of(userTenant));
@@ -78,10 +79,11 @@ class UserTenantControllerUnitTests {
   @Test
   @DisplayName("Get User Tenant by ID - Forbidden")
   void testGetUserTenantByIdForbidden() throws Exception {
-    MockCurrentUserSession
-      .getCurrentUser()
-      .setTenantId(MockTenantUser.INVALID_ID);
-    MockCurrentUserSession.getCurrentUser().setId(userTenant.getUser().getId());
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.INVALID_ID,
+      userTenant.getUser().getId(),
+      null
+    );
     // Mock the repository
     when(roleUserTenantRepository.findById(mockUserTenantId))
       .thenReturn(Optional.of(userTenant));
@@ -99,10 +101,11 @@ class UserTenantControllerUnitTests {
   @Test
   @DisplayName("Get User Tenant by ID - User Not Found")
   void testGetUserTenantByIdNotFound() throws Exception {
-    MockCurrentUserSession
-      .getCurrentUser()
-      .setTenantId(userTenant.getTenant().getId());
-    MockCurrentUserSession.getCurrentUser().setId(userTenant.getUser().getId());
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      userTenant.getTenant().getId(),
+      userTenant.getUser().getId(),
+      null
+    );
     // Mock the repository
     when(roleUserTenantRepository.findById(mockUserTenantId))
       .thenReturn(Optional.empty());
