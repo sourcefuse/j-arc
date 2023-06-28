@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.unit;
 
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.User;
@@ -17,13 +18,6 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewReposit
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserServiceImpl;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +30,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @DisplayName("TenantUserController Unit Tests")
 class TenantUserControllerUnitTests {
@@ -214,14 +216,14 @@ class TenantUserControllerUnitTests {
     Mockito
       .when(userTenantRepository.save(ArgumentMatchers.any()))
       .thenReturn(MockTenantUser.getUserTenantObj());
-
+   CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         tenantUserService.create(
           userData,
-          MockCurrentUserSession.getCurrentUser(),
+                currentUser,
           options
         )
     );
@@ -252,12 +254,14 @@ class TenantUserControllerUnitTests {
     Map<String, String> options = new HashMap<>();
     // Mock necessary repository methods
     // Act
+    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
+
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         tenantUserService.create(
           userData,
-          MockCurrentUserSession.getCurrentUser(),
+          currentUser,
           options
         )
     );
@@ -290,12 +294,13 @@ class TenantUserControllerUnitTests {
       .when(roleRepository.findById(userData.getRoleId()))
       .thenReturn(Optional.empty());
     // Act
+    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         tenantUserService.create(
           userData,
-          MockCurrentUserSession.getCurrentUser(),
+          currentUser,
           options
         )
     );
@@ -560,11 +565,14 @@ class TenantUserControllerUnitTests {
 
     UserView userView = MockTenantUser.getUserViewObj();
     userView.setUsername("new username");
+
+    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
+
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         updateTenantUserService.updateById(
-          MockCurrentUserSession.getCurrentUser(),
+          currentUser,
           userId,
           userView,
           tenantId
@@ -604,11 +612,14 @@ class TenantUserControllerUnitTests {
 
     UserView userView = MockTenantUser.getUserViewObj();
     userView.setUsername("new username");
+
+    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
+
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         updateTenantUserService.updateById(
-          MockCurrentUserSession.getCurrentUser(),
+          currentUser,
           userId,
           userView,
           tenantId
@@ -645,11 +656,14 @@ class TenantUserControllerUnitTests {
 
     UserView userView = MockTenantUser.getUserViewObj();
     userView.setUsername("new username");
+
+    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
+
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         updateTenantUserService.updateById(
-          MockCurrentUserSession.getCurrentUser(),
+          currentUser,
           userId,
           userView,
           tenantId
@@ -692,11 +706,14 @@ class TenantUserControllerUnitTests {
 
     UserView userView = MockTenantUser.getUserViewObj();
     userView.setUsername("new username");
+
+    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
+
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         updateTenantUserService.updateById(
-          MockCurrentUserSession.getCurrentUser(),
+          currentUser,
           userId,
           userView,
           tenantId
@@ -759,12 +776,14 @@ class TenantUserControllerUnitTests {
       )
       .thenReturn(Optional.empty());
 
+    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
+
     // Act & Assert
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         deleteTenantUserService.deleteUserById(
-          MockCurrentUserSession.getCurrentUser(),
+          currentUser,
           userId,
           tenantId
         )
@@ -838,12 +857,14 @@ class TenantUserControllerUnitTests {
       userId,
       null
     );
+    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
+
     // Act & Assert
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         deleteTenantUserService.deleteUserById(
-          MockCurrentUserSession.getCurrentUser(),
+          currentUser,
           userId,
           tenantId
         )

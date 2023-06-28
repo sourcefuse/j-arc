@@ -1,6 +1,5 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.controller.TenantUserController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
@@ -364,12 +363,11 @@ class TenantUserControllerTests {
 
     MockCurrentUserSession.setCurrentLoggedInUser(null, id, null);
 
-   CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
     Mockito
       .doNothing()
       .when(updateTenantUserService)
       .updateById(
-              currentUser,
+        MockCurrentUserSession.getCurrentUser(),
         userId,
         userView,
         id
@@ -390,7 +388,7 @@ class TenantUserControllerTests {
     Mockito
       .verify(updateTenantUserService, Mockito.times(1))
       .updateById(
-        currentUser,
+        MockCurrentUserSession.getCurrentUser(),
         userId,
         userView,
         id
@@ -407,13 +405,12 @@ class TenantUserControllerTests {
     userView.setUsername("new username");
 
     MockCurrentUserSession.setCurrentLoggedInUser(null, userId, null);
-    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
 
     Mockito
       .doNothing()
       .when(updateTenantUserService)
       .updateById(
-        currentUser,
+        MockCurrentUserSession.getCurrentUser(),
         userId,
         userView,
         id
@@ -429,12 +426,11 @@ class TenantUserControllerTests {
       )
       .andExpect(MockMvcResultMatchers.status().isForbidden());
 
-
     // Verify
     Mockito
       .verify(updateTenantUserService, Mockito.never())
       .updateById(
-        currentUser,
+        MockCurrentUserSession.getCurrentUser(),
         userId,
         userView,
         id
@@ -447,12 +443,12 @@ class TenantUserControllerTests {
     // Arrange
     UUID tenantId = MockTenantUser.TENANT_ID;
     UUID userId = MockTenantUser.USER_ID;
-    CurrentUser currentUser= MockCurrentUserSession.getCurrentUser();
+
     Mockito
       .doNothing()
       .when(deleteTenantUserService)
       .deleteUserById(
-        currentUser,
+        MockCurrentUserSession.getCurrentUser(),
         userId,
         tenantId
       );
@@ -469,7 +465,7 @@ class TenantUserControllerTests {
     Mockito
       .verify(deleteTenantUserService, Mockito.times(1))
       .deleteUserById(
-        currentUser,
+        MockCurrentUserSession.getCurrentUser(),
         userId,
         tenantId
       );
