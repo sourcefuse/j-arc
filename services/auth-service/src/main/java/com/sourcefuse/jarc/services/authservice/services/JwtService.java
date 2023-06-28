@@ -1,10 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.authlib.providers.JwtTokenDecryptProvider;
 import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
@@ -27,8 +22,11 @@ import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 @RequiredArgsConstructor
 @Service
@@ -56,75 +54,82 @@ public class JwtService {
         .orElseThrow(() ->
           new CommonRuntimeException(
             HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.CLIENT_INVALID.toString()));
+            AuthErrorKeys.CLIENT_INVALID.toString()
+          )
+        );
 
     User user = userRepository
-        .findById(currentUser.getId())
-        .orElseThrow(this::throwUserDoesNotExistException);
+      .findById(currentUser.getId())
+      .orElseThrow(this::throwUserDoesNotExistException);
 
     UserTenant userTenant = userTenantRepository
-        .findById(currentUser.getUserTenantId())
-        .orElseThrow(this::throwUserDoesNotExistException);
+      .findById(currentUser.getUserTenantId())
+      .orElseThrow(this::throwUserDoesNotExistException);
 
     Role role = roleRepository
-        .findById(currentUser.getRoleId())
-        .orElseThrow(this::throwUserDoesNotExistException);
+      .findById(currentUser.getRoleId())
+      .orElseThrow(this::throwUserDoesNotExistException);
 
-    return this.jwtTokenProvider.createJwt(
-        user,
-        userTenant,
-        role,
-        authClient);
+    return this.jwtTokenProvider.createJwt(user, userTenant, role, authClient);
   }
 
   public JWTAuthResponse refreshToken(
-      String authorizationHeader,
-      RefreshTokenDTO refreshTokenDTO) {
+    String authorizationHeader,
+    RefreshTokenDTO refreshTokenDTO
+  ) {
     String accessToken = authorizationHeader.split(" ")[1];
     RefreshTokenRedis refreshTokenRedis = jwtRedisService.getRefreshTokenRedis(
-        refreshTokenDTO.getRefreshToken().toString(),
-        accessToken);
+      refreshTokenDTO.getRefreshToken().toString(),
+      accessToken
+    );
     AuthClient client = authClientRepository
-        .findOne(
-            AuthClientSpecification.byClientId(refreshTokenRedis.getClientId()))
-        .orElseThrow(() -> new HttpServerErrorException(
-            HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.CLIENT_INVALID.toString()));
+      .findOne(
+        AuthClientSpecification.byClientId(refreshTokenRedis.getClientId())
+      )
+      .orElseThrow(() ->
+        new HttpServerErrorException(
+          HttpStatus.UNAUTHORIZED,
+          AuthErrorKeys.CLIENT_INVALID.toString()
+        )
+      );
     CurrentUser currentUser = (CurrentUser) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
+      .getContext()
+      .getAuthentication()
+      .getPrincipal();
 
     jwtRedisService.setWithTtl(
-        accessToken,
-        new RevokedTokenRedis(accessToken, accessToken),
-        client.getRefreshTokenExpiration());
+      accessToken,
+      new RevokedTokenRedis(accessToken, accessToken),
+      client.getRefreshTokenExpiration()
+    );
     this.jwtRedisService.deleteRedisKeyById(refreshTokenRedis.getId());
     return this.createJwt(refreshTokenRedis, client, currentUser);
   }
 
   JWTAuthResponse createJwt(
-      RefreshTokenRedis refreshTokenRedis,
-      AuthClient client,
-      CurrentUser currentUser) {
+    RefreshTokenRedis refreshTokenRedis,
+    AuthClient client,
+    CurrentUser currentUser
+  ) {
     User user = userRepository
-        .findById(refreshTokenRedis.getUserId())
-        .orElseThrow(this::throwUserDoesNotExistException);
+      .findById(refreshTokenRedis.getUserId())
+      .orElseThrow(this::throwUserDoesNotExistException);
 
     UserTenant userTenant = userTenantRepository
-        .findById(currentUser.getUserTenantId())
-        .orElseThrow(this::throwUserDoesNotExistException);
+      .findById(currentUser.getUserTenantId())
+      .orElseThrow(this::throwUserDoesNotExistException);
 
     Role role = roleRepository
-        .findById(currentUser.getRoleId())
-        .orElseThrow(this::throwUserDoesNotExistException);
+      .findById(currentUser.getRoleId())
+      .orElseThrow(this::throwUserDoesNotExistException);
 
     return jwtTokenProvider.createJwt(user, userTenant, role, client);
   }
 
   HttpServerErrorException throwUserDoesNotExistException() {
     return new HttpServerErrorException(
-        HttpStatus.UNAUTHORIZED,
-        AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString());
+      HttpStatus.UNAUTHORIZED,
+      AuthenticateErrorKeys.USER_DOES_NOT_EXISTS.toString()
+    );
   }
 }

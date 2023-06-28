@@ -40,41 +40,51 @@ public class KeycloakController {
 
   @GetMapping("/auth-redirect-callback")
   public void authRedirectCallback(
-      @Valid @RequestParam("code") String code,
-      @Valid @RequestParam("state") String state,
-      HttpServletResponse httpServletResponse) {
+    @Valid @RequestParam("code") String code,
+    @Valid @RequestParam("state") String state,
+    HttpServletResponse httpServletResponse
+  ) {
     String authClientId = state.split("=")[1];
     AuthClient authClient = authClientRepository
-        .findOne(AuthClientSpecification.byClientId(authClientId))
-        .orElseThrow(() -> new HttpServerErrorException(
-            HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.CLIENT_INVALID.toString()));
-    CodeResponse codeResponse = this.keycloakAuthService.login(code, authClient);
+      .findOne(AuthClientSpecification.byClientId(authClientId))
+      .orElseThrow(() ->
+        new HttpServerErrorException(
+          HttpStatus.UNAUTHORIZED,
+          AuthErrorKeys.CLIENT_INVALID.toString()
+        )
+      );
+    CodeResponse codeResponse =
+      this.keycloakAuthService.login(code, authClient);
     httpServletResponse.setHeader(
-        "Location",
-        java.text.MessageFormat.format(
-            "{0}?code={1}",
-            authClient.getRedirectUrl(),
-            codeResponse.getCode()));
+      "Location",
+      java.text.MessageFormat.format(
+        "{0}?code={1}",
+        authClient.getRedirectUrl(),
+        codeResponse.getCode()
+      )
+    );
     httpServletResponse.setStatus(HttpStatus.FOUND.value());
   }
 
   @PostMapping("/login")
   public void keycloak(
-      HttpServletResponse httpServletResponse,
-      @Valid @RequestBody ClientDTO clientDTO) {
+    HttpServletResponse httpServletResponse,
+    @Valid @RequestBody ClientDTO clientDTO
+  ) {
     String redirectUrlWithParam = java.text.MessageFormat.format(
-        "{0}&state=auth_client_id={1}",
-        redirectUrl,
-        clientDTO.getClientId());
+      "{0}&state=auth_client_id={1}",
+      redirectUrl,
+      clientDTO.getClientId()
+    );
 
-    String location = keycloakUrl +
-        "?response_type=code&client_id=" +
-        clientId +
-        "&scope=openid&redirect_uri=" +
-        redirectUrlWithParam +
-        "&auth_client_id=" +
-        clientDTO.getClientId();
+    String location =
+      keycloakUrl +
+      "?response_type=code&client_id=" +
+      clientId +
+      "&scope=openid&redirect_uri=" +
+      redirectUrlWithParam +
+      "&auth_client_id=" +
+      clientDTO.getClientId();
     httpServletResponse.setHeader("Location", location);
     httpServletResponse.setStatus(HttpStatus.FOUND.value());
   }

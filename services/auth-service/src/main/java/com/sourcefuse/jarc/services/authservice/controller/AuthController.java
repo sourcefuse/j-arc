@@ -36,47 +36,60 @@ public class AuthController {
 
   @PostMapping(value = { "/login" })
   public ResponseEntity<CodeResponse> login(
-      @Valid @RequestBody LoginDto loginDto) {
-    AuthClient client = this.clientPasswordVerifyProvider.value(
-        loginDto.getClientId(),
-        loginDto.getClientSecret());
-    UserVerificationDTO userVerificationDTO = this.resourceOwnerVerifyProvider.provide(loginDto);
+    @Valid @RequestBody LoginDto loginDto
+  ) {
+    AuthClient client =
+      this.clientPasswordVerifyProvider.value(
+          loginDto.getClientId(),
+          loginDto.getClientSecret()
+        );
+    UserVerificationDTO userVerificationDTO =
+      this.resourceOwnerVerifyProvider.provide(loginDto);
 
     CodeResponse codeResponse = authService.login(
-        loginDto,
-        client,
-        userVerificationDTO.getAuthUser());
+      loginDto,
+      client,
+      userVerificationDTO.getAuthUser()
+    );
     return ResponseEntity.ok(codeResponse);
   }
 
   @PostMapping(value = { "/login-token" })
   public ResponseEntity<JWTAuthResponse> loginToken(
-      @Valid @RequestBody LoginDto loginDto) {
-    AuthClient client = this.clientPasswordVerifyProvider.value(
-        loginDto.getClientId(),
-        loginDto.getClientSecret());
-    UserVerificationDTO userVerificationDTO = this.resourceOwnerVerifyProvider.provide(loginDto);
+    @Valid @RequestBody LoginDto loginDto
+  ) {
+    AuthClient client =
+      this.clientPasswordVerifyProvider.value(
+          loginDto.getClientId(),
+          loginDto.getClientSecret()
+        );
+    UserVerificationDTO userVerificationDTO =
+      this.resourceOwnerVerifyProvider.provide(loginDto);
     JWTAuthResponse jwtAuthResponse = authService.loginToken(
-        loginDto,
-        client,
-        userVerificationDTO.getAuthUser());
+      loginDto,
+      client,
+      userVerificationDTO.getAuthUser()
+    );
     return ResponseEntity.ok(jwtAuthResponse);
   }
 
   @PostMapping("/token-refresh")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<JWTAuthResponse> exchangeToken(
-      @Valid @RequestBody RefreshTokenDTO refreshTokenDTO,
-      @RequestHeader("Authorization") String authorizationHeader) {
+    @Valid @RequestBody RefreshTokenDTO refreshTokenDTO,
+    @RequestHeader("Authorization") String authorizationHeader
+  ) {
     JWTAuthResponse jwtAuthResponse = jwtService.refreshToken(
-        authorizationHeader,
-        refreshTokenDTO);
+      authorizationHeader,
+      refreshTokenDTO
+    );
     return ResponseEntity.ok(jwtAuthResponse);
   }
 
   @PostMapping("/token")
   public JWTAuthResponse getTokenByCode(
-      @Valid @RequestBody AuthTokenRequest authTokenRequest) {
+    @Valid @RequestBody AuthTokenRequest authTokenRequest
+  ) {
     return this.jwtService.getTokenByCode(authTokenRequest);
   }
 
@@ -84,8 +97,8 @@ public class AuthController {
   @PreAuthorize("isAuthenticated()")
   public CurrentUser getAuthenticatedCurrentUser() {
     return (CurrentUser) SecurityContextHolder
-        .getContext()
-        .getAuthentication()
-        .getPrincipal();
+      .getContext()
+      .getAuthentication()
+      .getPrincipal();
   }
 }

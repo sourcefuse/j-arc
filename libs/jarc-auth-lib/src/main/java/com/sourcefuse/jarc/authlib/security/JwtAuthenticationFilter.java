@@ -1,11 +1,15 @@
-
 package com.sourcefuse.jarc.authlib.security;
 
+import com.sourcefuse.jarc.authlib.providers.JwtTokenDecryptProvider;
+import com.sourcefuse.jarc.core.models.session.CurrentUser;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.sourcefuse.jarc.authlib.providers.JwtTokenDecryptProvider;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,14 +18,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.sourcefuse.jarc.core.models.session.CurrentUser;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @Component
@@ -32,9 +28,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(
-      HttpServletRequest request,
-      HttpServletResponse response,
-      FilterChain filterChain) throws ServletException, IOException {
+    HttpServletRequest request,
+    HttpServletResponse response,
+    FilterChain filterChain
+  ) throws ServletException, IOException {
     String token = getTokenFromRequest(request);
     if (StringUtils.hasText(token)) {
       CurrentUser user = jwtTokenProvider.getUserDetails(token);
@@ -43,12 +40,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         listAuthorities.add(new SimpleGrantedAuthority(permission));
       }
       UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-          user,
-          null,
-          listAuthorities);
+        user,
+        null,
+        listAuthorities
+      );
 
       authenticationToken.setDetails(
-          new WebAuthenticationDetailsSource().buildDetails(request));
+        new WebAuthenticationDetailsSource().buildDetails(request)
+      );
 
       SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }

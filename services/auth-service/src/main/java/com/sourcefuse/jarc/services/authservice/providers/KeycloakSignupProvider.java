@@ -23,37 +23,42 @@ import org.springframework.web.client.HttpServerErrorException;
 @Component
 public class KeycloakSignupProvider {
 
-    private final TenantRepository tenantRepository;
-    private final UserService userService;
-    private final RoleRepository roleRepository;
+  private final TenantRepository tenantRepository;
+  private final UserService userService;
+  private final RoleRepository roleRepository;
 
-    public Optional<User> provide(KeycloakUserDTO keycloakUserDTO) {
-        Optional<Tenant> tenant = this.tenantRepository.findOne(TenantSpecification.byKey("master"));
-        if (tenant.isEmpty()) {
-            throw new HttpServerErrorException(
-                    HttpStatus.UNAUTHORIZED,
-                    AuthErrorKeys.INVALID_CREDENTIALS.toString());
-        }
-        Optional<Role> defaultRole = this.roleRepository.findOne(
-                RoleSpecification.byRoleType(RoleKey.DEFAULT));
-        if (defaultRole.isEmpty()) {
-            throw new HttpServerErrorException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Role not found");
-        }
-        User userToCreate = new User();
-        userToCreate.setUsername(keycloakUserDTO.getPreferredUsername());
-        userToCreate.setFirstName(keycloakUserDTO.getGivenName());
-        userToCreate.setLastName(keycloakUserDTO.getFamilyName());
-        userToCreate.setEmail(keycloakUserDTO.getEmail());
-
-        RegisterDto registerDto = new RegisterDto();
-        registerDto.setAuthProvider(AuthProvider.KEYCLOAK);
-        registerDto.setDefaultTenantId(tenant.get().getId());
-        registerDto.setUser(userToCreate);
-        registerDto.setAuthId(keycloakUserDTO.getPreferredUsername());
-        registerDto.setRoleId(defaultRole.get().getId());
-
-        return Optional.ofNullable(this.userService.register(registerDto));
+  public Optional<User> provide(KeycloakUserDTO keycloakUserDTO) {
+    Optional<Tenant> tenant =
+      this.tenantRepository.findOne(TenantSpecification.byKey("master"));
+    if (tenant.isEmpty()) {
+      throw new HttpServerErrorException(
+        HttpStatus.UNAUTHORIZED,
+        AuthErrorKeys.INVALID_CREDENTIALS.toString()
+      );
     }
+    Optional<Role> defaultRole =
+      this.roleRepository.findOne(
+          RoleSpecification.byRoleType(RoleKey.DEFAULT)
+        );
+    if (defaultRole.isEmpty()) {
+      throw new HttpServerErrorException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        "Role not found"
+      );
+    }
+    User userToCreate = new User();
+    userToCreate.setUsername(keycloakUserDTO.getPreferredUsername());
+    userToCreate.setFirstName(keycloakUserDTO.getGivenName());
+    userToCreate.setLastName(keycloakUserDTO.getFamilyName());
+    userToCreate.setEmail(keycloakUserDTO.getEmail());
+
+    RegisterDto registerDto = new RegisterDto();
+    registerDto.setAuthProvider(AuthProvider.KEYCLOAK);
+    registerDto.setDefaultTenantId(tenant.get().getId());
+    registerDto.setUser(userToCreate);
+    registerDto.setAuthId(keycloakUserDTO.getPreferredUsername());
+    registerDto.setRoleId(defaultRole.get().getId());
+
+    return Optional.ofNullable(this.userService.register(registerDto));
+  }
 }

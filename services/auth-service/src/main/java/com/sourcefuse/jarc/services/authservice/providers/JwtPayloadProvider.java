@@ -4,7 +4,6 @@ import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,6 +26,5 @@ public class JwtPayloadProvider {
     currentUser.setDefaultTenantId(user.getDefaultTenantId());
     currentUser.setRoleType(role.getRoleType());
     return currentUser;
-
   }
 }
