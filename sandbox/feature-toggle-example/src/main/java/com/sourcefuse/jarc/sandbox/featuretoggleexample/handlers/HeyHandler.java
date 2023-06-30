@@ -1,16 +1,16 @@
 package com.sourcefuse.jarc.sandbox.featuretoggleexample.handlers;
 
+import com.sourcefuse.jarc.services.featuretoggleservice.annotation.FeatureHandlers;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.sourcefuse.jarc.services.featuretoggleservice.annotation.FeatureHandlers;
-
+@Slf4j
 @Component
-public class HeyHandler implements FeatureHandlers{
+public class HeyHandler implements FeatureHandlers {
 
-	@Override
-	public boolean handle() {
-		System.out.println("inside the hey handler");
-		return true;
-	}
-
+  @Override
+  public boolean handle() {
+    log.info("This is inside a handler");
+    return true;
+  }
 }

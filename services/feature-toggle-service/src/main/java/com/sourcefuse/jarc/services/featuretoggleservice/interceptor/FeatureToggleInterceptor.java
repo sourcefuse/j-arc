@@ -29,7 +29,7 @@ public class FeatureToggleInterceptor {
   ) throws Throwable {
     FeatureContext.clearCache();
     if (convertEnumImpl == null) {
-      throw new NullPointerException(
+      throw new IllegalArgumentException(
         "Provide an implementation for ConvertEnum"
       );
     }

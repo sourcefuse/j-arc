@@ -44,7 +44,7 @@ public class TenantLevelActivationStrategy implements ActivationStrategy {
         Strings.isNotBlank(currUser.getTenantId().toString())
       ) {
         String currUserTenantId = currUser.getTenantId().toString();
-        return tenantList.contains(currUserTenantId) ? true : false;
+        return tenantList.contains(currUserTenantId);
       }
     }
     return false;
