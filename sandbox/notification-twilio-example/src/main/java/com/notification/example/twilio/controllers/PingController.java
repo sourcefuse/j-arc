@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PingController {
 
   @GetMapping
-  public ResponseEntity<String> ping()
-    throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+  public ResponseEntity<String> ping() {
     return new ResponseEntity<>("ping success", HttpStatus.OK);
   }
 }
