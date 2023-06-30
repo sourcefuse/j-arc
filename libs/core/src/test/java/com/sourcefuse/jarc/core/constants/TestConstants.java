@@ -33,6 +33,15 @@ public class TestConstants {
   }
 
   public static void setCurrentLoggedInUser() {
+    CurrentUser currentUser = createMockCurrentUser();
+    // Create an authentication object with the dummy user and set it in the
+    // SecurityContext
+    UsernamePasswordAuthenticationToken auth =
+      new UsernamePasswordAuthenticationToken(currentUser, null, null);
+    SecurityContextHolder.getContext().setAuthentication(auth);
+  }
+
+  public static CurrentUser createMockCurrentUser() {
     // Create a dummy user object
     CurrentUser currentUser = new CurrentUser();
     currentUser.setId(mockUserId);
@@ -41,10 +50,6 @@ public class TestConstants {
     currentUser.setEmail("dummy.user@example.com");
     currentUser.setUsername("dummy.user@example.com");
 
-    // Create an authentication object with the dummy user and set it in the
-    // SecurityContext
-    UsernamePasswordAuthenticationToken auth =
-      new UsernamePasswordAuthenticationToken(currentUser, null, null);
-    SecurityContextHolder.getContext().setAuthentication(auth);
+    return currentUser;
   }
 }

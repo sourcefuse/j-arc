@@ -30,6 +30,11 @@
 		<module>services/feature-toggle-service</module>
 		<module>services/notification-service</module>
 		<module>services/user-tenant-service</module>
+		
+		<module>sandbox/notification-javamailer-example</module>
+		<module>sandbox/notification-pubnub-example</module>
+		<module>sandbox/notification-twilio-example</module>
+		<module>sandbox/audit-service-example</module>
 	</modules>
 
 	<build>

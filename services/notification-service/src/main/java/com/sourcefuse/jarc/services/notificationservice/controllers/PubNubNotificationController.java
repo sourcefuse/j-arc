@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.notificationservice.controllers;
 
+import com.sourcefuse.jarc.core.constants.NotificationPermissions;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.notificationservice.dtos.AccessResponse;
 import com.sourcefuse.jarc.services.notificationservice.dtos.SuccessResponse;
@@ -9,6 +10,7 @@ import com.sourcefuse.jarc.services.notificationservice.providers.push.pubnub.ty
 import com.sourcefuse.jarc.services.notificationservice.repositories.redis.NotificationAccessRepository;
 import com.sourcefuse.jarc.services.notificationservice.types.Config;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -29,6 +31,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/notifications/access/{id}")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class PubNubNotificationController {
 
   @Nullable
@@ -41,7 +44,11 @@ public class PubNubNotificationController {
 
   @Operation(summary = "grant access of notification to user")
   @PatchMapping
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    NotificationPermissions.CAN_GET_NOTIFICATION_ACCESS +
+    "')"
+  )
   public ResponseEntity<AccessResponse> grantAccess(
     @Valid @RequestBody NotificationAccess notification,
     @PathVariable("id") UUID userId,

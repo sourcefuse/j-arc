@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "swagger.auth.username",
+    "type": "java.lang.String",
+    "description": "Username to access Swagger UI"
+  },
+  {
+    "name": "swagger.auth.password",
+    "type": "java.lang.String",
+    "description": "Password to access Swagger UI"
+  }
+]}
