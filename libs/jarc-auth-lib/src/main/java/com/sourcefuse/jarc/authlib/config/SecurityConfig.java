@@ -18,6 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+  private static final String SWAGGER_ROLE = "SWAGGER";
+
   @Value("${springdoc.swagger-ui.path:/swagger-ui}")
   String swaggerUiPath;
 
@@ -29,8 +31,6 @@ public class SecurityConfig {
 
   @Value("${swagger.auth.password:#{null}}")
   String swaggerPassword;
-
-  private static final String SWAGGER_ROLE = "SWAGGER";
 
   private final JwtAuthenticationFilter authenticationFilter;
 
