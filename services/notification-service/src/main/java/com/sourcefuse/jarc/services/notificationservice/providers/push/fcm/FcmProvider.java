@@ -217,9 +217,9 @@ public class FcmProvider implements PushNotification {
       .build();
 
     /**
-     * Message attributes for all kinds of messages If android configurations are
-     * sent in options, it will take the precedence over normal notification
-     *
+     * Message attributes for all kinds of messages,
+     * If android configurations are sent in options,
+     * it will take the precedence over normal notification
      */
     final ObjectMapper mapper = new ObjectMapper();
     return GeneralMessage
@@ -261,11 +261,10 @@ public class FcmProvider implements PushNotification {
 
     /**
      * This method is responsible to send all the required data to mobile
-     * application The mobile device will recieve push notification. Push will be
-     * sent to the devices with registration token sent in receiver Notification
-     * object holds title, body and imageUrl FCM message must contain 2 attributes,
-     * i.e title and body
-     *
+     * application The mobile device will receive push notification. Push 
+     * will be sent to the devices with registration token sent in receiver
+     * Notification object holds title, body and imageUrl FCM message must
+     * contain 2 attributes, i.e title and body
      */
     GeneralMessage generalMessageObj = createGeneralMessage(message);
     try {

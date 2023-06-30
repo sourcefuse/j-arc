@@ -106,7 +106,8 @@ public class NotificationNotificationuserController {
   }
 
   @Operation(
-    summary = "mark notification as read for given notification id and notification user id"
+    summary = "mark notification as read for given notification id"
+    		+ " and notification user id"
   )
   @PatchMapping("/{notificationUserId}/mark-as-read")
   @PreAuthorize("isAuthenticated()")
