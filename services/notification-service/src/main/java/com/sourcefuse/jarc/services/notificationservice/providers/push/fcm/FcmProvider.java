@@ -261,7 +261,7 @@ public class FcmProvider implements PushNotification {
 
     /**
      * This method is responsible to send all the required data to mobile
-     * application The mobile device will receive push notification. Push 
+     * application The mobile device will receive push notification. Push
      * will be sent to the devices with registration token sent in receiver
      * Notification object holds title, body and imageUrl FCM message must
      * contain 2 attributes, i.e title and body
