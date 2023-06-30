@@ -1,6 +1,10 @@
 package com.sourcefuse.jarc.core.models.audit;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sourcefuse.jarc.core.enums.AuditActions;
+import com.sourcefuse.jarc.core.serializers.JsonBDeserializer;
+import com.sourcefuse.jarc.core.serializers.JsonBSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -55,9 +59,13 @@ public class AuditLog {
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
+  @JsonSerialize(using = JsonBSerializer.class)
+  @JsonDeserialize(using = JsonBDeserializer.class)
   private Object before;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
+  @JsonSerialize(using = JsonBSerializer.class)
+  @JsonDeserialize(using = JsonBDeserializer.class)
   private Object after;
 }
