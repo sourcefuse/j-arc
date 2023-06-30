@@ -14,15 +14,11 @@ public class TwilioConfig implements TwilioConnectionConfig {
   @Value("${twilio.whatsapp-from}")
   String whatsappFrom;
 
-  private TwilioConfig(
+  public TwilioConfig(
     @Value("${twilio.account-sid}") String accountSid,
     @Value("${twilio.auth-token}") String authToken
   ) {
-    try {
-      Twilio.init(accountSid, authToken);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    Twilio.init(accountSid, authToken);
   }
 
   @Override

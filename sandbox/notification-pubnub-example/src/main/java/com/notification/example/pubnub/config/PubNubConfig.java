@@ -17,7 +17,7 @@ public class PubNubConfig implements PubNubConnectionConfig {
   @Value("${pubnub.apns2.bundle-id:}")
   String pubnunApns2BundleId;
 
-  private PubNubConfig(
+  public PubNubConfig(
     @Value("${pubnub.publish-key}") String publishKey,
     @Value("${pubnub.subscribe-key}") String subscribeKey,
     @Value("${pubnub.secrete-key}") String secreteKey,

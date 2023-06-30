@@ -28,6 +28,10 @@ public class JavaMailerConfig implements MailConnectionConfig {
   @Value("${notification.config.send-to-multiple-receivers:#{false}}")
   private Boolean sendToMultipleReceivers;
 
+  public JavaMailerConfig() {
+    //  for sonar
+  }
+
   private JavaMailSender javaMailSender() {
     JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
     mailSender.setHost(host);
