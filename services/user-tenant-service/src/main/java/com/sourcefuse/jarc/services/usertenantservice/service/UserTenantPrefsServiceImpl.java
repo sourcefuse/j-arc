@@ -5,11 +5,10 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenantPrefs;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantPrefsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantPrefsSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
