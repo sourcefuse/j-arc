@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
   {
     "com.sourcefuse.jarc.services.featuretoggleservice",
     "com.sourcefuse.jarc.core",
-    "com.sourcefuse.jarc.services.authservice",
+    "com.sourcefuse.jarc.services.authservice"
   }
 )
 @EnableJpaRepositories(repositoryBaseClass = SoftDeletesRepositoryImpl.class)

@@ -31,6 +31,6 @@ public class SystemLevelActivationStrategy implements ActivationStrategy {
 
   @Override
   public Parameter[] getParameters() {
-    return null;
+    return new Parameter[0];
   }
 }

@@ -17,7 +17,8 @@ public class UserTenantLevelActivationStrategy implements ActivationStrategy {
 
   private static final StrategyEnums ID = StrategyEnums.USER_TENANT;
   private static final StrategyEnums NAME = StrategyEnums.USER_TENANT;
-  private static final String USER_TENANT_PARAMETER = StrategyEnums.USER_TENANT.toString();
+  private static final String USER_TENANT_PARAMETER =
+    StrategyEnums.USER_TENANT.toString();
 
   @Override
   public String getId() {
@@ -60,7 +61,7 @@ public class UserTenantLevelActivationStrategy implements ActivationStrategy {
         .create(USER_TENANT_PARAMETER)
         .label("UserTenants")
         .largeText()
-        .description("List of user tenant for which the fetaure is active"),
+        .description("List of user tenant for which the fetaure is active")
     };
   }
 }

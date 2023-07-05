@@ -1,20 +1,17 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpServerErrorException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.models.JwtTokenRedis;
 import com.sourcefuse.jarc.services.authservice.models.RefreshTokenRedis;
-
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
 
 @RequiredArgsConstructor
 @Component
@@ -23,9 +20,8 @@ public class JwtRedisService {
   private final RedisTemplate<String, Object> redisTemplate;
 
   JwtTokenRedis getJwtTokenRedis(String code) {
-    JwtTokenRedis jwtTokenObject = 
-      (JwtTokenRedis) this.redisTemplate.opsForValue()
-      .get(code);
+    JwtTokenRedis jwtTokenObject =
+      (JwtTokenRedis) this.redisTemplate.opsForValue().get(code);
     if (jwtTokenObject == null) {
       throw new CommonRuntimeException(
         HttpStatus.UNAUTHORIZED,
@@ -39,9 +35,8 @@ public class JwtRedisService {
     String refreshToken,
     String accessToken
   ) {
-    RefreshTokenRedis refreshTokenRedis = 
-      (RefreshTokenRedis) this.redisTemplate.opsForValue()
-      .get(refreshToken);
+    RefreshTokenRedis refreshTokenRedis =
+      (RefreshTokenRedis) this.redisTemplate.opsForValue().get(refreshToken);
     if (
       refreshTokenRedis == null ||
       !accessToken.equals(refreshTokenRedis.getExternalAuthToken())
@@ -58,10 +53,10 @@ public class JwtRedisService {
       RefreshTokenRedis.class
     );
   }
+
   void deleteRedisKeyById(String key) {
     this.redisTemplate.delete(key);
   }
-
 
   public void setWithTtl(String key, Object value, long ttl) {
     ValueOperations<String, Object> ops = redisTemplate.opsForValue();
