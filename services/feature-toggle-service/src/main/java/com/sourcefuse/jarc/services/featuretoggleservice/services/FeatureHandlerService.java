@@ -15,6 +15,11 @@ public class FeatureHandlerService {
   private final List<FeatureHandlers> featureHandler;
 
   public boolean featureHandle(FeatureToggle featureToggle) {
+    if (featureHandler == null) {
+      throw new IllegalArgumentException(
+        "Provide an implementation for ConvertEnum"
+      );
+    }
     for (int i = 0; i < featureHandler.size(); i++) {
       FeatureHandlers h = featureHandler.get(i);
       if (h.getClass().getName().equalsIgnoreCase(featureToggle.handler())) {
