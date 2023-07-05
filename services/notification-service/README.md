@@ -475,6 +475,10 @@ Do not forget to set Application properties. The examples below show a common co
 | notification.provider.email | N |  | Email Notification provider provided by us. values can be SesProvider, JavaMailerProvider. |
 | notification.provider.push | N |  | Push Notification provider provided by us. values can be FcmProvider, PubNubProvider, SocketIoProvider. |
 | notification.provider.sms | N |  | SMS Notification provider provided by us. values can be SnsProvider, TwilioProvider. |
+| app.jwt-secret | Y |  | JWT Secrete should be in Base64 Format |
+| app-jwt-expiration-milliseconds | Y |  | JWT token expiration in milliseconds |
+| swagger.auth.username | Y |  | Username for accessing swagger URL's |
+| swagger.auth.password | Y |  | Password for accessing swagger URL's |
 
 ### Create Notification Payload Structures
 
