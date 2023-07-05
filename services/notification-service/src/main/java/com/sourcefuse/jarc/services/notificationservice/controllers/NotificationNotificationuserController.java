@@ -1,6 +1,7 @@
 package com.sourcefuse.jarc.services.notificationservice.controllers;
 
 import com.sourcefuse.jarc.core.constants.NotificationPermissions;
+import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.notificationservice.models.Notification;
 import com.sourcefuse.jarc.services.notificationservice.models.NotificationUser;
@@ -160,7 +161,7 @@ public class NotificationNotificationuserController {
     NotificationPermissions.DELETE_NOTIFICATION +
     "')"
   )
-  public ResponseEntity<Object> delete(
+  public ResponseEntity<CountResponse> delete(
     @PathVariable("id") UUID notificationId
   ) {
     List<NotificationUser> notificationUsers =
@@ -168,6 +169,10 @@ public class NotificationNotificationuserController {
           NotificationUserSpecifications.byNotificationId(notificationId)
         );
     this.notificationUserRepository.deleteAll(notificationUsers);
-    return new ResponseEntity<>(notificationUsers.size(), HttpStatus.OK);
+    CountResponse countResponse = CountResponse
+      .builder()
+      .count(Long.valueOf(notificationUsers.size()))
+      .build();
+    return new ResponseEntity<>(countResponse, HttpStatus.OK);
   }
 }
