@@ -1,12 +1,10 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
-import org.springframework.stereotype.Service;
-
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
 import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
-
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 @Service

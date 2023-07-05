@@ -12,7 +12,6 @@ import com.sourcefuse.jarc.services.authservice.providers.ClientPasswordVerifyPr
 import com.sourcefuse.jarc.services.authservice.providers.ResourceOwnerVerifyProvider;
 import com.sourcefuse.jarc.services.authservice.services.AuthService;
 import com.sourcefuse.jarc.services.authservice.services.JwtService;
-
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -22,10 +22,7 @@ import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -72,13 +69,8 @@ public class JwtService {
     Role role = roleRepository
       .findById(currentUser.getRoleId())
       .orElseThrow(this::throwUserDoesNotExistException);
-      
-    return this.jwtTokenProvider.createJwt(
-        user,
-        userTenant,
-        role,
-        authClient
-      );
+
+    return this.jwtTokenProvider.createJwt(user, userTenant, role, authClient);
   }
 
   public JWTAuthResponse refreshToken(

@@ -45,9 +45,10 @@ public class ResourceOwnerVerifyProvider {
           );
     } catch (Exception error) {
       log.error(null, error);
-      user = userRepository.findOne(
-      UserSpecification.byUsername(loginDto.getUsername())
-    );
+      user =
+        userRepository.findOne(
+          UserSpecification.byUsername(loginDto.getUsername())
+        );
     }
     if (user.isEmpty()) {
       throw throwUnauthorizedException(AuthErrorKeys.INVALID_CREDENTIALS);

@@ -8,7 +8,6 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpServerErrorException;
-
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.services.authservice.dtos.CodeResponse;
@@ -31,10 +30,8 @@ import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepositor
 import com.sourcefuse.jarc.services.authservice.specifications.UserCredentialSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 @RequiredArgsConstructor
 @Service
 @Slf4j
@@ -94,8 +91,7 @@ public class AuthService {
   }
 
   public Optional<User> verifyPassword(String username, String password) {
-    Optional<User> user =
-      userRepository.findOne(
+    Optional<User> user = userRepository.findOne(
       UserSpecification.byUsername(username.toLowerCase())
     );
     if (user.isEmpty() || user.get().isDeleted()) {
@@ -105,9 +101,10 @@ public class AuthService {
       );
     }
     Optional<UserCredential> userCredential =
-      this.userCredentialRepository.findOne(  
-      UserCredentialSpecification.byUserId(user.get().getId()));
-      
+      this.userCredentialRepository.findOne(
+          UserCredentialSpecification.byUserId(user.get().getId())
+        );
+
     if (
       userCredential.isPresent() &&
       (

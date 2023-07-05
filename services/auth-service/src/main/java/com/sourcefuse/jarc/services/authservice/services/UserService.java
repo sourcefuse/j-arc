@@ -1,15 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.services;
 
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
-
 import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
@@ -34,9 +24,17 @@ import com.sourcefuse.jarc.services.authservice.specifications.TenantSpecificati
 import com.sourcefuse.jarc.services.authservice.specifications.UserCredentialSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
-
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
+
 @RequiredArgsConstructor
 @Service
 @Slf4j
@@ -105,17 +103,15 @@ public class UserService {
   }
 
   User createUser(RegisterDto registerDto, Tenant tenant, Role defaultRole) {
-    ArrayList<AuthClient> authClients = 
-        (ArrayList<AuthClient>) this.authClientRepository.findAll(
-        AuthClientSpecification.byAllowedClients(
-          defaultRole.getAllowedClients()
-        )
-      );
+    ArrayList<AuthClient> authClients =
+      (ArrayList<AuthClient>) this.authClientRepository.findAll(
+          AuthClientSpecification.byAllowedClients(
+            defaultRole.getAllowedClients()
+          )
+        );
     registerDto
       .getUser()
-      .setAuthClientIds(
-        authClients.stream().map(AuthClient::getId).toList()
-      );
+      .setAuthClientIds(authClients.stream().map(AuthClient::getId).toList());
 
     registerDto.getUser().setDefaultTenantId(tenant.getId());
     User savedUser =
