@@ -1,9 +1,11 @@
 package com.sourcefuse.jarc.core.exception;
 
+import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.core.dtos.ErrorDetails;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -104,5 +106,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       webRequest.getDescription(false)
     );
     return new ResponseEntity<>(errorDetails, exception.getStatusCode());
+  }
+
+  @ExceptionHandler(EmptyResultDataAccessException.class)
+  private static final ResponseEntity<ErrorDetails> handleEmptyResultDataAccessException(
+    EmptyResultDataAccessException exception,
+    WebRequest webRequest
+  ) {
+    ErrorDetails errorDetails = new ErrorDetails(
+      LocalDateTime.now(),
+      CommonConstants.NO_RECORD,
+      webRequest.getDescription(false)
+    );
+    return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
   }
 }

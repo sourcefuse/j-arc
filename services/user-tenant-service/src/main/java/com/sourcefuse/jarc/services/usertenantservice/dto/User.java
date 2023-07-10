@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sourcefuse.jarc.core.enums.Gender;
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -88,9 +89,11 @@ public class User extends UserModifiableEntity {
   private Tenant defaultTenant;
 
   @OneToOne(mappedBy = "userId", cascade = CascadeType.ALL)
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   private UserCredentials credentials;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   private List<UserTenant> userTenants;
 
   public User(UUID userId) {

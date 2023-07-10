@@ -17,6 +17,6 @@ public final class TenantConfigSpecification {
         CriteriaQuery<?> query,
         CriteriaBuilder builder
       ) ->
-      builder.equal(root.get("tenant"), tenantId);
+      builder.equal(root.get("tenant").get("id"), tenantId);
   }
 }

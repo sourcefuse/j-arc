@@ -8,10 +8,10 @@
         <version>3.0.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.sourcefuse</groupId>
-    <artifactId>usertenantservice</artifactId>
+    <groupId>com.sourcefuse.jarc.services</groupId>
+    <artifactId>user-tenant-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>User Intent Service</name>
+    <name>User Tenant Service</name>
     <description>Service to handle Intent management</description>
     <properties>
         <java.version>17</java.version>
@@ -91,6 +91,16 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sourcefuse.jarc</groupId>
+            <artifactId>jarc-auth-lib</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
