@@ -47,7 +47,9 @@ public class DeleteTenantUserServiceImpl implements DeleteTenantUserService {
     );
 
     UserTenant userTenant = userTenantRepository
-      .findOne(UserTenantSpecification.byUserId(id))
+      .findAll(UserTenantSpecification.byUserId(id))
+      .stream()
+      .findFirst()
       .orElse(null);
     UUID defaultTenantId = null;
     if (userTenant != null) {
@@ -58,7 +60,9 @@ public class DeleteTenantUserServiceImpl implements DeleteTenantUserService {
     User user;
     if (savedUser.isPresent()) {
       user = savedUser.get();
-      user.getDefaultTenant().setId(defaultTenantId);
+      if (defaultTenantId != null) {
+        user.getDefaultTenant().setId(defaultTenantId);
+      }
       userRepository.save(user);
     }
   }

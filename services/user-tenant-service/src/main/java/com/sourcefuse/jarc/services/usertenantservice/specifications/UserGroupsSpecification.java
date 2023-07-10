@@ -17,7 +17,7 @@ public final class UserGroupsSpecification {
         CriteriaQuery<?> query,
         CriteriaBuilder builder
       ) ->
-      builder.equal(root.get("group"), groupId);
+      builder.equal(root.get("group").get("id"), groupId);
   }
 
   public static Specification<UserGroup> byUserTenantId(UUID userTenantId) {
@@ -26,7 +26,7 @@ public final class UserGroupsSpecification {
         CriteriaQuery<?> query,
         CriteriaBuilder builder
       ) ->
-      builder.equal(root.get("userTenant"), userTenantId);
+      builder.equal(root.get("userTenant").get("id"), userTenantId);
   }
 
   public static Specification<UserGroup> byIsOwner(boolean isOwner) {

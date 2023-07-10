@@ -2,6 +2,7 @@ package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import com.sourcefuse.jarc.services.usertenantservice.enums.UserTenantGroupType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,6 +48,7 @@ public class Group extends UserModifiableEntity {
   @Transient
   private UserTenantGroupType groupType = UserTenantGroupType.TENANT;
 
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   @OneToMany(mappedBy = "group")
   private List<UserGroup> userGroups;
 

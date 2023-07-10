@@ -24,6 +24,8 @@ public final class CommonConstants {
     "com.sourcefuse.jarc.core.models";
   public static final String CORE_SOFT_DELETE_PACKAGE =
     "com.sourcefuse.jarc.services.usertenantservice.repository";
+  public static final String NO_RECORD =
+    "No records is present against the given value";
 
   private CommonConstants() {
     throw new IllegalStateException("Utility class");

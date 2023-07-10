@@ -32,7 +32,7 @@ public class UpdateTenantUserServiceImpl implements UpdateTenantUserService {
 
   private final UserRepository userRepository;
 
-  @Value("$user.name.exits")
+  @Value("${user.name.exits}")
   String userNameExits;
 
   @Override

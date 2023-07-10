@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
+import com.sourcefuse.jarc.core.constants.PermissionKeyConstants;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
@@ -11,6 +12,7 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepos
 import com.sourcefuse.jarc.services.usertenantservice.specifications.GroupSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,6 +38,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RequestMapping("/groups")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class GroupController {
 
   private final GroupRepository groupRepository;
@@ -42,6 +46,11 @@ public class GroupController {
   private final UserGroupsRepository userGroupsRepo;
 
   @PostMapping
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.CREATE_USER_GROUP +
+    "')"
+  )
   public ResponseEntity<Group> createGroups(@Valid @RequestBody Group group) {
     Group savedGroups = groupRepository.save(group);
     CurrentUser currentUser = (CurrentUser) SecurityContextHolder
@@ -53,12 +62,18 @@ public class GroupController {
       .group(new Group(savedGroups.getId()))
       .userTenant(new UserTenant(currentUser.getUserTenantId()))
       .isOwner(true)
+      .tenantId(group.getTenantId())
       .build();
     userGroupsRepo.save(userGroup);
     return new ResponseEntity<>(savedGroups, HttpStatus.CREATED);
   }
 
   @GetMapping("/count")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_USER_GROUP_LIST +
+    "')"
+  )
   public ResponseEntity<CountResponse> countGroups() {
     CountResponse count = CountResponse
       .builder()
@@ -68,11 +83,21 @@ public class GroupController {
   }
 
   @GetMapping
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_USER_GROUP_LIST +
+    "')"
+  )
   public ResponseEntity<List<Group>> getAllGroups() {
     return new ResponseEntity<>(groupRepository.findAll(), HttpStatus.OK);
   }
 
   @GetMapping("{id}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_USER_GROUP_LIST +
+    "')"
+  )
   public ResponseEntity<Group> getGroupById(@PathVariable("id") UUID id) {
     CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     Group group = groupRepository
@@ -90,6 +115,11 @@ public class GroupController {
 
   @Transactional
   @PatchMapping("{id}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.UPDATE_USER_GROUP +
+    "')"
+  )
   public ResponseEntity<String> updateGroupById(
     @PathVariable("id") UUID id,
     @RequestBody Group group
@@ -116,6 +146,11 @@ public class GroupController {
 
   @Transactional
   @DeleteMapping("{id}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.DELETE_USER_GROUP +
+    "')"
+  )
   public ResponseEntity<String> deleteGroupById(@PathVariable("id") UUID id) {
     CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     userGroupsRepo.delete(

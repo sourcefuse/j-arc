@@ -18,7 +18,7 @@ public final class UserTenantSpecification {
         CriteriaQuery<?> query,
         CriteriaBuilder builder
       ) ->
-      builder.equal(root.get("role"), roleId);
+      builder.equal(root.get("role").get("id"), roleId);
   }
 
   public static Specification<UserTenant> byUserId(UUID userId) {
@@ -27,7 +27,7 @@ public final class UserTenantSpecification {
         CriteriaQuery<?> query,
         CriteriaBuilder builder
       ) ->
-      builder.equal(root.get("user"), userId);
+      builder.equal(root.get("user").get("id"), userId);
   }
 
   public static Specification<UserTenant> byTenantId(UUID tenantId) {
@@ -36,7 +36,7 @@ public final class UserTenantSpecification {
         CriteriaQuery<?> query,
         CriteriaBuilder builder
       ) ->
-      builder.equal(root.get("tenant"), tenantId);
+      builder.equal(root.get("tenant").get("id"), tenantId);
   }
 
   public static Specification<UserTenant> orderByIdAsc() {

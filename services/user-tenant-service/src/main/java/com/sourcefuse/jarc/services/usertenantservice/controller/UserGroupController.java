@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
+import com.sourcefuse.jarc.core.constants.PermissionKeyConstants;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
@@ -10,6 +11,7 @@ import com.sourcefuse.jarc.services.usertenantservice.service.UserGroupService;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.GroupSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +36,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RequestMapping("/groups")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class UserGroupController {
 
   private final GroupRepository groupRepository;
@@ -41,6 +45,11 @@ public class UserGroupController {
   private final UserGroupService userGroupService;
 
   @PostMapping("{id}/user-groups")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.ADD_MEMBER_TO_USER_GROUP +
+    "')"
+  )
   public ResponseEntity<UserGroup> createUserGroup(
     @Valid @RequestBody UserGroup userGroup,
     @PathVariable("id") UUID id
@@ -53,6 +62,11 @@ public class UserGroupController {
 
   @Transactional
   @PatchMapping("{id}/user-groups/{userGroupId}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.UPDATE_MEMBER_IN_USER_GROUP +
+    "')"
+  )
   public ResponseEntity<String> updateUserGroupById(
     @PathVariable("id") UUID id,
     @RequestBody UserGroup userGroup,
@@ -67,6 +81,14 @@ public class UserGroupController {
 
   @Transactional
   @DeleteMapping("{id}/user-groups/{userGroupId}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.REMOVE_MEMBER_FROM_USER_GROUP +
+    "'," +
+    "'" +
+    PermissionKeyConstants.LEAVE_USER_GROUP +
+    "')"
+  )
   public ResponseEntity<String> deleteUserGroupById(
     @PathVariable("id") UUID id,
     @PathVariable("userGroupId") UUID userGroupId
@@ -76,6 +98,11 @@ public class UserGroupController {
   }
 
   @GetMapping("{id}/user-groups")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_USER_GROUP_LIST +
+    "')"
+  )
   public ResponseEntity<List<UserGroup>> getAllUserGroupByGroupId(
     @PathVariable("id") UUID id
   ) {
@@ -105,6 +132,11 @@ public class UserGroupController {
   }
 
   @GetMapping("{id}/user-groups/count")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_USER_GROUP_LIST +
+    "')"
+  )
   public ResponseEntity<CountResponse> countUserGroup(
     @PathVariable("id") UUID id
   ) {
