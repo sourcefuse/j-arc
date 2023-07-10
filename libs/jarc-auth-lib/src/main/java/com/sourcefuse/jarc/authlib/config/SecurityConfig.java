@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.authlib.config;
 
+import com.sourcefuse.jarc.authlib.api.security.ApiSecurityProvider;
 import com.sourcefuse.jarc.authlib.security.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,15 +17,17 @@ public class SecurityConfig {
 
   private final JwtAuthenticationFilter authenticationFilter;
 
+  private final ApiSecurityProvider apiSecurityProvider;
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http)
     throws Exception {
     http.csrf().disable();
-
     http.addFilterBefore(
       authenticationFilter,
       UsernamePasswordAuthenticationFilter.class
     );
+    apiSecurityProvider.helmet(http);
     return http.build();
   }
 }
