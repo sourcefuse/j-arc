@@ -19,9 +19,10 @@ public class XPoweredBy extends OncePerRequestFilter {
   ) throws ServletException, IOException {
     filterChain.doFilter(
       request,
-      new HttpServletResponseWrapper((HttpServletResponse) response) {
+      new HttpServletResponseWrapper(response) {
+        @Override
         public void setHeader(String name, String value) {
-          if (!name.equalsIgnoreCase("X-Powered-By")) {
+          if (!"X-Powered-By".equalsIgnoreCase(name)) {
             super.setHeader(name, value);
           }
         }

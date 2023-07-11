@@ -1,14 +1,13 @@
 package com.sourcefuse.jarc.authlib.api.security.middlewares;
 
+import com.sourcefuse.jarc.authlib.api.security.config.CrossOriginResourcePolicyConfig;
+import com.sourcefuse.jarc.authlib.api.security.types.MiddlewareConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.sourcefuse.jarc.authlib.api.security.config.CrossOriginResourcePolicyConfig;
-import com.sourcefuse.jarc.authlib.api.security.types.MiddlewareConstants;
 
 public class CrossOriginResourcePolicy extends OncePerRequestFilter {
 

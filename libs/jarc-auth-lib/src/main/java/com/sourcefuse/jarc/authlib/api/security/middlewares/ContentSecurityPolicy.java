@@ -1,5 +1,11 @@
 package com.sourcefuse.jarc.authlib.api.security.middlewares;
 
+import com.sourcefuse.jarc.authlib.api.security.config.ContentSecurityPolicyConfig;
+import com.sourcefuse.jarc.authlib.api.security.types.MiddlewareConstants;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,19 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import java.util.regex.Pattern;
 import javax.management.InvalidAttributeValueException;
-
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.sourcefuse.jarc.authlib.api.security.config.ContentSecurityPolicyConfig;
-import com.sourcefuse.jarc.authlib.api.security.types.MiddlewareConstants;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
 public class ContentSecurityPolicy extends OncePerRequestFilter {
@@ -27,6 +24,11 @@ public class ContentSecurityPolicy extends OncePerRequestFilter {
   public static final String DANGEROUSLY_DISABLE_DEFAULT_SRC =
     "dangerouslyDisableDefaultSrc";
   private static final String DEFAULT_SRC = "default-src";
+  private static final String INVALID_DIRECTIVE_PATTERN = "[;,]";
+  private static final Pattern DASHIFY_PATTERN = Pattern.compile(
+    "([a-z])([A-Z])"
+  );
+  private static final String DASHIFY_REPLACE_WITH = "$1-$2";
 
   private final String headerName;
 
@@ -63,11 +65,11 @@ public class ContentSecurityPolicy extends OncePerRequestFilter {
   }
 
   private static boolean isDirectiveValueInvalid(String str) {
-    return str.matches(";|,");
+    return Pattern.matches(INVALID_DIRECTIVE_PATTERN, str);
   }
 
   private static String dashify(String str) {
-    return str.replaceAll("([a-z])([A-Z])", "$1-$2").toLowerCase();
+    return DASHIFY_PATTERN.matcher(str).replaceAll(DASHIFY_REPLACE_WITH);
   }
 
   @SuppressWarnings("unchecked")
@@ -77,7 +79,8 @@ public class ContentSecurityPolicy extends OncePerRequestFilter {
     if (options == null) {
       options = new ContentSecurityPolicyConfig();
     }
-    Map<String, Object> defaultDirectives = MiddlewareConstants.DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE; // getDefaultDirectives();
+    Map<String, Object> defaultDirectives =
+      MiddlewareConstants.DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE;
     if (options.getUseDefaults() == null) {
       options.setUseDefaults(true);
     }
@@ -166,7 +169,7 @@ public class ContentSecurityPolicy extends OncePerRequestFilter {
     }
 
     if (result.isEmpty()) {
-      throw new Error(
+      throw new IllegalArgumentException(
         "Content-Security-Policy has no directives. Either set some or disable the header"
       );
     }
@@ -174,8 +177,10 @@ public class ContentSecurityPolicy extends OncePerRequestFilter {
       !result.containsKey(DEFAULT_SRC) &&
       !directivesExplicitlyDisabled.contains(DEFAULT_SRC)
     ) {
-      throw new Error(
-        "Content-Security-Policy needs a default-src but none was provided. If you really want to disable it, set it to `contentSecurityPolicy.dangerouslyDisableDefaultSrc`."
+      throw new IllegalArgumentException(
+        "Content-Security-Policy needs a default-src but none was provided." +
+        "If you really want to disable it, set it to `contentSecurityPolicy." +
+        "dangerouslyDisableDefaultSrc`."
       );
     }
 
@@ -189,10 +194,7 @@ public class ContentSecurityPolicy extends OncePerRequestFilter {
     for (Entry<String, List<String>> entry : normalizedDirectives.entrySet()) {
       String directiveName = entry.getKey();
       List<String> rawDirectiveValue = entry.getValue();
-      String directiveValue = "";
-      for (String element : rawDirectiveValue) {
-        directiveValue += " " + element;
-      }
+      String directiveValue = String.join(" ", rawDirectiveValue);
 
       if (directiveValue.isBlank()) {
         result.add(directiveName);

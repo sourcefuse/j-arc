@@ -1,5 +1,7 @@
 package com.sourcefuse.jarc.authlib.api.security.middlewares;
 
+import com.sourcefuse.jarc.authlib.api.security.config.ReferrerPolicyConfig;
+import com.sourcefuse.jarc.authlib.api.security.types.MiddlewareConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,9 +10,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.sourcefuse.jarc.authlib.api.security.config.ReferrerPolicyConfig;
-import com.sourcefuse.jarc.authlib.api.security.types.MiddlewareConstants;
 
 public class ReferrerPolicy extends OncePerRequestFilter {
 
