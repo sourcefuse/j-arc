@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class MiddlewareConstants {
-
+  public static final String SELF = "'self'";
   public static final String SAME_ORIGIN = "same-origin";
 
   // 180 * 24 * 60 * 60 = 15552000
@@ -46,16 +46,16 @@ public final class MiddlewareConstants {
     Stream
       .of(
         new Object[][] {
-          { "default-src", Arrays.asList("'self'") },
-          { "base-uri", Arrays.asList("'self'") },
-          { "font-src", Arrays.asList("'self'", "https:", "data:") },
-          { "form-action", Arrays.asList("'self'") },
-          { "frame-ancestors", Arrays.asList("'self'") },
-          { "img-src", Arrays.asList("'self'", "data:") },
+          { "default-src", Arrays.asList(SELF) },
+          { "base-uri", Arrays.asList(SELF) },
+          { "font-src", Arrays.asList(SELF, "https:", "data:") },
+          { "form-action", Arrays.asList(SELF) },
+          { "frame-ancestors", Arrays.asList(SELF) },
+          { "img-src", Arrays.asList(SELF, "data:") },
           { "object-src", Arrays.asList("'none'") },
-          { "script-src", Arrays.asList("'self'") },
+          { "script-src", Arrays.asList(SELF) },
           { "script-src-attr", Arrays.asList("'none'") },
-          { "style-src", Arrays.asList("'self'", "https:", "'unsafe-inline'") },
+          { "style-src", Arrays.asList(SELF, "https:", "'unsafe-inline'") },
           { "upgrade-insecure-requests", Arrays.asList() }
         }
       )
