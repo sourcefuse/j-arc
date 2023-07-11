@@ -1,3 +1,4 @@
+```java
 package com.sourcefuse.jarc.authlib.api.security;
 
 import java.util.Arrays;
@@ -32,8 +33,8 @@ public class ApiSecurityConfigProviderImpl implements ApiSecurityConfig {
 						{ "script-src", Arrays.asList("'self'", "js.example.com") },
 						{ "upgrade-insecure-requests", Arrays.asList() } })
 				.collect(Collectors.toMap(data -> (String) data[0], data -> (List<String>) data[1]));
-//		return new ContentSecurityPolicyConfig(false, directives, false);
-		return false;
+		return new ContentSecurityPolicyConfig(true, directives, false);
+//		return false;
 	}
 
 	@Override
@@ -87,15 +88,15 @@ public class ApiSecurityConfigProviderImpl implements ApiSecurityConfig {
 	@Override
 	public Object enableXDnsPrefetchControl() {
 
-		return false;
-//		return new XDnsPrefetchControlConfig(true);
+//		return false;
+		return new XDnsPrefetchControlConfig(false);
 	}
 
 	@Override
 	public Object enableXFrameOptions() {
 
-		return false;
-//		return new XFrameOptionsConfig("sameorigin");
+//		return false;
+		return new XFrameOptionsConfig("same-origin");
 	}
 
 	@Override
@@ -108,8 +109,8 @@ public class ApiSecurityConfigProviderImpl implements ApiSecurityConfig {
 	@Override
 	public Object enableXPermittedCrossDomainPolicies() {
 
-		return false;
-//		return new XPermittedCrossDomainPoliciesConfig("all");
+//		return false;
+		return new XPermittedCrossDomainPoliciesConfig("by-content-type");
 	}
 
 	@Override
@@ -126,3 +127,5 @@ public class ApiSecurityConfigProviderImpl implements ApiSecurityConfig {
 //		return true;
 	}
 }
+
+```
