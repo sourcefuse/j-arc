@@ -26,6 +26,9 @@ public final class CommonConstants {
     "com.sourcefuse.jarc.services.usertenantservice.repository";
   public static final String NO_RECORD =
     "No records is present against the given value";
+  public static final String VIEW = "view";
+  public static final String UPDATE = "update";
+  public static final String DELETE = "delete";
 
   private CommonConstants() {
     throw new IllegalStateException("Utility class");

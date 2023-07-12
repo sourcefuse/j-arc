@@ -32,14 +32,14 @@ public class UserTenantServiceImpl implements UserTenantService {
           "No User-Tenant is present against given value" + id
         )
       );
-    CurrentUserUtils.compareWithCurrentUserTenantId(
-      userTenant.getTenant().getId(),
-      currentUser
+    CurrentUserUtils.checkForViewAnyUserPermission(
+      currentUser,
+      userTenant.getTenant().getId()
     );
 
-    CurrentUserUtils.compareWithCurrentUsersUserId(
-      userTenant.getUser().getId(),
-      currentUser
+    CurrentUserUtils.checkForViewOwnUserPermission(
+      currentUser,
+      userTenant.getUser().getId()
     );
 
     /*** INFO :As discussed by samarpan currently
@@ -48,7 +48,7 @@ public class UserTenantServiceImpl implements UserTenantService {
     return userViewRepository
       .findOne(UserViewSpecification.byUserTenantId(id))
       .orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_FOUND, "User Not found")
+        new ResponseStatusException(HttpStatus.NOT_FOUND, "User Not found !")
       );
   }
 }

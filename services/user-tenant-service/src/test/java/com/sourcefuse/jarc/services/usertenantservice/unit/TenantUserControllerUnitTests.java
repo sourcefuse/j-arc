@@ -315,13 +315,50 @@ class TenantUserControllerUnitTests {
       )
       .thenReturn(userViewsList);
 
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.TENANT_ID,
+      null,
+      null
+    );
     // Act
     List<UserDto> result = tenantUserService.getUserView(
-      MockTenantUser.TENANT_ID
+      MockTenantUser.TENANT_ID,
+      MockCurrentUserSession.getCurrentUser()
     );
 
     // Assert
     Assertions.assertEquals(userViewsList.size(), result.size());
+  }
+
+  @Test
+  @DisplayName(
+    "Test getUserView - Forbidden :does not have VIEW_ANY_USER permission " +
+    "and tenantId does not match with current users tenantId"
+  )
+  void testGetUserViewForbidden() {
+    // Arrange
+    List<UserView> userViewsList = new ArrayList<>();
+    userViewsList.add(MockTenantUser.getUserViewObj());
+    userViewsList.add(MockTenantUser.getUserViewObj());
+
+    Mockito
+      .when(
+        userViewRepository.findAll(ArgumentMatchers.any(Specification.class))
+      )
+      .thenReturn(userViewsList);
+
+    // Act
+    ResponseStatusException exception = Assertions.assertThrows(
+      ResponseStatusException.class,
+      () ->
+        tenantUserService.getUserView(
+          MockTenantUser.TENANT_ID,
+          MockCurrentUserSession.getCurrentUser()
+        )
+    );
+
+    // Assert
+    Assertions.assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
   }
 
   @Test
@@ -334,10 +371,15 @@ class TenantUserControllerUnitTests {
         userViewRepository.findAll(ArgumentMatchers.any(Specification.class))
       )
       .thenReturn(userViewsList);
-
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.TENANT_ID,
+      null,
+      null
+    );
     // Act
     List<UserDto> result = tenantUserService.getUserView(
-      MockTenantUser.TENANT_ID
+      MockTenantUser.TENANT_ID,
+      MockCurrentUserSession.getCurrentUser()
     );
 
     // Assert
@@ -357,15 +399,51 @@ class TenantUserControllerUnitTests {
         userViewRepository.findAll(ArgumentMatchers.any(Specification.class))
       )
       .thenReturn(userViewsList);
-
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.TENANT_ID,
+      null,
+      null
+    );
     // Act
     List<UserDto> result = tenantUserService.getUserView(
-      MockTenantUser.TENANT_ID
+      MockTenantUser.TENANT_ID,
+      MockCurrentUserSession.getCurrentUser()
     );
 
     // Assert
     Assertions.assertNotNull(result);
     Assertions.assertEquals(userViewsList.size(), result.size());
+  }
+
+  @Test
+  @DisplayName(
+    "Test get All UserView - Forbidden  :does not have VIEW_ANY_USER permission" +
+    "and tenantId does not match with current users tenantId"
+  )
+  void testGetAllUserViewForbidden() {
+    // Arrange
+    List<UserView> userViewsList = new ArrayList<>();
+    userViewsList.add(MockTenantUser.getUserViewObj());
+    userViewsList.add(MockTenantUser.getUserViewObj());
+
+    Mockito
+      .when(
+        userViewRepository.findAll(ArgumentMatchers.any(Specification.class))
+      )
+      .thenReturn(userViewsList);
+
+    // Act
+    ResponseStatusException exception = Assertions.assertThrows(
+      ResponseStatusException.class,
+      () ->
+        tenantUserService.getUserView(
+          MockTenantUser.TENANT_ID,
+          MockCurrentUserSession.getCurrentUser()
+        )
+    );
+
+    // Assert
+    Assertions.assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
   }
 
   @Test
@@ -379,10 +457,16 @@ class TenantUserControllerUnitTests {
         userViewRepository.findAll(ArgumentMatchers.any(Specification.class))
       )
       .thenReturn(userViewsList);
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.TENANT_ID,
+      null,
+      null
+    );
 
     // Act
     List<UserDto> result = tenantUserService.getUserView(
-      MockTenantUser.TENANT_ID
+      MockTenantUser.TENANT_ID,
+      MockCurrentUserSession.getCurrentUser()
     );
 
     // Assert
@@ -403,10 +487,15 @@ class TenantUserControllerUnitTests {
         userViewRepository.findAll(ArgumentMatchers.any(Specification.class))
       )
       .thenReturn(userViewsList);
-
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.TENANT_ID,
+      null,
+      null
+    );
     // Act
     List<UserDto> result = tenantUserService.getUserView(
-      MockTenantUser.TENANT_ID
+      MockTenantUser.TENANT_ID,
+      MockCurrentUserSession.getCurrentUser()
     );
 
     // Assert
@@ -425,10 +514,15 @@ class TenantUserControllerUnitTests {
         userViewRepository.findAll(ArgumentMatchers.any(Specification.class))
       )
       .thenReturn(userViewsList);
-
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.TENANT_ID,
+      null,
+      null
+    );
     // Act
     List<UserDto> result = tenantUserService.getUserView(
-      MockTenantUser.TENANT_ID
+      MockTenantUser.TENANT_ID,
+      MockCurrentUserSession.getCurrentUser()
     );
 
     // Assert
@@ -437,17 +531,59 @@ class TenantUserControllerUnitTests {
   }
 
   @Test
+  @DisplayName(
+    "Test Count TenantUser/UserView  - forbidden:" +
+    "does not have VIEW_ANY_USER permission and tenantId does not match with current users tenantId"
+  )
+  void testCountTenantUserForbidden() {
+    // Arrange
+    List<UserView> userViewsList = new ArrayList<>();
+    userViewsList.add(MockTenantUser.getUserViewObj());
+    userViewsList.add(MockTenantUser.getUserViewObj());
+
+    Mockito
+      .when(
+        userViewRepository.findAll(ArgumentMatchers.any(Specification.class))
+      )
+      .thenReturn(userViewsList);
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.INVALID_ID,
+      null,
+      null
+    );
+    // Act
+    ResponseStatusException exception = Assertions.assertThrows(
+      ResponseStatusException.class,
+      () ->
+        tenantUserService.getUserView(
+          MockTenantUser.TENANT_ID,
+          MockCurrentUserSession.getCurrentUser()
+        )
+    );
+
+    // Assert
+    Assertions.assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+  }
+
+  @Test
   @DisplayName("Test findById - Success")
   void testFindByIdFound() {
     // Arrange
     UUID userId = MockTenantUser.USER_ID;
+    UUID tenantId = MockTenantUser.TENANT_ID;
     UserView expectedUserView = MockTenantUser.getUserViewObj();
 
     Mockito
-      .when(userViewRepository.findById(userId))
-      .thenReturn(Optional.of(expectedUserView));
+      .when(userViewRepository.findOne(Mockito.any(Specification.class)))
+      .thenReturn(Optional.ofNullable(expectedUserView));
+    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
+
     // Act
-    UserView actualUserView = tenantUserService.findById(userId);
+    UserView actualUserView = tenantUserService.findById(
+      userId,
+      tenantId,
+      MockCurrentUserSession.getCurrentUser()
+    );
 
     // Assert
     Assertions.assertEquals(expectedUserView, actualUserView);
@@ -458,15 +594,22 @@ class TenantUserControllerUnitTests {
   void testFindByIdNotFound() {
     // Arrange
     UUID userId = MockTenantUser.USER_ID;
-
+    UUID tenantId = MockTenantUser.TENANT_ID;
     Mockito
-      .when(userViewRepository.findById(userId))
+      .when(userViewRepository.findOne(Mockito.any(Specification.class)))
       .thenReturn(Optional.empty());
+
+    MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
 
     // Act & Assert
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> tenantUserService.findById(userId)
+      () ->
+        tenantUserService.findById(
+          userId,
+          tenantId,
+          MockCurrentUserSession.getCurrentUser()
+        )
     );
 
     Assertions.assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
@@ -474,6 +617,34 @@ class TenantUserControllerUnitTests {
       "No User view is present against given value",
       exception.getReason()
     );
+  }
+
+  @Test
+  @DisplayName(
+    "Test getUserTenantById - forbidden:" +
+    "Has VIEW_OWN_USER permission but userId does not match with current users userId"
+  )
+  void testGetUserTenantByIdUnauthorized() throws Exception {
+    UUID userId = MockTenantUser.USER_ID;
+    UUID tenantId = MockTenantUser.TENANT_ID;
+
+    // Arrange
+    MockCurrentUserSession.setCurrentLoggedInUser(
+      MockTenantUser.TENANT_ID,
+      MockTenantUser.INVALID_ID,
+      null
+    );
+    // Act & Assert
+    ResponseStatusException exception = Assertions.assertThrows(
+      ResponseStatusException.class,
+      () ->
+        tenantUserService.findById(
+          userId,
+          tenantId,
+          MockCurrentUserSession.getCurrentUser()
+        )
+    );
+    Assertions.assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
   }
 
   @Test
@@ -521,7 +692,8 @@ class TenantUserControllerUnitTests {
 
   @Test
   @DisplayName(
-    "Update User By ID - CurrentUser UserId does not match with path variable UserId"
+    "Update User By ID - has UPDATE_OWN_USER permission " +
+    "but CurrentUser UserId does not match with path variable UserId"
   )
   void testUpdateUserByIdInvalidUserId() {
     UUID userId = MockTenantUser.USER_ID;
@@ -569,7 +741,8 @@ class TenantUserControllerUnitTests {
 
   @Test
   @DisplayName(
-    "Update User By ID - CurrentUser TenantId does not match with path variable TenantId  "
+    "Update User By ID - does not have UPDATE_ANY_USER permission " +
+    "and CurrentUser TenantId does not match with path variable TenantId  "
   )
   void testUpdateUserByIdInvalidTenantId() {
     UUID userId = MockTenantUser.USER_ID;
@@ -831,7 +1004,10 @@ class TenantUserControllerUnitTests {
   }
 
   @Test
-  @DisplayName("Delete User By Id - Invalid Tenant ID")
+  @DisplayName(
+    "Delete User By Id - does not have DELETE_ANY_USER permission and " +
+    "Tenant ID does not match with current users tenantId"
+  )
   void testDeleteUserById_InvalidTenantId() {
     // Arrange
     UUID userId = MockTenantUser.USER_ID;

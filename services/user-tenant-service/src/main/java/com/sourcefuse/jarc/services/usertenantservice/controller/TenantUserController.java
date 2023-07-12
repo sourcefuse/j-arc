@@ -95,9 +95,9 @@ public class TenantUserController {
   public ResponseEntity<List<UserDto>> getUserTenantById(
     @PathVariable("id") UUID id
   ) {
-    CurrentUserUtils.getCurrentWithPermissions(id);
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     return new ResponseEntity<>(
-      tenantUserService.getUserView(id),
+      tenantUserService.getUserView(id, currentUser),
       HttpStatus.OK
     );
   }
@@ -132,9 +132,8 @@ public class TenantUserController {
   public ResponseEntity<CountResponse> userTenantCount(
     @PathVariable("id") UUID id
   ) {
-    CurrentUserUtils.getCurrentWithPermissions(id);
-
-    long userCount = tenantUserService.getUserView(id).size();
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
+    long userCount = tenantUserService.getUserView(id, currentUser).size();
 
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(
@@ -161,11 +160,8 @@ public class TenantUserController {
     @PathVariable("id") UUID id,
     @PathVariable("userId") UUID userId
   ) {
-    CurrentUser currentUser = CurrentUserUtils.getCurrentWithPermissions(id);
-    CurrentUserUtils.compareWithCurrentUsersUserId(userId, currentUser);
-
-    UserView userView = tenantUserService.findById(userId);
-    //nonRestrictedUserViewRepo ::doubt
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
+    UserView userView = tenantUserService.findById(userId, id, currentUser);
     return new ResponseEntity<>(userView, HttpStatus.OK);
   }
 
