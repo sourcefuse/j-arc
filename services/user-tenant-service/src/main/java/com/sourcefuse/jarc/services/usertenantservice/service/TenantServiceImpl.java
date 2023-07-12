@@ -11,14 +11,15 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.TenantConfigRep
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.TenantConfigSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -86,6 +87,9 @@ public class TenantServiceImpl implements TenantService {
       checkForUpdateOwnUserPermission(currentUser, tenantId);
     } else if (CommonConstants.DELETE.equalsIgnoreCase(operationType)) {
       CurrentUserUtils.compareWithCurrentUserTenantId(tenantId, currentUser);
+    }
+    else{
+      log.info("Else block to handle future condition if any !");
     }
   }
 

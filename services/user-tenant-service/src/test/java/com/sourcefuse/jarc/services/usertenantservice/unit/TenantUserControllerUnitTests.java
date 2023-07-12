@@ -18,13 +18,6 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewReposit
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserServiceImpl;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +30,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @DisplayName("TenantUserController Unit Tests")
 class TenantUserControllerUnitTests {
@@ -346,14 +347,14 @@ class TenantUserControllerUnitTests {
         userViewRepository.findAll(ArgumentMatchers.any(Specification.class))
       )
       .thenReturn(userViewsList);
-
+    CurrentUser currentUser=MockCurrentUserSession.getCurrentUser();
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         tenantUserService.getUserView(
           MockTenantUser.TENANT_ID,
-          MockCurrentUserSession.getCurrentUser()
+                currentUser
         )
     );
 
@@ -431,14 +432,14 @@ class TenantUserControllerUnitTests {
         userViewRepository.findAll(ArgumentMatchers.any(Specification.class))
       )
       .thenReturn(userViewsList);
-
+    CurrentUser currentUser=MockCurrentUserSession.getCurrentUser();
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         tenantUserService.getUserView(
           MockTenantUser.TENANT_ID,
-          MockCurrentUserSession.getCurrentUser()
+         currentUser
         )
     );
 
@@ -551,13 +552,15 @@ class TenantUserControllerUnitTests {
       null,
       null
     );
+
+    CurrentUser currentUser=MockCurrentUserSession.getCurrentUser();
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
       () ->
         tenantUserService.getUserView(
           MockTenantUser.TENANT_ID,
-          MockCurrentUserSession.getCurrentUser()
+                currentUser
         )
     );
 
@@ -600,7 +603,7 @@ class TenantUserControllerUnitTests {
       .thenReturn(Optional.empty());
 
     MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
-
+    CurrentUser currentUser=MockCurrentUserSession.getCurrentUser();
     // Act & Assert
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
@@ -608,7 +611,7 @@ class TenantUserControllerUnitTests {
         tenantUserService.findById(
           userId,
           tenantId,
-          MockCurrentUserSession.getCurrentUser()
+                currentUser
         )
     );
 
@@ -634,6 +637,7 @@ class TenantUserControllerUnitTests {
       MockTenantUser.INVALID_ID,
       null
     );
+    CurrentUser currentUser=MockCurrentUserSession.getCurrentUser();
     // Act & Assert
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
@@ -641,7 +645,7 @@ class TenantUserControllerUnitTests {
         tenantUserService.findById(
           userId,
           tenantId,
-          MockCurrentUserSession.getCurrentUser()
+          currentUser
         )
     );
     Assertions.assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
