@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
+import com.sourcefuse.jarc.core.constants.PermissionKeyConstants;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
@@ -9,6 +10,7 @@ import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserSe
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserService;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserService;
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +37,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RequestMapping("/tenants/{id}/users")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class TenantUserController {
 
   private final TenantUserService tenantUserService;
@@ -44,6 +48,16 @@ public class TenantUserController {
   private String tenantIdNotSpecified;
 
   @PostMapping
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.CREATE_ANY_USER +
+    "'," +
+    "'" +
+    PermissionKeyConstants.CREATE_TENANT_USER +
+    "','" +
+    PermissionKeyConstants.CREATE_TENANT_USER_RESTRICTED +
+    "')"
+  )
   public ResponseEntity<UserDto> createUserTenants(
     @Valid @RequestBody UserDto userDto,
     @PathVariable("id") UUID id
@@ -68,17 +82,32 @@ public class TenantUserController {
   }
 
   @GetMapping
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_ANY_USER +
+    "'," +
+    "'" +
+    PermissionKeyConstants.VIEW_TENANT_USER +
+    "','" +
+    PermissionKeyConstants.VIEW_TENANT_USER_RESTRICTED +
+    "')"
+  )
   public ResponseEntity<List<UserDto>> getUserTenantById(
     @PathVariable("id") UUID id
   ) {
-    CurrentUserUtils.getCurrentWithPermissions(id);
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     return new ResponseEntity<>(
-      tenantUserService.getUserView(id),
+      tenantUserService.getUserView(id, currentUser),
       HttpStatus.OK
     );
   }
 
   @GetMapping("/view-all")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_ALL_USER +
+    "')"
+  )
   public ResponseEntity<List<UserDto>> findAllUsers(
     @PathVariable("id") UUID id
   ) {
@@ -90,12 +119,21 @@ public class TenantUserController {
   }
 
   @GetMapping("/count")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_ANY_USER +
+    "'," +
+    "'" +
+    PermissionKeyConstants.VIEW_TENANT_USER +
+    "','" +
+    PermissionKeyConstants.VIEW_TENANT_USER_RESTRICTED +
+    "')"
+  )
   public ResponseEntity<CountResponse> userTenantCount(
     @PathVariable("id") UUID id
   ) {
-    CurrentUserUtils.getCurrentWithPermissions(id);
-
-    long userCount = tenantUserService.getUserView(id).size();
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
+    long userCount = tenantUserService.getUserView(id, currentUser).size();
 
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(
@@ -105,20 +143,43 @@ public class TenantUserController {
   }
 
   @GetMapping("/{userId}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_ANY_USER +
+    "'," +
+    "'" +
+    PermissionKeyConstants.VIEW_TENANT_USER +
+    "','" +
+    PermissionKeyConstants.VIEW_TENANT_USER_RESTRICTED +
+    "'," +
+    "'" +
+    PermissionKeyConstants.VIEW_OWN_USER +
+    "')"
+  )
   public ResponseEntity<UserView> findAllUsers(
     @PathVariable("id") UUID id,
     @PathVariable("userId") UUID userId
   ) {
-    CurrentUser currentUser = CurrentUserUtils.getCurrentWithPermissions(id);
-    CurrentUserUtils.compareWithCurrentUsersUserId(userId, currentUser);
-
-    UserView userView = tenantUserService.findById(userId);
-    //nonRestrictedUserViewRepo ::doubt
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
+    UserView userView = tenantUserService.findById(userId, id, currentUser);
     return new ResponseEntity<>(userView, HttpStatus.OK);
   }
 
   @Transactional
   @PatchMapping("/{userId}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.UPDATE_ANY_USER +
+    "'," +
+    "'" +
+    PermissionKeyConstants.UPDATE_OWN_USER +
+    "','" +
+    PermissionKeyConstants.UPDATE_TENANT_USER +
+    "'," +
+    "'" +
+    PermissionKeyConstants.UPDATE_TENANT_USER_RESTRICTED +
+    "')"
+  )
   public ResponseEntity<String> updateUserById(
     @RequestBody UserView userView,
     @PathVariable("id") UUID id,
@@ -142,6 +203,16 @@ public class TenantUserController {
 
   @Transactional
   @DeleteMapping("/{userId}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.DELETE_ANY_USER +
+    "'," +
+    "'" +
+    PermissionKeyConstants.DELETE_TENANT_USER +
+    "','" +
+    PermissionKeyConstants.DELETE_TENANT_USER_RESTRICTED +
+    "')"
+  )
   public ResponseEntity<String> deleteUserTenantById(
     @PathVariable("id") UUID id,
     @PathVariable("userId") UUID userId

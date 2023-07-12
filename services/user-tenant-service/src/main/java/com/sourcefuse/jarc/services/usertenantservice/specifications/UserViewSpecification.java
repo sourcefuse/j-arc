@@ -47,7 +47,7 @@ public final class UserViewSpecification {
       builder.equal(root.get("id"), id);
   }
 
-  public static Specification<UserView> byIdAndTenantId(
+  public static Specification<UserView> byUserIdAndTenantId(
     UUID id,
     UUID tenantId
   ) {

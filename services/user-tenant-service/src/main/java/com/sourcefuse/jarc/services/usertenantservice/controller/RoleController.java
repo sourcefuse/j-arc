@@ -1,10 +1,12 @@
 package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.core.constants.CommonConstants;
+import com.sourcefuse.jarc.core.constants.PermissionKeyConstants;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,16 +33,27 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RequestMapping("/roles")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class RoleController {
 
   private final RoleRepository roleRepository;
 
   @PostMapping
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.CREATE_ROLES +
+    "')"
+  )
   public ResponseEntity<Role> createRole(@Valid @RequestBody Role role) {
     return new ResponseEntity<>(roleRepository.save(role), HttpStatus.CREATED);
   }
 
   @GetMapping("/count")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_ROLES +
+    "')"
+  )
   public ResponseEntity<CountResponse> countRole() {
     CountResponse count = CountResponse
       .builder()
@@ -49,12 +63,22 @@ public class RoleController {
   }
 
   @GetMapping
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_ROLES +
+    "')"
+  )
   public ResponseEntity<List<Role>> getAllRoles() {
     return new ResponseEntity<>(roleRepository.findAll(), HttpStatus.OK);
   }
 
   @Transactional
   @PatchMapping
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.UPDATE_ROLES +
+    "')"
+  )
   public ResponseEntity<CountResponse> updateAllRole(
     @RequestBody Role sourceRole
   ) {
@@ -81,6 +105,11 @@ public class RoleController {
   }
 
   @GetMapping("{id}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.VIEW_ROLES +
+    "')"
+  )
   public ResponseEntity<Role> getRoleByID(@PathVariable("id") UUID id) {
     Role role = roleRepository
       .findById(id)
@@ -95,6 +124,11 @@ public class RoleController {
 
   @Transactional
   @PatchMapping("{id}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.UPDATE_ROLES +
+    "')"
+  )
   public ResponseEntity<String> updateRole(
     @PathVariable("id") UUID id,
     @RequestBody Role sourceRole
@@ -118,6 +152,11 @@ public class RoleController {
 
   @Transactional
   @PutMapping("{id}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.UPDATE_ROLES +
+    "')"
+  )
   public ResponseEntity<String> updateRoleById(
     @PathVariable("id") UUID id,
     @Valid @RequestBody Role role
@@ -137,6 +176,11 @@ public class RoleController {
 
   @Transactional
   @DeleteMapping("{id}")
+  @PreAuthorize(
+    "isAuthenticated() && hasAnyAuthority('" +
+    PermissionKeyConstants.DELETE_ROLES +
+    "')"
+  )
   public ResponseEntity<String> deleteRolesById(@PathVariable("id") UUID id) {
     roleRepository.deleteById(id);
     return new ResponseEntity<>("Roles DELETE success", HttpStatus.NO_CONTENT);

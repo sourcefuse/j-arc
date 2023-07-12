@@ -30,6 +30,7 @@
 		<module>services/feature-toggle-service</module>
 		<module>services/notification-service</module>
 		<module>services/user-tenant-service</module>
+		<module>sandbox/user-tenant-service-example</module>
 	</modules>
 
 	<build>

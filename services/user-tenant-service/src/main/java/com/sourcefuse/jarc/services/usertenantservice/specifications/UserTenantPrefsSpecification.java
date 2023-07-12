@@ -19,7 +19,7 @@ public final class UserTenantPrefsSpecification {
         CriteriaQuery<?> query,
         CriteriaBuilder builder
       ) ->
-      builder.equal(root.get("userTenant"), userTenantId);
+      builder.equal(root.get("userTenant").get("id"), userTenantId);
   }
 
   public static Specification<UserTenantPrefs> byConfigKey(String configKey) {

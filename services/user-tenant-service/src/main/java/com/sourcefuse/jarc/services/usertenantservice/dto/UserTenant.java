@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -66,6 +67,7 @@ public class UserTenant extends UserModifiableEntity {
     cascade = CascadeType.ALL,
     orphanRemoval = true
   )
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   private List<UserLevelPermission> userLevelPermissions;
 
   @OneToMany(
@@ -73,6 +75,7 @@ public class UserTenant extends UserModifiableEntity {
     cascade = CascadeType.ALL,
     orphanRemoval = true
   )
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   private List<UserGroup> userGroups;
 
   public UserTenant(UUID userTenantId) {
