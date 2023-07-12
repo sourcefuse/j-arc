@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
+import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.dto.User;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
@@ -9,7 +10,6 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
-import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -73,17 +73,23 @@ public class DeleteTenantUserServiceImpl implements DeleteTenantUserService {
   ) {
     /** INFO ::delete tenant
      * user permission check removed**/
-    Optional<UserTenant> userTenant = userTenantRepository.findOne(
-      UserTenantSpecification.byUserIdAndTenantIdOrderByIdAsc(
-        id,
-        currentUser.getTenantId()
-      )
-    );
-    if (!userTenant.isPresent()) {
-      throw new ResponseStatusException(
-        HttpStatus.FORBIDDEN,
-        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+    if (
+      currentUser
+        .getPermissions()
+        .contains(PermissionKey.DELETE_TENANT_USER.toString())
+    ) {
+      Optional<UserTenant> userTenant = userTenantRepository.findOne(
+        UserTenantSpecification.byUserIdAndTenantIdOrderByIdAsc(
+          id,
+          currentUser.getTenantId()
+        )
       );
+      if (!userTenant.isPresent()) {
+        throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+        );
+      }
     }
   }
 
@@ -91,6 +97,16 @@ public class DeleteTenantUserServiceImpl implements DeleteTenantUserService {
     CurrentUser currentUser,
     UUID tenantId
   ) {
-    CurrentUserUtils.compareWithCurrentUserTenantId(tenantId, currentUser);
+    if (
+      !currentUser
+        .getPermissions()
+        .contains(PermissionKey.DELETE_ANY_USER.toString()) &&
+      !tenantId.equals(currentUser.getTenantId())
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.FORBIDDEN,
+        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+      );
+    }
   }
 }

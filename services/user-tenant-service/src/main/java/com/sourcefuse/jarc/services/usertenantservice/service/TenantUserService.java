@@ -14,9 +14,9 @@ public interface TenantUserService {
     Map<String, String> options
   );
 
-  List<UserDto> getUserView(UUID uuid);
+  List<UserDto> getUserView(UUID uuid, CurrentUser currentUser);
 
   List<UserDto> getAllUsers(UUID tenantId);
 
-  UserView findById(UUID userId);
+  UserView findById(UUID userId, UUID tenantId, CurrentUser currentUser);
 }

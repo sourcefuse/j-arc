@@ -160,7 +160,10 @@ class TenantControllerUnitTests {
   }
 
   @Test
-  @DisplayName("Update Tenant By ID - Access Forbidden")
+  @DisplayName(
+    "Update Tenant By ID - Access Forbidden has UPDATE_OWN_TENANT permission but" +
+    "tenantId does not match with current user tenantId"
+  )
   void testUpdateTenantsById_AccessForbidden() {
     Tenant sourceTenant = new Tenant();
     sourceTenant.setName("Updated Tenant");
@@ -245,12 +248,14 @@ class TenantControllerUnitTests {
     UUID otherTenantId = MockTenantUser.INVALID_ID;
     MockCurrentUserSession.setCurrentLoggedInUser(otherTenantId, null, null);
     // Call the method under test and assert that it throws an exception
-    Assertions.assertThrows(
+    ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> tenantService.getTenantConfig(mockTenantID),
-      "Expected ResponseStatusException was not thrown."
+      () -> tenantService.getTenantConfig(mockTenantID)
     );
-
+    Assertions.assertEquals(
+      AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString(),
+      exception.getReason()
+    );
     // Verify that the repository method was not called
     Mockito.verifyNoInteractions(tenantConfigRepository);
   }

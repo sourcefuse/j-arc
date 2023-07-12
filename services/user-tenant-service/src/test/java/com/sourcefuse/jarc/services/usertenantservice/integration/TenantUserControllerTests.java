@@ -9,11 +9,6 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserServiceImpl;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +22,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @DisplayName("TenantUserController Integration Tests")
 class TenantUserControllerTests {
@@ -223,7 +224,12 @@ class TenantUserControllerTests {
 
     MockCurrentUserSession.setCurrentLoggedInUser(tenantId, null, null);
     Mockito
-      .when(tenantUserService.getUserView(ArgumentMatchers.any()))
+      .when(
+        tenantUserService.getUserView(
+          tenantId,
+          MockCurrentUserSession.getCurrentUser()
+        )
+      )
       .thenReturn(userDtoList);
 
     // Act & Assert
@@ -235,25 +241,6 @@ class TenantUserControllerTests {
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
-  }
-
-  @Test
-  @DisplayName("Test getUserTenantById - forbidden")
-  void testGetUserTenantByIdUnauthorized() throws Exception {
-    // Arrange
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      MockTenantUser.TENANT_ID,
-      null,
-      null
-    );
-    // Act & Assert
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders
-          .get(basePath, MockTenantUser.INVALID_ID)
-          .accept(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(MockMvcResultMatchers.status().isForbidden());
   }
 
   @Test
@@ -289,7 +276,12 @@ class TenantUserControllerTests {
     UUID tenantId = MockTenantUser.TENANT_ID;
     MockCurrentUserSession.setCurrentLoggedInUser(tenantId, null, null);
     Mockito
-      .when(tenantUserService.getUserView(ArgumentMatchers.any()))
+      .when(
+        tenantUserService.getUserView(
+          tenantId,
+          MockCurrentUserSession.getCurrentUser()
+        )
+      )
       .thenReturn(userDtoList);
 
     // Act & Assert
@@ -311,7 +303,13 @@ class TenantUserControllerTests {
     UUID userId = MockTenantUser.USER_ID;
     MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
     Mockito
-      .when(tenantUserService.findById(ArgumentMatchers.any()))
+      .when(
+        tenantUserService.findById(
+          userId,
+          tenantId,
+          MockCurrentUserSession.getCurrentUser()
+        )
+      )
       .thenReturn(MockTenantUser.getUserViewObj());
 
     // Act & Assert
@@ -323,32 +321,6 @@ class TenantUserControllerTests {
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(MockMvcResultMatchers.jsonPath("$").exists());
-  }
-
-  @Test
-  @DisplayName("Test find All User by userId - forbidden")
-  void testFindAllUserByUserIdForbidden() throws Exception {
-    // Arrange
-    UUID tenantId = MockTenantUser.TENANT_ID;
-    UUID userId = MockTenantUser.USER_ID;
-
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      tenantId,
-      MockTenantUser.INVALID_ID,
-      null
-    );
-    Mockito
-      .when(tenantUserService.findById(ArgumentMatchers.any()))
-      .thenReturn(MockTenantUser.getUserViewObj());
-
-    // Act & Assert
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders
-          .get(basePath + "/{userId}", tenantId, userId)
-          .accept(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(MockMvcResultMatchers.status().isForbidden());
   }
 
   @Test

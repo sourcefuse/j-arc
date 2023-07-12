@@ -1,6 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
 import com.sourcefuse.jarc.core.constants.CommonConstants;
+import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.dto.AuthClient;
@@ -10,6 +11,7 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.User;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
+import com.sourcefuse.jarc.services.usertenantservice.enums.AuthorizeErrorKeys;
 import com.sourcefuse.jarc.services.usertenantservice.repository.AuthClientsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserRepository;
@@ -165,7 +167,8 @@ public class TenantUserServiceImpl implements TenantUserService {
   }
 
   @Override
-  public List<UserDto> getUserView(UUID id) {
+  public List<UserDto> getUserView(UUID id, CurrentUser currentUser) {
+    CurrentUserUtils.checkForViewAnyUserPermission(currentUser, id);
     List<UserView> userViewsList = userViewRepository.findAll(
       UserViewSpecification.byTenantId(id)
     );
@@ -198,9 +201,16 @@ public class TenantUserServiceImpl implements TenantUserService {
   }
 
   @Override
-  public UserView findById(UUID userId) {
+  public UserView findById(
+    UUID userId,
+    UUID tenantId,
+    CurrentUser currentUser
+  ) {
+    CurrentUserUtils.checkForViewAnyUserPermission(currentUser, tenantId);
+
+    CurrentUserUtils.checkForViewOwnUserPermission(currentUser, userId);
     return userViewRepository
-      .findById(userId)
+      .findOne(UserViewSpecification.byUserIdAndTenantId(userId, tenantId))
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
@@ -215,11 +225,17 @@ public class TenantUserServiceImpl implements TenantUserService {
     CurrentUser currentUser,
     Map<String, String> options
   ) {
-    CurrentUserUtils.compareWithCurrentUserTenantId(
-      userData.getTenantId(),
+    if (
       currentUser
-    );
-
+        .getPermissions()
+        .contains(PermissionKey.CREATE_TENANT_USER.toString()) &&
+      !currentUser.getTenantId().equals(userData.getTenantId())
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.FORBIDDEN,
+        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+      );
+    }
     // Check for allowed domains
     String[] allowedDomains = (System.getenv("AUTO_SIGNUP_DOMAINS") != null)
       ? System.getenv("AUTO_SIGNUP_DOMAINS").split(",")
