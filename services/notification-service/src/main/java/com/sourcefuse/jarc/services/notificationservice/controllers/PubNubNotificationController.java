@@ -45,7 +45,7 @@ public class PubNubNotificationController {
   @Operation(summary = "grant access of notification to user")
   @PatchMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.CAN_GET_NOTIFICATION_ACCESS +
     "')"
   )

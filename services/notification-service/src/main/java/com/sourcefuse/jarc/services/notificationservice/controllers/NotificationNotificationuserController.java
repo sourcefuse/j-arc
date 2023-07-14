@@ -43,7 +43,7 @@ public class NotificationNotificationuserController {
   @Operation(summary = "find all notification users by notification id")
   @GetMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.VIEW_NOTIFICATION +
     "')"
   )
@@ -61,7 +61,7 @@ public class NotificationNotificationuserController {
   @Operation(summary = "create notification user for given notification id")
   @PostMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.CREATE_NOTIFICATION +
     "')"
   )
@@ -82,7 +82,7 @@ public class NotificationNotificationuserController {
   @Operation(summary = "update notification user for given notification id")
   @PatchMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.UPDATE_NOTIFICATION +
     "')"
   )
@@ -126,7 +126,7 @@ public class NotificationNotificationuserController {
   )
   @PatchMapping("/{notificationUserId}/mark-as-read")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.UPDATE_NOTIFICATION +
     "')"
   )
@@ -157,7 +157,7 @@ public class NotificationNotificationuserController {
   @Operation(summary = "delete all notification users of given notification id")
   @DeleteMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.DELETE_NOTIFICATION +
     "')"
   )

@@ -61,7 +61,7 @@ public class NotificationController {
   @Operation(summary = "Create and publish Notification")
   @PostMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.CREATE_NOTIFICATION +
     "')"
   )
@@ -89,7 +89,7 @@ public class NotificationController {
   @Operation(summary = "Create and publish Notifications")
   @PostMapping("/bulk")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.CREATE_NOTIFICATION +
     "')"
   )
@@ -126,7 +126,7 @@ public class NotificationController {
   @Operation(summary = "Get total count of notifications")
   @GetMapping("/count")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.VIEW_NOTIFICATION +
     "')"
   )
@@ -153,7 +153,7 @@ public class NotificationController {
   @Operation(summary = "get notification by id")
   @GetMapping("/{id}")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.VIEW_NOTIFICATION +
     "')"
   )
@@ -172,7 +172,7 @@ public class NotificationController {
   @Operation(summary = "update notification by id")
   @PatchMapping("/{id}")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.UPDATE_NOTIFICATION +
     "')"
   )
@@ -216,7 +216,7 @@ public class NotificationController {
   @Operation(summary = "delete all notifications")
   @DeleteMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.DELETE_NOTIFICATION +
     "')"
   )

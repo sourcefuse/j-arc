@@ -28,7 +28,7 @@ public class NotificationuserNotificationController {
   @Operation(summary = "get all notification of given notification user id")
   @GetMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     NotificationPermissions.VIEW_NOTIFICATION +
     "')"
   )

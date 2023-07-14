@@ -31,7 +31,7 @@ public class AuditLogController {
 
   @PostMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     AuditPermissions.CREATE_AUDIT +
     "')"
   )
@@ -47,7 +47,7 @@ public class AuditLogController {
 
   @GetMapping("/count")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     AuditPermissions.VIEW_AUDIT +
     "')"
   )
@@ -58,7 +58,7 @@ public class AuditLogController {
 
   @GetMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     AuditPermissions.VIEW_AUDIT +
     "')"
   )
@@ -72,7 +72,7 @@ public class AuditLogController {
 
   @GetMapping("/{id}")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     AuditPermissions.VIEW_AUDIT +
     "')"
   )
