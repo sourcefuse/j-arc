@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.5</version>
+		<version>3.0.6</version>
 	</parent>
 
 	<properties>
@@ -36,6 +36,7 @@
 		<module>sandbox/notification-twilio-example</module>
 		<module>sandbox/audit-service-example</module>
 		<module>sandbox/user-tenant-service-example</module>
+		<module>sandbox/feature-toggle-example</module>
 	</modules>
 
 	<build>

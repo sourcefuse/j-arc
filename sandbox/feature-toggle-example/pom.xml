@@ -3,44 +3,23 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.sourcefuse</groupId>
-	    <artifactId>jarc</artifactId>
-	    <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../../</relativePath>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.0.7</version>
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.sourcefuse.jarc.services</groupId>
-	<artifactId>feature-toggle-service</artifactId>
+	<groupId>com.sourcefuse</groupId>
+	<artifactId>feature-toggle-example</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>feature-toggle-service</name>
-	<description>Demo project for Spring Boot</description>
-	<packaging>jar</packaging>
-
-    <properties>
+	<name>feature-toggle-example</name>
+	<description>Feature toggle example app</description>
+	<properties>
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aop</artifactId>
-		</dependency>
-		<dependency>
-    		<groupId>org.togglz</groupId>
-		    <artifactId>togglz-spring-boot-starter</artifactId>
-		    <version>4.0,0-M2</version>
-		</dependency>
-		<dependency>
-    		<groupId>org.togglz</groupId>
-		    <artifactId>togglz-console</artifactId>
-		    <version>4.0,0-M2</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.togglz</groupId>
-		    <artifactId>togglz-spring-security</artifactId>
-		    <version>4.0,0-M2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -133,7 +112,12 @@
 			<groupId>com.sourcefuse.jarc.services</groupId>
 			<artifactId>auth-service</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>   
+		</dependency>
+		<dependency>
+			<groupId>com.sourcefuse.jarc.services</groupId>
+			<artifactId>feature-toggle-service</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>  
     </dependencies>
 
 	<build>
@@ -177,5 +161,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
