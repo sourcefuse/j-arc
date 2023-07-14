@@ -35,7 +35,11 @@
 		<module>sandbox/notification-pubnub-example</module>
 		<module>sandbox/notification-twilio-example</module>
 		<module>sandbox/audit-service-example</module>
-		<module>sandbox/user-tenant-service-example</module>
+		
+		<module>examples/basic-example/facades/facade-service</module>
+		<module>examples/basic-example/services/auth-service</module>
+		<module>examples/basic-example/services/notification-service</module>
+		<module>examples/basic-example/services/user-tenant-service</module>
 	</modules>
 
 	<build>
