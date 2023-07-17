@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.services.authservice.providers;
 
-import com.sourcefuse.jarc.authlib.Utils;
+import com.sourcefuse.jarc.authlib.utils.JwtUtils;
 import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.authservice.dtos.JWTAuthResponse;
@@ -42,7 +42,7 @@ public class JwtTokenProvider {
     try {
       CurrentUser currentUser =
         this.jwtPayloadProvider.provide(user, userTenant, role);
-      String accessToken = Utils.generateAccessToken(
+      String accessToken = JwtUtils.generateAccessToken(
         jwtSecret,
         jwtExpirationDate,
         currentUser

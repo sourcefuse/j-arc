@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.sourcefuse.jarc.authlib.Utils;
+import com.sourcefuse.jarc.authlib.utils.JwtUtils;
 import com.sourcefuse.jarc.core.adapters.LocalDateTimeTypeAdapter;
 import com.sourcefuse.jarc.core.enums.AuditActions;
 import com.sourcefuse.jarc.services.auditservice.constant.TestConstants;
@@ -74,7 +74,7 @@ class AuditControllerTests {
   void clearUserAndAuditLog() {
     authToken =
       "Bearer " +
-      Utils.generateAccessToken(
+      JwtUtils.generateAccessToken(
         jwtSecret,
         jwtExpirationDate,
         TestConstants.createMockCurrentUser()

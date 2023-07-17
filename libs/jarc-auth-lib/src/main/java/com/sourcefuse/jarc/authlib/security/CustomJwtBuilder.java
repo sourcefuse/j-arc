@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.authlib.security;
 
-import com.sourcefuse.jarc.authlib.Utils;
+import com.sourcefuse.jarc.authlib.utils.Utils;
 import io.jsonwebtoken.impl.DefaultJwtBuilder;
 import io.jsonwebtoken.io.SerializationException;
 import lombok.SneakyThrows;
