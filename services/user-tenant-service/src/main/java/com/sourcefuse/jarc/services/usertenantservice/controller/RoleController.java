@@ -8,9 +8,6 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -29,6 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 @RestController
 @Slf4j
 @RequestMapping("/roles")
@@ -40,7 +41,7 @@ public class RoleController {
 
   @PostMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.CREATE_ROLES +
     "')"
   )
@@ -50,7 +51,7 @@ public class RoleController {
 
   @GetMapping("/count")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.VIEW_ROLES +
     "')"
   )
@@ -64,7 +65,7 @@ public class RoleController {
 
   @GetMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.VIEW_ROLES +
     "')"
   )
@@ -75,7 +76,7 @@ public class RoleController {
   @Transactional
   @PatchMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.UPDATE_ROLES +
     "')"
   )
@@ -106,7 +107,7 @@ public class RoleController {
 
   @GetMapping("{id}")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.VIEW_ROLES +
     "')"
   )
@@ -125,7 +126,7 @@ public class RoleController {
   @Transactional
   @PatchMapping("{id}")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.UPDATE_ROLES +
     "')"
   )
@@ -153,7 +154,7 @@ public class RoleController {
   @Transactional
   @PutMapping("{id}")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.UPDATE_ROLES +
     "')"
   )
@@ -177,7 +178,7 @@ public class RoleController {
   @Transactional
   @DeleteMapping("{id}")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.DELETE_ROLES +
     "')"
   )

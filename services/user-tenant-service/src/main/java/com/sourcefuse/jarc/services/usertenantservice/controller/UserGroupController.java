@@ -13,9 +13,6 @@ import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsS
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,6 +29,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 @RestController
 @Slf4j
 @RequestMapping("/groups")
@@ -46,7 +47,7 @@ public class UserGroupController {
 
   @PostMapping("{id}/user-groups")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.ADD_MEMBER_TO_USER_GROUP +
     "')"
   )
@@ -63,7 +64,7 @@ public class UserGroupController {
   @Transactional
   @PatchMapping("{id}/user-groups/{userGroupId}")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.UPDATE_MEMBER_IN_USER_GROUP +
     "')"
   )
@@ -84,8 +85,7 @@ public class UserGroupController {
   @PreAuthorize(
     "isAuthenticated() && hasAnyAuthority('" +
     PermissionKeyConstants.REMOVE_MEMBER_FROM_USER_GROUP +
-    "'," +
-    "'" +
+    "','" +
     PermissionKeyConstants.LEAVE_USER_GROUP +
     "')"
   )
@@ -99,7 +99,7 @@ public class UserGroupController {
 
   @GetMapping("{id}/user-groups")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.VIEW_USER_GROUP_LIST +
     "')"
   )
@@ -133,7 +133,7 @@ public class UserGroupController {
 
   @GetMapping("{id}/user-groups/count")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.VIEW_USER_GROUP_LIST +
     "')"
   )

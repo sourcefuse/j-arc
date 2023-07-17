@@ -14,8 +14,6 @@ import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsS
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -34,6 +32,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.UUID;
+
 @RestController
 @Slf4j
 @RequestMapping("/groups")
@@ -47,7 +48,7 @@ public class GroupController {
 
   @PostMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.CREATE_USER_GROUP +
     "')"
   )
@@ -70,7 +71,7 @@ public class GroupController {
 
   @GetMapping("/count")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.VIEW_USER_GROUP_LIST +
     "')"
   )
@@ -84,7 +85,7 @@ public class GroupController {
 
   @GetMapping
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.VIEW_USER_GROUP_LIST +
     "')"
   )
@@ -94,7 +95,7 @@ public class GroupController {
 
   @GetMapping("{id}")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.VIEW_USER_GROUP_LIST +
     "')"
   )
@@ -116,7 +117,7 @@ public class GroupController {
   @Transactional
   @PatchMapping("{id}")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.UPDATE_USER_GROUP +
     "')"
   )
@@ -147,7 +148,7 @@ public class GroupController {
   @Transactional
   @DeleteMapping("{id}")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.DELETE_USER_GROUP +
     "')"
   )

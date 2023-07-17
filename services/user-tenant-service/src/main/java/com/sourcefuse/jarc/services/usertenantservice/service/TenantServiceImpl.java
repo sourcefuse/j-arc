@@ -87,7 +87,7 @@ public class TenantServiceImpl implements TenantService {
       checkForUpdateOwnUserPermission(currentUser, tenantId);
     } else if (CommonConstants.DELETE.equalsIgnoreCase(operationType)) {
       CurrentUserUtils.compareWithCurrentUserTenantId(tenantId, currentUser);
-    } else{
+    } else {
       log.info("Else block to handle future condition if any !");
     }
   }

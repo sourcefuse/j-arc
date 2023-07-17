@@ -12,10 +12,6 @@ import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserSe
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +28,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -51,8 +52,7 @@ public class TenantUserController {
   @PreAuthorize(
     "isAuthenticated() && hasAnyAuthority('" +
     PermissionKeyConstants.CREATE_ANY_USER +
-    "'," +
-    "'" +
+    "','" +
     PermissionKeyConstants.CREATE_TENANT_USER +
     "','" +
     PermissionKeyConstants.CREATE_TENANT_USER_RESTRICTED +
@@ -85,8 +85,7 @@ public class TenantUserController {
   @PreAuthorize(
     "isAuthenticated() && hasAnyAuthority('" +
     PermissionKeyConstants.VIEW_ANY_USER +
-    "'," +
-    "'" +
+    "','" +
     PermissionKeyConstants.VIEW_TENANT_USER +
     "','" +
     PermissionKeyConstants.VIEW_TENANT_USER_RESTRICTED +
@@ -104,7 +103,7 @@ public class TenantUserController {
 
   @GetMapping("/view-all")
   @PreAuthorize(
-    "isAuthenticated() && hasAnyAuthority('" +
+    "isAuthenticated() && hasAuthority('" +
     PermissionKeyConstants.VIEW_ALL_USER +
     "')"
   )
@@ -122,8 +121,7 @@ public class TenantUserController {
   @PreAuthorize(
     "isAuthenticated() && hasAnyAuthority('" +
     PermissionKeyConstants.VIEW_ANY_USER +
-    "'," +
-    "'" +
+    "','" +
     PermissionKeyConstants.VIEW_TENANT_USER +
     "','" +
     PermissionKeyConstants.VIEW_TENANT_USER_RESTRICTED +
@@ -146,13 +144,11 @@ public class TenantUserController {
   @PreAuthorize(
     "isAuthenticated() && hasAnyAuthority('" +
     PermissionKeyConstants.VIEW_ANY_USER +
-    "'," +
-    "'" +
+    "','" +
     PermissionKeyConstants.VIEW_TENANT_USER +
     "','" +
     PermissionKeyConstants.VIEW_TENANT_USER_RESTRICTED +
-    "'," +
-    "'" +
+    "','" +
     PermissionKeyConstants.VIEW_OWN_USER +
     "')"
   )
@@ -170,13 +166,11 @@ public class TenantUserController {
   @PreAuthorize(
     "isAuthenticated() && hasAnyAuthority('" +
     PermissionKeyConstants.UPDATE_ANY_USER +
-    "'," +
-    "'" +
+    "','" +
     PermissionKeyConstants.UPDATE_OWN_USER +
     "','" +
     PermissionKeyConstants.UPDATE_TENANT_USER +
-    "'," +
-    "'" +
+    "','" +
     PermissionKeyConstants.UPDATE_TENANT_USER_RESTRICTED +
     "')"
   )
@@ -206,8 +200,7 @@ public class TenantUserController {
   @PreAuthorize(
     "isAuthenticated() && hasAnyAuthority('" +
     PermissionKeyConstants.DELETE_ANY_USER +
-    "'," +
-    "'" +
+    "','" +
     PermissionKeyConstants.DELETE_TENANT_USER +
     "','" +
     PermissionKeyConstants.DELETE_TENANT_USER_RESTRICTED +
