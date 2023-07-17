@@ -1,8 +1,12 @@
 package com.sourcefuse.jarc.services.featuretoggleservice.controller;
 
+import com.sourcefuse.jarc.core.utils.CommonUtils;
+import com.sourcefuse.jarc.services.featuretoggleservice.model.FeatureList;
+import com.sourcefuse.jarc.services.featuretoggleservice.repositories.FeatureListRepository;
+import jakarta.validation.Valid;
 import java.util.Optional;
 import java.util.UUID;
-
+import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,65 +22,75 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.sourcefuse.jarc.core.utils.CommonUtils;
-import com.sourcefuse.jarc.services.featuretoggleservice.model.FeatureList;
-import com.sourcefuse.jarc.services.featuretoggleservice.repositories.FeatureListRepository;
-
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-
 @RestController
 @AllArgsConstructor
 @RequestMapping("/feature")
 public class FeatureController {
 
-	@Autowired
-	FeatureListRepository featureListRepo;
+  @Autowired
+  FeatureListRepository featureListRepo;
 
-	@GetMapping
-	@PreAuthorize("isAuthenticated()")
-	public ResponseEntity<Iterable<FeatureList>> find() {
-		return new ResponseEntity<>(this.featureListRepo.findAll(), HttpStatus.OK);
-	}
+  @GetMapping
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<Iterable<FeatureList>> find() {
+    return new ResponseEntity<>(this.featureListRepo.findAll(), HttpStatus.OK);
+  }
 
-	@GetMapping("/{id}")
-	@PreAuthorize("isAuthenticated()")
-	public ResponseEntity<Optional<FeatureList>> findById(@PathVariable UUID id) {
-		return new ResponseEntity<>(this.featureListRepo.findById(id), HttpStatus.OK);
-	}
+  @GetMapping("/{id}")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<Optional<FeatureList>> findById(@PathVariable UUID id) {
+    return new ResponseEntity<>(
+      this.featureListRepo.findById(id),
+      HttpStatus.OK
+    );
+  }
 
-	@GetMapping("/count")
-	@PreAuthorize("isAuthenticated()")
-	public ResponseEntity<Long> count() {
-		return new ResponseEntity<>(this.featureListRepo.count(), HttpStatus.OK);
-	}
+  @GetMapping("/count")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<Long> count() {
+    return new ResponseEntity<>(this.featureListRepo.count(), HttpStatus.OK);
+  }
 
-	@PostMapping
-	@PreAuthorize("isAuthenticated()")
-	public ResponseEntity<FeatureList> create(@Valid @RequestBody FeatureList feature) {
-		return new ResponseEntity<>(this.featureListRepo.save(feature), HttpStatus.CREATED);
-	}
+  @PostMapping
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<FeatureList> create(
+    @Valid @RequestBody FeatureList feature
+  ) {
+    return new ResponseEntity<>(
+      this.featureListRepo.save(feature),
+      HttpStatus.CREATED
+    );
+  }
 
-	@DeleteMapping("/{id}")
-	@PreAuthorize("isAuthenticated()")
-	public ResponseEntity<String> delete(@PathVariable("id") UUID id) {
-		this.featureListRepo.deleteById(id);
-		return new ResponseEntity<>("Delete success", HttpStatus.OK);
-	}
+  @DeleteMapping("/{id}")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<String> delete(@PathVariable("id") UUID id) {
+    this.featureListRepo.deleteById(id);
+    return new ResponseEntity<>("Delete success", HttpStatus.OK);
+  }
 
-	@PatchMapping("/{id}")
-	@PreAuthorize("isAuthenticated()")
-	public ResponseEntity<String> updateById(@PathVariable("id") UUID id, @Valid @RequestBody FeatureList feature) {
+  @PatchMapping("/{id}")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<String> updateById(
+    @PathVariable("id") UUID id,
+    @Valid @RequestBody FeatureList feature
+  ) {
+    FeatureList targetFeature =
+      this.featureListRepo.findById(id)
+        .orElseThrow(() ->
+          new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "No group is present against given value"
+          )
+        );
 
-		FeatureList targetFeature = this.featureListRepo.findById(id).orElseThrow(() -> new ResponseStatusException(
-				HttpStatus.NOT_FOUND,
-				"No group is present against given value"));
+    BeanUtils.copyProperties(
+      feature,
+      targetFeature,
+      CommonUtils.getNullPropertyNames(feature)
+    );
 
-		BeanUtils.copyProperties(feature, targetFeature, CommonUtils.getNullPropertyNames(feature));
-
-		this.featureListRepo.save(targetFeature);
-		return new ResponseEntity<>("Feature PATCH Success", HttpStatus.NO_CONTENT);
-
-	}
-
+    this.featureListRepo.save(targetFeature);
+    return new ResponseEntity<>("Feature PATCH Success", HttpStatus.NO_CONTENT);
+  }
 }

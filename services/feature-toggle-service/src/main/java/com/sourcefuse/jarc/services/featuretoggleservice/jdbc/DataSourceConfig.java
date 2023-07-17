@@ -13,30 +13,29 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 @NoArgsConstructor
 public class DataSourceConfig {
 
-	@Value("${spring.datasource.url}")
-	private String url;
+  @Value("${spring.datasource.url}")
+  private String url;
 
-	@Value("${spring.datasource.username}")
-	private String username;
+  @Value("${spring.datasource.username}")
+  private String username;
 
-	@Value("${spring.datasource.password}")
-	private String password;
+  @Value("${spring.datasource.password}")
+  private String password;
 
-	@Value("${spring.datasource.driver-class-name}")
-	private String driver;
+  @Value("${spring.datasource.driver-class-name}")
+  private String driver;
 
-	@Value("${spring.datasource.schema}")
-	private String schema;
+  @Value("${spring.datasource.schema}")
+  private String schema;
 
-	@Bean
-	public DataSource dataSource() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName(driver);
-		dataSource.setSchema(schema);
-		dataSource.setUrl(url);
-		dataSource.setUsername(username);
-		dataSource.setPassword(password);
-		return dataSource;
-	}
-
+  @Bean
+  public DataSource dataSource() {
+    DriverManagerDataSource dataSource = new DriverManagerDataSource();
+    dataSource.setDriverClassName(driver);
+    dataSource.setSchema(schema);
+    dataSource.setUrl(url);
+    dataSource.setUsername(username);
+    dataSource.setPassword(password);
+    return dataSource;
+  }
 }

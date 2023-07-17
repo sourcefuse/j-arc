@@ -21,7 +21,7 @@ public class FeatureHandlerService {
       );
     }
     for (int i = 0; i < featureHandler.size(); i++) {
-       FeatureHandlers h = featureHandler.get(i);
+      FeatureHandlers h = featureHandler.get(i);
       if (h.getClass().getName().equalsIgnoreCase(featureToggle.handler())) {
         return h.handle();
       }
