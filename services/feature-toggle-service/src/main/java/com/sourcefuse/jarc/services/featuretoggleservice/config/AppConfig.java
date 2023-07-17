@@ -32,7 +32,8 @@ public class AppConfig {
 
   @Bean
   public ActivationStrategyProvider activationStrategyProvider() {
-    DefaultActivationStrategyProvider activationStrategyProvider = new DefaultActivationStrategyProvider();
+    DefaultActivationStrategyProvider activationStrategyProvider = 
+    new DefaultActivationStrategyProvider();
     activationStrategyProvider.addActivationStrategies(activationStrategies);
     return activationStrategyProvider;
   }
