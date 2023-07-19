@@ -7,6 +7,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class InviteUserComponent implements OnInit {
 
+  userDetails:any ={
+    authProvider:"internal"
+  }
+
   constructor() { }
 
   ngOnInit(): void {

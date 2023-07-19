@@ -1,1 +1,27 @@
-<p>invite-user works!</p>
+<div class="invite-user-container">
+    <div class="bg-light border-dark rounded p-3 invite-row">
+        <h2 class="text-center">Invite User</h2>
+            <div class="col-12 mt-3">
+                <mat-label>Auth Provider <i class="text-danger">*</i></mat-label>
+                <mat-button-toggle-group name="Auth Provider" class ="d-flex" [(ngModel)]="userDetails.authProvider">
+                    <mat-button-toggle class="w-100" value="internal">Internal</mat-button-toggle>
+                    <mat-button-toggle class="w-100" value="keycloak">Keycloak</mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
+            <mat-form-field class="col-12 mt-3">
+                <mat-label>Email</mat-label>
+                <input matInput placeholder="Password" required>
+            </mat-form-field>
+            <mat-form-field class="col-12 mt-3" *ngIf="userDetails?.authProvider=='internal'">
+                <mat-label>First Name</mat-label>
+                <input matInput placeholder="First Name">
+            </mat-form-field>
+            <mat-form-field class="col-12 mt-3" *ngIf="userDetails?.authProvider=='internal'">
+                <mat-label>Last Name</mat-label>
+                <input matInput placeholder="Last Name">
+            </mat-form-field>
+        <div class="m-3">
+            <button class="btn btn-primary p-3  w-100" type="submit" name="action">Invite</button>
+        </div>
+    </div>
+</div>
