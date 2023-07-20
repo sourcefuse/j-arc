@@ -10,30 +10,44 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class DemoController {
 
+  /* Allowed for all System level */	
   @FeatureToggle(
-    value = "HELLO",
+    value = "SYSTEMLEVEL",
     handler = "com.sourcefuse.jarc.sandbox.featuretoggleexample.handlers.HelloHandler"
   )
-  @GetMapping("/hello")
+  @GetMapping("/system-level")
   @PreAuthorize("isAuthenticated()")
-  public String sayHello() {
-    return "hellohellohello";
+  public String systemLevel() {
+    return "The System Level Feature Check Worked!!!";
   }
 
-  @FeatureToggle(value = "HI")
-  @GetMapping("/hi")
+  /* All the Users of specific tenants Allowed */
+  @FeatureToggle(value = "TENANTLEVEL")
+  @GetMapping("/tenant-level")
   @PreAuthorize("isAuthenticated()")
-  public String sayHi() {
-    return "hihihi";
+  public String tenantLevel() {
+    return "The Tenant Level Feature Check Worked!!!";
   }
 
+  /* Specific Users of all Tenants Allowed */
+  /* Passing a Handler as well*/
   @FeatureToggle(
-    value = "HEY",
-    handler = "com.sourcefuse.jarc.sandbox.featuretoggleexample.handlers.HeyHandler"
+    value = "USERTENANTLEVEL",
+    handler = "com.sourcefuse.jarc.sandbox.featuretoggleexample.handlers.SimpleHandler"
   )
-  @GetMapping("/hey")
+  @GetMapping("/user-tenant-level")
   @PreAuthorize("isAuthenticated()")
-  public String sayHey() {
-    return "heyheyhey";
+  public String userTenantLevel() {
+    return "The User Tenant Level Feature Check Worked!!!";
+  }
+
+  /*Specific Users of Specific Tenants Allowed*/
+  @FeatureToggle(
+    value = "USERTENANTS"
+  )
+  @GetMapping("/user-tenant")
+  @PreAuthorize("isAuthenticated()")
+  public String userTenants() {
+    return "The Feature Check Worked!!!";
   }
 }

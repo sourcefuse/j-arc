@@ -3,9 +3,10 @@ package com.sourcefuse.jarc.sandbox.featuretoggleexample.enums;
 import org.togglz.core.Feature;
 
 public enum FeaturesEnum implements Feature {
-  HELLO("HELLO"),
-  HI("HI"),
-  HEY("HEY");
+  SYSTEMLEVEL("SYSTEMLEVEL"),
+  TENANTLEVEL("TENANTLEVEL"),
+  USERTENANTLEVEL("USERTENANTLEVEL"),
+  USERTENANTS("USERTENANTS");
 
   private final String name;
 
