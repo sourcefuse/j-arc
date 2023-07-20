@@ -10,11 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class DemoController {
 
-  /* Allowed for all System level */	
-  @FeatureToggle(
-    value = "SYSTEMLEVEL",
-    handler = "com.sourcefuse.jarc.sandbox.featuretoggleexample.handlers.HelloHandler"
-  )
+  /* Allowed for all System level */
+  @FeatureToggle(value = "SYSTEMLEVEL")
   @GetMapping("/system-level")
   @PreAuthorize("isAuthenticated()")
   public String systemLevel() {
@@ -42,9 +39,7 @@ public class DemoController {
   }
 
   /*Specific Users of Specific Tenants Allowed*/
-  @FeatureToggle(
-    value = "USERTENANTS"
-  )
+  @FeatureToggle(value = "USERTENANTS")
   @GetMapping("/user-tenant")
   @PreAuthorize("isAuthenticated()")
   public String userTenants() {
