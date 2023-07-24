@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { VerifyInvitationComponent } from './invitation/verify-invitation/verify-invitation.component';
 
 const routes: Routes = [
 
@@ -9,8 +10,8 @@ const routes: Routes = [
     canActivate: [],// add route gaurd to check if user is logeed in if not then proceed
   },
   {
-    path: 'signup',
-    loadChildren: () => import('./signup/signup.module').then(m => m.SignupModule),
+    path: 'invitation/:id',
+    component: VerifyInvitationComponent,
     canActivate: [],// add route gaurd to check if user is logeed in if not then proceed
   },
   {

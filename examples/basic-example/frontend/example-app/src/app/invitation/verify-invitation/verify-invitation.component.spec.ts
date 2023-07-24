@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LinkExpireComponent } from './link-expire.component';
+import { VerifyInvitationComponent } from './verify-invitation.component';
 
-describe('LinkExpireComponent', () => {
-  let component: LinkExpireComponent;
-  let fixture: ComponentFixture<LinkExpireComponent>;
+describe('VerifyInvitationComponent', () => {
+  let component: VerifyInvitationComponent;
+  let fixture: ComponentFixture<VerifyInvitationComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LinkExpireComponent ]
+      declarations: [ VerifyInvitationComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LinkExpireComponent);
+    fixture = TestBed.createComponent(VerifyInvitationComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
