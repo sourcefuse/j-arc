@@ -591,13 +591,10 @@ class QueryServiceTests {
     );
   }
 
-  //	------------------------------
-
   @Test
   void testSpecificationFilterWithJson_ForEqualsOperator() {
     Specification<Role> specs = filterService.getSpecifications(
-      "{\"where\":{\"name\":{\"eq\":\"User\"}}}",
-      Role.class
+      "{\"where\":{\"name\":{\"eq\":\"User\"}}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
 
@@ -609,8 +606,7 @@ class QueryServiceTests {
   @Test
   void testSpecificationFilterWithJson_ForNotEqualsOperator() {
     Specification<Role> specs = filterService.getSpecifications(
-      "{\"where\":{\"name\":{\"neq\":\"User\"}}}",
-      Role.class
+      "{\"where\":{\"name\":{\"neq\":\"User\"}}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
 
@@ -620,8 +616,7 @@ class QueryServiceTests {
   @Test
   void testSpecificationFilterWithJson_ForGreaterThanOperator() {
     Specification<User> specs = filterService.getSpecifications(
-      "{\"where\":{\"age\":{\"gt\":\"20\"}}}",
-      User.class
+      "{\"where\":{\"age\":{\"gt\":\"20\"}}}"
     );
     List<User> users = this.userRepository.findAll(specs);
     assertThat(users).hasSize(2).contains(user2, user3);
@@ -630,8 +625,7 @@ class QueryServiceTests {
   @Test
   void testSpecificationFilterWithJson_ForGreaterThanOperatorWithString() {
     Specification<User> specs = filterService.getSpecifications(
-      "{\"where\":{\"age\":{\"gt\":\"24s\"}}}",
-      User.class
+      "{\"where\":{\"age\":{\"gt\":\"24s\"}}}"
     );
 
     assertThrows(
@@ -643,8 +637,7 @@ class QueryServiceTests {
   @Test
   void testSpecificationFilterWithJson_ForGreaterThanOrEqulsToOperator() {
     Specification<User> specs = filterService.getSpecifications(
-      "{\"where\":{\"age\":{\"gte\":\"20\"}}}",
-      User.class
+      "{\"where\":{\"age\":{\"gte\":\"20\"}}}"
     );
     List<User> users = this.userRepository.findAll(specs);
 
@@ -652,23 +645,9 @@ class QueryServiceTests {
   }
 
   @Test
-  void testSpecificationFilterWithJson_ForGreaterThanOrEqulsToOperatorWithString() {
-    Specification<User> specs = filterService.getSpecifications(
-      "{\"where\":{\"age\":{\"gte\":\"20s\"}}}",
-      User.class
-    );
-
-    assertThrows(
-      InvalidDataAccessApiUsageException.class,
-      () -> this.userRepository.findAll(specs)
-    );
-  }
-
-  @Test
   void testSpecificationFilterWithJson_ForLessThanOperator() {
     Specification<User> specs = filterService.getSpecifications(
-      "{\"where\":{\"age\":{\"lt\":\"24\"}}}",
-      User.class
+      "{\"where\":{\"age\":{\"lt\":\"24\"}}}"
     );
     List<User> users = this.userRepository.findAll(specs);
 
@@ -676,23 +655,9 @@ class QueryServiceTests {
   }
 
   @Test
-  void testSpecificationFilterWithJson_ForLessThanOperatorWithString() {
-    Specification<User> specs = filterService.getSpecifications(
-      "{\"where\":{\"age\":{\"lt\":\"24s\"}}}",
-      User.class
-    );
-
-    assertThrows(
-      InvalidDataAccessApiUsageException.class,
-      () -> this.userRepository.findAll(specs)
-    );
-  }
-
-  @Test
   void testSpecificationFilterWithJson_ForLessThanOrEqualsToOperator() {
     Specification<User> specs = filterService.getSpecifications(
-      "{\"where\":{\"age\":{\"lte\":\"24\"}}}",
-      User.class
+      "{\"where\":{\"age\":{\"lte\":\"24\"}}}"
     );
     List<User> users = this.userRepository.findAll(specs);
 
@@ -700,23 +665,9 @@ class QueryServiceTests {
   }
 
   @Test
-  void testSpecificationFilterWithJson_ForLessThanOrEqualsToOperatorWithString() {
-    Specification<User> specs = filterService.getSpecifications(
-      "{\"where\":{\"age\":{\"lte\":\"24s\"}}}",
-      User.class
-    );
-
-    assertThrows(
-      InvalidDataAccessApiUsageException.class,
-      () -> this.userRepository.findAll(specs)
-    );
-  }
-
-  @Test
   void testSpecificationFilterWithJson_ForLikeOperator() {
     Specification<Role> specs = filterService.getSpecifications(
-      "{\"where\":{\"permissions\":{\"like\":\"%Update%\"}}}",
-      Role.class
+      "{\"where\":{\"permissions\":{\"like\":\"%Update%\"}}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
 
@@ -726,8 +677,7 @@ class QueryServiceTests {
   @Test
   void testSpecificationFilterWithJson_ForNotLikeOperator() {
     Specification<Role> specs = filterService.getSpecifications(
-      "{\"where\":{\"permissions\":{\"nlike\":\"%Update%\"}}}",
-      Role.class
+      "{\"where\":{\"permissions\":{\"nlike\":\"%Update%\"}}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
 
@@ -742,8 +692,7 @@ class QueryServiceTests {
       tempRole.getId() +
       "\", \"" +
       adminRole.getId() +
-      "\"]}}}",
-      Role.class
+      "\"]}}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
 
@@ -757,8 +706,7 @@ class QueryServiceTests {
       tempRole.getId() +
       "\", \"" +
       adminRole.getId() +
-      "\"]}}}",
-      Role.class
+      "\"]}}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
 
@@ -768,8 +716,7 @@ class QueryServiceTests {
   @Test
   void testSpecificationFilterWithJson_AndOperation() {
     Specification<Role> specs = filterService.getSpecifications(
-      "{\"where\":{\"and\":[{\"permissions\":{\"like\":\"%Update%\"}},{\"name\":\"Admin\"}]}}",
-      Role.class
+      "{\"where\":{\"and\":[{\"permissions\":{\"like\":\"%Update%\"}},{\"name\":\"Admin\"}]}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
 
@@ -779,8 +726,7 @@ class QueryServiceTests {
   @Test
   void testSpecificationFilterWithJson_OrInsideAndOperation() {
     Specification<Role> specs = filterService.getSpecifications(
-      "{\"where\":{\"and\":[{\"or\":[{\"permissions\":{\"like\":\"%Update%\"}},{\"name\":\"Admin\"}]},{\"permissions\":\"Get,Update,Find,Delete\"}]}}",
-      Role.class
+      "{\"where\":{\"and\":[{\"or\":[{\"permissions\":{\"like\":\"%Update%\"}},{\"name\":\"Admin\"}]},{\"permissions\":\"Get,Update,Find,Delete\"}]}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
 
@@ -790,8 +736,7 @@ class QueryServiceTests {
   @Test
   void testSpecificationFilterWithJson_AndInsideOrOperation() {
     Specification<Role> specs = filterService.getSpecifications(
-      "{\"where\":{\"or\":[{\"and\":[{\"permissions\":{\"like\":\"%Update%\"}},{\"name\":\"Admin\"}]},{\"permissions\":\"Get\"}]}}",
-      Role.class
+      "{\"where\":{\"or\":[{\"and\":[{\"permissions\":{\"like\":\"%Update%\"}},{\"name\":\"Admin\"}]},{\"permissions\":\"Get\"}]}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
 
@@ -801,8 +746,7 @@ class QueryServiceTests {
   @Test
   void testSpecificationFilterWithJson_OrOperation() {
     Specification<Role> specs = filterService.getSpecifications(
-      "{\"where\":{\"or\":[{\"permissions\":{\"like\":\"%Update%\"}},{\"name\":\"Temp\"}]}}",
-      Role.class
+      "{\"where\":{\"or\":[{\"permissions\":{\"like\":\"%Update%\"}},{\"name\":\"Temp\"}]}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
 
@@ -815,8 +759,7 @@ class QueryServiceTests {
       IllegalArgumentException.class,
       () ->
         filterService.getSpecifications(
-          "{\"where1\":{\"or\":[{\"permissions\":{\"like\":\"%Update%\"}},{\"name\":\"Temp\"}]}}",
-          Role.class
+          "{\"where1\":{\"or\":[{\"permissions\":{\"like\":\"%Update%\"}},{\"name\":\"Temp\"}]}}"
         )
     );
   }

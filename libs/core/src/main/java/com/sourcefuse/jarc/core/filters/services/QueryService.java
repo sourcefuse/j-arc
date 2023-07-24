@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -31,10 +32,7 @@ public class QueryService {
   @PersistenceContext
   private EntityManager entityManager;
 
-  public <T> Specification<T> getSpecifications(
-    String filterJson,
-    Class<T> entityClass
-  ) {
+  public <T> Specification<T> getSpecifications(String filterJson) {
     ObjectMapper objectMapper = new ObjectMapper();
     Filter filter;
     try {
@@ -45,14 +43,15 @@ public class QueryService {
         "provided json is not valid: " + filterJson
       );
     }
-    return this.getSpecifications(filter, entityClass);
+    return this.getSpecifications(filter);
   }
 
-  public <T> Specification<T> getSpecifications(
-    Filter filter,
-    Class<T> entityClass
-  ) {
-    return (root, query, criteriaBuilder) -> {
+  public <T> Specification<T> getSpecifications(Filter filter) {
+    return (
+      Root<T> root,
+      CriteriaQuery<?> query,
+      CriteriaBuilder criteriaBuilder
+    ) -> {
       List<Predicate> predicates = buildPredicates(
         criteriaBuilder,
         filter,
@@ -171,30 +170,26 @@ public class QueryService {
   ) {
     List<Predicate> predicates = new ArrayList<>();
     if ("and".equals(fieldName)) {
-      List<Predicate> andPredicates = new ArrayList<>();
       List<Map<String, Object>> fieldOperators =
         (List<Map<String, Object>>) fieldValue;
-      fieldOperators
+      List<Predicate> andPredicates = fieldOperators
         .stream()
-        .forEach((Map<String, Object> operatorEntry) -> {
-          andPredicates.add(
-            generateAndPedicatesFromObject(criteriaBuilder, from, operatorEntry)
-          );
-        });
+        .map((Map<String, Object> operatorEntry) ->
+          generateAndPedicatesFromObject(criteriaBuilder, from, operatorEntry)
+        )
+        .collect(Collectors.toList());
       predicates.add(
         criteriaBuilder.and(andPredicates.toArray(new Predicate[0]))
       );
     } else if ("or".equals(fieldName)) {
-      List<Predicate> orPredicates = new ArrayList<>();
       List<Map<String, Object>> fieldOperators =
         (List<Map<String, Object>>) fieldValue;
-      fieldOperators
+      List<Predicate> orPredicates = fieldOperators
         .stream()
-        .forEach((Map<String, Object> operatorEntry) -> {
-          orPredicates.add(
-            generateAndPedicatesFromObject(criteriaBuilder, from, operatorEntry)
-          );
-        });
+        .map((Map<String, Object> operatorEntry) ->
+          generateAndPedicatesFromObject(criteriaBuilder, from, operatorEntry)
+        )
+        .collect(Collectors.toList());
       predicates.add(
         criteriaBuilder.or(orPredicates.toArray(new Predicate[0]))
       );
