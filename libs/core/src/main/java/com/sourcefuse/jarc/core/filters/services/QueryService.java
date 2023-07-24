@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -52,13 +51,10 @@ public class QueryService {
       CriteriaQuery<?> query,
       CriteriaBuilder criteriaBuilder
     ) -> {
-      List<Predicate> predicates = buildPredicates(
-        criteriaBuilder,
-        filter,
-        root,
-        null
+      return criteriaBuilder.and(
+        buildPredicates(criteriaBuilder, filter, root, null)
+          .toArray(new Predicate[0])
       );
-      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     };
   }
 
@@ -177,7 +173,7 @@ public class QueryService {
         .map((Map<String, Object> operatorEntry) ->
           generateAndPedicatesFromObject(criteriaBuilder, from, operatorEntry)
         )
-        .collect(Collectors.toList());
+        .toList();
       predicates.add(
         criteriaBuilder.and(andPredicates.toArray(new Predicate[0]))
       );
@@ -189,7 +185,7 @@ public class QueryService {
         .map((Map<String, Object> operatorEntry) ->
           generateAndPedicatesFromObject(criteriaBuilder, from, operatorEntry)
         )
-        .collect(Collectors.toList());
+        .toList();
       predicates.add(
         criteriaBuilder.or(orPredicates.toArray(new Predicate[0]))
       );
