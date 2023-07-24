@@ -47,15 +47,14 @@ public class QueryService {
 
   public <T> Specification<T> getSpecifications(Filter filter) {
     return (
-      Root<T> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder criteriaBuilder
-    ) -> {
-      return criteriaBuilder.and(
+        Root<T> root,
+        CriteriaQuery<?> query,
+        CriteriaBuilder criteriaBuilder
+      ) ->
+      criteriaBuilder.and(
         buildPredicates(criteriaBuilder, filter, root, null)
           .toArray(new Predicate[0])
       );
-    };
   }
 
   public <T> List<T> executeQuery(String filterJson, Class<T> entityClass) {
