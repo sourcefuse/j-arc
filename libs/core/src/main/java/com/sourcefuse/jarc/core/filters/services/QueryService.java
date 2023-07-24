@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,6 +30,32 @@ public class QueryService {
 
   @PersistenceContext
   private EntityManager entityManager;
+
+  public <T> Specification<T> getSpecifications(String filterJson) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    Filter filter;
+    try {
+      filter = objectMapper.readValue(filterJson, Filter.class);
+    } catch (JsonProcessingException e) {
+      Logger.error(e);
+      throw new IllegalArgumentException(
+        "provided json is not valid: " + filterJson
+      );
+    }
+    return this.getSpecifications(filter);
+  }
+
+  public <T> Specification<T> getSpecifications(Filter filter) {
+    return (
+        Root<T> root,
+        CriteriaQuery<?> query,
+        CriteriaBuilder criteriaBuilder
+      ) ->
+      criteriaBuilder.and(
+        buildPredicates(criteriaBuilder, filter, root, null)
+          .toArray(new Predicate[0])
+      );
+  }
 
   public <T> List<T> executeQuery(String filterJson, Class<T> entityClass) {
     ObjectMapper objectMapper = new ObjectMapper();
@@ -82,7 +109,7 @@ public class QueryService {
       String fieldName = entry.getKey();
       Object fieldValue = entry.getValue();
 
-      if (fieldValue instanceof Map) {
+      if (fieldValue instanceof Map || fieldValue instanceof List) {
         predicates.addAll(
           generatePredicates(criteriaBuilder, from, fieldName, fieldValue)
         );
@@ -138,34 +165,26 @@ public class QueryService {
   ) {
     List<Predicate> predicates = new ArrayList<>();
     if ("and".equals(fieldName)) {
-      List<Predicate> andPredicates = new ArrayList<>();
-      Map<String, Object> fieldOperators = (Map<String, Object>) fieldValue;
-      fieldOperators
-        .entrySet()
+      List<Map<String, Object>> fieldOperators =
+        (List<Map<String, Object>>) fieldValue;
+      List<Predicate> andPredicates = fieldOperators
         .stream()
-        .forEach((Entry<String, Object> operatorEntry) -> {
-          String operator = operatorEntry.getKey();
-          Object value = operatorEntry.getValue();
-          andPredicates.addAll(
-            generatePredicates(criteriaBuilder, from, operator, value)
-          );
-        });
+        .map((Map<String, Object> operatorEntry) ->
+          generateAndPedicatesFromObject(criteriaBuilder, from, operatorEntry)
+        )
+        .toList();
       predicates.add(
         criteriaBuilder.and(andPredicates.toArray(new Predicate[0]))
       );
     } else if ("or".equals(fieldName)) {
-      List<Predicate> orPredicates = new ArrayList<>();
-      Map<String, Object> fieldOperators = (Map<String, Object>) fieldValue;
-      fieldOperators
-        .entrySet()
+      List<Map<String, Object>> fieldOperators =
+        (List<Map<String, Object>>) fieldValue;
+      List<Predicate> orPredicates = fieldOperators
         .stream()
-        .forEach((Entry<String, Object> operatorEntry) -> {
-          String operator = operatorEntry.getKey();
-          Object value = operatorEntry.getValue();
-          orPredicates.addAll(
-            generatePredicates(criteriaBuilder, from, operator, value)
-          );
-        });
+        .map((Map<String, Object> operatorEntry) ->
+          generateAndPedicatesFromObject(criteriaBuilder, from, operatorEntry)
+        )
+        .toList();
       predicates.add(
         criteriaBuilder.or(orPredicates.toArray(new Predicate[0]))
       );
@@ -180,6 +199,25 @@ public class QueryService {
       );
     }
     return predicates;
+  }
+
+  private static <T> Predicate generateAndPedicatesFromObject(
+    CriteriaBuilder criteriaBuilder,
+    From<?, T> from,
+    Map<String, Object> fieldOperators
+  ) {
+    List<Predicate> andPredicates = new ArrayList<>();
+    fieldOperators
+      .entrySet()
+      .stream()
+      .forEach((Entry<String, Object> operatorEntry) -> {
+        String operator = operatorEntry.getKey();
+        Object value = operatorEntry.getValue();
+        andPredicates.addAll(
+          generatePredicates(criteriaBuilder, from, operator, value)
+        );
+      });
+    return criteriaBuilder.and(andPredicates.toArray(new Predicate[0]));
   }
 
   @SuppressWarnings("unchecked")
