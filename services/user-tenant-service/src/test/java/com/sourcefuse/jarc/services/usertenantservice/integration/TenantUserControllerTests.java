@@ -224,7 +224,12 @@ class TenantUserControllerTests {
 
     MockCurrentUserSession.setCurrentLoggedInUser(tenantId, null, null);
     Mockito
-      .when(tenantUserService.getUserView(ArgumentMatchers.any()))
+      .when(
+        tenantUserService.getUserView(
+          tenantId,
+          MockCurrentUserSession.getCurrentUser()
+        )
+      )
       .thenReturn(userDtoList);
 
     // Act & Assert
@@ -236,25 +241,6 @@ class TenantUserControllerTests {
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
-  }
-
-  @Test
-  @DisplayName("Test getUserTenantById - forbidden")
-  void testGetUserTenantByIdUnauthorized() throws Exception {
-    // Arrange
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      MockTenantUser.TENANT_ID,
-      null,
-      null
-    );
-    // Act & Assert
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders
-          .get(basePath, MockTenantUser.INVALID_ID)
-          .accept(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(MockMvcResultMatchers.status().isForbidden());
   }
 
   @Test
@@ -290,7 +276,12 @@ class TenantUserControllerTests {
     UUID tenantId = MockTenantUser.TENANT_ID;
     MockCurrentUserSession.setCurrentLoggedInUser(tenantId, null, null);
     Mockito
-      .when(tenantUserService.getUserView(ArgumentMatchers.any()))
+      .when(
+        tenantUserService.getUserView(
+          tenantId,
+          MockCurrentUserSession.getCurrentUser()
+        )
+      )
       .thenReturn(userDtoList);
 
     // Act & Assert
@@ -312,7 +303,13 @@ class TenantUserControllerTests {
     UUID userId = MockTenantUser.USER_ID;
     MockCurrentUserSession.setCurrentLoggedInUser(tenantId, userId, null);
     Mockito
-      .when(tenantUserService.findById(ArgumentMatchers.any()))
+      .when(
+        tenantUserService.findById(
+          userId,
+          tenantId,
+          MockCurrentUserSession.getCurrentUser()
+        )
+      )
       .thenReturn(MockTenantUser.getUserViewObj());
 
     // Act & Assert
@@ -324,32 +321,6 @@ class TenantUserControllerTests {
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
       .andExpect(MockMvcResultMatchers.jsonPath("$").exists());
-  }
-
-  @Test
-  @DisplayName("Test find All User by userId - forbidden")
-  void testFindAllUserByUserIdForbidden() throws Exception {
-    // Arrange
-    UUID tenantId = MockTenantUser.TENANT_ID;
-    UUID userId = MockTenantUser.USER_ID;
-
-    MockCurrentUserSession.setCurrentLoggedInUser(
-      tenantId,
-      MockTenantUser.INVALID_ID,
-      null
-    );
-    Mockito
-      .when(tenantUserService.findById(ArgumentMatchers.any()))
-      .thenReturn(MockTenantUser.getUserViewObj());
-
-    // Act & Assert
-    mockMvc
-      .perform(
-        MockMvcRequestBuilders
-          .get(basePath + "/{userId}", tenantId, userId)
-          .accept(MediaType.APPLICATION_JSON)
-      )
-      .andExpect(MockMvcResultMatchers.status().isForbidden());
   }
 
   @Test

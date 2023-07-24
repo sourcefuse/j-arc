@@ -2,6 +2,7 @@ package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.sourcefuse.jarc.core.enums.TenantStatus;
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -64,9 +65,11 @@ public class Tenant extends UserModifiableEntity {
   @Column(name = "tenant_type")
   private String tenantType;
 
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
   private List<TenantConfig> tenantConfigs;
 
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
   private List<UserTenant> userTenants;
 

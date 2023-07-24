@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
+import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
@@ -11,7 +12,6 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
-import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,7 +32,7 @@ public class UpdateTenantUserServiceImpl implements UpdateTenantUserService {
 
   private final UserRepository userRepository;
 
-  @Value("$user.name.exits")
+  @Value("${user.name.exits}")
   String userNameExits;
 
   @Override
@@ -72,29 +72,55 @@ public class UpdateTenantUserServiceImpl implements UpdateTenantUserService {
     UUID id,
     UUID tenantId
   ) {
-    checkForUserId(currentUser, id);
+    checkForUpdateOwnUser(currentUser, id);
 
     /*** INFO: :if condition to check
      * UPDATE_TENANT_USER removed***/
-    Optional<UserTenant> userTenant = userTenantRepository.findOne(
-      UserTenantSpecification.byUserIdAndTenantIdOrderByIdAsc(
-        id,
-        currentUser.getTenantId()
-      )
-    );
+    if (
+      currentUser
+        .getPermissions()
+        .contains(PermissionKey.UPDATE_TENANT_USER.toString())
+    ) {
+      Optional<UserTenant> userTenant = userTenantRepository.findOne(
+        UserTenantSpecification.byUserIdAndTenantIdOrderByIdAsc(
+          id,
+          currentUser.getTenantId()
+        )
+      );
 
-    if (!userTenant.isPresent()) {
+      if (!userTenant.isPresent()) {
+        throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+        );
+      }
+    }
+    if (
+      !currentUser
+        .getPermissions()
+        .contains(PermissionKey.UPDATE_ANY_USER.toString()) &&
+      !tenantId.equals(currentUser.getTenantId())
+    ) {
       throw new ResponseStatusException(
         HttpStatus.FORBIDDEN,
         AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
       );
     }
-    CurrentUserUtils.compareWithCurrentUserTenantId(tenantId, currentUser);
   }
 
-  private static void checkForUserId(CurrentUser currentUser, UUID id) {
-    CurrentUserUtils.compareWithCurrentUsersUserId(id, currentUser);
-    //Restricted permission removed.
+  private static void checkForUpdateOwnUser(CurrentUser currentUser, UUID id) {
+    if (
+      currentUser
+        .getPermissions()
+        .contains(PermissionKey.UPDATE_OWN_USER.toString()) &&
+      !currentUser.getId().equals(id)
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.FORBIDDEN,
+        AuthorizeErrorKeys.NOT_ALLOWED_ACCESS.toString()
+      );
+    }
+    /** INFO ::UPDATE_TENANT_USER_RESTRICTED check removed**/
   }
 
   private void updateUserTenant(

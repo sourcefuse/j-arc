@@ -2,6 +2,7 @@ package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -53,6 +54,7 @@ public class Role extends UserModifiableEntity {
   @Column(name = "allowed_clients")
   private List<String> allowedClients;
 
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   @OneToMany(mappedBy = "role")
   private List<UserTenant> userTenants;
 
