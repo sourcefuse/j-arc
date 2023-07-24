@@ -13,9 +13,9 @@ import org.togglz.core.util.Strings;
 
 public class FeatureToggleStrategy implements ActivationStrategy {
 
-  private static final String strategy = "FeatureToggle";
-  private static final String ID = strategy;
-  private static final String NAME = strategy;
+  private static final String STRATEGY = "FeatureToggle";
+  private static final String ID = STRATEGY;
+  private static final String NAME = STRATEGY;
   private static final String TENANT_PARAMETER = StrategyEnums.TENANT.toString();
   private static final String USER_TENANT_PARAMETER = StrategyEnums.USER_TENANT.toString();
 
@@ -46,13 +46,13 @@ public class FeatureToggleStrategy implements ActivationStrategy {
         Strings.isNotBlank(currUser.getTenantId().toString())
       ) {
         String currUserTenantId = currUser.getTenantId().toString();
-        allowed = allowed && tenantList.contains(currUserTenantId);
+        allowed = tenantList.contains(currUserTenantId);
       }
     }
 
     String userTenantIds = featureState.getParameter(USER_TENANT_PARAMETER);
 
-    if (Strings.isNotBlank(userTenantIds)) {
+    if (allowed && Strings.isNotBlank(userTenantIds)) {
       List<String> userTenantList = Strings.splitAndTrim(userTenantIds, ",");
 
       if (
@@ -61,7 +61,7 @@ public class FeatureToggleStrategy implements ActivationStrategy {
       ) {
         String currUserUTenantId = currUser.getUserTenantId().toString();
 
-        allowed = allowed && userTenantList.contains(currUserUTenantId);
+        allowed = userTenantList.contains(currUserUTenantId);
       }
     }
     return allowed;
