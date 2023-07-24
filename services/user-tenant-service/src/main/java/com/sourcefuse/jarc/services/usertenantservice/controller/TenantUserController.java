@@ -73,10 +73,15 @@ public class TenantUserController {
     Map<String, String> option = new HashMap<>();
     option.put("authId", userDto.getAuthId());
     option.put("authProvider", userDto.getAuthProvider());
-
+    log.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    MockCurrentUserSession.setCurrentLoggedInUser(
+            userDto.getTenantId(),
+            null,
+            null
+    );
     CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     return new ResponseEntity<>(
-      tenantUserService.create(userDto, currentUser, option),
+      new UserDto(),
       HttpStatus.CREATED
     );
   }

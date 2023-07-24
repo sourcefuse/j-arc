@@ -12,5 +12,4 @@ public class UserTenantServiceExampleApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(UserTenantServiceExampleApplication.class, args);
 	}
-
 }
