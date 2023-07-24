@@ -149,6 +149,11 @@
 	        <artifactId>jarc-core</artifactId>
 	        <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.sourcefuse.jarc</groupId>
+            <artifactId>jarc-auth-lib</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 		<dependency>
 		    <groupId>org.springdoc</groupId>
 		    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>

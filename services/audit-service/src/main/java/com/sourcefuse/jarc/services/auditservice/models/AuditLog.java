@@ -1,6 +1,10 @@
 package com.sourcefuse.jarc.services.auditservice.models;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sourcefuse.jarc.core.enums.AuditActions;
+import com.sourcefuse.jarc.core.serializers.JsonBDeserializer;
+import com.sourcefuse.jarc.core.serializers.JsonBSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,7 +32,7 @@ import org.hibernate.type.SqlTypes;
 @AllArgsConstructor
 @ToString
 @Entity
-@Table(name = "audit_logs", schema = "main")
+@Table(name = "audit_logs", schema = "logs")
 public class AuditLog {
 
   @Id
@@ -65,10 +69,14 @@ public class AuditLog {
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = true)
+  @JsonSerialize(using = JsonBSerializer.class)
+  @JsonDeserialize(using = JsonBDeserializer.class)
   private Object before;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = true)
+  @JsonSerialize(using = JsonBSerializer.class)
+  @JsonDeserialize(using = JsonBDeserializer.class)
   private Object after;
 
   @NotNull

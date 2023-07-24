@@ -1,11 +1,14 @@
 package com.sourcefuse.jarc.services.notificationservice.controllers;
 
+import com.sourcefuse.jarc.core.constants.NotificationPermissions;
+import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.notificationservice.models.Notification;
 import com.sourcefuse.jarc.services.notificationservice.models.NotificationUser;
 import com.sourcefuse.jarc.services.notificationservice.repositories.softdelete.NotificationUserRepository;
 import com.sourcefuse.jarc.services.notificationservice.specifications.NotificationUserSpecifications;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -30,6 +33,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/notifications/{id}/notification-users")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class NotificationNotificationuserController {
 
   private final NotificationUserRepository notificationUserRepository;
@@ -38,7 +42,11 @@ public class NotificationNotificationuserController {
 
   @Operation(summary = "find all notification users by notification id")
   @GetMapping
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize(
+    "isAuthenticated() && hasAuthority('" +
+    NotificationPermissions.VIEW_NOTIFICATION +
+    "')"
+  )
   public ResponseEntity<List<NotificationUser>> find(
     @PathVariable("id") UUID notificationId
   ) {
@@ -52,7 +60,11 @@ public class NotificationNotificationuserController {
 
   @Operation(summary = "create notification user for given notification id")
   @PostMapping
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize(
+    "isAuthenticated() && hasAuthority('" +
+    NotificationPermissions.CREATE_NOTIFICATION +
+    "')"
+  )
   public ResponseEntity<NotificationUser> create(
     @PathVariable("id") UUID notificationId,
     @Valid @RequestBody NotificationUser notificationUser
@@ -69,7 +81,11 @@ public class NotificationNotificationuserController {
 
   @Operation(summary = "update notification user for given notification id")
   @PatchMapping
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize(
+    "isAuthenticated() && hasAuthority('" +
+    NotificationPermissions.UPDATE_NOTIFICATION +
+    "')"
+  )
   public ResponseEntity<Object> update(
     @PathVariable("id") UUID notificationId,
     @RequestBody NotificationUser notificationUser
@@ -109,7 +125,11 @@ public class NotificationNotificationuserController {
     summary = "mark notification as read for given notification id and notification user id"
   )
   @PatchMapping("/{notificationUserId}/mark-as-read")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize(
+    "isAuthenticated() && hasAuthority('" +
+    NotificationPermissions.UPDATE_NOTIFICATION +
+    "')"
+  )
   public ResponseEntity<Object> markAsRead(
     @PathVariable("id") UUID notificationId,
     @PathVariable("notificationUserId") UUID notificationUserId
@@ -136,8 +156,12 @@ public class NotificationNotificationuserController {
 
   @Operation(summary = "delete all notification users of given notification id")
   @DeleteMapping
-  @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<Object> delete(
+  @PreAuthorize(
+    "isAuthenticated() && hasAuthority('" +
+    NotificationPermissions.DELETE_NOTIFICATION +
+    "')"
+  )
+  public ResponseEntity<CountResponse> delete(
     @PathVariable("id") UUID notificationId
   ) {
     List<NotificationUser> notificationUsers =
@@ -145,6 +169,10 @@ public class NotificationNotificationuserController {
           NotificationUserSpecifications.byNotificationId(notificationId)
         );
     this.notificationUserRepository.deleteAll(notificationUsers);
-    return new ResponseEntity<>(notificationUsers.size(), HttpStatus.OK);
+    CountResponse countResponse = CountResponse
+      .builder()
+      .count(Long.valueOf(notificationUsers.size()))
+      .build();
+    return new ResponseEntity<>(countResponse, HttpStatus.OK);
   }
 }

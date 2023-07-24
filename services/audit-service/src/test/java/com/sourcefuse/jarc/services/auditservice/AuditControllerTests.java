@@ -11,9 +11,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.sourcefuse.jarc.authlib.utils.JwtUtils;
 import com.sourcefuse.jarc.core.adapters.LocalDateTimeTypeAdapter;
 import com.sourcefuse.jarc.core.enums.AuditActions;
-import com.sourcefuse.jarc.core.enums.ContentTypes;
+import com.sourcefuse.jarc.services.auditservice.constant.TestConstants;
 import com.sourcefuse.jarc.services.auditservice.models.AuditLog;
 import com.sourcefuse.jarc.services.auditservice.repositories.AuditLogRepository;
 import com.sourcefuse.jarc.services.auditservice.test.models.Role;
@@ -27,8 +28,10 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -45,6 +48,12 @@ class AuditControllerTests {
   @Autowired
   private AuditLogRepository auditLogRepository;
 
+  @Value("${app.jwt-secret}")
+  private String jwtSecret;
+
+  @Value("${app-jwt-expiration-milliseconds}")
+  private long jwtExpirationDate;
+
   ObjectMapper objectMapper = new ObjectMapper();
 
   UUID mockUserId = UUID.fromString("db66f86d-a7e8-45b7-a6ad-8a5024158377");
@@ -59,38 +68,59 @@ class AuditControllerTests {
 
   private final String BASE_PATH = "/audit_logs";
 
+  String authToken;
+
   @BeforeEach
   void clearUserAndAuditLog() {
+    authToken =
+      "Bearer " +
+      JwtUtils.generateAccessToken(
+        jwtSecret,
+        jwtExpirationDate,
+        TestConstants.createMockCurrentUser()
+      );
     this.clearTables();
     this.addDefaultLogs();
   }
 
   @Test
-  void testCreateAuditLog() throws Exception {
+  void createAuditLog_Success() throws Exception {
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isCreated());
   }
 
   @Test
-  void shouldFailedDueToEmptyAction() throws Exception {
+  void createAuditLog_FailsDueToAuthTokenNotFound() throws Exception {
+    this.mockMvc.perform(
+        post(BASE_PATH)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(auditLog))
+      )
+      .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void createAuditLog_FailedDueToEmptyAction() throws Exception {
     auditLog.setAction(null);
     String requestBody = objectMapper.writeValueAsString(auditLog);
     requestBody = requestBody.replace("\"action\":null", "\"action\":\"\"");
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(requestBody)
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToWrongActionIsProvided() throws Exception {
+  void createAuditLog_FailedDueToWrongActionIsProvided() throws Exception {
     auditLog.setAction(null);
     String requestBody = objectMapper.writeValueAsString(auditLog);
     requestBody =
@@ -98,14 +128,15 @@ class AuditControllerTests {
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(requestBody)
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToEmptyActedAt() throws Exception {
+  void createAuditLog_FailedDueToEmptyActedAt() throws Exception {
     auditLog.setActedAt(null);
 
     String requestBody = objectMapper.writeValueAsString(auditLog);
@@ -113,14 +144,15 @@ class AuditControllerTests {
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(requestBody)
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToWrongActedAtIsProvided() throws Exception {
+  void createAuditLog_FailedDueToWrongActedAtIsProvided() throws Exception {
     auditLog.setActedAt(null);
     String requestBody = objectMapper.writeValueAsString(auditLog);
     requestBody =
@@ -129,38 +161,41 @@ class AuditControllerTests {
     System.out.println(requestBody);
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(requestBody)
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToEmptyActedOn() throws Exception {
+  void createAuditLog_FailedDueToEmptyActedOn() throws Exception {
     auditLog.setActedOn("");
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToEmptyActionKey() throws Exception {
+  void createAuditLog_FailedDueToEmptyActionKey() throws Exception {
     auditLog.setActionKey("");
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToEmptyEntityId() throws Exception {
+  void createAuditLog_FailedDueToEmptyEntityId() throws Exception {
     auditLog.setEntityId(null);
 
     String requestBody = objectMapper.writeValueAsString(auditLog);
@@ -168,14 +203,15 @@ class AuditControllerTests {
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(requestBody)
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToEmptyActor() throws Exception {
+  void createAuditLog_FailedDueToEmptyActor() throws Exception {
     auditLog.setActor(null);
 
     String requestBody = objectMapper.writeValueAsString(auditLog);
@@ -183,119 +219,136 @@ class AuditControllerTests {
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(requestBody)
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToEmptyActionGroup() throws Exception {
+  void createAuditLog_FailedDueToEmptyActionGroup() throws Exception {
     auditLog.setActionGroup("");
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToNullAction() throws Exception {
+  void createAuditLog_FailedDueToNullAction() throws Exception {
     auditLog.setAction(null);
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToNullActedAt() throws Exception {
+  void createAuditLog_FailedDueToNullActedAt() throws Exception {
     auditLog.setActedAt(null);
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToNullActedOn() throws Exception {
+  void createAuditLog_FailedDueToNullActedOn() throws Exception {
     auditLog.setActedOn(null);
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToNullActionKey() throws Exception {
+  void createAuditLog_FailedDueToNullActionKey() throws Exception {
     auditLog.setActionKey(null);
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToNullEntityId() throws Exception {
+  void createAuditLog_FailedDueToNullEntityId() throws Exception {
     auditLog.setEntityId(null);
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToNullActor() throws Exception {
+  void createAuditLog_FailedDueToNullActor() throws Exception {
     auditLog.setActor(null);
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void shouldFailedDueToNullActionGroup() throws Exception {
+  void createAuditLog_FailedDueToNullActionGroup() throws Exception {
     auditLog.setActionGroup(null);
 
     this.mockMvc.perform(
         post(BASE_PATH)
-          .contentType(ContentTypes.APPLICATION_JSON.toString())
+          .header("Authorization", authToken)
+          .contentType(MediaType.APPLICATION_JSON)
           .content(objectMapper.writeValueAsString(auditLog))
       )
       .andExpect(status().isBadRequest());
   }
 
   @Test
-  void testGetAuditLogCount() throws Exception {
-    this.mockMvc.perform(get("/audit_logs/count"))
+  void getAuditLogCount_Success() throws Exception {
+    this.mockMvc.perform(
+        get(BASE_PATH + "/" + "/count").header("Authorization", authToken)
+      )
       .andExpect(status().isOk())
       .andExpect(content().string(equalTo("2")));
   }
 
   @Test
-  void testGetAllAuditLogs() throws Exception {
+  void getAuditLogCount_FailsDueToAuthTokenNotFound() throws Exception {
+    this.mockMvc.perform(get(BASE_PATH + "/" + "/count"))
+      .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void getAllAuditLogs_Success() throws Exception {
     MvcResult mvcResult =
-      this.mockMvc.perform(get(BASE_PATH))
+      this.mockMvc.perform(get(BASE_PATH).header("Authorization", authToken))
         .andExpect(status().isOk())
         .andReturn();
     String actualResponseBody = mvcResult.getResponse().getContentAsString();
@@ -309,19 +362,16 @@ class AuditControllerTests {
     expectedResult.add(auditLog2);
 
     /**
-     * Need to sanitize the before and after object, since this since H2 DB Don't
-     * support JsonB it stores the JsonB data in stringify format
+     * Need to sanitize the string json into role object
      */
-    if (isH2DB()) {
-      responseAuditLogs.forEach(ele -> {
-        if (ele.getBefore() != null) {
-          ele.setBefore(gson.fromJson((String) ele.getBefore(), Role.class));
-        }
-        if (ele.getAfter() != null) {
-          ele.setAfter(gson.fromJson((String) ele.getAfter(), Role.class));
-        }
-      });
-    }
+    responseAuditLogs.forEach(ele -> {
+      if (ele.getBefore() != null) {
+        ele.setBefore(gson.fromJson((String) ele.getBefore(), Role.class));
+      }
+      if (ele.getAfter() != null) {
+        ele.setAfter(gson.fromJson((String) ele.getAfter(), Role.class));
+      }
+    });
     assertEquals(
       gson.toJsonTree(responseAuditLogs),
       gson.toJsonTree(expectedResult)
@@ -329,9 +379,17 @@ class AuditControllerTests {
   }
 
   @Test
-  void testGetAuditLogById() throws Exception {
+  void getAllAuditLogs_FailsDueToAuthTokenNotFound() throws Exception {
+    this.mockMvc.perform(get(BASE_PATH)).andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void getAuditLogById_Success() throws Exception {
     MvcResult mvcResult =
-      this.mockMvc.perform(get("/audit_logs/" + auditLog1.getId()))
+      this.mockMvc.perform(
+          get(BASE_PATH + "/" + auditLog1.getId())
+            .header("Authorization", authToken)
+        )
         .andExpect(status().isOk())
         .andReturn();
     String actualResponseBody = mvcResult.getResponse().getContentAsString();
@@ -340,32 +398,39 @@ class AuditControllerTests {
       actualResponseBody,
       AuditLog.class
     );
+
     /**
-     * Need to sanitize the before and after object, since this since H2 DB Don't
-     * support JsonB it stores the JsonB data in stringify format
+     * Need to sanitize the string json into role object
      */
-    if (isH2DB()) {
-      if (responseAuditLog.getBefore() != null) {
-        responseAuditLog.setBefore(
-          gson.fromJson((String) responseAuditLog.getBefore(), Role.class)
-        );
-      }
-      if (responseAuditLog.getAfter() != null) {
-        responseAuditLog.setAfter(
-          gson.fromJson((String) responseAuditLog.getAfter(), Role.class)
-        );
-      }
+    if (responseAuditLog.getBefore() != null) {
+      responseAuditLog.setBefore(
+        gson.fromJson((String) responseAuditLog.getBefore(), Role.class)
+      );
     }
+    if (responseAuditLog.getAfter() != null) {
+      responseAuditLog.setAfter(
+        gson.fromJson((String) responseAuditLog.getAfter(), Role.class)
+      );
+    }
+
     assertEquals(gson.toJsonTree(responseAuditLog), gson.toJsonTree(auditLog1));
   }
 
   @Test
-  void testGetAuditLogByIdForInvalidId() throws Exception {
+  void getAuditLogById_FailsDueToAuthTokenNotFound() throws Exception {
+    this.mockMvc.perform(get(BASE_PATH + "/" + auditLog1.getId()))
+      .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void getAuditLogById_FailedDueToInvalidId() throws Exception {
     this.mockMvc.perform(
         get(
-          "/audit_logs/" +
+          BASE_PATH +
+          "/" +
           UUID.fromString("fc2984b1-5ca5-4242-a522-c83b67909fb1")
         )
+          .header("Authorization", authToken)
       )
       .andExpect(status().isNotFound());
   }
@@ -377,7 +442,7 @@ class AuditControllerTests {
     System.out.println("reps");
     em.getTransaction().begin();
     try {
-      em.createNativeQuery("TRUNCATE TABLE main.audit_logs;").executeUpdate();
+      em.createNativeQuery("TRUNCATE TABLE logs.audit_logs;").executeUpdate();
       em.getTransaction().commit();
     } catch (Exception e) {
       e.printStackTrace();
@@ -446,16 +511,5 @@ class AuditControllerTests {
         after,
         "Role"
       );
-  }
-
-  private Boolean isH2DB() {
-    String databaseProductName = entityManager
-      .unwrap(org.hibernate.Session.class)
-      .doReturningWork(conn -> conn.getMetaData().getDatabaseProductName());
-    if ("H2".equals(databaseProductName)) {
-      return true;
-    } else {
-      return false;
-    }
   }
 }

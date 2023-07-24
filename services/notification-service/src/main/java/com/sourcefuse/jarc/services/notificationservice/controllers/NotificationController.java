@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.notificationservice.controllers;
 
+import com.sourcefuse.jarc.core.constants.NotificationPermissions;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.notificationservice.dtos.NotificationList;
@@ -11,6 +12,7 @@ import com.sourcefuse.jarc.services.notificationservice.service.NotificationUser
 import com.sourcefuse.jarc.services.notificationservice.types.INotification;
 import com.sourcefuse.jarc.services.notificationservice.types.INotificationFilterFunc;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -24,6 +26,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,6 +40,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/notifications")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class NotificationController {
 
   private static final int MAX_BODY_LENGTH = 1000;
@@ -56,7 +60,12 @@ public class NotificationController {
 
   @Operation(summary = "Create and publish Notification")
   @PostMapping
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize(
+    "isAuthenticated() && hasAuthority('" +
+    NotificationPermissions.CREATE_NOTIFICATION +
+    "')"
+  )
+  @Transactional
   public ResponseEntity<Notification> create(
     @Valid @RequestBody Notification notification
   ) {
@@ -79,7 +88,12 @@ public class NotificationController {
 
   @Operation(summary = "Create and publish Notifications")
   @PostMapping("/bulk")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize(
+    "isAuthenticated() && hasAuthority('" +
+    NotificationPermissions.CREATE_NOTIFICATION +
+    "')"
+  )
+  @Transactional
   public ResponseEntity<List<Notification>> createBulkNotificaitions(
     @Valid @RequestBody NotificationList notificationList
   ) {
@@ -111,7 +125,11 @@ public class NotificationController {
 
   @Operation(summary = "Get total count of notifications")
   @GetMapping("/count")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize(
+    "isAuthenticated() && hasAuthority('" +
+    NotificationPermissions.VIEW_NOTIFICATION +
+    "')"
+  )
   public ResponseEntity<CountResponse> count() {
     return new ResponseEntity<>(
       CountResponse
@@ -134,7 +152,11 @@ public class NotificationController {
 
   @Operation(summary = "get notification by id")
   @GetMapping("/{id}")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize(
+    "isAuthenticated() && hasAuthority('" +
+    NotificationPermissions.VIEW_NOTIFICATION +
+    "')"
+  )
   public ResponseEntity<Notification> findById(@PathVariable("id") UUID id) {
     Notification notification =
       this.notificationRepository.findById(id)
@@ -149,7 +171,11 @@ public class NotificationController {
 
   @Operation(summary = "update notification by id")
   @PatchMapping("/{id}")
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize(
+    "isAuthenticated() && hasAuthority('" +
+    NotificationPermissions.UPDATE_NOTIFICATION +
+    "')"
+  )
   public ResponseEntity<Object> updateById(
     @PathVariable("id") UUID id,
     @RequestBody Notification notification
@@ -189,7 +215,11 @@ public class NotificationController {
 
   @Operation(summary = "delete all notifications")
   @DeleteMapping
-  @PreAuthorize("isAuthenticated()")
+  @PreAuthorize(
+    "isAuthenticated() && hasAuthority('" +
+    NotificationPermissions.DELETE_NOTIFICATION +
+    "')"
+  )
   public ResponseEntity<Object> deleteAll() {
     this.notificationRepository.deleteAll();
     return new ResponseEntity<>(

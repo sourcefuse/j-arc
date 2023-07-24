@@ -1,15 +1,15 @@
-package com.sourcefuse.jarc.services.authservice.security;
+package com.sourcefuse.jarc.authlib.security;
 
-import com.sourcefuse.jarc.services.authservice.Utils;
-
+import com.sourcefuse.jarc.authlib.utils.Utils;
 import io.jsonwebtoken.impl.DefaultJwtBuilder;
 import io.jsonwebtoken.io.SerializationException;
 import lombok.SneakyThrows;
 
 public class CustomJwtBuilder extends DefaultJwtBuilder {
-   /**
-    * @deprecated 
-    */
+
+  /**
+   * @deprecated
+   */
   @SneakyThrows
   @Override
   @Deprecated(since = "1.11.0", forRemoval = true)
