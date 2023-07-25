@@ -1,7 +1,7 @@
 package com.basic.example.facadeserviceexample.dto;
 
-import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +11,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Invitation extends SoftDeleteEntity {
 
     private UUID id;

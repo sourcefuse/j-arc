@@ -33,7 +33,7 @@ public class InvitationExampleController {
         return new ResponseEntity<>(invitationRepository.save(invitation), HttpStatus.CREATED);
     }
 
-    @GetMapping("/validate")
+    @GetMapping("/validate/{id}")
     public ResponseEntity<ValidateDto> validateInvitationLink(@PathVariable UUID id) {
         Invitation invitation=invitationRepository.findById(id).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Records does not exits against Id"+id));

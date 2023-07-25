@@ -28,15 +28,20 @@
 			<scope>test</scope>
 		</dependency>
         <dependency>
-		    <groupId>com.sourcefuse</groupId>
-		    <artifactId>usertenantservice</artifactId>
-		    <version>0.0.1-SNAPSHOT</version>
+			<groupId>com.sourcefuse.jarc.services</groupId>
+			<artifactId>user-tenant-service</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-security</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sourcefuse.jarc</groupId>
+					<artifactId>jarc-auth-lib</artifactId>
+				</exclusion>
+			</exclusions>
         </dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
 	</dependencies>
 
 	<build>
