@@ -12,6 +12,14 @@
                 <mat-label>Email</mat-label>
                 <input matInput placeholder="Password" required>
             </mat-form-field>
+            <mat-form-field class="col-12 mt-3">
+                <mat-label>Role</mat-label>
+                <mat-select>
+                    <mat-option *ngFor="let role of roles" [value]="role.name">
+                      {{role.name}}
+                    </mat-option>
+                  </mat-select>
+            </mat-form-field>
             <mat-form-field class="col-12 mt-3" *ngIf="userDetails?.authProvider=='internal'">
                 <mat-label>First Name</mat-label>
                 <input matInput placeholder="First Name">

@@ -3,7 +3,7 @@ import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 import {ICommand} from './i-command';
-import { ApiService } from 'src/app/shared/service/api.service';
+import { ApiService } from 'src/app/core/service';
 import { IAdapter } from '../adatpers';
 
 export abstract class GetListAPICommand<T, R = T> implements ICommand {

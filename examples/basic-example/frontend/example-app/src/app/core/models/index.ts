@@ -12,3 +12,4 @@ export * from './tenant-config.model';
 export * from './tenant.model';
 export * from './id.model';
 export * from './count.model';
+export * from './role.model';

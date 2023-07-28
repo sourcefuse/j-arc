@@ -11,6 +11,7 @@ import { APPLICATION_STORE, APP_SESSION_STORE } from './store/store.interface';
 import { UserSessionStoreService } from './store/user-session-store.service';
 import { HttpInterceptorProviders } from './interceptors';
 import { ToastrModule } from 'ngx-toastr';
+import { CoreServices } from './service';
 
 @NgModule({
     declarations: [],
@@ -27,6 +28,7 @@ import { ToastrModule } from 'ngx-toastr';
         ...Gaurds,
         ...Adapters,
         ...HttpInterceptorProviders,
+        ...CoreServices,
         UserSessionStoreService,
         {provide: APPLICATION_STORE, useExisting: LOCAL_STORAGE},
         {provide: APP_SESSION_STORE, useExisting: SESSION_STORAGE},

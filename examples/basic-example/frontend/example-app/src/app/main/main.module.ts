@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { InviteUserComponent } from '../invitation/invite-user/invite-user.component';
+import { MatSelectModule } from '@angular/material/select';
 
 
 @NgModule({
@@ -21,8 +22,9 @@ import { InviteUserComponent } from '../invitation/invite-user/invite-user.compo
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatInputModule, 
-    MatButtonToggleModule
+    MatInputModule,
+    MatButtonToggleModule,
+    MatSelectModule
   ]
 })
 export class MainModule { }

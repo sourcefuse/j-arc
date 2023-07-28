@@ -9,10 +9,10 @@ export const environment = {
   homePath:"/main",
   enableCache:"",
   authApiUrl: "http://localhost:8081",
-  userTenantApiUrl: "http://localhost:8083",
-  auditApiUrl: "http://localhost:8083",
+  tenantUserApiUrl: "http://localhost:8084",
+  auditApiUrl: "http://localhost:8082",
   notificationApiUrl: "http://localhost:8083",
-  facadeApiUrl: "http://localhost:8083",
+  facadeApiUrl: "http://localhost:8085",
   messageTimeout:3000
 
 };

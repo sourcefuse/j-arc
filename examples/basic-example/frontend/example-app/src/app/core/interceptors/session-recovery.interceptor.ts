@@ -10,7 +10,7 @@ import {Observable, Subject, throwError} from 'rxjs';
 import {catchError, switchMap} from 'rxjs/operators';
 
 import {UserSessionStoreService as StoreService} from '../store/user-session-store.service';
-import { AuthService } from 'src/app/shared/service/auth.service';
+import { AuthService } from 'src/app/shared/services';
 import { STATUS_CODE } from '../error-codes';
 
 @Injectable()

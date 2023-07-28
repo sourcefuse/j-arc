@@ -4,7 +4,7 @@ import {maxBy, minBy} from 'lodash';
 import {GetListAPICommand} from './get-list-api.command';
 import * as moment from 'moment';
 import { Observable, from, concatMap, map } from 'rxjs';
-import { ApiService } from 'src/app/shared/service/api.service';
+import { ApiService } from 'src/app/core/service';
 import { environment } from 'src/environments/environment';
 import { IAdapter } from '../adatpers';
 import { Integers } from '../enums';

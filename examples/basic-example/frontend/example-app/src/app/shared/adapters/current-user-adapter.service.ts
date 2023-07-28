@@ -28,9 +28,6 @@ export class CurrentUserAdapter implements IAdapter<User> {
       user.createdOn = moment(resp.createdOn).toDate();
       user.invitationLinkExpiredOn = this.setInvitationExpireTime(resp);
       user.authProvider = resp.authProvider;
-      user.resourceCost = resp.resourceCost;
-      user.organizationRoleId = resp.organizationRoleId;
-      user.organizationRoleName = resp.organizationRoleName;
     }
     return user;
   }

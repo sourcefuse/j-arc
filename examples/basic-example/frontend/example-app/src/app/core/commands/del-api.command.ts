@@ -1,7 +1,7 @@
 import {HttpHeaders, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-import { ApiService } from 'src/app/shared/service/api.service';
+import { ApiService } from 'src/app/core/service';
 import { IAdapter } from '../adatpers';
 import { HttpObserve } from '../types';
 import { ICommand } from './i-command';

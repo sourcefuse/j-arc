@@ -1,7 +1,7 @@
 import {HttpHeaders} from '@angular/common/http';
 import {Observable, throwError} from 'rxjs';
 import {map} from 'rxjs/operators';
-import { ApiService } from 'src/app/shared/service/api.service';
+import { ApiService } from 'src/app/core/service';
 import { IAdapter } from '../adatpers';
 import { ICommand } from './i-command';
 import { HttpObserve } from '../types';

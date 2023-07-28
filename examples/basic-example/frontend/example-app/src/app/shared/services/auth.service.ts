@@ -7,11 +7,10 @@ import { RoleType } from 'src/app/core/enums';
 import { LoginModel, User } from 'src/app/core/models';
 import { UserSessionStoreService } from 'src/app/core/store/user-session-store.service';
 import { environment } from 'src/environments/environment';
-import { CurrentUserAdapter, LoginAdapter, SignUpAdapter } from '../adapters';
-import { GetCurrentUserCommand, GetTokenCommand, KeycloakLoginCommand, LogoutCommand, RefreshTokenCommand, VerifyTokenCommand } from '../commands';
-import { SignupCommand } from '../commands/signup.command';
-import { ApiService } from './api.service';
 import { Location } from '@angular/common';
+import { LoginAdapter, SignUpAdapter, CurrentUserAdapter } from 'src/app/shared/adapters';
+import { SignupCommand, GetCurrentUserCommand, KeycloakLoginCommand, GetTokenCommand, RefreshTokenCommand, LogoutCommand, VerifyTokenCommand } from 'src/app/shared/commands';
+import { ApiService } from 'src/app/core/service/api.service';
 
 @Injectable({
   providedIn: 'root'
