@@ -1,11 +1,11 @@
 import {HttpHeaders, HttpParams} from '@angular/common/http';
 import {Observable, throwError} from 'rxjs';
 import {map} from 'rxjs/operators';
+import { ApiService } from 'src/app/shared/service/api.service';
+import { IAdapter } from '../adatpers';
+import { HttpObserve } from '../types';
+import { ICommand } from './i-command';
 
-import {IAdapter} from '../adapters/i-adapter';
-import {ApiService} from '../api.service';
-import {ICommand} from './i-command';
-import {HttpObserve} from '../../types';
 
 export class PatchAPICommand<T> implements ICommand {
   constructor(

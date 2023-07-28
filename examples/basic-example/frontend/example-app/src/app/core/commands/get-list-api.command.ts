@@ -2,9 +2,9 @@ import {HttpHeaders, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
-import {IAdapter} from '../adapters/i-adapter';
-import {ApiService} from '../api.service';
 import {ICommand} from './i-command';
+import { ApiService } from 'src/app/shared/service/api.service';
+import { IAdapter } from '../adatpers';
 
 export abstract class GetListAPICommand<T, R = T> implements ICommand {
   constructor(

@@ -1,5 +1,16 @@
 package com.sourcefuse.jarc.services.authservice.controller;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpServerErrorException;
+
 import com.sourcefuse.jarc.services.authservice.dtos.ClientDTO;
 import com.sourcefuse.jarc.services.authservice.dtos.CodeResponse;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
@@ -7,18 +18,10 @@ import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
 import com.sourcefuse.jarc.services.authservice.services.KeycloakAuthService;
 import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
+
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpServerErrorException;
 
 @RequiredArgsConstructor
 @RestController
@@ -69,7 +72,7 @@ public class KeycloakController {
   @PostMapping("/login")
   public void keycloak(
     HttpServletResponse httpServletResponse,
-    @Valid @RequestBody ClientDTO clientDTO
+    @Valid @ModelAttribute ClientDTO clientDTO
   ) {
     String redirectUrlWithParam = java.text.MessageFormat.format(
       "{0}&state=auth_client_id={1}",

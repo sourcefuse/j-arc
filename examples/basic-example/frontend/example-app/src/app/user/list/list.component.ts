@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { User } from 'src/app/core/models';
 
 @Component({
   selector: 'app-list',
@@ -8,10 +9,14 @@ import { Component, OnInit } from '@angular/core';
 export class ListComponent implements OnInit {
 
   displayedColumns: string[] = ['firstName', 'lastName', 'username', 'email'];
-  dataSource = [];
+  dataSource: User[] = [];
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  getUsers(){
+    
   }
 
 }

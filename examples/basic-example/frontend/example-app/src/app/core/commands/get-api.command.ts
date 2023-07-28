@@ -1,11 +1,11 @@
 import {HttpHeaders, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
+import { ApiService } from 'src/app/shared/service/api.service';
+import { IAdapter } from '../adatpers';
+import { HttpObserve } from '../types';
+import { ICommand } from './i-command';
 
-import {IAdapter} from '../adapters/i-adapter';
-import {ApiService} from '../api.service';
-import {ICommand} from './i-command';
-import {HttpObserve, ResponseType} from '../../types';
 
 export abstract class GetAPICommand<T, R = T> implements ICommand {
   constructor(

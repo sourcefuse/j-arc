@@ -1,12 +1,10 @@
 import {HttpHeaders, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-
-import {IAdapter} from '../adapters/i-adapter';
-import {ApiService} from '../api.service';
-import {ICommand} from './i-command';
-import {HttpObserve} from '../../types';
-
+import { ApiService } from 'src/app/shared/service/api.service';
+import { IAdapter } from '../adatpers';
+import { HttpObserve } from '../types';
+import { ICommand } from './i-command';
 export abstract class DelAPICommand<T> implements ICommand {
   constructor(
     protected readonly apiService: ApiService,

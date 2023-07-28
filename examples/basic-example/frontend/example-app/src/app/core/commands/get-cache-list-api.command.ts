@@ -1,17 +1,16 @@
 import {HttpHeaders} from '@angular/common/http';
-import {AnyObject} from '@rao/core/backend-filter';
-import {Integers} from '@rao/core/enums';
-import {Id} from '@rao/core/models/id.model';
-import {CachedData} from '@rao/core/types';
-import {environment} from '@rao/env/environment';
+
 import {maxBy, minBy} from 'lodash';
-import moment from 'moment';
-import {from, Observable} from 'rxjs';
-import {concatMap, map} from 'rxjs/operators';
-import {IAdapter} from '../adapters/i-adapter';
-import {ApiService} from '../api.service';
-import {DexieService} from '../dexie.service';
 import {GetListAPICommand} from './get-list-api.command';
+import * as moment from 'moment';
+import { Observable, from, concatMap, map } from 'rxjs';
+import { ApiService } from 'src/app/shared/service/api.service';
+import { environment } from 'src/environments/environment';
+import { IAdapter } from '../adatpers';
+import { Integers } from '../enums';
+import { DexieService } from 'src/app/shared/service/dexie.service';
+import { Id } from '../models';
+import { CachedData } from '../types';
 
 export abstract class GetCacheListAPICommand<
   T extends Id
@@ -53,7 +52,7 @@ export abstract class GetCacheListAPICommand<
       );
   }
 
-  setEtagUsingDBdata(data: AnyObject[]) {
+  setEtagUsingDBdata(data: any[]) {
     const maxModifiedOn: Date = this.getMaxModifiedOnDate(data);
     if (maxModifiedOn) {
       const modifiedOn = moment(maxModifiedOn)
@@ -123,7 +122,7 @@ export abstract class GetCacheListAPICommand<
     localStorage.setItem(this.cacheType, JSON.stringify(cacheData));
   }
 
-  getMaxModifiedOnDate(list: AnyObject[]) {
+  getMaxModifiedOnDate(list: any[]) {
     const maxObj = maxBy(list, 'modifiedOn');
     return maxObj['modifiedOn'];
   }

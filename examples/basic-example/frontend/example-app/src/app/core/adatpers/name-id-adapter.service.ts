@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {IAdapter} from './i-adapter';
-import {NameId} from '@rao/core/models';
+import { NameId } from '../models/name-id.model';
 
 @Injectable()
 export class NameIdAdapter implements IAdapter<NameId> {

@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Count} from '@rao/core/models/count.model';
 import {IAdapter} from './i-adapter';
+import { Count } from '../models';
 
 @Injectable()
 export class CountAdapter implements IAdapter<Count> {

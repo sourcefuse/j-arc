@@ -4,7 +4,17 @@
 
 export const environment = {
   production: false,
-  authApiUrl: "http://localhost:8081"
+  clientId:"jarc",
+  publicKey:"HIfZOya6vPukf9BnMqyH4xrRKxLgGypE",
+  homePath:"/main",
+  enableCache:"",
+  authApiUrl: "http://localhost:8081",
+  userTenantApiUrl: "http://localhost:8083",
+  auditApiUrl: "http://localhost:8083",
+  notificationApiUrl: "http://localhost:8083",
+  facadeApiUrl: "http://localhost:8083",
+  messageTimeout:3000
+
 };
 
 /*

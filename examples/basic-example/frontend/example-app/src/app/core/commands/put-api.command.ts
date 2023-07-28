@@ -1,11 +1,10 @@
 import {HttpHeaders} from '@angular/common/http';
 import {Observable, throwError} from 'rxjs';
 import {map} from 'rxjs/operators';
-
-import {IAdapter} from '../adapters/i-adapter';
-import {ApiService} from '../api.service';
-import {ICommand} from './i-command';
-import {HttpObserve} from '../../types';
+import { ApiService } from 'src/app/shared/service/api.service';
+import { IAdapter } from '../adatpers';
+import { ICommand } from './i-command';
+import { HttpObserve } from '../types';
 
 export class PutAPICommand<T> implements ICommand {
   constructor(

@@ -35,7 +35,7 @@ public final class AuthClientSpecification {
       Root<AuthClient> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> builder.in(root.get("allowedClients")).value(allowedClients);
+    ) -> builder.in(root.get("clientId")).value(allowedClients);
   }
 
   public static Specification<AuthClient> byClientIdAndClientSecret(
