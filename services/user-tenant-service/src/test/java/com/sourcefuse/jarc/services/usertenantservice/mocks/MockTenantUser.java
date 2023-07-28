@@ -12,9 +12,11 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenantPrefs;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
-import java.util.ArrayList;
-import java.util.UUID;
 import org.springframework.beans.BeanUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.UUID;
 
 public final class MockTenantUser {
 
@@ -64,7 +66,7 @@ public final class MockTenantUser {
     user.setMiddleName("john");
     user.setUsername("Messi");
     user.setEmail("fc@barca.in");
-    user.setAuthClientIds("authid");
+    user.setAuthClientIds(Collections.singletonList(UUID.fromString("c9f0b550-6f11-b637-3c27-7245d2277362")));
     user.setGender(Gender.MALE);
     user.setDefaultTenant(new Tenant(TENANT_ID));
     return user;

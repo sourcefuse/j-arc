@@ -31,16 +31,16 @@
 			<groupId>com.sourcefuse.jarc.services</groupId>
 			<artifactId>user-tenant-service</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-security</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sourcefuse.jarc</groupId>
-					<artifactId>jarc-auth-lib</artifactId>
-				</exclusion>
-			</exclusions>
+<!--			<exclusions>-->
+<!--				<exclusion>-->
+<!--					<groupId>org.springframework.boot</groupId>-->
+<!--					<artifactId>spring-boot-starter-security</artifactId>-->
+<!--				</exclusion>-->
+<!--				<exclusion>-->
+<!--					<groupId>com.sourcefuse.jarc</groupId>-->
+<!--					<artifactId>jarc-auth-lib</artifactId>-->
+<!--				</exclusion>-->
+<!--			</exclusions>-->
         </dependency>
 	</dependencies>
 

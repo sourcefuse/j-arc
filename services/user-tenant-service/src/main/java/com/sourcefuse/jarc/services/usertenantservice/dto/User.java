@@ -23,13 +23,14 @@ import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -68,7 +69,7 @@ public class User extends UserModifiableEntity {
   private String phone;
 
   @Column(name = "auth_client_ids")
-  private String authClientIds;
+  private List<UUID> authClientIds;
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "last_login")

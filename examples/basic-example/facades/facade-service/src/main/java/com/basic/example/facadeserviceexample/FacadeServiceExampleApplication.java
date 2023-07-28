@@ -1,5 +1,7 @@
 package com.basic.example.facadeserviceexample;
 
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,6 +11,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @SpringBootApplication
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
+@SecurityScheme(
+		name = "bearerAuth",
+		type = SecuritySchemeType.HTTP,
+		bearerFormat = "JWT",
+		scheme = "bearer"
+)
 public class FacadeServiceExampleApplication {
 
 	public static void main(String[] args) {
