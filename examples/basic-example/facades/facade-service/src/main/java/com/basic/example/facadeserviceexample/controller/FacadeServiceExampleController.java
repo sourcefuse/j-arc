@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -17,7 +16,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -30,7 +28,6 @@ public class FacadeServiceExampleController {
 
     @PostMapping
     public Mono<Object> callEndpoints(@Valid @RequestBody UserDto userDto,
-                                      @PathVariable("id") UUID id,
                                       @RequestHeader("Authorization") String bearerToken) {
 
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
@@ -43,7 +40,7 @@ public class FacadeServiceExampleController {
         // Call the 1st     endpoint
         String finalBearerToken = bearerToken;
         return webClient.post()
-                .uri("http://localhost:8084/tenants/{id}/users", id)
+                .uri("http://localhost:8084/tenants/{id}/users", userDto.getTenantId())
                 .bodyValue(userDto)
                 .headers(headers -> headers.setBearerAuth(finalBearerToken))
                 .retrieve()
