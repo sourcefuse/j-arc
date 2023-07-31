@@ -1,4 +1,3 @@
-export * from './gender.enum';
 export * from './login-response.model';
 export * from './login.model';
 export * from './signup.model';

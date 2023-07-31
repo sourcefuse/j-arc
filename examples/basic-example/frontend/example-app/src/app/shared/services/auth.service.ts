@@ -11,6 +11,7 @@ import { Location } from '@angular/common';
 import { LoginAdapter, SignUpAdapter, CurrentUserAdapter } from 'src/app/shared/adapters';
 import { SignupCommand, GetCurrentUserCommand, KeycloakLoginCommand, GetTokenCommand, RefreshTokenCommand, LogoutCommand, VerifyTokenCommand } from 'src/app/shared/commands';
 import { ApiService } from 'src/app/core/service/api.service';
+import { AuthTokenSkipHeader } from 'src/app/core/interceptors/auth.interceptor';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +33,7 @@ export class AuthService {
 
   redirectUrl: string;
 
-  private readonly authHeaders = new HttpHeaders().set("X-Skip-Auth-Token", '');
+  private readonly authHeaders = new HttpHeaders().set(AuthTokenSkipHeader, '');
   tokenRefreshed = new Subject<void>();
   constructor(
     private readonly router: Router,

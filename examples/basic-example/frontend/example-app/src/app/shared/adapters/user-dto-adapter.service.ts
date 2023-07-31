@@ -2,7 +2,8 @@ import {Injectable} from '@angular/core';
 import * as moment from 'moment';
 
 import { IAdapter } from 'src/app/core/adatpers';
-import { User, GenderMap } from 'src/app/core/models';
+import { GenderMap } from 'src/app/core/enums';
+import { User } from 'src/app/core/models';
 
 @Injectable()
 export class UserDtoAdapter implements IAdapter<User> {
@@ -22,6 +23,7 @@ export class UserDtoAdapter implements IAdapter<User> {
         user.middleName = resp.userDetails.middleName;
         user.lastName = resp.userDetails.lastName;
         user.username = resp.userDetails.username;
+        user.defaultTenantId = resp.userDetails.defaultTenantId;
         user.email = resp.userDetails.email;
         user.roleType = parseInt(resp.userDetails.role, 10);
         user.roleName = resp.userDetails.roleName;

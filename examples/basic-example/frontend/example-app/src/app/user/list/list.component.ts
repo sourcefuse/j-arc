@@ -23,7 +23,7 @@ export class ListComponent implements OnInit {
   }
 
   getUsers() {
-    this.userService.getUsers()
+    this.userService.getUsers(true)
       .pipe(take(1))
       .subscribe((data: any) => {
         this.dataSource = data;

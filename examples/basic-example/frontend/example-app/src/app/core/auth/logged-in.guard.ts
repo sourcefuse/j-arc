@@ -14,6 +14,7 @@ export class LoggedInGuard implements CanActivate {
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+      debugger;
     return this.authService.isLoggedIn().pipe(map(res => res.isLoggedIn)).toPromise()
       .then(
         res => {
@@ -21,7 +22,7 @@ export class LoggedInGuard implements CanActivate {
             this.router.navigate([environment.homePath]);
           }
           return !res;
-        }, () => {
+        }, (error) => {
           return true;
         });
   }

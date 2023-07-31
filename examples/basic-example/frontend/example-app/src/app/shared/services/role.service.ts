@@ -1,16 +1,12 @@
 import { Injectable } from "@angular/core";
 import { cloneDeep } from 'lodash';
 import { InMemoryStorageService } from "ngx-webstorage-service";
-import { Observable, concatMap, of, tap } from "rxjs";
-import { AnyAdapter } from "src/app/core/adatpers";
-import { Role, User } from "src/app/core/models";
+import { Observable, of, tap } from "rxjs";
+import { Role } from "src/app/core/models";
 import { ApiService } from "src/app/core/service";
 import { StoreKeys } from "src/app/core/store/store-keys.enum";
-import { UserDtoAdapter } from "../adapters/user-dto-adapter.service";
-import { GetTenantUsersCommand } from "../commands";
-import { AuthService } from "./auth.service";
-import { GetRolesCommand } from "../commands/get-roles.command";
 import { RolesAdapter } from "../adapters";
+import { GetRolesCommand } from "../commands/get-roles.command";
 
 @Injectable({
     providedIn: 'root'

@@ -1,5 +1,5 @@
 import { Tenant } from '.';
-import {Gender} from './gender.enum';
+import { Gender } from '../enums';
 export class User {
   id: string;
   firstName: string;
@@ -11,6 +11,7 @@ export class User {
   roleType: number;
   permissions: string[];
   tenantId: string;
+  defaultTenantId:string;
   gender: {id: Gender; name: string};
   status?: number;
   roleName?: string;
@@ -19,9 +20,6 @@ export class User {
   invitationLinkExpiredOn?: Date;
   tenant?: Tenant;
   authProvider?: string;
-  resourceCost?: number;
-  organizationRoleId?: string;
-  organizationRoleName?: string;
   displayValue?: string;
   get fullName() {
     const fullNameArray = [];
@@ -47,6 +45,7 @@ export class User {
     this.roleId = data?.roleId;
     this.roleType = data?.roleType;
     this.permissions = data?.permissions;
+    this.defaultTenantId= data?.defaultTenantId;
     this.tenantId = data?.tenantId;
     this.status = data?.status;
     this.roleName = data?.roleName;
@@ -55,9 +54,6 @@ export class User {
     this.invitationLinkExpiredOn = data?.invitationLinkExpiredOn;
     this.tenant = data?.tenant;
     this.authProvider = data?.authProvider;
-    this.resourceCost = data?.resourceCost;
-    this.organizationRoleId = data?.organizationRoleId;
-    this.organizationRoleName = data?.organizationRoleName;
     this.displayValue = data?.displayValue;
   }
 }

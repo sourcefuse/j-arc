@@ -9,3 +9,5 @@ export * from './verify-token.command';
 export * from './signup.command';
 export * from './tenant-users.command';
 export * from './get-audit-log.command';
+export * from './invite-user.command';
+export * from './verify-invitation.command';
