@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @RestController
 @Slf4j
-@RequestMapping("/tenantsExample/{id}/users")
+@RequestMapping("/invite-user")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 public class FacadeServiceExampleController {
