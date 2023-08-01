@@ -1,18 +1,5 @@
 package com.basic.example.facadeserviceexample.controller;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.client.WebClient;
-
 import com.basic.example.facadeserviceexample.constants.EmailConstants;
 import com.basic.example.facadeserviceexample.dto.Invitation;
 import com.basic.example.facadeserviceexample.dto.Notification;
@@ -22,12 +9,23 @@ import com.basic.example.facadeserviceexample.dto.User;
 import com.basic.example.facadeserviceexample.dto.UserDto;
 import com.basic.example.facadeserviceexample.enums.MessageType;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
-
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
 
 @RestController
 @Slf4j
@@ -55,14 +53,16 @@ public class FacadeServiceExampleController {
 
     // Call the 1st endpoint
     String finalBearerToken = bearerToken;
+    User userDetails=userDto.getUserDetails();
     return webClient
       .post()
       .uri("http://localhost:8084/tenants/{id}/users", userDto.getTenantId())
       .bodyValue(userDto)
       .headers(headers -> headers.setBearerAuth(finalBearerToken))
       .retrieve()
-      .bodyToMono(UserDto.class)
-      .flatMap(response -> callSecondEndpoint())
+      .bodyToMono(UserDto.class).
+            flatMap(createdUserDto->checkUserSignUp(createdUserDto))
+      .flatMap(String -> sendInvitation(userDto))
       .flatMap(invitation ->
         sendNotification(
           userDto.getUserDetails(),
@@ -71,11 +71,21 @@ public class FacadeServiceExampleController {
       );
   }
 
-  private Mono<Invitation> callSecondEndpoint() {
+  private Mono<String> checkUserSignUp(UserDto userDto) {
+
+    log.info("Facade service called UserSignUp Service ");
+    return webClient
+            .post()
+            .uri("http://localhost:8084/user-credentials")
+            .bodyValue(userDto)
+            .retrieve()
+            .bodyToMono(String.class);
+  }
+  private Mono<Invitation> sendInvitation(UserDto userDto) {
     // Call the 2nd endpoint
     Invitation invitation = Invitation
       .builder()
-      .email("test@sourcefuse.com")
+      .email(userDto.getUserDetails().getEmail())
       .expires(LocalDateTime.now())
       .build();
     log.info("Facade service called Invitation Service ");
