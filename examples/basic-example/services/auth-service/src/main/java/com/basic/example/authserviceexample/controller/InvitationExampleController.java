@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ public class InvitationExampleController {
     private final InvitationRepository invitationRepository;
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Invitation> sendInvitationLink(@Valid @RequestBody Invitation invitation) {
         log.info("Called by Facade service to save invitation records  and send invitation ");
         return new ResponseEntity<>(invitationRepository.save(invitation), HttpStatus.CREATED);

@@ -20,7 +20,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 )
 @ComponentScan(
   basePackages = {
-    "com.basic.example.facadeserviceexample", "com.sourcefuse.jarc.authlib"
+    "com.basic.example.facadeserviceexample",
+    "com.sourcefuse.jarc.authlib"
   }
 )
 public class FacadeServiceExampleApplication {

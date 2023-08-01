@@ -13,7 +13,7 @@ public final class EmailConstants {
     "#337ab7;border-color: #2e6da4;border-radius: 5px;padding: 10px;text-decoration: unset;}.btn:" +
     "hover {opacity: 0.7;}</style></head><body class='body'><table class='container'><tr><td><table " +
     "border='0' cellpadding='0' cellspacing='0'><tr><td><p>Hi there,</p><p>Greeting , You have been " +
-    "invited by %s, Please click on the below link to register yourself </p><br /><a class='btn' " +
-    "href='%s' target='_blank'>Call To Action</a><br /><br /><p>Good luck! </p></td></tr>" +
+    "invited by {USER_NAME}, Please click on the below link to register yourself </p><br /><a class='btn' " +
+    "href='{INVITATION_LINK}' target='_blank'>Call To Action</a><br /><br /><p>Good luck! </p></td></tr>" +
     "</table></td></tr></table></body></html>";
 }
