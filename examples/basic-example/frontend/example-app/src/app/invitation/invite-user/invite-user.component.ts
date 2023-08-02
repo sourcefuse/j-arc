@@ -56,7 +56,7 @@ export class InviteUserComponent implements OnInit {
           email: this.inviteUserForm.value.email,
           username: this.inviteUserForm.value.email,
         }),
-        authProvider: this.inviteUserForm.value.authProvider
+        authProvider: this.inviteUserForm.value.authProvider.toUpperCase()
       });
       this.invitationService.inviteUser(requestBody).subscribe(data => {
         this.initForm();

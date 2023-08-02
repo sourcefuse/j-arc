@@ -1,0 +1,22 @@
+<div class="container">
+    <div>
+        <span class="font-weight-bold"> Action :</span>
+        {{data.action}}
+    </div>
+    <div>
+        <span class="font-weight-bold">Acted On :</span>
+        {{data.actedOn}}
+    </div>
+    <div>
+        <span class="font-weight-bold">Action Key :</span>
+        {{data.actionKey}}
+    </div>
+    <div>
+        <span class="font-weight-bold">Before :</span>
+        <br /> {{!data.before ? '-' : data.before | json}}
+    </div>
+    <div>
+        <span class="font-weight-bold">After :</span>
+        <br /> {{!data.after ? '-' : data.after | json}}
+    </div>
+</div>

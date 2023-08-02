@@ -2,7 +2,7 @@
     <div class="bg-light border-dark rounded p-3 invite-row">
         <h2 class="text-center">Invite User</h2>
         <form [formGroup]="inviteUserForm">
-            <div class="col-12 mt-3">
+            <div class="col-12 mt-3" *ngIf="false">
                 <mat-label>Auth Provider <i class="text-danger">*</i></mat-label>
                 <mat-button-toggle-group name="Auth Provider" class="d-flex" formControlName="authProvider">
                     <mat-button-toggle class="w-100" value="internal">Internal</mat-button-toggle>

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { take } from 'rxjs';
 import { AuditLogService } from 'src/app/shared/services/audit-log.service';
+import { LogDetailsComponent } from '../popups/log-details/log-details.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-list',
@@ -9,9 +11,10 @@ import { AuditLogService } from 'src/app/shared/services/audit-log.service';
 })
 export class ListComponent implements OnInit {
 
-  displayedColumns: string[] = ['action', 'actedOn', 'actionKey', 'before', 'after'];
+  displayedColumns: string[] = ['logAction', 'actedOn', 'actionKey', 'before', 'after', 'action'];
   dataSource = [];
-  constructor(private readonly auditLogService: AuditLogService) { }
+  constructor(private readonly auditLogService: AuditLogService,
+    public dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.getLogs();
@@ -22,5 +25,11 @@ export class ListComponent implements OnInit {
       .subscribe((data: any) => {
         this.dataSource = data;
       });
+  }
+
+  openDialog(log:any) {
+    this.dialog.open(LogDetailsComponent,{
+      data: log,
+    });
   }
 }
