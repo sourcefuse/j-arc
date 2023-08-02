@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.authlib.config;
 
+import com.sourcefuse.jarc.authlib.cors.CorsFilter;
 import com.sourcefuse.jarc.authlib.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -34,6 +36,8 @@ public class SecurityConfig {
 
   private final JwtAuthenticationFilter authenticationFilter;
 
+  private final CorsFilter corsFilter;
+  
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http)
     throws Exception {
@@ -58,7 +62,10 @@ public class SecurityConfig {
       .addFilterBefore(
         authenticationFilter,
         UsernamePasswordAuthenticationFilter.class
-      );
+      ).addFilterBefore(
+        corsFilter,
+        ChannelProcessingFilter.class
+	  );
     return http.build();
   }
 
