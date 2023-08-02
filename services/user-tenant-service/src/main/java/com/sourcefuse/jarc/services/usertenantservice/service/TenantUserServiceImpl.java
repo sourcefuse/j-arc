@@ -256,14 +256,14 @@ public class TenantUserServiceImpl implements TenantUserService {
       "*".equals(allowedDomains[0]) &&
       options != null
     ) {
-      options.put(CommonConstants.AUTH_PROVIDER, "keycloak");
+      options.put(CommonConstants.AUTH_PROVIDER, CommonConstants.KEYCLOAK);
     } else if (options != null) {
       options.put(
         CommonConstants.AUTH_PROVIDER,
         options.get(CommonConstants.AUTH_PROVIDER) != null &&
           Arrays.asList(allowedDomains).contains(email[1])
           ? options.get(CommonConstants.AUTH_PROVIDER)
-          : "internal"
+          : "INTERNAL"
       );
     } else {
       log.info("Cannot configured Auth_PROVIDER");
