@@ -53,7 +53,7 @@ public class SecurityConfig {
       .anyRequest()
       .permitAll()
       .and()
-      .formLogin()
+      .httpBasic()
       .and()
       .addFilterBefore(
         authenticationFilter,

@@ -1,6 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.dto;
 
 import com.sourcefuse.jarc.core.enums.Gender;
+import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import jakarta.persistence.Column;
@@ -13,12 +14,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -98,13 +100,14 @@ public class UserView extends UserModifiableEntity {
   @Column(name = "rolename")
   private String roleName;
 
-  @Column(name = "roletype")
-  private Integer roleType;
+  @Column(name = "roletype") 
+  @Enumerated(EnumType.STRING)
+  private RoleKey roleType;
 
   @NotNull
   @Column(name = "user_tenant_id", nullable = false)
   private UUID userTenantId;
 
-  @Column(name = "expires_on")
-  private Date expiresOn;
+//  @Column(name = "expires_on")
+//  private Date expiresOn;
 }

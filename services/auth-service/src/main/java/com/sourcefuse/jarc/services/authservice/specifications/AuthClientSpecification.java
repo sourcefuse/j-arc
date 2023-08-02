@@ -4,10 +4,9 @@ import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
-
-import org.springframework.data.jpa.domain.Specification;
 
 public final class AuthClientSpecification {
 
@@ -35,7 +34,7 @@ public final class AuthClientSpecification {
       Root<AuthClient> root,
       CriteriaQuery<?> query,
       CriteriaBuilder builder
-    ) -> builder.in(root.get("allowedClients")).value(allowedClients);
+    ) -> builder.in(root.get("clientId")).value(allowedClients);
   }
 
   public static Specification<AuthClient> byClientIdAndClientSecret(

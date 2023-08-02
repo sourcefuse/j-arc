@@ -15,8 +15,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +23,9 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.util.Date;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -79,8 +80,6 @@ public class AuditLog {
   @JsonDeserialize(using = JsonBDeserializer.class)
   private Object after;
 
-  @NotNull
-  @NotEmpty
-  @Column(name = "action_group", nullable = false)
+  @Column(name = "action_group")
   private String actionGroup;
 }

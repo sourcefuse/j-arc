@@ -21,11 +21,12 @@ import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepositor
 import com.sourcefuse.jarc.services.authservice.specifications.UserCredentialSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpServerErrorException;
+
+import java.util.Optional;
 
 @AllArgsConstructor
 @Component
@@ -58,11 +59,11 @@ public class KeycloakAuthService {
     if (
       !userCredential
         .getAuthProvider()
-        .equals(AuthProvider.KEYCLOAK.toString()) ||
+        .equalsIgnoreCase(AuthProvider.KEYCLOAK.toString()) ||
       (
         !userCredential
           .getAuthId()
-          .equals(keycloakUserDTO.getPreferredUsername())
+          .equalsIgnoreCase(keycloakUserDTO.getPreferredUsername())
       )
     ) {
       throw throwUserVerificationFailed();

@@ -1,12 +1,5 @@
 package com.sourcefuse.jarc.services.auditservice;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -20,11 +13,6 @@ import com.sourcefuse.jarc.services.auditservice.repositories.AuditLogRepository
 import com.sourcefuse.jarc.services.auditservice.test.models.Role;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +22,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -227,19 +228,6 @@ class AuditControllerTests {
   }
 
   @Test
-  void createAuditLog_FailedDueToEmptyActionGroup() throws Exception {
-    auditLog.setActionGroup("");
-
-    this.mockMvc.perform(
-        post(BASE_PATH)
-          .header("Authorization", authToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(auditLog))
-      )
-      .andExpect(status().isBadRequest());
-  }
-
-  @Test
   void createAuditLog_FailedDueToNullAction() throws Exception {
     auditLog.setAction(null);
 
@@ -318,22 +306,9 @@ class AuditControllerTests {
   }
 
   @Test
-  void createAuditLog_FailedDueToNullActionGroup() throws Exception {
-    auditLog.setActionGroup(null);
-
-    this.mockMvc.perform(
-        post(BASE_PATH)
-          .header("Authorization", authToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(auditLog))
-      )
-      .andExpect(status().isBadRequest());
-  }
-
-  @Test
   void getAuditLogCount_Success() throws Exception {
     this.mockMvc.perform(
-        get(BASE_PATH + "/" + "/count").header("Authorization", authToken)
+        get(BASE_PATH + "/count").header("Authorization", authToken)
       )
       .andExpect(status().isOk())
       .andExpect(content().string(equalTo("2")));
@@ -341,7 +316,7 @@ class AuditControllerTests {
 
   @Test
   void getAuditLogCount_FailsDueToAuthTokenNotFound() throws Exception {
-    this.mockMvc.perform(get(BASE_PATH + "/" + "/count"))
+    this.mockMvc.perform(get(BASE_PATH + "/count"))
       .andExpect(status().isUnauthorized());
   }
 
