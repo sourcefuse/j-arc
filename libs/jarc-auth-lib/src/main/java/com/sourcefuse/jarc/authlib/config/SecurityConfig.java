@@ -37,7 +37,7 @@ public class SecurityConfig {
   private final JwtAuthenticationFilter authenticationFilter;
 
   private final CorsFilter corsFilter;
-  
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http)
     throws Exception {
@@ -62,10 +62,8 @@ public class SecurityConfig {
       .addFilterBefore(
         authenticationFilter,
         UsernamePasswordAuthenticationFilter.class
-      ).addFilterBefore(
-        corsFilter,
-        ChannelProcessingFilter.class
-	  );
+      )
+      .addFilterBefore(corsFilter, ChannelProcessingFilter.class);
     return http.build();
   }
 
