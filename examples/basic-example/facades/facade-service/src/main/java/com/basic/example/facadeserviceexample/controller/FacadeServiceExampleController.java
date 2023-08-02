@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,6 +59,7 @@ public class FacadeServiceExampleController {
 		String finalBearerToken = bearerToken;
 		User userDetails = userDto.getUserDetails();
 		return webClient.post().uri("http://localhost:8084/tenants/{id}/users", userDto.getTenantId())
+				.accept(MediaType.APPLICATION_JSON)
 				.bodyValue(userDto).headers(headers -> headers.setBearerAuth(finalBearerToken)).retrieve()
 				.bodyToMono(UserDto.class).flatMap(createdUserDto -> checkUserSignUp(createdUserDto, finalBearerToken))
 				.flatMap(String -> sendInvitation(userDto, finalBearerToken))
@@ -68,7 +70,7 @@ public class FacadeServiceExampleController {
 	private Mono<String> checkUserSignUp(UserDto userDto, String finalBearerToken) {
 
 		log.info("Facade service called UserSignUp Service ");
-		return webClient.post().uri("http://localhost:8084/user-credentials").bodyValue(userDto)
+		return webClient.post().uri("http://localhost:8084/user-credentials").accept(MediaType.APPLICATION_JSON).bodyValue(userDto)
 				.headers(headers -> headers.setBearerAuth(finalBearerToken)).retrieve().bodyToMono(String.class);
 	}
 
@@ -77,7 +79,7 @@ public class FacadeServiceExampleController {
 		Invitation invitation = Invitation.builder().email(userDto.getUserDetails().getEmail())
 				.expires(LocalDateTime.now()).build();
 		log.info("Facade service called Invitation Service ");
-		return webClient.post().uri("http://localhost:8081/invitation").bodyValue(invitation)
+		return webClient.post().uri("http://localhost:8081/invitation").accept(MediaType.APPLICATION_JSON).bodyValue(invitation)
 				.headers(headers -> headers.setBearerAuth(finalBearerToken)).retrieve().bodyToMono(Invitation.class);
 	}
 
@@ -104,7 +106,7 @@ public class FacadeServiceExampleController {
 		notification.setSubject("User Invitation");
 		notification.setType(MessageType.EMAIL);
 		log.info("Facade service called Notification Service ");
-		return webClient.post().uri("http://localhost:8083/notifications").bodyValue(notification)
+		return webClient.post().uri("http://localhost:8083/notifications").accept(MediaType.APPLICATION_JSON).bodyValue(notification)
 				.headers(headers -> headers.setBearerAuth(finalBearerToken)).retrieve().bodyToMono(Notification.class);
 	}
 }
