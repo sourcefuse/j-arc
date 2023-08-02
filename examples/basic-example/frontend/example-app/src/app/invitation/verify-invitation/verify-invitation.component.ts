@@ -27,7 +27,6 @@ export class VerifyInvitationComponent implements OnInit {
     this.activatedRoute.paramMap.pipe(
       concatMap((params: any) => this.invitationService.isValidInvitation(params.params.id))
     ).subscribe(response => {
-      console.log("Response");
       this.verifying = false;
       if (response.valid) {
         this.authService.loginViaSSO();

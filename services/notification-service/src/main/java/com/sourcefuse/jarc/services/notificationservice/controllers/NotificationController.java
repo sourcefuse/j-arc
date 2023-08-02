@@ -82,7 +82,6 @@ public class NotificationController {
     List<NotificationUser> receiversToCreate =
       this.notificationUserService.getNotifUsers(notif);
     this.notificationUserRepository.saveAll(receiversToCreate);
-
     return new ResponseEntity<>(notif, HttpStatus.OK);
   }
 
