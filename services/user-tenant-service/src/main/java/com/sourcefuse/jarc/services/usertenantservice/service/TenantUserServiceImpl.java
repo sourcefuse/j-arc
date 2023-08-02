@@ -22,15 +22,6 @@ import com.sourcefuse.jarc.services.usertenantservice.specifications.UserSpecifi
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserViewSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,6 +30,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @Service
@@ -99,8 +98,6 @@ public class TenantUserServiceImpl implements TenantUserService {
       .stream()
       .map(auth -> (auth.getId()))
       .toList();
-    /* INFO changed to List<UUID>
-    user.setAuthClientIds("{" + StringUtils.join(authClientIds, ',') + "}");*/
     user.setAuthClientIds(authClientIds);
     user.setUsername(user.getUsername().toLowerCase(Locale.getDefault()));
     user.getDefaultTenant().setId(userData.getTenantId());

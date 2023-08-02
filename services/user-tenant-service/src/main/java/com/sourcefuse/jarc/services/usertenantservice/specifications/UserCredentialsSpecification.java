@@ -9,14 +9,15 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.UUID;
 
 public final class UserCredentialsSpecification {
-    private UserCredentialsSpecification(){}
 
-    public static Specification<UserCredentials> byUserId(UUID userId) {
-        return (
-                Root<UserCredentials> root,
-                CriteriaQuery<?> query,
-                CriteriaBuilder builder
-        ) ->
-                builder.equal(root.get("userId").get("id"), userId);
-    }
+  private UserCredentialsSpecification() {}
+
+  public static Specification<UserCredentials> byUserId(UUID userId) {
+    return (
+        Root<UserCredentials> root,
+        CriteriaQuery<?> query,
+        CriteriaBuilder builder
+      ) ->
+      builder.equal(root.get("userId").get("id"), userId);
+  }
 }

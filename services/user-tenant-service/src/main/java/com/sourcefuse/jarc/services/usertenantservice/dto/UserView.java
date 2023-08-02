@@ -14,13 +14,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
-import java.util.UUID;
 
 @Entity
 @Data
@@ -100,14 +99,14 @@ public class UserView extends UserModifiableEntity {
   @Column(name = "rolename")
   private String roleName;
 
-  @Column(name = "roletype") 
+  @Column(name = "roletype")
   @Enumerated(EnumType.STRING)
   private RoleKey roleType;
 
   @NotNull
   @Column(name = "user_tenant_id", nullable = false)
   private UUID userTenantId;
-
-//  @Column(name = "expires_on")
-//  private Date expiresOn;
+  /*** INFO removed expires_on
+   @Column(name = "expires_on")
+  private Date expiresOn;*/
 }

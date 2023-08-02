@@ -15,16 +15,16 @@ public final class MockCurrentUserSession {
   private MockCurrentUserSession() {}
 
   public static void setCurrentLoggedInUser(
-    UUID MOCK_TENANT_ID,
-    UUID MOCK_USER_ID,
-    UUID MOCK_USER_TENANT_ID
+    UUID mockTenantId,
+    UUID mockUserId,
+    UUID mockUserTenantId
   ) {
     // Create a dummy user object
     CurrentUser currentUser = new CurrentUser();
-    currentUser.setTenantId(MOCK_TENANT_ID);
-    currentUser.setUserTenantId(MOCK_USER_TENANT_ID);
+    currentUser.setTenantId(mockTenantId);
+    currentUser.setUserTenantId(mockUserTenantId);
     currentUser.setPermissions(new ArrayList<>());
-    currentUser.setId(MOCK_USER_ID);
+    currentUser.setId(mockUserId);
     currentUser.setFirstName("Dummy");
     currentUser.setLastName("User");
     currentUser.setEmail("dummy.user@example.com");

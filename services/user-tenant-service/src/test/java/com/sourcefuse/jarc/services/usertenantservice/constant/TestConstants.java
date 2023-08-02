@@ -23,8 +23,9 @@ public class TestConstants {
     currentUser.setUsername("dummy.user@example.com");
     currentUser.setRoleType(RoleKey.ADMIN);
     currentUser.setPermissions(
-      Arrays.asList(NotificationPermissions.CREATE_NOTIFICATION ,
-              PermissionKey.VIEW_OWN_TENANT.toString(),
+      Arrays.asList(
+        NotificationPermissions.CREATE_NOTIFICATION,
+        PermissionKey.VIEW_OWN_TENANT.toString(),
         PermissionKey.UPDATE_TENANT.toString(),
         PermissionKey.UPDATE_OWN_TENANT.toString(),
         PermissionKey.VIEW_TENANT.toString(),

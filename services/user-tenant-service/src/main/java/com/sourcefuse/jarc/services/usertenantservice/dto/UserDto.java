@@ -3,11 +3,10 @@ package com.sourcefuse.jarc.services.usertenantservice.dto;
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
