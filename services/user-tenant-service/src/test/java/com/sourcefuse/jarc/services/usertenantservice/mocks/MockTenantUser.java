@@ -2,7 +2,6 @@ package com.sourcefuse.jarc.services.usertenantservice.mocks;
 
 import com.google.gson.Gson;
 import com.sourcefuse.jarc.core.enums.Gender;
-import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.enums.TenantStatus;
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
@@ -48,7 +47,7 @@ public final class MockTenantUser {
     UserDto userDto = new UserDto();
     userDto.setRoleId(ROLE_ID);
     userDto.setTenantId(TENANT_ID);
-    userDto.setStatus(RoleKey.DEFAULT.ordinal());
+    userDto.setStatus(UserStatus.ACTIVE);
     userDto.setAuthId("authId");
     userDto.setAuthProvider("Keycloak");
     userDto.setUserTenantId(USER_TENANT_ID);
