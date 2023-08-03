@@ -17,7 +17,7 @@ public class CorsConfig implements WebMvcConfigurer {
   public void addCorsMappings(CorsRegistry registry) {
     if (corsUrl != null) {
       registry
-        .addMapping("/api/**")
+        .addMapping("/**")
         .allowedOrigins(corsUrl)
         .allowedMethods("*")
         .allowedHeaders("*")
