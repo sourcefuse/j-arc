@@ -9,15 +9,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -34,8 +33,10 @@ public class Role extends UserModifiableEntity {
   private UUID id;
 
   private String name;
+
   @Enumerated(EnumType.STRING)
   private RoleKey roleType;
+
   private List<String> permissions;
   private List<String> allowedClients;
 }

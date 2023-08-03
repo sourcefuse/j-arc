@@ -9,17 +9,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -43,8 +42,10 @@ public class User extends UserModifiableEntity {
   private String designation;
   private String phone;
   private Timestamp lastLogin;
+
   @Enumerated(EnumType.STRING)
   private Gender gender;
+
   private LocalDate dob;
   private UUID defaultTenantId;
   private List<UUID> authClientIds;

@@ -9,14 +9,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -33,8 +32,10 @@ public class Tenant extends UserModifiableEntity {
   private UUID id;
 
   private String name;
+
   @Enumerated(EnumType.STRING)
   private TenantStatus status;
+
   private String key;
   private String website;
   private String address;
