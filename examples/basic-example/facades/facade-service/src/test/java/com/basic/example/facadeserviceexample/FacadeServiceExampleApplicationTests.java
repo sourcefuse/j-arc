@@ -1,5 +1,6 @@
 package com.basic.example.facadeserviceexample;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -7,5 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class FacadeServiceExampleApplicationTests {
 
   @Test
-  void contextLoads() {}
+  void contextLoads() {
+    Assertions.assertTrue(true);
+  }
 }

@@ -6,7 +6,6 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserCredentials;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserCredentialRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserCredentialsSpecification;
-import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RestController
 @Slf4j
@@ -29,11 +30,11 @@ public class UserSignupExampleController {
     @RequestBody UserDto userDto
   ) {
     AtomicBoolean isCreated = new AtomicBoolean(true);
-    UserCredentials userCredentials = userCredentialRepository
+     userCredentialRepository
       .findOne(
         UserCredentialsSpecification.byUserId(userDto.getUserDetails().getId())
       )
-      .map(credentials -> {
+      .map((UserCredentials credentials) -> {
         // Update existing credentials if authProvider is not KEYCLOAK
         isCreated.set(false);
         log.info("User Credentials present ...!!");
@@ -54,12 +55,10 @@ public class UserSignupExampleController {
       .orElseGet(() -> {
         // Create new credentials if they don't exist
         log.info("Creating User Credentials !!");
-        UserCredentials newCredentials = UserCredentials
-          .builder()
+        UserCredentials newCredentials = UserCredentials.builder()
           .userId(new User(userDto.getUserDetails().getId()))
           .authProvider(CommonConstants.KEYCLOAK)
-          .authId(userDto.getUserDetails().getEmail())
-          .build();
+          .authId(userDto.getUserDetails().getEmail()).build();
         userCredentialRepository.save(newCredentials);
         return newCredentials; // Return the newly created credentials
       });

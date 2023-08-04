@@ -1,6 +1,5 @@
 package com.basic.example.facadeserviceexample.controller;
 
-import com.basic.example.facadeserviceexample.constants.EmailConstants;
 import com.basic.example.facadeserviceexample.dto.Invitation;
 import com.basic.example.facadeserviceexample.dto.Notification;
 import com.basic.example.facadeserviceexample.dto.Receiver;
@@ -8,12 +7,10 @@ import com.basic.example.facadeserviceexample.dto.Subscriber;
 import com.basic.example.facadeserviceexample.dto.User;
 import com.basic.example.facadeserviceexample.dto.UserDto;
 import com.basic.example.facadeserviceexample.enums.MessageType;
+import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
+
 @RestController
 @Slf4j
 @RequestMapping("/invite-user")
@@ -36,6 +37,9 @@ import reactor.core.publisher.Mono;
 public class FacadeServiceExampleController {
 
   private final WebClient webClient;
+
+  @Value("${invitation-mail-template}")
+  String InvitationMailTemplate;
 
   @Value("${frontend.url}")
   private String feUrl;
@@ -47,7 +51,7 @@ public class FacadeServiceExampleController {
     @RequestHeader("Authorization") String bearerToken
   ) {
     if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-      bearerToken = bearerToken.substring(7);
+      bearerToken = bearerToken.substring(CommonConstants.NUMERIC_SEVEN);
       log.info("Token  received  ......... " + bearerToken);
     } else {
       log.info("Token  not received  !!!!! " + bearerToken);
@@ -62,7 +66,6 @@ public class FacadeServiceExampleController {
       );
     // Call the 1st endpoint
     String finalBearerToken = bearerToken;
-    User userDetails = userDto.getUserDetails();
     return webClient
       .post()
       .uri("http://localhost:8084/tenants/{id}/users", userDto.getTenantId())
@@ -74,7 +77,7 @@ public class FacadeServiceExampleController {
       .flatMap(createdUserDto ->
         checkUserSignUp(createdUserDto, finalBearerToken)
       )
-      .flatMap(String -> sendInvitation(userDto, finalBearerToken))
+      .flatMap(string -> sendInvitation(userDto, finalBearerToken))
       .flatMap(invitation ->
         sendNotification(
           userDto.getUserDetails(),
@@ -128,7 +131,7 @@ public class FacadeServiceExampleController {
     CurrentUser currentUser
   ) {
     String link = feUrl + "invitation/" + invitationId;
-    String emailBody = EmailConstants.INVITATION_MAIL_TEMPLATE
+    String emailBody = InvitationMailTemplate
       .replace(
         "{USER_NAME}",
         currentUser.getFirstName() + " " + currentUser.getLastName()
