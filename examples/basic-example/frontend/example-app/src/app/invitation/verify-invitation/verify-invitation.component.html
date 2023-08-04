@@ -1,0 +1,16 @@
+<div class="warning-container" *ngIf="!verifying">
+  <div class="warning-icon">
+    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+  </div>
+  <h1 class="warning-subject">Warning</h1>
+  <p class="warning-message text-center">
+    Either the link has Expired<br />
+    or Link is not valid
+  </p>
+</div>
+<div class="warning-container" *ngIf="verifying">
+  <div class="verfying-icon">
+    <i class="fa fa-spinner" aria-hidden="true"></i>
+  </div>
+  <h1 class="warning-subject">Verifying link!</h1>
+</div>

@@ -29,6 +29,8 @@ public final class CommonConstants {
   public static final String VIEW = "view";
   public static final String UPDATE = "update";
   public static final String DELETE = "delete";
+  public static final String KEYCLOAK = "KEYCLOAK";
+  public static final int NUMERIC_SEVEN = 7;
 
   private CommonConstants() {
     throw new IllegalStateException("Utility class");

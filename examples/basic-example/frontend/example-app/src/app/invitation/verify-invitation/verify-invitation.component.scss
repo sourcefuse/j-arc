@@ -1,0 +1,42 @@
+.warning-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+}
+
+.warning-icon {
+    font-size: 60px;
+    color: #ff9900;
+}
+
+.verfying-icon {
+    font-size: 60px;
+    color: black;
+    .fa-spinner {
+        animation: rotate 1.7s linear infinite;
+    }
+}
+
+.warning-subject {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+.warning-message {
+    font-size: 18px;
+}
+
+/* Define the keyframes for the rotation animation */
+@keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
