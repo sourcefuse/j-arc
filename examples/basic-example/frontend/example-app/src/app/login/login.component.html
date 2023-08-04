@@ -1,0 +1,35 @@
+<div class="login-container bg-dark">
+  <div class="mx-auto bg-light rounded p-3">
+    <h2 class="text-center">Login Here !.</h2>
+    <form class="">
+      <mat-form-field class="col-12">
+        <mat-label>Username</mat-label>
+        <input matInput placeholder="Username" required />
+      </mat-form-field>
+      <mat-form-field class="col-12">
+        <mat-label>Password</mat-label>
+        <input matInput placeholder="Password" required />
+      </mat-form-field>
+    </form>
+    <div class="login-btn-group mt-2">
+      <button class="btn btn-primary p-2" type="submit" name="action">
+        Login
+      </button>
+      <div class="login-or">
+        <hr class="my-2 w-100" />
+        <h1 class="mx-3">Or</h1>
+        <hr class="my-2 w-100" />
+      </div>
+      <button class="btn btn-danger" type="button" name="action">
+        <img
+          src="assets/images/keycloak.png"
+          alt="keycloak"
+          width="45px"
+          (click)="redirectToKeyCloak()"
+          class="me-3"
+        />
+        Sign in with KeyCloak
+      </button>
+    </div>
+  </div>
+</div>

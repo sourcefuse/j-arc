@@ -6,6 +6,8 @@ import java.util.Set;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Component
 public final class CommonUtils {
@@ -24,5 +26,13 @@ public final class CommonUtils {
     }
     String[] result = new String[emptyNames.size()];
     return emptyNames.toArray(result);
+  }
+  public static boolean calculateTimeDiff(LocalDateTime savedDateTime) {
+
+    final int expiryInMinutes = 20;
+    LocalDateTime currentDateTime = LocalDateTime.now();
+    Duration difference = Duration.between(savedDateTime, currentDateTime);
+    long differenceInMinutes = difference.toMinutes();
+    return differenceInMinutes <= expiryInMinutes;
   }
 }
