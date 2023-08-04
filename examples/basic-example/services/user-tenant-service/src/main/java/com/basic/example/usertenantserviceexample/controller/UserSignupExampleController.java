@@ -30,27 +30,21 @@ public class UserSignupExampleController {
     @RequestBody UserDto userDto
   ) {
     AtomicBoolean isCreated = new AtomicBoolean(true);
-    userCredentialRepository
+    UserCredentials userCredentials =userCredentialRepository
       .findOne(
         UserCredentialsSpecification.byUserId(userDto.getUserDetails().getId())
       )
-      .map((UserCredentials credentials) -> {
-        isCreated.set(false);
+      .map((UserCredentials credentials) -> {isCreated.set(false);
         // Update existing credentials if authProvider is not KEYCLOAK
         log.info("User Credentials present ...!!");
-        if (
-          !CommonConstants.KEYCLOAK.equalsIgnoreCase(
-            credentials.getAuthProvider()
-          ) &&
-          userDto.getAuthProvider().equalsIgnoreCase(CommonConstants.KEYCLOAK)
+        if (!CommonConstants.KEYCLOAK.equalsIgnoreCase(credentials.getAuthProvider())
+                && userDto.getAuthProvider().equalsIgnoreCase(CommonConstants.KEYCLOAK)
         ) {
           log.info("Updating User AuthProvider to Keycloak...!!");
           credentials.setAuthProvider(CommonConstants.KEYCLOAK);
           credentials.setAuthId(userDto.getUserDetails().getEmail());
           userCredentialRepository.save(credentials);
-        }
-        return credentials;
-      })
+        }return credentials;})
       .orElseGet(() -> {
         // Create new credentials if they don't exist
         log.info("Creating User Credentials !!");
@@ -61,10 +55,9 @@ public class UserSignupExampleController {
         userCredentialRepository.save(newCredentials);
         return newCredentials;
       });
-
     // Return the UserCredentials object in the ResponseEntity with HTTP status 200 (OK).
     return new ResponseEntity<>(
-      "success",
+      "success"+userCredentials.getAuthProvider(),
       isCreated.get() ? HttpStatus.CREATED : HttpStatus.OK
     );
   }
