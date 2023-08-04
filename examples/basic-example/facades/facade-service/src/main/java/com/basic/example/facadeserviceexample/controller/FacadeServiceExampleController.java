@@ -39,7 +39,7 @@ public class FacadeServiceExampleController {
   private final WebClient webClient;
 
   @Value("${invitation-mail-template}")
-  String InvitationMailTemplate;
+  String invitationMailTemplate;
 
   @Value("${frontend.url}")
   private String feUrl;
@@ -131,7 +131,7 @@ public class FacadeServiceExampleController {
     CurrentUser currentUser
   ) {
     String link = feUrl + "invitation/" + invitationId;
-    String emailBody = InvitationMailTemplate
+    String emailBody = invitationMailTemplate
       .replace(
         "{USER_NAME}",
         currentUser.getFirstName() + " " + currentUser.getLastName()
