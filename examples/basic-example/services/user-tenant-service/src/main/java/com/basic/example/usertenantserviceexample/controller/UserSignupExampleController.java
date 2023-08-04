@@ -34,23 +34,33 @@ public class UserSignupExampleController {
       .findOne(
         UserCredentialsSpecification.byUserId(userDto.getUserDetails().getId())
       )
-      .map((UserCredentials credentials) -> {isCreated.set(false);
+      .map((UserCredentials credentials) -> {
+        isCreated.set(false);
         // Update existing credentials if authProvider is not KEYCLOAK
         log.info("User Credentials present ...!!");
-        if (!CommonConstants.KEYCLOAK.equalsIgnoreCase(credentials.getAuthProvider())
-            && userDto.getAuthProvider().equalsIgnoreCase(CommonConstants.KEYCLOAK)
-        ) {log.info("Updating User AuthProvider to Keycloak...!!");
+        if (
+          !CommonConstants.KEYCLOAK.equalsIgnoreCase(
+            credentials.getAuthProvider()
+          ) &&
+          userDto.getAuthProvider().equalsIgnoreCase(CommonConstants.KEYCLOAK)
+        ) {
+          log.info("Updating User AuthProvider to Keycloak...!!");
           credentials.setAuthProvider(CommonConstants.KEYCLOAK);
           credentials.setAuthId(userDto.getUserDetails().getEmail());
           userCredentialRepository.save(credentials);
-        }return credentials;}).orElseGet(() -> {
+        }
+        return credentials;
+      })
+      .orElseGet(() -> {
         // Create new credentials if they don't exist
         log.info("Creating User Credentials !!");
         UserCredentials newCredentials = UserCredentials.builder()
           .userId(new User(userDto.getUserDetails().getId()))
           .authProvider(CommonConstants.KEYCLOAK)
-                .authId(userDto.getUserDetails().getEmail()).build();
-        userCredentialRepository.save(newCredentials);return newCredentials;});
+          .authId(userDto.getUserDetails().getEmail()).build();
+        userCredentialRepository.save(newCredentials);
+        return newCredentials;
+      });
 
     // Return the UserCredentials object in the ResponseEntity with HTTP status 200 (OK).
     return new ResponseEntity<>(
