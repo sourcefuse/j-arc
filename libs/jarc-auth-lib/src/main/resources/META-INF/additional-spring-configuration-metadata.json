@@ -8,5 +8,10 @@
     "name": "swagger.auth.password",
     "type": "java.lang.String",
     "description": "Password to access Swagger UI"
+  },
+  {
+    "name": "cors.url",
+    "type": "java.lang.String",
+    "description": "Provide the Url to enable CORS"
   }
 ]}
