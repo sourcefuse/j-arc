@@ -12,7 +12,7 @@
     <artifactId>user-tenant-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>User Tenant Service</name>
-    <description>Service to handle Intent management</description>
+    <description>Service to handle User Tenant management</description>
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -81,11 +81,6 @@
                     <artifactId>spring-boot-starter-security</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

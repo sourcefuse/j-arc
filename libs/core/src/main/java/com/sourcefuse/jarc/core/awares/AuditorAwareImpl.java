@@ -17,7 +17,8 @@ public class AuditorAwareImpl implements AuditorAware<UUID> {
       .getContext()
       .getAuthentication();
     return Optional.ofNullable(
-      authentication != null
+      authentication != null &&
+        !(authentication.getPrincipal() instanceof String)
         ? ((CurrentUser) authentication.getPrincipal()).getId()
         : null
     );

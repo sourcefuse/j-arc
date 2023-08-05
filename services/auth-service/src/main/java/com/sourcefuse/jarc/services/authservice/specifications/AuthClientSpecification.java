@@ -4,9 +4,7 @@ import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-
 import java.util.List;
-
 import org.springframework.data.jpa.domain.Specification;
 
 public final class AuthClientSpecification {
@@ -15,27 +13,31 @@ public final class AuthClientSpecification {
 
   public static Specification<AuthClient> byClientId(String clientId) {
     return (
-      Root<AuthClient> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder builder
-    ) -> builder.equal(root.get("clientId"), clientId);
+        Root<AuthClient> root,
+        CriteriaQuery<?> query,
+        CriteriaBuilder builder
+      ) ->
+      builder.equal(root.get("clientId"), clientId);
   }
 
   public static Specification<AuthClient> byClientSecret(String clientSecret) {
     return (
-      Root<AuthClient> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder builder
-    ) -> builder.equal(root.get("clientSecret"), clientSecret);
+        Root<AuthClient> root,
+        CriteriaQuery<?> query,
+        CriteriaBuilder builder
+      ) ->
+      builder.equal(root.get("clientSecret"), clientSecret);
   }
+
   public static Specification<AuthClient> byAllowedClients(
     List<String> allowedClients
   ) {
     return (
-      Root<AuthClient> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder builder
-    ) -> builder.in(root.get("allowedClients")).value(allowedClients);
+        Root<AuthClient> root,
+        CriteriaQuery<?> query,
+        CriteriaBuilder builder
+      ) ->
+      builder.in(root.get("clientId")).value(allowedClients);
   }
 
   public static Specification<AuthClient> byClientIdAndClientSecret(
@@ -46,6 +48,4 @@ public final class AuthClientSpecification {
       .where(AuthClientSpecification.byClientId(clientId))
       .and(AuthClientSpecification.byClientSecret(clientSecret));
   }
-
-  
 }

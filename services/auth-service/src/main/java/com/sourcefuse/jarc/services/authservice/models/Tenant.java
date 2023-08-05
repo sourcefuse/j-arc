@@ -3,6 +3,8 @@ package com.sourcefuse.jarc.services.authservice.models;
 import com.sourcefuse.jarc.core.enums.TenantStatus;
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,7 +32,10 @@ public class Tenant extends UserModifiableEntity {
   private UUID id;
 
   private String name;
+
+  @Enumerated(EnumType.STRING)
   private TenantStatus status;
+
   private String key;
   private String website;
   private String address;

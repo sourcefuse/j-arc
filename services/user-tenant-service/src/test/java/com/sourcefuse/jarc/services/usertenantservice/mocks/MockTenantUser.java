@@ -2,7 +2,6 @@ package com.sourcefuse.jarc.services.usertenantservice.mocks;
 
 import com.google.gson.Gson;
 import com.sourcefuse.jarc.core.enums.Gender;
-import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.enums.TenantStatus;
 import com.sourcefuse.jarc.core.enums.UserStatus;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
@@ -13,6 +12,7 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenantPrefs;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.UUID;
 import org.springframework.beans.BeanUtils;
 
@@ -46,7 +46,7 @@ public final class MockTenantUser {
     UserDto userDto = new UserDto();
     userDto.setRoleId(ROLE_ID);
     userDto.setTenantId(TENANT_ID);
-    userDto.setStatus(RoleKey.DEFAULT.ordinal());
+    userDto.setStatus(UserStatus.ACTIVE);
     userDto.setAuthId("authId");
     userDto.setAuthProvider("Keycloak");
     userDto.setUserTenantId(USER_TENANT_ID);
@@ -64,7 +64,11 @@ public final class MockTenantUser {
     user.setMiddleName("john");
     user.setUsername("Messi");
     user.setEmail("fc@barca.in");
-    user.setAuthClientIds("authid");
+    user.setAuthClientIds(
+      Collections.singletonList(
+        UUID.fromString("c9f0b550-6f11-b637-3c27-7245d2277362")
+      )
+    );
     user.setGender(Gender.MALE);
     user.setDefaultTenant(new Tenant(TENANT_ID));
     return user;

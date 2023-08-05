@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,7 +70,7 @@ public class KeycloakController {
   @PostMapping("/login")
   public void keycloak(
     HttpServletResponse httpServletResponse,
-    @Valid @RequestBody ClientDTO clientDTO
+    @Valid @ModelAttribute ClientDTO clientDTO
   ) {
     String redirectUrlWithParam = java.text.MessageFormat.format(
       "{0}&state=auth_client_id={1}",

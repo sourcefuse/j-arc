@@ -58,11 +58,11 @@ public class KeycloakAuthService {
     if (
       !userCredential
         .getAuthProvider()
-        .equals(AuthProvider.KEYCLOAK.toString()) ||
+        .equalsIgnoreCase(AuthProvider.KEYCLOAK.toString()) ||
       (
         !userCredential
           .getAuthId()
-          .equals(keycloakUserDTO.getPreferredUsername())
+          .equalsIgnoreCase(keycloakUserDTO.getPreferredUsername())
       )
     ) {
       throw throwUserVerificationFailed();

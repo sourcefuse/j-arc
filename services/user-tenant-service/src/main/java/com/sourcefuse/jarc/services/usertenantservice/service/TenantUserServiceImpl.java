@@ -32,7 +32,6 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.buf.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -95,12 +94,11 @@ public class TenantUserServiceImpl implements TenantUserService {
     User user,
     List<AuthClient> authClients
   ) {
-    List<String> authClientIds = authClients
+    List<UUID> authClientIds = authClients
       .stream()
-      .map(auth -> String.valueOf(auth.getId()))
+      .map(auth -> (auth.getId()))
       .toList();
-    user.setAuthClientIds("{" + StringUtils.join(authClientIds, ',') + "}");
-
+    user.setAuthClientIds(authClientIds);
     user.setUsername(user.getUsername().toLowerCase(Locale.getDefault()));
     user.getDefaultTenant().setId(userData.getTenantId());
     User savedUser = userRepository.save(user);
@@ -255,14 +253,14 @@ public class TenantUserServiceImpl implements TenantUserService {
       "*".equals(allowedDomains[0]) &&
       options != null
     ) {
-      options.put(CommonConstants.AUTH_PROVIDER, "keycloak");
+      options.put(CommonConstants.AUTH_PROVIDER, CommonConstants.KEYCLOAK);
     } else if (options != null) {
       options.put(
         CommonConstants.AUTH_PROVIDER,
         options.get(CommonConstants.AUTH_PROVIDER) != null &&
           Arrays.asList(allowedDomains).contains(email[1])
           ? options.get(CommonConstants.AUTH_PROVIDER)
-          : "internal"
+          : "INTERNAL"
       );
     } else {
       log.info("Cannot configured Auth_PROVIDER");

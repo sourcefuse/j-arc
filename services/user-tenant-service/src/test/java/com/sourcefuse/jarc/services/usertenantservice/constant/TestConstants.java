@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.constant;
 
+import com.sourcefuse.jarc.core.constants.NotificationPermissions;
 import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.core.enums.RoleKey;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
@@ -23,6 +24,7 @@ public class TestConstants {
     currentUser.setRoleType(RoleKey.ADMIN);
     currentUser.setPermissions(
       Arrays.asList(
+        NotificationPermissions.CREATE_NOTIFICATION,
         PermissionKey.VIEW_OWN_TENANT.toString(),
         PermissionKey.UPDATE_TENANT.toString(),
         PermissionKey.UPDATE_OWN_TENANT.toString(),

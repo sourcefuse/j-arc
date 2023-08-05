@@ -68,7 +68,7 @@ public class User extends UserModifiableEntity {
   private String phone;
 
   @Column(name = "auth_client_ids")
-  private String authClientIds;
+  private List<UUID> authClientIds;
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "last_login")

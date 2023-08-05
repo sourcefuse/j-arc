@@ -79,8 +79,6 @@ public class AuditLog {
   @JsonDeserialize(using = JsonBDeserializer.class)
   private Object after;
 
-  @NotNull
-  @NotEmpty
-  @Column(name = "action_group", nullable = false)
+  @Column(name = "action_group")
   private String actionGroup;
 }

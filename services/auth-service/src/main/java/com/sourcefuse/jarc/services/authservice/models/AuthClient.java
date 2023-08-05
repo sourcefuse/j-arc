@@ -1,14 +1,12 @@
 package com.sourcefuse.jarc.services.authservice.models;
 
-import java.util.UUID;
-
 import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,7 +23,7 @@ import lombok.Setter;
 public class AuthClient extends UserModifiableEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
   private String clientId;

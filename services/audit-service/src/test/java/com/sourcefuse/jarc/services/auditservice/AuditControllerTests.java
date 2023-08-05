@@ -227,19 +227,6 @@ class AuditControllerTests {
   }
 
   @Test
-  void createAuditLog_FailedDueToEmptyActionGroup() throws Exception {
-    auditLog.setActionGroup("");
-
-    this.mockMvc.perform(
-        post(BASE_PATH)
-          .header("Authorization", authToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(auditLog))
-      )
-      .andExpect(status().isBadRequest());
-  }
-
-  @Test
   void createAuditLog_FailedDueToNullAction() throws Exception {
     auditLog.setAction(null);
 
@@ -318,22 +305,9 @@ class AuditControllerTests {
   }
 
   @Test
-  void createAuditLog_FailedDueToNullActionGroup() throws Exception {
-    auditLog.setActionGroup(null);
-
-    this.mockMvc.perform(
-        post(BASE_PATH)
-          .header("Authorization", authToken)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(auditLog))
-      )
-      .andExpect(status().isBadRequest());
-  }
-
-  @Test
   void getAuditLogCount_Success() throws Exception {
     this.mockMvc.perform(
-        get(BASE_PATH + "/" + "/count").header("Authorization", authToken)
+        get(BASE_PATH + "/count").header("Authorization", authToken)
       )
       .andExpect(status().isOk())
       .andExpect(content().string(equalTo("2")));
@@ -341,7 +315,7 @@ class AuditControllerTests {
 
   @Test
   void getAuditLogCount_FailsDueToAuthTokenNotFound() throws Exception {
-    this.mockMvc.perform(get(BASE_PATH + "/" + "/count"))
+    this.mockMvc.perform(get(BASE_PATH + "/count"))
       .andExpect(status().isUnauthorized());
   }
 

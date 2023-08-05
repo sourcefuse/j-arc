@@ -19,7 +19,7 @@ public class UserDto {
   @NotNull(message = "Tenant ID cannot be null")
   private UUID tenantId;
 
-  private Integer status;
+  private UserStatus status;
 
   private String authProvider;
 
@@ -41,7 +41,7 @@ public class UserDto {
   ) {
     this.userDetails = existingUser;
     this.roleId = roleId;
-    this.status = status.ordinal();
+    this.status = status;
     this.tenantId = tenantId;
     this.userTenantId = userTenantId;
     this.authProvider = authProvider;
