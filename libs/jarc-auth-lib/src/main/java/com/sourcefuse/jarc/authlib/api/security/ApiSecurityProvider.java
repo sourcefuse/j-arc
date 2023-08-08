@@ -23,7 +23,6 @@ import com.sourcefuse.jarc.authlib.api.security.header.writers.XPermittedCrossDo
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.stereotype.Component;
@@ -96,9 +95,8 @@ public class ApiSecurityProvider {
       if (optionValue) {
         http
           .headers()
-          .crossOriginEmbedderPolicy((HeadersConfigurer<HttpSecurity>.CrossOriginEmbedderPolicyConfig config) ->
-            config.policy(CrossOriginEmbedderPolicyHeader.getHeaderValue(null))
-          );
+          .crossOriginEmbedderPolicy()
+          .policy(CrossOriginEmbedderPolicyHeader.getHeaderValue(null));
       }
     } else {
       CrossOriginEmbedderPolicyConfigOptions options =
@@ -108,9 +106,8 @@ public class ApiSecurityProvider {
         );
       http
         .headers()
-        .crossOriginEmbedderPolicy((HeadersConfigurer<HttpSecurity>.CrossOriginEmbedderPolicyConfig config) ->
-          config.policy(CrossOriginEmbedderPolicyHeader.getHeaderValue(options))
-        );
+        .crossOriginEmbedderPolicy()
+        .policy(CrossOriginEmbedderPolicyHeader.getHeaderValue(options));
     }
   }
 
@@ -122,10 +119,8 @@ public class ApiSecurityProvider {
       if (optionValue) {
         http
           .headers()
-          .crossOriginOpenerPolicy((HeadersConfigurer<HttpSecurity>.CrossOriginOpenerPolicyConfig config) -> {
-              config.policy(CrossOriginOpenerPolicyHeader.getHeaderValue(null));
-            }
-          );
+          .crossOriginOpenerPolicy()
+          .policy(CrossOriginOpenerPolicyHeader.getHeaderValue(null));
       }
     } else {
       CrossOriginOpenerPolicyConfigOptions options = objectMapper.convertValue(
@@ -134,9 +129,8 @@ public class ApiSecurityProvider {
       );
       http
         .headers()
-        .crossOriginOpenerPolicy((HeadersConfigurer<HttpSecurity>.CrossOriginOpenerPolicyConfig config) ->
-          config.policy(CrossOriginOpenerPolicyHeader.getHeaderValue(options))
-        );
+        .crossOriginOpenerPolicy()
+        .policy(CrossOriginOpenerPolicyHeader.getHeaderValue(options));
     }
   }
 
@@ -150,9 +144,8 @@ public class ApiSecurityProvider {
       if (optionValue) {
         http
           .headers()
-          .crossOriginResourcePolicy((HeadersConfigurer<HttpSecurity>.CrossOriginResourcePolicyConfig config) ->
-            config.policy(CrossOriginResourcePolicyHeader.getHeaderValue(null))
-          );
+          .crossOriginResourcePolicy()
+          .policy(CrossOriginResourcePolicyHeader.getHeaderValue(null));
       }
     } else {
       CrossOriginResourcePolicyConfigOptions options =
@@ -162,9 +155,8 @@ public class ApiSecurityProvider {
         );
       http
         .headers()
-        .crossOriginResourcePolicy((HeadersConfigurer<HttpSecurity>.CrossOriginResourcePolicyConfig config) ->
-          config.policy(CrossOriginResourcePolicyHeader.getHeaderValue(options))
-        );
+        .crossOriginResourcePolicy()
+        .policy(CrossOriginResourcePolicyHeader.getHeaderValue(options));
     }
   }
 
@@ -185,9 +177,8 @@ public class ApiSecurityProvider {
       if (optionValue) {
         http
           .headers()
-          .referrerPolicy((HeadersConfigurer<HttpSecurity>.ReferrerPolicyConfig referrerConfig) ->
-            referrerConfig.policy(ReferrerPolicyHeader.getHeaderValue(null))
-          );
+          .referrerPolicy()
+          .policy(ReferrerPolicyHeader.getHeaderValue(null));
       }
     } else {
       ReferrerPolicyConfigOptions options = objectMapper.convertValue(
@@ -196,9 +187,8 @@ public class ApiSecurityProvider {
       );
       http
         .headers()
-        .referrerPolicy((HeadersConfigurer<HttpSecurity>.ReferrerPolicyConfig referrerConfig) ->
-          referrerConfig.policy(ReferrerPolicyHeader.getHeaderValue(options))
-        );
+        .referrerPolicy()
+        .policy(ReferrerPolicyHeader.getHeaderValue(options));
     }
   }
 
@@ -208,11 +198,10 @@ public class ApiSecurityProvider {
       boolean optionValue =
         (boolean) apiSecurityConfig.enableStrictTransportSecurity();
       if (optionValue) {
-        http
-          .headers()
-          .httpStrictTransportSecurity((HeadersConfigurer<HttpSecurity>.HstsConfig hstsConfig) ->
-            StrictTransportSecurityHeader.setHeaderByConfig(hstsConfig, null)
-          );
+        StrictTransportSecurityHeader.setHeaderByConfig(
+          http.headers().httpStrictTransportSecurity(),
+          null
+        );
       } else {
         http.headers().httpStrictTransportSecurity().disable();
       }
@@ -222,11 +211,10 @@ public class ApiSecurityProvider {
         StrictTransportSecurityConfigOptions.class
       );
 
-      http
-        .headers()
-        .httpStrictTransportSecurity((HeadersConfigurer<HttpSecurity>.HstsConfig hstsConfig) ->
-          StrictTransportSecurityHeader.setHeaderByConfig(hstsConfig, options)
-        );
+      StrictTransportSecurityHeader.setHeaderByConfig(
+        http.headers().httpStrictTransportSecurity(),
+        options
+      );
     }
   }
 

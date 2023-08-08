@@ -49,23 +49,14 @@ public final class ContentSecurityPolicyHeader {
     }
 
     Map<String, List<String>> result = new HashMap<>();
-    List<String> directiveNamesSeen = new ArrayList<>();
     List<String> directivesExplicitlyDisabled = new ArrayList<>();
 
     for (Entry<String, Object> entry : options.getDirectives().entrySet()) {
       String rawDirectiveName = entry.getKey();
       String directiveName = dashify(rawDirectiveName);
-
-      if (directiveNamesSeen.contains(directiveName)) {
-        throw new IllegalArgumentException(
-          "Content-Security-Policy received a duplicate directive " +
-          directiveName
-        );
-      }
-      directiveNamesSeen.add(directiveName);
-
       Object rawDirectiveValue = entry.getValue();
       List<String> directiveValue;
+
       if (rawDirectiveValue == null) {
         if (directiveName.equals(DEFAULT_SRC)) {
           throw new IllegalArgumentException(
