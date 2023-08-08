@@ -22,88 +22,88 @@ public final class ContentSecurityPolicyHeader {
   );
   private static final String DASHIFY_REPLACE_WITH = "$1-$2";
 
+  private static final Map<String, Object> defaultDirectives =
+    ApiSecurityConstants.DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE;
+
   private ContentSecurityPolicyHeader() {}
-
-  private static boolean isDirectiveValueInvalid(String str) {
-    return Pattern.matches(INVALID_DIRECTIVE_PATTERN, str);
-  }
-
-  private static String dashify(String str) {
-    return DASHIFY_PATTERN.matcher(str).replaceAll(DASHIFY_REPLACE_WITH);
-  }
 
   @SuppressWarnings("unchecked")
   private static Map<String, List<String>> normalizeDirectives(
     ContentSecurityPolicyConfigOptions options
   ) {
-    if (options == null) {
-      options = new ContentSecurityPolicyConfigOptions();
-    }
-    Map<String, Object> defaultDirectives =
-      ApiSecurityConstants.DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE;
-    if (options.getUseDefaults() == null) {
-      options.setUseDefaults(true);
-    }
-    if (options.getDirectives() == null) {
-      options.setDirectives(defaultDirectives);
-    }
-
     Map<String, List<String>> result = new HashMap<>();
     List<String> directivesExplicitlyDisabled = new ArrayList<>();
+
+    ValidateOrInitOptions(options);
 
     for (Entry<String, Object> entry : options.getDirectives().entrySet()) {
       String rawDirectiveName = entry.getKey();
       String directiveName = dashify(rawDirectiveName);
       Object rawDirectiveValue = entry.getValue();
-      List<String> directiveValue;
 
       if (rawDirectiveValue == null) {
-        if (directiveName.equals(DEFAULT_SRC)) {
-          throw new IllegalArgumentException(
-            "Content-Security-Policy needs a default-src but it was set to `null`. " +
-            "If you really want to disable it, set it to " +
-            "`contentSecurityPolicy.dangerouslyDisableDefaultSrc`."
-          );
-        }
-        directivesExplicitlyDisabled.add(directiveName);
+        directivesExplicitlyDisabled.add(validateNullDirective(directiveName));
         continue;
       }
+      List<String> directiveValue;
       if (rawDirectiveValue instanceof String stringDirectiveValue) {
-        if (stringDirectiveValue.isBlank()) {
-          throw new IllegalArgumentException(
-            "Content-Security-Policy received an invalid directive value for " +
-            directiveName
-          );
-        }
-        if (stringDirectiveValue.equals(DANGEROUSLY_DISABLE_DEFAULT_SRC)) {
-          if (directiveName.equals(DEFAULT_SRC)) {
-            directivesExplicitlyDisabled.add(DEFAULT_SRC);
-            continue;
-          }
-          throw new IllegalArgumentException(
-            "Content-Security-Policy: tried to disable " +
-            directiveName +
-            " as if it were default-src; simply omit the key"
-          );
+        List<String> validatedDirectiveValues = validateStringDirectiveValue(
+          directiveName,
+          stringDirectiveValue,
+          directivesExplicitlyDisabled
+        );
+        if (validatedDirectiveValues == null) {
+          continue;
         } else {
-          directiveValue = Arrays.asList(stringDirectiveValue);
+          directiveValue = validatedDirectiveValues;
         }
-      } else {
+      } else if (rawDirectiveValue instanceof List<?> stringDirectiveValue) {
         directiveValue = (List<String>) rawDirectiveValue;
-      }
-      for (String element : directiveValue) {
-        if (isDirectiveValueInvalid(element)) {
-          throw new IllegalArgumentException(
-            "Content-Security-Policy received an invalid directive value for " +
-            directiveName
-          );
-        }
+      } else {
+        throw new IllegalArgumentException(
+          "Content-Security-Policy has directive: " +
+          directiveName +
+          " contains invalid values either provide string or list or string"
+        );
       }
 
-      result.put(directiveName, directiveValue);
+      result.put(directiveName, validateDirectiveValues(directiveValue));
     }
 
-    if (options.getUseDefaults().booleanValue()) {
+    setDefaultValues(
+      result,
+      options.getUseDefaults().booleanValue(),
+      directivesExplicitlyDisabled
+    );
+    validateNormalizedDirectiveResult(result, directivesExplicitlyDisabled);
+
+    return result;
+  }
+
+  private static List<String> validateDirectiveValues(
+    List<String> directiveValues
+  ) {
+    List<String> invalidValues = directiveValues
+      .stream()
+      .filter(directiveValue -> isDirectiveValueInvalid(directiveValue))
+      .toList();
+
+    if (invalidValues.size() > 0) {
+      throw new IllegalArgumentException(
+        "Content-Security-Policy received an invalid directive value for " +
+        String.join(", ", invalidValues)
+      );
+    }
+    return directiveValues;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void setDefaultValues(
+    Map<String, List<String>> result,
+    boolean useDefaults,
+    List<String> directivesExplicitlyDisabled
+  ) {
+    if (useDefaults) {
       defaultDirectives.forEach(
         (String defaultDirectiveName, Object defaultDirectiveValue) -> {
           if (
@@ -118,7 +118,12 @@ public final class ContentSecurityPolicyHeader {
         }
       );
     }
+  }
 
+  private static void validateNormalizedDirectiveResult(
+    Map<String, List<String>> result,
+    List<String> directivesExplicitlyDisabled
+  ) {
     if (result.isEmpty()) {
       throw new IllegalArgumentException(
         "Content-Security-Policy has no directives. Either set some or disable the header"
@@ -134,8 +139,6 @@ public final class ContentSecurityPolicyHeader {
         "dangerouslyDisableDefaultSrc`."
       );
     }
-
-    return result;
   }
 
   public static String getHeaderValue(
@@ -163,5 +166,66 @@ public final class ContentSecurityPolicyHeader {
     }
 
     return String.join(";", result);
+  }
+
+  private static boolean isDirectiveValueInvalid(String str) {
+    return Pattern.matches(INVALID_DIRECTIVE_PATTERN, str);
+  }
+
+  private static String dashify(String str) {
+    return DASHIFY_PATTERN.matcher(str).replaceAll(DASHIFY_REPLACE_WITH);
+  }
+
+  private static void ValidateOrInitOptions(
+    ContentSecurityPolicyConfigOptions options
+  ) {
+    if (options == null) {
+      options = new ContentSecurityPolicyConfigOptions();
+    }
+    Map<String, Object> defaultDirectives =
+      ApiSecurityConstants.DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE;
+    if (options.getUseDefaults() == null) {
+      options.setUseDefaults(true);
+    }
+    if (options.getDirectives() == null) {
+      options.setDirectives(defaultDirectives);
+    }
+  }
+
+  private static String validateNullDirective(String directiveName) {
+    if (directiveName.equals(DEFAULT_SRC)) {
+      throw new IllegalArgumentException(
+        "Content-Security-Policy needs a default-src but it was set to `null`. " +
+        "If you really want to disable it, set it to " +
+        "`contentSecurityPolicy.dangerouslyDisableDefaultSrc`."
+      );
+    }
+    return directiveName;
+  }
+
+  private static List<String> validateStringDirectiveValue(
+    String directiveName,
+    String stringDirectiveValue,
+    List<String> directivesExplicitlyDisabled
+  ) {
+    if (stringDirectiveValue.isBlank()) {
+      throw new IllegalArgumentException(
+        "Content-Security-Policy received an invalid directive value for " +
+        directiveName
+      );
+    }
+    if (stringDirectiveValue.equals(DANGEROUSLY_DISABLE_DEFAULT_SRC)) {
+      if (directiveName.equals(DEFAULT_SRC)) {
+        directivesExplicitlyDisabled.add(DEFAULT_SRC);
+        // returning null to skip the loop where this method has been called
+        return null;
+      }
+      throw new IllegalArgumentException(
+        "Content-Security-Policy: tried to disable " +
+        directiveName +
+        " as if it were default-src; simply omit the key"
+      );
+    }
+    return Arrays.asList(stringDirectiveValue);
   }
 }

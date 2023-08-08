@@ -16,9 +16,7 @@ public final class XFrameOptionsHeader {
       normalizedAction = options.getAction();
     }
     switch (normalizedAction.toUpperCase()) {
-      case "SAME-ORIGIN":
-      case "DENY":
-      case "SAMEORIGIN":
+      case "SAME-ORIGIN", "DENY", "SAMEORIGIN":
         http.headers().frameOptions().sameOrigin();
         break;
       default:

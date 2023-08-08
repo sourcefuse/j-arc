@@ -1,10 +1,8 @@
 package com.sourcefuse.jarc.authlib.api.security.types;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class ApiSecurityConstants {
 
@@ -15,28 +13,54 @@ public final class ApiSecurityConstants {
 
   @SuppressWarnings("unchecked")
   public static final Map<String, Object> DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE =
-    Stream
-      .of(
-        new Object[][] {
-          { "default-src", Arrays.asList(SELF) },
-          { "base-uri", Arrays.asList(SELF) },
-          { "font-src", Arrays.asList(SELF, "https:", "data:") },
-          { "form-action", Arrays.asList(SELF) },
-          { "frame-ancestors", Arrays.asList(SELF) },
-          { "img-src", Arrays.asList(SELF, "data:") },
-          { "object-src", Arrays.asList("'none'") },
-          { "script-src", Arrays.asList(SELF) },
-          { "script-src-attr", Arrays.asList("'none'") },
-          { "style-src", Arrays.asList(SELF, "https:", "'unsafe-inline'") },
-          { "upgrade-insecure-requests", Arrays.asList() }
-        }
-      )
-      .collect(
-        Collectors.toMap(
-          data -> (String) data[0],
-          data -> (List<String>) data[1]
-        )
-      );
+    new HashMap<>();
+
+  static {
+    DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE.put(
+      "default-src",
+      Arrays.asList(SELF)
+    );
+    DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE.put(
+      "base-uri",
+      Arrays.asList(SELF)
+    );
+    DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE.put(
+      "font-src",
+      Arrays.asList(SELF, "https:", "data:")
+    );
+    DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE.put(
+      "form-action",
+      Arrays.asList(SELF)
+    );
+    DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE.put(
+      "frame-ancestors",
+      Arrays.asList(SELF)
+    );
+    DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE.put(
+      "img-src",
+      Arrays.asList(SELF, "data:")
+    );
+    DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE.put(
+      "object-src",
+      Arrays.asList("'none'")
+    );
+    DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE.put(
+      "script-src",
+      Arrays.asList(SELF)
+    );
+    DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE.put(
+      "script-src-attr",
+      Arrays.asList("'none'")
+    );
+    DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE.put(
+      "style-src",
+      Arrays.asList(SELF, "https:", "'unsafe-inline'")
+    );
+    DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE.put(
+      "upgrade-insecure-requests",
+      Arrays.asList()
+    );
+  }
 
   private ApiSecurityConstants() {}
 }
