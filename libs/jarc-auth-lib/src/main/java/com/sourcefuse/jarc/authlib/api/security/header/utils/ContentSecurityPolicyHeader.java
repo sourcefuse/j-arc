@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import javax.management.InvalidAttributeValueException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public final class ContentSecurityPolicyHeader {
 
   public static final String DANGEROUSLY_DISABLE_DEFAULT_SRC =
@@ -34,7 +36,7 @@ public final class ContentSecurityPolicyHeader {
     Map<String, List<String>> result = new HashMap<>();
     List<String> directivesExplicitlyDisabled = new ArrayList<>();
 
-    ValidateOrInitOptions(options);
+    validateOrInitOptions(options);
 
     for (Entry<String, Object> entry : options.getDirectives().entrySet()) {
       String rawDirectiveName = entry.getKey();
@@ -47,18 +49,19 @@ public final class ContentSecurityPolicyHeader {
       }
       List<String> directiveValue;
       if (rawDirectiveValue instanceof String stringDirectiveValue) {
-        List<String> validatedDirectiveValues = validateStringDirectiveValue(
-          directiveName,
-          stringDirectiveValue,
-          directivesExplicitlyDisabled
-        );
-        if (validatedDirectiveValues == null) {
+        try {
+          directiveValue =
+            validateStringDirectiveValue(
+              directiveName,
+              stringDirectiveValue,
+              directivesExplicitlyDisabled
+            );
+        } catch (InvalidAttributeValueException e) {
+          log.info(null, e);
           continue;
-        } else {
-          directiveValue = validatedDirectiveValues;
         }
-      } else if (rawDirectiveValue instanceof List<?> stringDirectiveValue) {
-        directiveValue = (List<String>) rawDirectiveValue;
+      } else if (rawDirectiveValue instanceof List<?> listDirectiveValue) {
+        directiveValue = (List<String>) listDirectiveValue;
       } else {
         throw new IllegalArgumentException(
           "Content-Security-Policy has directive: " +
@@ -85,10 +88,10 @@ public final class ContentSecurityPolicyHeader {
   ) {
     List<String> invalidValues = directiveValues
       .stream()
-      .filter(directiveValue -> isDirectiveValueInvalid(directiveValue))
+      .filter(ContentSecurityPolicyHeader::isDirectiveValueInvalid)
       .toList();
 
-    if (invalidValues.size() > 0) {
+    if (!invalidValues.isEmpty()) {
       throw new IllegalArgumentException(
         "Content-Security-Policy received an invalid directive value for " +
         String.join(", ", invalidValues)
@@ -110,8 +113,7 @@ public final class ContentSecurityPolicyHeader {
             !result.containsKey(defaultDirectiveName) &&
             !directivesExplicitlyDisabled.contains(defaultDirectiveName)
           ) {
-            result.put(
-              defaultDirectiveName,
+            result.put(defaultDirectiveName,
               (List<String>) defaultDirectiveValue
             );
           }
@@ -143,7 +145,7 @@ public final class ContentSecurityPolicyHeader {
 
   public static String getHeaderValue(
     ContentSecurityPolicyConfigOptions options
-  ) throws InvalidAttributeValueException {
+  ) {
     Map<String, List<String>> normalizedDirectives = normalizeDirectives(
       options
     );
@@ -156,7 +158,7 @@ public final class ContentSecurityPolicyHeader {
       if (directiveValue.isBlank()) {
         result.add(directiveName);
       } else if (isDirectiveValueInvalid(directiveValue)) {
-        throw new InvalidAttributeValueException(
+        throw new IllegalArgumentException(
           "Content-Security-Policy received an invalid directive value " +
           directiveName
         );
@@ -176,7 +178,7 @@ public final class ContentSecurityPolicyHeader {
     return DASHIFY_PATTERN.matcher(str).replaceAll(DASHIFY_REPLACE_WITH);
   }
 
-  private static void ValidateOrInitOptions(
+  private static void validateOrInitOptions(
     ContentSecurityPolicyConfigOptions options
   ) {
     if (options == null) {
@@ -207,7 +209,7 @@ public final class ContentSecurityPolicyHeader {
     String directiveName,
     String stringDirectiveValue,
     List<String> directivesExplicitlyDisabled
-  ) {
+  ) throws InvalidAttributeValueException {
     if (stringDirectiveValue.isBlank()) {
       throw new IllegalArgumentException(
         "Content-Security-Policy received an invalid directive value for " +
@@ -217,8 +219,14 @@ public final class ContentSecurityPolicyHeader {
     if (stringDirectiveValue.equals(DANGEROUSLY_DISABLE_DEFAULT_SRC)) {
       if (directiveName.equals(DEFAULT_SRC)) {
         directivesExplicitlyDisabled.add(DEFAULT_SRC);
-        // returning null to skip the loop where this method has been called
-        return null;
+        // throwing InvalidAttributeValueException to skip the
+        // loop where this method has been called
+        throw new InvalidAttributeValueException(
+          "Skip the loop, value : " +
+          DANGEROUSLY_DISABLE_DEFAULT_SRC +
+          ", Directive : " +
+          DEFAULT_SRC
+        );
       }
       throw new IllegalArgumentException(
         "Content-Security-Policy: tried to disable " +
