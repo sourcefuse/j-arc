@@ -1,17 +1,19 @@
 package com.sourcefuse.jarc.authlib.api.security.header.utils;
 
-import com.sourcefuse.jarc.authlib.api.security.config.StrictTransportSecurityConfig;
+import com.sourcefuse.jarc.authlib.api.security.config.StrictTransportSecurityConfigOptions;
 import com.sourcefuse.jarc.authlib.api.security.types.ApiSecurityConstants;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.HstsConfig;
 
 public final class StrictTransportSecurityHeader {
+
+  private StrictTransportSecurityHeader() {}
 
   private static Long parseMaxAge(Double maxAge) {
     if (maxAge == null) {
       maxAge = ApiSecurityConstants.DEFAULT_MAX_AGE;
     }
     if (maxAge >= 0 && Double.isFinite(maxAge)) {
-      return Double.valueOf(Math.floor(maxAge)).longValue();
+      return (long) Math.floor(maxAge);
     } else {
       throw new IllegalArgumentException(
         "Strict-Transport-Security: " +
@@ -24,10 +26,10 @@ public final class StrictTransportSecurityHeader {
   @SuppressWarnings("rawtypes")
   public static HstsConfig setHeaderByConfig(
     HstsConfig hstsConfig,
-    StrictTransportSecurityConfig options
+    StrictTransportSecurityConfigOptions options
   ) {
     if (options == null) {
-      options = new StrictTransportSecurityConfig();
+      options = new StrictTransportSecurityConfigOptions();
     }
     hstsConfig.maxAgeInSeconds(parseMaxAge(options.getMaxAge()));
 
@@ -40,7 +42,6 @@ public final class StrictTransportSecurityHeader {
     if (options.isPreload()) {
       hstsConfig.preload(true);
     }
-    //		hstsConfig.requestMatcher(re)
     return hstsConfig;
   }
 }

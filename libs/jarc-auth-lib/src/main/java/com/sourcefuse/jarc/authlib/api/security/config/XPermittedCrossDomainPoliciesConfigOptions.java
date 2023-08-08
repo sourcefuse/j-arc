@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.authlib.api.security.config;
 
-import java.util.Map;
+import com.sourcefuse.jarc.authlib.api.security.header.writers.XPermittedCrossDomainPoliciesHeaderWriter.PermittedPolicy;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,12 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ContentSecurityPolicyConfig {
+public class XPermittedCrossDomainPoliciesConfigOptions {
 
-  private Boolean useDefaults;
-
-  // key value pair, value can be string or List<string>
-  private Map<String, Object> directives;
-
-  private boolean reportOnly;
+  private PermittedPolicy permittedPolicies;
 }

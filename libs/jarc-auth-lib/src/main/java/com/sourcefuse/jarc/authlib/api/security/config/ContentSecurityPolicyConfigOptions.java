@@ -1,12 +1,12 @@
 package com.sourcefuse.jarc.authlib.api.security.config;
 
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.web.header.writers.CrossOriginResourcePolicyHeaderWriter.CrossOriginResourcePolicy;
 
 @Data
 @AllArgsConstructor
@@ -14,7 +14,12 @@ import org.springframework.security.web.header.writers.CrossOriginResourcePolicy
 @Getter
 @Setter
 @Builder
-public class CrossOriginResourcePolicyConfig {
+public class ContentSecurityPolicyConfigOptions {
 
-  private CrossOriginResourcePolicy policy;
+  private Boolean useDefaults;
+
+  // key value pair, value can be string or List<string>
+  private Map<String, Object> directives;
+
+  private boolean reportOnly;
 }

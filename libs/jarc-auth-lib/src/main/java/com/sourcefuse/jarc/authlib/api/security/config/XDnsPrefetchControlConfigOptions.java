@@ -13,9 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class StrictTransportSecurityConfig {
+public class XDnsPrefetchControlConfigOptions {
 
-  private Double maxAge;
-  private Boolean includeSubDomains;
-  private boolean preload;
+  private boolean allow;
 }

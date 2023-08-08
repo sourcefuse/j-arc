@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.authlib.api.security.header.writers;
 
-import com.sourcefuse.jarc.authlib.api.security.config.XPermittedCrossDomainPoliciesConfig;
+import com.sourcefuse.jarc.authlib.api.security.config.XPermittedCrossDomainPoliciesConfigOptions;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collections;
@@ -22,7 +22,7 @@ public final class XPermittedCrossDomainPoliciesHeaderWriter
   }
 
   public XPermittedCrossDomainPoliciesHeaderWriter(
-    XPermittedCrossDomainPoliciesConfig options
+    XPermittedCrossDomainPoliciesConfigOptions options
   ) {
     this.setPolicy(options.getPermittedPolicies());
   }

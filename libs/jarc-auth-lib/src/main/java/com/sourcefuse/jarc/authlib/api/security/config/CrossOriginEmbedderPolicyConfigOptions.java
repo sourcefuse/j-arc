@@ -14,7 +14,7 @@ import org.springframework.security.web.header.writers.CrossOriginEmbedderPolicy
 @Getter
 @Setter
 @Builder
-public class CrossOriginEmbedderPolicyConfig {
+public class CrossOriginEmbedderPolicyConfigOptions {
 
   private CrossOriginEmbedderPolicy policy;
 }

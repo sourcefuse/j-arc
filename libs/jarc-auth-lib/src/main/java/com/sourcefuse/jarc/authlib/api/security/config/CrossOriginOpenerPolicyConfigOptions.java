@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy;
 
 @Data
 @AllArgsConstructor
@@ -13,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class XDnsPrefetchControlConfig {
+public class CrossOriginOpenerPolicyConfigOptions {
 
-  private boolean allow;
+  private CrossOriginOpenerPolicy policy;
 }

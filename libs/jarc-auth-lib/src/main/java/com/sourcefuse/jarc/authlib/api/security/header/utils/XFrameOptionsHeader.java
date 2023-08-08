@@ -1,12 +1,16 @@
 package com.sourcefuse.jarc.authlib.api.security.header.utils;
 
-import com.sourcefuse.jarc.authlib.api.security.config.XFrameOptionsConfig;
+import com.sourcefuse.jarc.authlib.api.security.config.XFrameOptionsConfigOptions;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 public final class XFrameOptionsHeader {
 
-  public static void setValue(HttpSecurity http, XFrameOptionsConfig options)
-    throws Exception {
+  private XFrameOptionsHeader() {}
+
+  public static void setValue(
+    HttpSecurity http,
+    XFrameOptionsConfigOptions options
+  ) throws Exception {
     String normalizedAction = "sameorigin";
     if (options != null) {
       normalizedAction = options.getAction();

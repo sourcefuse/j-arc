@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
 @Data
 @AllArgsConstructor
@@ -14,7 +14,7 @@ import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHe
 @Getter
 @Setter
 @Builder
-public class CrossOriginOpenerPolicyConfig {
+public class ReferrerPolicyConfigOptions {
 
-  private CrossOriginOpenerPolicy policy;
+  private ReferrerPolicy policy;
 }

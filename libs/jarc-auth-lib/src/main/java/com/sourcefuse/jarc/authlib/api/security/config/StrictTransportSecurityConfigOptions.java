@@ -13,7 +13,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class XFrameOptionsConfig {
+public class StrictTransportSecurityConfigOptions {
 
-  private String action;
+  private Double maxAge;
+  private Boolean includeSubDomains;
+  private boolean preload;
 }

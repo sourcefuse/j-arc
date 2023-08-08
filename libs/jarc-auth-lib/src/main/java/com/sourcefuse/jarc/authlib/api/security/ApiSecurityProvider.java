@@ -2,15 +2,15 @@ package com.sourcefuse.jarc.authlib.api.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.authlib.api.security.config.ApiSecurityConfig;
-import com.sourcefuse.jarc.authlib.api.security.config.ContentSecurityPolicyConfig;
-import com.sourcefuse.jarc.authlib.api.security.config.CrossOriginEmbedderPolicyConfig;
-import com.sourcefuse.jarc.authlib.api.security.config.CrossOriginOpenerPolicyConfig;
-import com.sourcefuse.jarc.authlib.api.security.config.CrossOriginResourcePolicyConfig;
-import com.sourcefuse.jarc.authlib.api.security.config.ReferrerPolicyConfig;
-import com.sourcefuse.jarc.authlib.api.security.config.StrictTransportSecurityConfig;
-import com.sourcefuse.jarc.authlib.api.security.config.XDnsPrefetchControlConfig;
-import com.sourcefuse.jarc.authlib.api.security.config.XFrameOptionsConfig;
-import com.sourcefuse.jarc.authlib.api.security.config.XPermittedCrossDomainPoliciesConfig;
+import com.sourcefuse.jarc.authlib.api.security.config.ContentSecurityPolicyConfigOptions;
+import com.sourcefuse.jarc.authlib.api.security.config.CrossOriginEmbedderPolicyConfigOptions;
+import com.sourcefuse.jarc.authlib.api.security.config.CrossOriginOpenerPolicyConfigOptions;
+import com.sourcefuse.jarc.authlib.api.security.config.CrossOriginResourcePolicyConfigOptions;
+import com.sourcefuse.jarc.authlib.api.security.config.ReferrerPolicyConfigOptions;
+import com.sourcefuse.jarc.authlib.api.security.config.StrictTransportSecurityConfigOptions;
+import com.sourcefuse.jarc.authlib.api.security.config.XDnsPrefetchControlConfigOptions;
+import com.sourcefuse.jarc.authlib.api.security.config.XFrameOptionsConfigOptions;
+import com.sourcefuse.jarc.authlib.api.security.config.XPermittedCrossDomainPoliciesConfigOptions;
 import com.sourcefuse.jarc.authlib.api.security.header.utils.ContentSecurityPolicyHeader;
 import com.sourcefuse.jarc.authlib.api.security.header.utils.CrossOriginEmbedderPolicyHeader;
 import com.sourcefuse.jarc.authlib.api.security.header.utils.CrossOriginOpenerPolicyHeader;
@@ -23,6 +23,7 @@ import com.sourcefuse.jarc.authlib.api.security.header.writers.XPermittedCrossDo
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.stereotype.Component;
@@ -64,9 +65,9 @@ public class ApiSecurityProvider {
           );
       }
     } else {
-      ContentSecurityPolicyConfig options = objectMapper.convertValue(
+      ContentSecurityPolicyConfigOptions options = objectMapper.convertValue(
         apiSecurityConfig.enableContentSecurityPolicy(),
-        ContentSecurityPolicyConfig.class
+        ContentSecurityPolicyConfigOptions.class
       );
       if (options.isReportOnly()) {
         http
@@ -95,22 +96,21 @@ public class ApiSecurityProvider {
       if (optionValue) {
         http
           .headers()
-          .crossOriginEmbedderPolicy(config -> {
-            config.policy(CrossOriginEmbedderPolicyHeader.getHeaderValue(null));
-          });
+          .crossOriginEmbedderPolicy((HeadersConfigurer<HttpSecurity>.CrossOriginEmbedderPolicyConfig config) ->
+            config.policy(CrossOriginEmbedderPolicyHeader.getHeaderValue(null))
+          );
       }
     } else {
-      CrossOriginEmbedderPolicyConfig options = objectMapper.convertValue(
-        apiSecurityConfig.enableCrossOriginEmbedderPolicy(),
-        CrossOriginEmbedderPolicyConfig.class
-      );
+      CrossOriginEmbedderPolicyConfigOptions options =
+        objectMapper.convertValue(
+          apiSecurityConfig.enableCrossOriginEmbedderPolicy(),
+          CrossOriginEmbedderPolicyConfigOptions.class
+        );
       http
         .headers()
-        .crossOriginEmbedderPolicy(config -> {
-          config.policy(
-            CrossOriginEmbedderPolicyHeader.getHeaderValue(options)
-          );
-        });
+        .crossOriginEmbedderPolicy((HeadersConfigurer<HttpSecurity>.CrossOriginEmbedderPolicyConfig config) ->
+          config.policy(CrossOriginEmbedderPolicyHeader.getHeaderValue(options))
+        );
     }
   }
 
@@ -122,20 +122,21 @@ public class ApiSecurityProvider {
       if (optionValue) {
         http
           .headers()
-          .crossOriginOpenerPolicy(config -> {
-            config.policy(CrossOriginOpenerPolicyHeader.getHeaderValue(null));
-          });
+          .crossOriginOpenerPolicy((HeadersConfigurer<HttpSecurity>.CrossOriginOpenerPolicyConfig config) -> {
+              config.policy(CrossOriginOpenerPolicyHeader.getHeaderValue(null));
+            }
+          );
       }
     } else {
-      CrossOriginOpenerPolicyConfig options = objectMapper.convertValue(
+      CrossOriginOpenerPolicyConfigOptions options = objectMapper.convertValue(
         apiSecurityConfig.enableCrossOriginOpenerPolicy(),
-        CrossOriginOpenerPolicyConfig.class
+        CrossOriginOpenerPolicyConfigOptions.class
       );
       http
         .headers()
-        .crossOriginOpenerPolicy(config -> {
-          config.policy(CrossOriginOpenerPolicyHeader.getHeaderValue(options));
-        });
+        .crossOriginOpenerPolicy((HeadersConfigurer<HttpSecurity>.CrossOriginOpenerPolicyConfig config) ->
+          config.policy(CrossOriginOpenerPolicyHeader.getHeaderValue(options))
+        );
     }
   }
 
@@ -149,22 +150,21 @@ public class ApiSecurityProvider {
       if (optionValue) {
         http
           .headers()
-          .crossOriginResourcePolicy(config -> {
-            config.policy(CrossOriginResourcePolicyHeader.getHeaderValue(null));
-          });
+          .crossOriginResourcePolicy((HeadersConfigurer<HttpSecurity>.CrossOriginResourcePolicyConfig config) ->
+            config.policy(CrossOriginResourcePolicyHeader.getHeaderValue(null))
+          );
       }
     } else {
-      CrossOriginResourcePolicyConfig options = objectMapper.convertValue(
-        apiSecurityConfig.enableCrossOriginResourcePolicy(),
-        CrossOriginResourcePolicyConfig.class
-      );
+      CrossOriginResourcePolicyConfigOptions options =
+        objectMapper.convertValue(
+          apiSecurityConfig.enableCrossOriginResourcePolicy(),
+          CrossOriginResourcePolicyConfigOptions.class
+        );
       http
         .headers()
-        .crossOriginResourcePolicy(config -> {
-          config.policy(
-            CrossOriginResourcePolicyHeader.getHeaderValue(options)
-          );
-        });
+        .crossOriginResourcePolicy((HeadersConfigurer<HttpSecurity>.CrossOriginResourcePolicyConfig config) ->
+          config.policy(CrossOriginResourcePolicyHeader.getHeaderValue(options))
+        );
     }
   }
 
@@ -185,20 +185,20 @@ public class ApiSecurityProvider {
       if (optionValue) {
         http
           .headers()
-          .referrerPolicy(referrerConfig -> {
-            referrerConfig.policy(ReferrerPolicyHeader.getHeaderValue(null));
-          });
+          .referrerPolicy((HeadersConfigurer<HttpSecurity>.ReferrerPolicyConfig referrerConfig) ->
+            referrerConfig.policy(ReferrerPolicyHeader.getHeaderValue(null))
+          );
       }
     } else {
-      ReferrerPolicyConfig options = objectMapper.convertValue(
+      ReferrerPolicyConfigOptions options = objectMapper.convertValue(
         apiSecurityConfig.enableReferrerPolicy(),
-        ReferrerPolicyConfig.class
+        ReferrerPolicyConfigOptions.class
       );
       http
         .headers()
-        .referrerPolicy(referrerConfig -> {
-          referrerConfig.policy(ReferrerPolicyHeader.getHeaderValue(options));
-        });
+        .referrerPolicy((HeadersConfigurer<HttpSecurity>.ReferrerPolicyConfig referrerConfig) ->
+          referrerConfig.policy(ReferrerPolicyHeader.getHeaderValue(options))
+        );
     }
   }
 
@@ -210,29 +210,29 @@ public class ApiSecurityProvider {
       if (optionValue) {
         http
           .headers()
-          .httpStrictTransportSecurity(hstsConfig -> {
-            StrictTransportSecurityHeader.setHeaderByConfig(hstsConfig, null);
-          });
+          .httpStrictTransportSecurity((HeadersConfigurer<HttpSecurity>.HstsConfig hstsConfig) ->
+            StrictTransportSecurityHeader.setHeaderByConfig(hstsConfig, null)
+          );
       } else {
         http.headers().httpStrictTransportSecurity().disable();
       }
     } else {
-      StrictTransportSecurityConfig options = objectMapper.convertValue(
+      StrictTransportSecurityConfigOptions options = objectMapper.convertValue(
         apiSecurityConfig.enableStrictTransportSecurity(),
-        StrictTransportSecurityConfig.class
+        StrictTransportSecurityConfigOptions.class
       );
 
       http
         .headers()
-        .httpStrictTransportSecurity(hstsConfig -> {
-          StrictTransportSecurityHeader.setHeaderByConfig(hstsConfig, options);
-        });
+        .httpStrictTransportSecurity((HeadersConfigurer<HttpSecurity>.HstsConfig hstsConfig) ->
+          StrictTransportSecurityHeader.setHeaderByConfig(hstsConfig, options)
+        );
     }
   }
 
   public void processXContentTypeOptions(HttpSecurity http) throws Exception {
     // this is for disabling default spring security behaviour
-    if (!apiSecurityConfig.enableXContentTypeOptions()) {
+    if (Boolean.FALSE.equals(apiSecurityConfig.enableXContentTypeOptions())) {
       http.headers().contentTypeOptions().disable();
     }
   }
@@ -245,9 +245,9 @@ public class ApiSecurityProvider {
         http.headers().addHeaderWriter(new XDnsPrefetchControlHeaderWriter());
       }
     } else {
-      XDnsPrefetchControlConfig options = objectMapper.convertValue(
+      XDnsPrefetchControlConfigOptions options = objectMapper.convertValue(
         apiSecurityConfig.enableXDnsPrefetchControl(),
-        XDnsPrefetchControlConfig.class
+        XDnsPrefetchControlConfigOptions.class
       );
       http
         .headers()
@@ -277,9 +277,9 @@ public class ApiSecurityProvider {
         http.headers().frameOptions().disable();
       }
     } else {
-      XFrameOptionsConfig options = objectMapper.convertValue(
+      XFrameOptionsConfigOptions options = objectMapper.convertValue(
         apiSecurityConfig.enableXFrameOptions(),
-        XFrameOptionsConfig.class
+        XFrameOptionsConfigOptions.class
       );
       XFrameOptionsHeader.setValue(http, options);
     }
@@ -298,10 +298,11 @@ public class ApiSecurityProvider {
           .addHeaderWriter(new XPermittedCrossDomainPoliciesHeaderWriter());
       }
     } else {
-      XPermittedCrossDomainPoliciesConfig options = objectMapper.convertValue(
-        apiSecurityConfig.enableXPermittedCrossDomainPolicies(),
-        XPermittedCrossDomainPoliciesConfig.class
-      );
+      XPermittedCrossDomainPoliciesConfigOptions options =
+        objectMapper.convertValue(
+          apiSecurityConfig.enableXPermittedCrossDomainPolicies(),
+          XPermittedCrossDomainPoliciesConfigOptions.class
+        );
       http
         .headers()
         .addHeaderWriter(

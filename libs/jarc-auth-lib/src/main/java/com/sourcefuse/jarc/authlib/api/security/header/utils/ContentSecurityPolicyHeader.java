@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.authlib.api.security.header.utils;
 
-import com.sourcefuse.jarc.authlib.api.security.config.ContentSecurityPolicyConfig;
+import com.sourcefuse.jarc.authlib.api.security.config.ContentSecurityPolicyConfigOptions;
 import com.sourcefuse.jarc.authlib.api.security.types.ApiSecurityConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +22,8 @@ public final class ContentSecurityPolicyHeader {
   );
   private static final String DASHIFY_REPLACE_WITH = "$1-$2";
 
+  private ContentSecurityPolicyHeader() {}
+
   private static boolean isDirectiveValueInvalid(String str) {
     return Pattern.matches(INVALID_DIRECTIVE_PATTERN, str);
   }
@@ -32,10 +34,10 @@ public final class ContentSecurityPolicyHeader {
 
   @SuppressWarnings("unchecked")
   private static Map<String, List<String>> normalizeDirectives(
-    ContentSecurityPolicyConfig options
+    ContentSecurityPolicyConfigOptions options
   ) {
     if (options == null) {
-      options = new ContentSecurityPolicyConfig();
+      options = new ContentSecurityPolicyConfigOptions();
     }
     Map<String, Object> defaultDirectives =
       ApiSecurityConstants.DEFAULT_CONTENT_SECURITY_POLICY_DIRECTIVE;
@@ -145,8 +147,9 @@ public final class ContentSecurityPolicyHeader {
     return result;
   }
 
-  public static String getHeaderValue(ContentSecurityPolicyConfig options)
-    throws InvalidAttributeValueException {
+  public static String getHeaderValue(
+    ContentSecurityPolicyConfigOptions options
+  ) throws InvalidAttributeValueException {
     Map<String, List<String>> normalizedDirectives = normalizeDirectives(
       options
     );

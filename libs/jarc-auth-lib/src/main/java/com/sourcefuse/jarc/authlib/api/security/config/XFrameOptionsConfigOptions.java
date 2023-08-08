@@ -1,6 +1,5 @@
 package com.sourcefuse.jarc.authlib.api.security.config;
 
-import com.sourcefuse.jarc.authlib.api.security.header.writers.XPermittedCrossDomainPoliciesHeaderWriter.PermittedPolicy;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class XPermittedCrossDomainPoliciesConfig {
+public class XFrameOptionsConfigOptions {
 
-  private PermittedPolicy permittedPolicies;
+  private String action;
 }

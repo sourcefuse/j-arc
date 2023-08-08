@@ -1,6 +1,6 @@
 package com.sourcefuse.jarc.authlib.api.security.header.writers;
 
-import com.sourcefuse.jarc.authlib.api.security.config.XDnsPrefetchControlConfig;
+import com.sourcefuse.jarc.authlib.api.security.config.XDnsPrefetchControlConfigOptions;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.web.header.HeaderWriter;
@@ -16,7 +16,9 @@ public final class XDnsPrefetchControlHeaderWriter implements HeaderWriter {
     headerValue = fetchHeaderValueFromOptions(null);
   }
 
-  public XDnsPrefetchControlHeaderWriter(XDnsPrefetchControlConfig options) {
+  public XDnsPrefetchControlHeaderWriter(
+    XDnsPrefetchControlConfigOptions options
+  ) {
     headerValue = fetchHeaderValueFromOptions(options);
   }
 
@@ -26,18 +28,17 @@ public final class XDnsPrefetchControlHeaderWriter implements HeaderWriter {
     HttpServletResponse response
   ) {
     if (!response.containsHeader(X_DNS_PREFETCH_CONTROL_HEADER)) {
-      response.setHeader(
-        X_DNS_PREFETCH_CONTROL_HEADER,
-        this.headerValue.toString()
-      );
+      response.setHeader(X_DNS_PREFETCH_CONTROL_HEADER, this.headerValue);
     }
   }
 
-  public void setHeaderValue(XDnsPrefetchControlConfig options) {
+  public void setHeaderValue(XDnsPrefetchControlConfigOptions options) {
     this.headerValue = fetchHeaderValueFromOptions(options);
   }
 
-  public String fetchHeaderValueFromOptions(XDnsPrefetchControlConfig options) {
+  private static String fetchHeaderValueFromOptions(
+    XDnsPrefetchControlConfigOptions options
+  ) {
     return (options != null && options.isAllow()) ? "on" : "off";
   }
 
