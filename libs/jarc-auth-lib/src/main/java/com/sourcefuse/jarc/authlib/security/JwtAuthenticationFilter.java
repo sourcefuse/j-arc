@@ -1,7 +1,9 @@
 package com.sourcefuse.jarc.authlib.security;
 
 import com.sourcefuse.jarc.authlib.providers.JwtTokenDecryptProvider;
+import com.sourcefuse.jarc.core.exception.CommonRuntimeException;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
+import com.sourcefuse.jarc.core.utils.CommonUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +12,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,6 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @AllArgsConstructor
 @Component
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private static String bearerPrefix = "Bearer ";
@@ -31,25 +37,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     HttpServletRequest request,
     HttpServletResponse response,
     FilterChain filterChain
-  ) throws ServletException, IOException {
-    String token = getTokenFromRequest(request);
-    if (StringUtils.hasText(token)) {
-      CurrentUser user = jwtTokenProvider.getUserDetails(token);
-      List<GrantedAuthority> listAuthorities = new ArrayList<>();
-      for (String permission : user.getPermissions()) {
-        listAuthorities.add(new SimpleGrantedAuthority(permission));
+  ) throws IOException, ServletException {
+    try {
+      String token = getTokenFromRequest(request);
+      if (StringUtils.hasText(token)) {
+        CurrentUser user = jwtTokenProvider.getUserDetails(token);
+        List<GrantedAuthority> listAuthorities = new ArrayList<>();
+        for (String permission : user.getPermissions()) {
+          listAuthorities.add(new SimpleGrantedAuthority(permission));
+        }
+        UsernamePasswordAuthenticationToken authenticationToken =
+          new UsernamePasswordAuthenticationToken(user, null, listAuthorities);
+
+        authenticationToken.setDetails(
+          new WebAuthenticationDetailsSource().buildDetails(request)
+        );
+
+        SecurityContextHolder
+          .getContext()
+          .setAuthentication(authenticationToken);
       }
-      UsernamePasswordAuthenticationToken authenticationToken =
-        new UsernamePasswordAuthenticationToken(user, null, listAuthorities);
 
-      authenticationToken.setDetails(
-        new WebAuthenticationDetailsSource().buildDetails(request)
+      filterChain.doFilter(request, response);
+    } catch (CommonRuntimeException exception) {
+      log.error(null, exception);
+      response.setStatus(exception.getStatus().value());
+      response.addHeader(
+        HttpHeaders.CONTENT_TYPE,
+        MediaType.APPLICATION_JSON_VALUE
       );
-
-      SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+      response
+        .getWriter()
+        .write(
+          CommonUtils.getErrorInString(
+            request.getRequestURI(),
+            exception.getMessage()
+          )
+        );
     }
-
-    filterChain.doFilter(request, response);
   }
 
   private static String getTokenFromRequest(HttpServletRequest request) {

@@ -9,7 +9,11 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan(
-  { "com.sourcefuse.jarc.authlib", "com.sourcefuse.jarc.services.auditservice" }
+  {
+    "com.sourcefuse.jarc.authlib",
+    "com.sourcefuse.jarc.core",
+    "com.sourcefuse.jarc.services.auditservice"
+  }
 )
 @EntityScan({ "com.sourcefuse.jarc.services.auditservice" })
 @SecurityScheme(
