@@ -24,7 +24,11 @@ public final class XPermittedCrossDomainPoliciesHeaderWriter
   public XPermittedCrossDomainPoliciesHeaderWriter(
     XPermittedCrossDomainPoliciesConfigOptions options
   ) {
-    this.setPolicy(options.getPermittedPolicies());
+    if (options == null) {
+      this.setPolicy(PermittedPolicy.NONE);
+    } else {
+      this.setPolicy(options.getPermittedPolicies());
+    }
   }
 
   /**
@@ -38,8 +42,8 @@ public final class XPermittedCrossDomainPoliciesHeaderWriter
   }
 
   /**
-   * @see org.springframework.security.web.header.HeaderWriter#writeHeaders(HttpServletRequest,
-   * HttpServletResponse)
+   * @see org.springframework.security.web.header.HeaderWriter
+   * #writeHeaders(HttpServletRequest, HttpServletResponse)
    */
   @Override
   public void writeHeaders(

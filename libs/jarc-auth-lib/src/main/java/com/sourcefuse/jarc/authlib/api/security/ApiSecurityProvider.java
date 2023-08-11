@@ -68,7 +68,7 @@ public class ApiSecurityProvider {
         apiSecurityConfig.enableContentSecurityPolicy(),
         ContentSecurityPolicyConfigOptions.class
       );
-      if (options.isReportOnly()) {
+      if (options != null && options.isReportOnly()) {
         http
           .headers()
           .contentSecurityPolicy(

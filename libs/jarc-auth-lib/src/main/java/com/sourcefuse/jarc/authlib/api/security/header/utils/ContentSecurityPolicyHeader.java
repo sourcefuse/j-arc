@@ -36,7 +36,7 @@ public final class ContentSecurityPolicyHeader {
     Map<String, List<String>> result = new HashMap<>();
     List<String> directivesExplicitlyDisabled = new ArrayList<>();
 
-    validateOrInitOptions(options);
+    options = validateOrInitOptions(options);
 
     for (Entry<String, Object> entry : options.getDirectives().entrySet()) {
       String rawDirectiveName = entry.getKey();
@@ -178,7 +178,7 @@ public final class ContentSecurityPolicyHeader {
     return DASHIFY_PATTERN.matcher(str).replaceAll(DASHIFY_REPLACE_WITH);
   }
 
-  private static void validateOrInitOptions(
+  private static ContentSecurityPolicyConfigOptions validateOrInitOptions(
     ContentSecurityPolicyConfigOptions options
   ) {
     if (options == null) {
@@ -192,6 +192,7 @@ public final class ContentSecurityPolicyHeader {
     if (options.getDirectives() == null) {
       options.setDirectives(defaultDirectives);
     }
+    return options;
   }
 
   private static String validateNullDirective(String directiveName) {

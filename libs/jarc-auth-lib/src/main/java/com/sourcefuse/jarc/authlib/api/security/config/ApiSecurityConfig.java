@@ -70,7 +70,5 @@ public interface ApiSecurityConfig {
    */
   Object enableXPermittedCrossDomainPolicies();
 
-  Boolean enableXPoweredBy();
-
   Boolean enableXXssProtection();
 }

@@ -1,9 +1,16 @@
 package com.sourcefuse.jarc.authlib.api.security.header.utils;
 
 import com.sourcefuse.jarc.authlib.api.security.config.XFrameOptionsConfigOptions;
+import java.util.Set;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 public final class XFrameOptionsHeader {
+
+  private static Set<String> ALLOWED_VALUES = Set.of(
+    "SAME-ORIGIN",
+    "DENY",
+    "SAMEORIGIN"
+  );
 
   private XFrameOptionsHeader() {}
 
@@ -15,14 +22,12 @@ public final class XFrameOptionsHeader {
     if (options != null) {
       normalizedAction = options.getAction();
     }
-    switch (normalizedAction.toUpperCase()) {
-      case "SAME-ORIGIN", "DENY", "SAMEORIGIN":
-        http.headers().frameOptions().sameOrigin();
-        break;
-      default:
-        throw new IllegalArgumentException(
-          "X-Frame-Options received an invalid action " + normalizedAction
-        );
+    if (ALLOWED_VALUES.contains(normalizedAction.toUpperCase())) {
+      http.headers().frameOptions().sameOrigin();
+    } else {
+      throw new IllegalArgumentException(
+        "X-Frame-Options received an invalid action " + normalizedAction
+      );
     }
   }
 }
