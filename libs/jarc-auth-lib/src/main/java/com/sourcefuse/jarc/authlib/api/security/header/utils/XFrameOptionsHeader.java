@@ -6,7 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 public final class XFrameOptionsHeader {
 
-  private static Set<String> ALLOWED_VALUES = Set.of(
+  private static Set<String> allowedPolicies = Set.of(
     "SAME-ORIGIN",
     "DENY",
     "SAMEORIGIN"
@@ -22,7 +22,7 @@ public final class XFrameOptionsHeader {
     if (options != null) {
       normalizedAction = options.getAction();
     }
-    if (ALLOWED_VALUES.contains(normalizedAction.toUpperCase())) {
+    if (allowedPolicies.contains(normalizedAction.toUpperCase())) {
       http.headers().frameOptions().sameOrigin();
     } else {
       throw new IllegalArgumentException(

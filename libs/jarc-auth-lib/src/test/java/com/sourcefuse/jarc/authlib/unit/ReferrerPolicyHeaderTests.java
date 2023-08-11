@@ -8,7 +8,7 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 import com.sourcefuse.jarc.authlib.api.security.config.ReferrerPolicyConfigOptions;
 import com.sourcefuse.jarc.authlib.api.security.header.utils.ReferrerPolicyHeader;
 
-public class ReferrerPolicyHeaderTests {
+class ReferrerPolicyHeaderTests {
 	@Test
 	void testGetHeaderValue_withNullOptions() {
 		assertThat(ReferrerPolicyHeader.getHeaderValue(null)).isEqualTo(ReferrerPolicy.NO_REFERRER);

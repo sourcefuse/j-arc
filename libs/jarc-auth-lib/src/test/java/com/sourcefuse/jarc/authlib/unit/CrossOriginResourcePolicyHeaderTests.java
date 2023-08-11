@@ -8,7 +8,7 @@ import org.springframework.security.web.header.writers.CrossOriginResourcePolicy
 import com.sourcefuse.jarc.authlib.api.security.config.CrossOriginResourcePolicyConfigOptions;
 import com.sourcefuse.jarc.authlib.api.security.header.utils.CrossOriginResourcePolicyHeader;
 
-public class CrossOriginResourcePolicyHeaderTests {
+class CrossOriginResourcePolicyHeaderTests {
 	@Test
 	void testGetHeaderValue_withNullOptions() {
 		assertThat(CrossOriginResourcePolicyHeader.getHeaderValue(null)).isEqualTo(CrossOriginResourcePolicy.SAME_ORIGIN);

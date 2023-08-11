@@ -8,7 +8,7 @@ import org.springframework.security.web.header.writers.CrossOriginEmbedderPolicy
 import com.sourcefuse.jarc.authlib.api.security.config.CrossOriginEmbedderPolicyConfigOptions;
 import com.sourcefuse.jarc.authlib.api.security.header.utils.CrossOriginEmbedderPolicyHeader;
 
-public class CrossOriginEmbedderPolicyHeaderTests {
+class CrossOriginEmbedderPolicyHeaderTests {
 	@Test
 	void testGetHeaderValue_withNullOptions() {
 		assertThat(CrossOriginEmbedderPolicyHeader.getHeaderValue(null))

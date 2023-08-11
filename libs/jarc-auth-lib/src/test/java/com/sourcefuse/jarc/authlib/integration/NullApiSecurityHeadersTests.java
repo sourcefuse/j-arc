@@ -23,7 +23,7 @@ import com.sourcefuse.jarc.authlib.test.app.condig.NullApiSecurityAppConfig;
 @SpringBootTest
 @Import(NullApiSecurityAppConfig.class)
 @AutoConfigureMockMvc
-public class NullApiSecurityHeadersTests {
+class NullApiSecurityHeadersTests {
 
 	@Autowired
 	private MockMvc mockMvc;

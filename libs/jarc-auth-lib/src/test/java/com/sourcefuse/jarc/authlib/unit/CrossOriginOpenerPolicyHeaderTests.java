@@ -8,7 +8,7 @@ import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHe
 import com.sourcefuse.jarc.authlib.api.security.config.CrossOriginOpenerPolicyConfigOptions;
 import com.sourcefuse.jarc.authlib.api.security.header.utils.CrossOriginOpenerPolicyHeader;
 
-public class CrossOriginOpenerPolicyHeaderTests {
+class CrossOriginOpenerPolicyHeaderTests {
 	@Test
 	void testGetHeaderValue_withNullOptions() {
 		assertThat(CrossOriginOpenerPolicyHeader.getHeaderValue(null)).isEqualTo(CrossOriginOpenerPolicy.SAME_ORIGIN);

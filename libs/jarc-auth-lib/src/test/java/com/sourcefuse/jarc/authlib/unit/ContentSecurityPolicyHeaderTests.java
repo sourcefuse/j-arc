@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import com.sourcefuse.jarc.authlib.api.security.config.ContentSecurityPolicyConfigOptions;
 import com.sourcefuse.jarc.authlib.api.security.header.utils.ContentSecurityPolicyHeader;
 
-public class ContentSecurityPolicyHeaderTests {
+class ContentSecurityPolicyHeaderTests {
 	Map<String, Object> directives;
 
 	@BeforeEach
