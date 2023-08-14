@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(
   {
     "com.sourcefuse.jarc.core",
-    "com.sourcefuse.jarc.services.authservice",
+    "com.sourcefuse.jarc.authlib",
     "com.sourcefuse.jarc.services.featuretoggleservice",
     "com.sourcefuse.jarc.sandbox.featuretoggleexample",
   }
