@@ -36,6 +36,7 @@
 		<module>sandbox/notification-twilio-example</module>
 		<module>sandbox/audit-service-example</module>
 		<module>sandbox/user-tenant-service-example</module>
+		<module>sandbox/feature-toggle-example</module>
 	</modules>
 
 	<build>
