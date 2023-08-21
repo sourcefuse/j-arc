@@ -446,7 +446,7 @@ class QueryServiceTests {
       User.class
     );
 
-    assertThat(users).hasSize(0);
+    assertThat(users).isEmpty();;
   }
 
   @Test

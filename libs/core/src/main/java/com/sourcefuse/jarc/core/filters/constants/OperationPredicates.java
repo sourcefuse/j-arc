@@ -99,11 +99,10 @@ public final class OperationPredicates {
           );
         }
       )
-      .apply(cb, fieldPath, castValueToDataType(cb, fieldPath, value));
+      .apply(cb, fieldPath, castValueToDataType(fieldPath, value));
   }
 
   private static Object castValueToDataType(
-    CriteriaBuilder cb,
     Expression<?> path,
     Object value
   ) {
