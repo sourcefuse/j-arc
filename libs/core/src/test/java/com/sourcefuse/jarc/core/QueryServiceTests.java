@@ -16,6 +16,7 @@ import com.sourcefuse.jarc.core.test.repositories.RoleRepository;
 import com.sourcefuse.jarc.core.test.repositories.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -140,7 +141,7 @@ class QueryServiceTests {
   @Test
   void testFilter_ForGreaterThanOperatorWithString() {
     assertThrows(
-      NumberFormatException.class,
+      IllegalArgumentException.class,
       () -> this.filterWithOperatorAndAge("gt", "24s")
     );
   }
@@ -155,7 +156,7 @@ class QueryServiceTests {
   @Test
   void testFilter_ForGreaterThanOrEqulsToOperatorWithString() {
     assertThrows(
-      NumberFormatException.class,
+      IllegalArgumentException.class,
       () -> this.filterWithOperatorAndAge("gte", "24s")
     );
   }
@@ -170,7 +171,7 @@ class QueryServiceTests {
   @Test
   void testFilter_ForLessThanOperatorWithString() {
     assertThrows(
-      NumberFormatException.class,
+      IllegalArgumentException.class,
       () -> this.filterWithOperatorAndAge("lt", "24s")
     );
   }
@@ -185,7 +186,7 @@ class QueryServiceTests {
   @Test
   void testFilter_ForLessThanOrEqualsToOperatorWithString() {
     assertThrows(
-      NumberFormatException.class,
+      IllegalArgumentException.class,
       () -> this.filterWithOperatorAndAge("lte", "24s")
     );
   }
@@ -383,7 +384,7 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_ForGreaterThanOperatorWithString() {
     assertThrows(
-      NumberFormatException.class,
+      IllegalArgumentException.class,
       () ->
         filterService.executeQuery(
           "{\"where\":{\"age\":{\"gt\":\"24s\"}}}",
@@ -405,7 +406,7 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_ForGreaterThanOrEqulsToOperatorWithString() {
     assertThrows(
-      NumberFormatException.class,
+      IllegalArgumentException.class,
       () ->
         filterService.executeQuery(
           "{\"where\":{\"age\":{\"gte\":\"20s\"}}}",
@@ -427,13 +428,49 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_ForLessThanOperatorWithString() {
     assertThrows(
-      NumberFormatException.class,
+      IllegalArgumentException.class,
       () ->
         filterService.executeQuery(
           "{\"where\":{\"age\":{\"lt\":\"24s\"}}}",
           User.class
         )
     );
+  }
+
+  @Test
+  void testFilterWithJson_ForGreaterThanOperatorWithLocalDateTime() {
+    List<User> users = filterService.executeQuery(
+      "{\"where\":{\"createdOn\":{\"gt\":\"" +
+      LocalDateTime.now().toString() +
+      "\"}}}",
+      User.class
+    );
+
+    assertThat(users).hasSize(0);
+  }
+
+  @Test
+  void testFilterWithJson_ForLessThanOperatorWithLocalDateTime() {
+    List<User> users = filterService.executeQuery(
+      "{\"where\":{\"createdOn\":{\"lt\":\"" +
+      LocalDateTime.now().toString() +
+      "\"}}}",
+      User.class
+    );
+
+    assertThat(users).hasSize(3).contains(user1, user2, user3);
+  }
+
+  @Test
+  void testFilterWithJson_ForInOperatorWithLocalDateTime() {
+    List<User> users = filterService.executeQuery(
+      "{\"where\":{\"createdOn\":{\"in\":[\"" +
+      user1.getCreatedOn().toString() +
+      "\"]}}}",
+      User.class
+    );
+
+    assertThat(users).hasSize(1).contains(user1);
   }
 
   @Test
@@ -449,7 +486,7 @@ class QueryServiceTests {
   @Test
   void testFilterWithJson_ForLessThanOrEqualsToOperatorWithString() {
     assertThrows(
-      NumberFormatException.class,
+      IllegalArgumentException.class,
       () ->
         filterService.executeQuery(
           "{\"where\":{\"age\":{\"lte\":\"24s\"}}}",
@@ -497,9 +534,9 @@ class QueryServiceTests {
   void testFilterWithJson_ForInOerator() {
     List<Role> roles = filterService.executeQuery(
       "{\"where\":{\"id\":{\"in\": [\"" +
-      tempRole.getId() +
+      tempRole.getId().toString() +
       "\", \"" +
-      adminRole.getId() +
+      adminRole.getId().toString() +
       "\"]}}}",
       Role.class
     );
@@ -511,9 +548,9 @@ class QueryServiceTests {
   void testFilterWithJson_ForNotInOerator() {
     List<Role> roles = filterService.executeQuery(
       "{\"where\":{\"id\":{\"nin\": [\"" +
-      tempRole.getId() +
+      tempRole.getId().toString() +
       "\", \"" +
-      adminRole.getId() +
+      adminRole.getId().toString() +
       "\"]}}}",
       Role.class
     );
@@ -604,9 +641,31 @@ class QueryServiceTests {
   }
 
   @Test
+  void testSpecificationFilterWithJson_ForEqualsOperatorWithUUID() {
+    Specification<Role> specs = filterService.getSpecifications(
+      "{\"where\":{\"id\":{\"eq\":\"" + userRole.getId().toString() + "\"}}}"
+    );
+    List<Role> roles = this.roleRepository.findAll(specs);
+
+    assertThat(roles).hasSize(1);
+
+    assertThat(userRole.getId()).isEqualTo(roles.get(0).getId());
+  }
+
+  @Test
   void testSpecificationFilterWithJson_ForNotEqualsOperator() {
     Specification<Role> specs = filterService.getSpecifications(
       "{\"where\":{\"name\":{\"neq\":\"User\"}}}"
+    );
+    List<Role> roles = this.roleRepository.findAll(specs);
+
+    assertThat(roles).hasSize(2).contains(adminRole, tempRole);
+  }
+
+  @Test
+  void testSpecificationFilterWithJson_ForNotEqualsOperatorWithUUID() {
+    Specification<Role> specs = filterService.getSpecifications(
+      "{\"where\":{\"id\":{\"neq\":\"" + userRole.getId().toString() + "\"}}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
 
@@ -689,9 +748,9 @@ class QueryServiceTests {
   void testSpecificationFilterWithJson_ForInOerator() {
     Specification<Role> specs = filterService.getSpecifications(
       "{\"where\":{\"id\":{\"in\": [\"" +
-      tempRole.getId() +
+      tempRole.getId().toString() +
       "\", \"" +
-      adminRole.getId() +
+      adminRole.getId().toString() +
       "\"]}}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
@@ -703,9 +762,9 @@ class QueryServiceTests {
   void testSpecificationFilterWithJson_ForNotInOerator() {
     Specification<Role> specs = filterService.getSpecifications(
       "{\"where\":{\"id\":{\"nin\": [\"" +
-      tempRole.getId() +
+      tempRole.getId().toString() +
       "\", \"" +
-      adminRole.getId() +
+      adminRole.getId().toString() +
       "\"]}}}"
     );
     List<Role> roles = this.roleRepository.findAll(specs);
