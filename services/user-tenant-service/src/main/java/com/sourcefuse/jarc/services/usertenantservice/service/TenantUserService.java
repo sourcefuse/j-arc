@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.service;
 
+import com.sourcefuse.jarc.core.filters.models.Filter;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
@@ -14,9 +15,9 @@ public interface TenantUserService {
     Map<String, String> options
   );
 
-  List<UserDto> getUserView(UUID uuid, CurrentUser currentUser);
+  List<UserDto> getUserView(UUID uuid, CurrentUser currentUser,Filter filter);
 
-  List<UserDto> getAllUsers(UUID tenantId);
+  List<UserDto> getAllUsers(UUID tenantId, Filter filter);
 
   UserView findById(UUID userId, UUID tenantId, CurrentUser currentUser);
 }

@@ -1,8 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import static org.mockito.ArgumentMatchers.any;
-
 import com.sourcefuse.jarc.core.constants.CommonConstants;
+import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.services.usertenantservice.controller.GroupController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
@@ -11,10 +10,6 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSessi
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +28,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.any;
+
 @DisplayName("Create Group  Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
 class GroupControllerTests {
@@ -42,7 +44,8 @@ class GroupControllerTests {
 
   @Mock
   private UserGroupsRepository userGroupsRepository;
-
+  @Mock
+  private QueryService queryService;
   @InjectMocks
   private GroupController groupController;
 
@@ -51,6 +54,7 @@ class GroupControllerTests {
   private UUID mockGroupId;
   private MockMvc mockMvc;
   private String basePath = "/groups";
+  private Specification mockSpecification;
 
   @BeforeEach
   public void setup() {
@@ -62,6 +66,8 @@ class GroupControllerTests {
     mockGroupId = MockGroup.GROUP_ID;
     //Set Current LoggedIn User
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
+    mockSpecification=null;
+
   }
 
   @Test
@@ -107,7 +113,7 @@ class GroupControllerTests {
   @DisplayName("Test: case for count success")
   void testCount_Success() throws Exception {
     // Mock the behavior of roleRepository.count()
-    Mockito.when(groupRepository.count()).thenReturn(5L); // Mock a count of 5
+    Mockito.when(groupRepository.count(mockSpecification)).thenReturn(5L); // Mock a count of 5
 
     // Perform the API call
     mockMvc
@@ -121,14 +127,14 @@ class GroupControllerTests {
       .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(5));
 
     // Verify that roleRepository.count() was called
-    Mockito.verify(groupRepository).count();
+    Mockito.verify(groupRepository).count(mockSpecification);
   }
 
   @Test
   @DisplayName("Test case should pass for 0 count")
   void testCount_Empty() throws Exception {
     // Mock the behavior of roleRepository.count()
-    Mockito.when(groupRepository.count()).thenReturn(0L); // Mock a count of 0
+    Mockito.when(groupRepository.count(mockSpecification)).thenReturn(0L); // Mock a count of 0
 
     // Perform the API call
     mockMvc
@@ -142,7 +148,7 @@ class GroupControllerTests {
       .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(0));
 
     // Verify that roleRepository.count() was called
-    Mockito.verify(groupRepository).count();
+    Mockito.verify(groupRepository).count(mockSpecification);
   }
 
   @Test
@@ -151,8 +157,7 @@ class GroupControllerTests {
     // Prepare test data
     List<Group> groups = Arrays.asList(new Group(), new Group(), new Group());
 
-    // Mock the behavior of roleRepository.findAll()
-    Mockito.when(groupRepository.findAll()).thenReturn(groups);
+    Mockito.when(groupRepository.findAll(mockSpecification)).thenReturn(groups);
 
     // Perform the API call
     mockMvc
@@ -165,14 +170,14 @@ class GroupControllerTests {
       .andExpect(result -> Assertions.assertNotNull(result.getResponse()))
       .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(3));
     // Verify that roleRepository.findAll() was called
-    Mockito.verify(groupRepository).findAll();
+    Mockito.verify(groupRepository).findAll(mockSpecification);
   }
 
   @Test
   @DisplayName("Test: getAllGroups Empty Response")
   void testGetAllGroup_Empty() throws Exception {
     // Mock the behavior of roleRepository.findAll()
-    Mockito.when(groupRepository.findAll()).thenReturn(Arrays.asList());
+    Mockito.when(groupRepository.findAll(mockSpecification)).thenReturn(Arrays.asList());
 
     // Perform the API call
     mockMvc
@@ -186,7 +191,7 @@ class GroupControllerTests {
       .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(0));
 
     // Verify that roleRepository.findAll() was called
-    Mockito.verify(groupRepository).findAll();
+    Mockito.verify(groupRepository).findAll(mockSpecification);
   }
 
   @Test

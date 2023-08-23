@@ -2,6 +2,8 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.core.constants.PermissionKeyConstants;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
+import com.sourcefuse.jarc.core.filters.models.Filter;
+import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
@@ -14,15 +16,13 @@ import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsS
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,8 +31,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -45,6 +49,8 @@ public class GroupController {
 
   private final UserGroupsRepository userGroupsRepo;
 
+  private final QueryService queryService;
+
   @PostMapping
   @PreAuthorize(
     "isAuthenticated() && hasAuthority('" +
@@ -53,10 +59,7 @@ public class GroupController {
   )
   public ResponseEntity<Group> createGroups(@Valid @RequestBody Group group) {
     Group savedGroups = groupRepository.save(group);
-    CurrentUser currentUser = (CurrentUser) SecurityContextHolder
-      .getContext()
-      .getAuthentication()
-      .getPrincipal();
+    CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     UserGroup userGroup = UserGroup
       .builder()
       .group(new Group(savedGroups.getId()))
@@ -74,10 +77,13 @@ public class GroupController {
     PermissionKeyConstants.VIEW_USER_GROUP_LIST +
     "')"
   )
-  public ResponseEntity<CountResponse> countGroups() {
+  public ResponseEntity<CountResponse> countGroups(@RequestParam(required = false,name = "filter") Filter filter) {
+
+    Specification<Group> groupSpecifications = queryService.getSpecifications(filter);
+
     CountResponse count = CountResponse
       .builder()
-      .count(groupRepository.count())
+      .count(groupRepository.count(groupSpecifications))
       .build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
@@ -88,8 +94,9 @@ public class GroupController {
     PermissionKeyConstants.VIEW_USER_GROUP_LIST +
     "')"
   )
-  public ResponseEntity<List<Group>> getAllGroups() {
-    return new ResponseEntity<>(groupRepository.findAll(), HttpStatus.OK);
+  public ResponseEntity<List<Group>> getAllGroups(@RequestParam(required = false,name = "filter") Filter filter) {
+    Specification<Group> groupSpecifications = queryService.getSpecifications(filter);
+    return new ResponseEntity<>(groupRepository.findAll(groupSpecifications), HttpStatus.OK);
   }
 
   @GetMapping("{id}")

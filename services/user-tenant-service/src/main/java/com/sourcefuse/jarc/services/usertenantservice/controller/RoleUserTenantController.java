@@ -2,6 +2,8 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.core.constants.PermissionKeyConstants;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
+import com.sourcefuse.jarc.core.filters.models.Filter;
+import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
@@ -9,12 +11,10 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,8 +27,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -40,6 +45,7 @@ public class RoleUserTenantController {
   private final RoleRepository roleRepository;
 
   private final RoleUserTenantRepository roleUserTenantRepository;
+  private final QueryService queryService;
 
   @PostMapping("{id}/user-tenants")
   @PreAuthorize(
@@ -72,10 +78,13 @@ public class RoleUserTenantController {
     "')"
   )
   public ResponseEntity<List<UserTenant>> getAllUserTenantByRole(
-    @PathVariable("id") UUID id
+    @PathVariable("id") UUID id,@RequestParam(required = false,name = "filter") Filter filter
   ) {
+    Specification<UserTenant> userTenantSpecifications = queryService.getSpecifications(filter);
+    userTenantSpecifications=userTenantSpecifications.and(UserTenantSpecification.byRoleId(id));
+
     List<UserTenant> tenantList = roleUserTenantRepository.findAll(
-      UserTenantSpecification.byRoleId(id)
+    userTenantSpecifications
     );
     return new ResponseEntity<>(tenantList, HttpStatus.OK);
   }
@@ -87,10 +96,13 @@ public class RoleUserTenantController {
     "')"
   )
   public ResponseEntity<CountResponse> countUserTenantByRole(
-    @PathVariable("id") UUID id
+    @PathVariable("id") UUID id,@RequestParam(required = false,name = "filter") Filter filter
   ) {
+    Specification<UserTenant> userTenantSpecifications = queryService.getSpecifications(filter);
+    userTenantSpecifications=userTenantSpecifications.and(UserTenantSpecification.byRoleId(id));
+
     List<UserTenant> tenantList = roleUserTenantRepository.findAll(
-      UserTenantSpecification.byRoleId(id)
+      userTenantSpecifications
     );
     return new ResponseEntity<>(
       CountResponse.builder().count((long) tenantList.size()).build(),
@@ -107,11 +119,15 @@ public class RoleUserTenantController {
   )
   public ResponseEntity<CountResponse> updateAll(
     @PathVariable("id") UUID id,
-    @RequestBody UserTenant sourceUserTenant
+    @RequestBody UserTenant sourceUserTenant,
+    @RequestParam(required = false,name = "filter") Filter filter
   ) {
+    Specification<UserTenant> userTenantSpecifications = queryService.getSpecifications(filter);
+    userTenantSpecifications=userTenantSpecifications.and(UserTenantSpecification.byRoleId(id));
+
     List<UserTenant> targetUserTenantArrayList = new ArrayList<>();
     List<UserTenant> userTenantArrayList = roleUserTenantRepository.findAll(
-      UserTenantSpecification.byRoleId(id)
+            userTenantSpecifications
     );
     long count = 0;
     if (!userTenantArrayList.isEmpty()) {
@@ -140,10 +156,13 @@ public class RoleUserTenantController {
     "')"
   )
   public ResponseEntity<CountResponse> deleteRolesById(
-    @PathVariable("id") UUID id
+    @PathVariable("id") UUID id,@RequestParam(required = false,name = "filter") Filter filter
   ) {
+    Specification<UserTenant> userTenantSpecifications = queryService.getSpecifications(filter);
+    userTenantSpecifications=userTenantSpecifications.and(UserTenantSpecification.byRoleId(id));
+
     long count = roleUserTenantRepository.delete(
-      UserTenantSpecification.byRoleId(id)
+            userTenantSpecifications
     );
     return new ResponseEntity<>(
       CountResponse.builder().count(count).build(),
