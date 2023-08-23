@@ -2,12 +2,17 @@ package com.sourcefuse.jarc.services.usertenantservice.mocks;
 
 import com.sourcefuse.jarc.core.enums.PermissionKey;
 import com.sourcefuse.jarc.core.enums.RoleKey;
+import com.sourcefuse.jarc.core.filters.models.Filter;
+import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
+import org.mockito.Mockito;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 public final class MockCurrentUserSession {
 
@@ -62,5 +67,14 @@ public final class MockCurrentUserSession {
       .getContext()
       .getAuthentication()
       .getPrincipal();
+  }
+  public static Specification getSpecification(QueryService queryService) {
+    Specification mockSpecificationTwo = null;
+    Specification mockSpecification = Mockito.mock(Specification.class);
+    Filter filter=null;
+    Mockito
+            .when(queryService.getSpecifications(filter))
+            .thenReturn(mockSpecification);
+    return mockSpecificationTwo;
   }
 }

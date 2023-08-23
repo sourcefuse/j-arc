@@ -3,6 +3,8 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 import com.sourcefuse.jarc.core.constants.PermissionKeyConstants;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.enums.TenantStatus;
+import com.sourcefuse.jarc.core.filters.models.Filter;
+import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.TenantConfig;
@@ -10,12 +12,10 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepositor
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +27,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -38,6 +43,7 @@ public class TenantController {
 
   private final TenantRepository tenantRepository;
   private final TenantService tenantService;
+  private final QueryService queryService;
 
   @PostMapping
   @PreAuthorize(
@@ -59,9 +65,10 @@ public class TenantController {
     PermissionKeyConstants.VIEW_TENANT +
     "')"
   )
-  public ResponseEntity<CountResponse> countTenants() {
+  public ResponseEntity<CountResponse> countTenants(@RequestParam(required = false,name = "filter") Filter filter) {
+    Specification<Tenant> tenantSpecifications = queryService.getSpecifications(filter);
     return new ResponseEntity<>(
-      CountResponse.builder().count(tenantRepository.count()).build(),
+      CountResponse.builder().count(tenantRepository.count(tenantSpecifications)).build(),
       HttpStatus.OK
     );
   }
@@ -72,8 +79,9 @@ public class TenantController {
     PermissionKeyConstants.VIEW_TENANT +
     "')"
   )
-  public ResponseEntity<List<Tenant>> fetchAllTenants() {
-    return new ResponseEntity<>(tenantRepository.findAll(), HttpStatus.OK);
+  public ResponseEntity<List<Tenant>> fetchAllTenants(@RequestParam(required = false,name = "filter") Filter filter) {
+    Specification<Tenant> tenantSpecifications = queryService.getSpecifications(filter);
+    return new ResponseEntity<>(tenantRepository.findAll(tenantSpecifications), HttpStatus.OK);
   }
 
   @Transactional
@@ -84,11 +92,12 @@ public class TenantController {
     "')"
   )
   public ResponseEntity<CountResponse> updateAllTenants(
-    @RequestBody Tenant sourceTenant
+    @RequestBody Tenant sourceTenant,@RequestParam(required = false,name = "filter") Filter filter
   ) {
+    Specification<Tenant> tenantSpecifications = queryService.getSpecifications(filter);
     List<Tenant> updatedListTenant = new ArrayList<>();
 
-    List<Tenant> targetListTenant = tenantRepository.findAll();
+    List<Tenant> targetListTenant = tenantRepository.findAll(tenantSpecifications);
 
     long count = 0;
     if (!targetListTenant.isEmpty()) {

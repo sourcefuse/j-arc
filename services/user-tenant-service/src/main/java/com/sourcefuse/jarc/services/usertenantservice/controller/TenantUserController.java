@@ -2,6 +2,7 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.core.constants.PermissionKeyConstants;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
+import com.sourcefuse.jarc.core.filters.models.Filter;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
@@ -12,10 +13,6 @@ import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserSe
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,8 +27,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -91,11 +94,11 @@ public class TenantUserController {
     "')"
   )
   public ResponseEntity<List<UserDto>> getUserTenantById(
-    @PathVariable("id") UUID id
+    @PathVariable("id") UUID id,@RequestParam(required = false,name = "filter") Filter filter
   ) {
     CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     return new ResponseEntity<>(
-      tenantUserService.getUserView(id, currentUser),
+      tenantUserService.getUserView(id, currentUser,filter),
       HttpStatus.OK
     );
   }
@@ -107,11 +110,11 @@ public class TenantUserController {
     "')"
   )
   public ResponseEntity<List<UserDto>> findAllUsers(
-    @PathVariable("id") UUID id
+    @PathVariable("id") UUID id,@RequestParam(required = false,name = "filter") Filter filter
   ) {
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(
-      tenantUserService.getAllUsers(id),
+      tenantUserService.getAllUsers(id,filter),
       HttpStatus.OK
     );
   }
@@ -127,10 +130,10 @@ public class TenantUserController {
     "')"
   )
   public ResponseEntity<CountResponse> userTenantCount(
-    @PathVariable("id") UUID id
+    @PathVariable("id") UUID id,@RequestParam(required = false,name = "filter") Filter filter
   ) {
     CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
-    long userCount = tenantUserService.getUserView(id, currentUser).size();
+    long userCount = tenantUserService.getUserView(id, currentUser,filter).size();
 
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(

@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
+import com.sourcefuse.jarc.core.filters.models.Filter;
 import com.sourcefuse.jarc.services.usertenantservice.controller.TenantUserController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
@@ -9,11 +10,6 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserServiceImpl;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +23,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @DisplayName("TenantUserController Integration Tests")
 class TenantUserControllerTests {
@@ -226,7 +228,7 @@ class TenantUserControllerTests {
       .when(
         tenantUserService.getUserView(
           tenantId,
-          MockCurrentUserSession.getCurrentUser()
+          MockCurrentUserSession.getCurrentUser(),new Filter()
         )
       )
       .thenReturn(userDtoList);
@@ -250,7 +252,7 @@ class TenantUserControllerTests {
       MockTenantUser.getUserDtoObj()
     );
     Mockito
-      .when(tenantUserService.getAllUsers(ArgumentMatchers.any()))
+      .when(tenantUserService.getAllUsers(ArgumentMatchers.any(),ArgumentMatchers.any()))
       .thenReturn(userDtoList);
 
     // Act & Assert
@@ -278,7 +280,7 @@ class TenantUserControllerTests {
       .when(
         tenantUserService.getUserView(
           tenantId,
-          MockCurrentUserSession.getCurrentUser()
+          MockCurrentUserSession.getCurrentUser(),new Filter()
         )
       )
       .thenReturn(userDtoList);
