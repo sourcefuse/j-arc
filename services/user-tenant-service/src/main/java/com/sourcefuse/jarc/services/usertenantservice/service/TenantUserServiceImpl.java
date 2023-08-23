@@ -24,6 +24,14 @@ import com.sourcefuse.jarc.services.usertenantservice.specifications.UserSpecifi
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.specifications.UserViewSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -33,15 +41,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -55,6 +54,7 @@ public class TenantUserServiceImpl implements TenantUserService {
   private final UserViewRepository userViewRepository;
   private final AuthClientsRepository authClientsRepository;
   private final QueryService queryService;
+
   @Value("${user.exits}")
   String userExits;
 
@@ -169,13 +169,20 @@ public class TenantUserServiceImpl implements TenantUserService {
   }
 
   @Override
-  public List<UserDto> getUserView(UUID id, CurrentUser currentUser,Filter filter) {
-
+  public List<UserDto> getUserView(
+    UUID id,
+    CurrentUser currentUser,
+    Filter filter
+  ) {
     CurrentUserUtils.checkForViewAnyUserPermission(currentUser, id);
-    Specification<UserView> userViewSpecifications = queryService.getSpecifications(filter);
-    userViewSpecifications=userViewSpecifications.and(UserViewSpecification.byTenantId(id));
+    Specification<UserView> userViewSpecifications =
+      queryService.getSpecifications(filter);
+    userViewSpecifications =
+      userViewSpecifications.and(UserViewSpecification.byTenantId(id));
 
-    List<UserView> userViewsList = userViewRepository.findAll(userViewSpecifications);
+    List<UserView> userViewsList = userViewRepository.findAll(
+      userViewSpecifications
+    );
     return getUserDtoList(userViewsList);
   }
 
@@ -197,9 +204,13 @@ public class TenantUserServiceImpl implements TenantUserService {
 
   @Override
   public List<UserDto> getAllUsers(UUID tenantId, Filter filter) {
-    Specification<UserView> userViewSpecifications = queryService.getSpecifications(filter);
-    userViewSpecifications=userViewSpecifications.and( UserViewSpecification.byTenantId(tenantId));
-    List<UserView> userViewList = userViewRepository.findAll(userViewSpecifications);
+    Specification<UserView> userViewSpecifications =
+      queryService.getSpecifications(filter);
+    userViewSpecifications =
+      userViewSpecifications.and(UserViewSpecification.byTenantId(tenantId));
+    List<UserView> userViewList = userViewRepository.findAll(
+      userViewSpecifications
+    );
 
     return getUserDtoList(userViewList);
   }

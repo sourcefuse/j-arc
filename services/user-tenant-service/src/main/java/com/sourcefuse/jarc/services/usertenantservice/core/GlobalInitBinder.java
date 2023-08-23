@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.InitBinder;
 @ControllerAdvice
 public class GlobalInitBinder {
 
-    @InitBinder
-    public <T> void initBinder(WebDataBinder binder) {
-        Class<T> targetType = (Class<T>) Filter.class;
-        binder.registerCustomEditor(targetType, new GenericEditor<T>(new ObjectMapper(), targetType));
-    }
+  @InitBinder
+  public <T> void initBinder(WebDataBinder binder) {
+    Class<T> targetType = (Class<T>) Filter.class;
+    binder.registerCustomEditor(
+      targetType,
+      new GenericEditor<T>(new ObjectMapper(), targetType)
+    );
+  }
 }

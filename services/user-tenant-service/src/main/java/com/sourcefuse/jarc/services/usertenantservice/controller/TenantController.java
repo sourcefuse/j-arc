@@ -12,6 +12,9 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepositor
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -29,10 +32,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -65,10 +64,17 @@ public class TenantController {
     PermissionKeyConstants.VIEW_TENANT +
     "')"
   )
-  public ResponseEntity<CountResponse> countTenants(@RequestParam(required = false,name = "filter") Filter filter) {
-    Specification<Tenant> tenantSpecifications = queryService.getSpecifications(filter);
+  public ResponseEntity<CountResponse> countTenants(
+    @RequestParam(required = false, name = "filter") Filter filter
+  ) {
+    Specification<Tenant> tenantSpecifications = queryService.getSpecifications(
+      filter
+    );
     return new ResponseEntity<>(
-      CountResponse.builder().count(tenantRepository.count(tenantSpecifications)).build(),
+      CountResponse
+        .builder()
+        .count(tenantRepository.count(tenantSpecifications))
+        .build(),
       HttpStatus.OK
     );
   }
@@ -79,9 +85,16 @@ public class TenantController {
     PermissionKeyConstants.VIEW_TENANT +
     "')"
   )
-  public ResponseEntity<List<Tenant>> fetchAllTenants(@RequestParam(required = false,name = "filter") Filter filter) {
-    Specification<Tenant> tenantSpecifications = queryService.getSpecifications(filter);
-    return new ResponseEntity<>(tenantRepository.findAll(tenantSpecifications), HttpStatus.OK);
+  public ResponseEntity<List<Tenant>> fetchAllTenants(
+    @RequestParam(required = false, name = "filter") Filter filter
+  ) {
+    Specification<Tenant> tenantSpecifications = queryService.getSpecifications(
+      filter
+    );
+    return new ResponseEntity<>(
+      tenantRepository.findAll(tenantSpecifications),
+      HttpStatus.OK
+    );
   }
 
   @Transactional
@@ -92,12 +105,17 @@ public class TenantController {
     "')"
   )
   public ResponseEntity<CountResponse> updateAllTenants(
-    @RequestBody Tenant sourceTenant,@RequestParam(required = false,name = "filter") Filter filter
+    @RequestBody Tenant sourceTenant,
+    @RequestParam(required = false, name = "filter") Filter filter
   ) {
-    Specification<Tenant> tenantSpecifications = queryService.getSpecifications(filter);
+    Specification<Tenant> tenantSpecifications = queryService.getSpecifications(
+      filter
+    );
     List<Tenant> updatedListTenant = new ArrayList<>();
 
-    List<Tenant> targetListTenant = tenantRepository.findAll(tenantSpecifications);
+    List<Tenant> targetListTenant = tenantRepository.findAll(
+      tenantSpecifications
+    );
 
     long count = 0;
     if (!targetListTenant.isEmpty()) {

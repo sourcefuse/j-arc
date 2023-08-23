@@ -1,11 +1,19 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.services.usertenantservice.controller.UserGroupsController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,15 +26,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("User Groups Apis Integration /unit Tests")
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +40,7 @@ class UserGroupsControllerTests {
   UserGroupsRepository userGroupsRepository;
 
   private String basePath = "/user-groups";
+
   @Mock
   private QueryService queryService;
 
@@ -51,7 +51,7 @@ class UserGroupsControllerTests {
     mockMvc = MockMvcBuilders.standaloneSetup(userGroupsController).build();
     //Set Current LoggedIn User
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
-    mockSpecification=null;
+    mockSpecification = null;
   }
 
   @Test
@@ -67,7 +67,9 @@ class UserGroupsControllerTests {
     List<UserGroup> userGroupsList = Arrays.asList(userGroup1, userGroup2);
 
     // Mock the repository
-    Mockito.when(userGroupsRepository.findAll(mockSpecification)).thenReturn(userGroupsList);
+    Mockito
+      .when(userGroupsRepository.findAll(mockSpecification))
+      .thenReturn(userGroupsList);
 
     // Act and Assert
     mockMvc
@@ -86,7 +88,9 @@ class UserGroupsControllerTests {
     List<UserGroup> userGroupsList = new ArrayList<>();
 
     // Mock the repository
-    Mockito.when(userGroupsRepository.findAll(mockSpecification)).thenReturn(userGroupsList);
+    Mockito
+      .when(userGroupsRepository.findAll(mockSpecification))
+      .thenReturn(userGroupsList);
 
     // Act and Assert
     mockMvc
@@ -105,7 +109,9 @@ class UserGroupsControllerTests {
     List<UserGroup> userGroupsList = Arrays.asList(userGroup1, userGroup2);
 
     // Mock the repository
-    Mockito.when(userGroupsRepository.findAll(mockSpecification)).thenReturn(userGroupsList);
+    Mockito
+      .when(userGroupsRepository.findAll(mockSpecification))
+      .thenReturn(userGroupsList);
 
     // Act and Assert
     mockMvc
@@ -120,7 +126,9 @@ class UserGroupsControllerTests {
     List<UserGroup> userGroupsList = new ArrayList<>();
 
     // Mock the repository
-    Mockito.when(userGroupsRepository.findAll(mockSpecification)).thenReturn(userGroupsList);
+    Mockito
+      .when(userGroupsRepository.findAll(mockSpecification))
+      .thenReturn(userGroupsList);
 
     // Act and Assert
     mockMvc

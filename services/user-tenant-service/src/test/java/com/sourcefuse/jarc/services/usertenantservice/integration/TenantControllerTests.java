@@ -1,5 +1,10 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
 import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.services.usertenantservice.controller.TenantController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
@@ -9,6 +14,10 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSessi
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.repository.TenantRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantService;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,16 +34,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
 
 @DisplayName("Create Tenant  Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
@@ -54,8 +53,10 @@ class TenantControllerTests {
 
   @Mock
   private TenantService tenantService;
+
   @Mock
   private QueryService queryService;
+
   private Specification mockSpecification;
 
   @BeforeEach
@@ -66,7 +67,7 @@ class TenantControllerTests {
     mockTenantId = MockTenantUser.TENANT_ID;
     //Set Current LoggedIn User
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
-    mockSpecification=null;
+    mockSpecification = null;
   }
 
   @Test
@@ -216,7 +217,8 @@ class TenantControllerTests {
   @DisplayName("Test: getAllTenants Empty Response")
   void testGetAllTenants_Empty() throws Exception {
     // Mock the behavior of roleRepository.findAll()
-    when(tenantRepository.findAll(mockSpecification)).thenReturn(Arrays.asList());
+    when(tenantRepository.findAll(mockSpecification))
+      .thenReturn(Arrays.asList());
 
     // Perform the API call
     mockMvc
@@ -245,7 +247,8 @@ class TenantControllerTests {
     );
 
     // Mock the behavior of roleRepository.findAll()
-    when(tenantRepository.findAll(mockSpecification)).thenReturn(targetListTenant);
+    when(tenantRepository.findAll(mockSpecification))
+      .thenReturn(targetListTenant);
 
     // Mock the behavior of roleRepository.saveAll()
     when(tenantRepository.saveAll(any())).thenReturn(targetListTenant);
@@ -275,7 +278,8 @@ class TenantControllerTests {
     tenant.setName("Updated Name");
 
     // Mock the behavior of roleRepository.findAll()
-    when(tenantRepository.findAll(mockSpecification)).thenReturn(new ArrayList<>());
+    when(tenantRepository.findAll(mockSpecification))
+      .thenReturn(new ArrayList<>());
 
     // Perform the API call
     mockMvc

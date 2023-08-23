@@ -13,6 +13,10 @@ import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserSe
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,11 +34,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -94,11 +93,12 @@ public class TenantUserController {
     "')"
   )
   public ResponseEntity<List<UserDto>> getUserTenantById(
-    @PathVariable("id") UUID id,@RequestParam(required = false,name = "filter") Filter filter
+    @PathVariable("id") UUID id,
+    @RequestParam(required = false, name = "filter") Filter filter
   ) {
     CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
     return new ResponseEntity<>(
-      tenantUserService.getUserView(id, currentUser,filter),
+      tenantUserService.getUserView(id, currentUser, filter),
       HttpStatus.OK
     );
   }
@@ -110,11 +110,12 @@ public class TenantUserController {
     "')"
   )
   public ResponseEntity<List<UserDto>> findAllUsers(
-    @PathVariable("id") UUID id,@RequestParam(required = false,name = "filter") Filter filter
+    @PathVariable("id") UUID id,
+    @RequestParam(required = false, name = "filter") Filter filter
   ) {
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(
-      tenantUserService.getAllUsers(id,filter),
+      tenantUserService.getAllUsers(id, filter),
       HttpStatus.OK
     );
   }
@@ -130,10 +131,13 @@ public class TenantUserController {
     "')"
   )
   public ResponseEntity<CountResponse> userTenantCount(
-    @PathVariable("id") UUID id,@RequestParam(required = false,name = "filter") Filter filter
+    @PathVariable("id") UUID id,
+    @RequestParam(required = false, name = "filter") Filter filter
   ) {
     CurrentUser currentUser = CurrentUserUtils.getCurrentUser();
-    long userCount = tenantUserService.getUserView(id, currentUser,filter).size();
+    long userCount = tenantUserService
+      .getUserView(id, currentUser, filter)
+      .size();
 
     //nonRestrictedUserViewRepo ::doubt
     return new ResponseEntity<>(

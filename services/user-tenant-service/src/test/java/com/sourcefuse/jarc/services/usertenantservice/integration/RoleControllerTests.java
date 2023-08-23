@@ -8,6 +8,11 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockRole;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,12 +33,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 @DisplayName("Create ROle Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
 class RoleControllerTests {
@@ -46,6 +45,7 @@ class RoleControllerTests {
 
   @Mock
   private QueryService queryService;
+
   private Role role;
 
   private MockMvc mockMvc;
@@ -62,7 +62,7 @@ class RoleControllerTests {
     role = MockRole.getRoleObj();
     //Set Current LoggedIn User
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
-    mockSpecification=null;
+    mockSpecification = null;
   }
 
   @Test
@@ -209,7 +209,9 @@ class RoleControllerTests {
   @DisplayName("Test: getAllRoles Empty Response")
   void testGetAllRoles_Empty() throws Exception {
     // Mock the behavior of roleRepository.findAll()
-    Mockito.when(roleRepository.findAll(mockSpecification)).thenReturn(Arrays.asList());
+    Mockito
+      .when(roleRepository.findAll(mockSpecification))
+      .thenReturn(Arrays.asList());
 
     // Perform the API call
     mockMvc
@@ -238,7 +240,9 @@ class RoleControllerTests {
       new Role()
     );
     // Mock the behavior of roleRepository.findAll()
-    Mockito.when(roleRepository.findAll(mockSpecification)).thenReturn(targetListRole);
+    Mockito
+      .when(roleRepository.findAll(mockSpecification))
+      .thenReturn(targetListRole);
 
     // Mock the behavior of roleRepository.saveAll()
     Mockito
@@ -269,7 +273,9 @@ class RoleControllerTests {
   void testUpdateAll_Empty() throws Exception {
     role.setName("Updated Name");
     // Mock the behavior of roleRepository.findAll()
-    Mockito.when(roleRepository.findAll(mockSpecification)).thenReturn(new ArrayList<>());
+    Mockito
+      .when(roleRepository.findAll(mockSpecification))
+      .thenReturn(new ArrayList<>());
 
     // Perform the API call
     mockMvc

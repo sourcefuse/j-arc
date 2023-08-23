@@ -7,6 +7,7 @@ import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,8 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @Slf4j
@@ -36,9 +35,15 @@ public class UserGroupsController {
     PermissionKeyConstants.VIEW_USER_GROUP_LIST +
     "')"
   )
-  public ResponseEntity<List<UserGroup>> fetchAllUserGroups(@RequestParam(required = false,name = "filter") Filter filter) {
-    Specification<UserGroup> userGroupSpecifications = queryService.getSpecifications(filter);
-    return new ResponseEntity<>(userGroupsRepository.findAll(userGroupSpecifications), HttpStatus.OK);
+  public ResponseEntity<List<UserGroup>> fetchAllUserGroups(
+    @RequestParam(required = false, name = "filter") Filter filter
+  ) {
+    Specification<UserGroup> userGroupSpecifications =
+      queryService.getSpecifications(filter);
+    return new ResponseEntity<>(
+      userGroupsRepository.findAll(userGroupSpecifications),
+      HttpStatus.OK
+    );
   }
 
   @GetMapping("/count")
@@ -47,10 +52,14 @@ public class UserGroupsController {
     PermissionKeyConstants.VIEW_USER_GROUP_LIST +
     "')"
   )
-  public ResponseEntity<CountResponse> countTenants(@RequestParam(required = false,name = "filter") Filter filter) {
-
-    Specification<UserGroup> userGroupSpecifications = queryService.getSpecifications(filter);
-    List<UserGroup> userGroupsList = userGroupsRepository.findAll(userGroupSpecifications);
+  public ResponseEntity<CountResponse> countTenants(
+    @RequestParam(required = false, name = "filter") Filter filter
+  ) {
+    Specification<UserGroup> userGroupSpecifications =
+      queryService.getSpecifications(filter);
+    List<UserGroup> userGroupsList = userGroupsRepository.findAll(
+      userGroupSpecifications
+    );
 
     return new ResponseEntity<>(
       CountResponse.builder().count((long) userGroupsList.size()).build(),
