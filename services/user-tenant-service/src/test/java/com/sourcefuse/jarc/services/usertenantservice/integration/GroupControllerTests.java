@@ -1,5 +1,7 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
+import static org.mockito.ArgumentMatchers.any;
+
 import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.services.usertenantservice.controller.GroupController;
@@ -10,6 +12,10 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSessi
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockGroup;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,13 +34,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.any;
-
 @DisplayName("Create Group  Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
 class GroupControllerTests {
@@ -44,8 +43,10 @@ class GroupControllerTests {
 
   @Mock
   private UserGroupsRepository userGroupsRepository;
+
   @Mock
   private QueryService queryService;
+
   @InjectMocks
   private GroupController groupController;
 
@@ -66,8 +67,7 @@ class GroupControllerTests {
     mockGroupId = MockGroup.GROUP_ID;
     //Set Current LoggedIn User
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
-    mockSpecification=null;
-
+    mockSpecification = null;
   }
 
   @Test
@@ -177,7 +177,9 @@ class GroupControllerTests {
   @DisplayName("Test: getAllGroups Empty Response")
   void testGetAllGroup_Empty() throws Exception {
     // Mock the behavior of roleRepository.findAll()
-    Mockito.when(groupRepository.findAll(mockSpecification)).thenReturn(Arrays.asList());
+    Mockito
+      .when(groupRepository.findAll(mockSpecification))
+      .thenReturn(Arrays.asList());
 
     // Perform the API call
     mockMvc

@@ -15,7 +15,7 @@ public interface TenantUserService {
     Map<String, String> options
   );
 
-  List<UserDto> getUserView(UUID uuid, CurrentUser currentUser,Filter filter);
+  List<UserDto> getUserView(UUID uuid, CurrentUser currentUser, Filter filter);
 
   List<UserDto> getAllUsers(UUID tenantId, Filter filter);
 

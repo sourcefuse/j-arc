@@ -11,6 +11,11 @@ import com.sourcefuse.jarc.services.usertenantservice.mocks.MockRole;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,12 +36,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 @DisplayName("Create Role User Tenants Apis Integration/units Tests")
 @ExtendWith(MockitoExtension.class)
 class RoleUserTenantControllerTests {
@@ -46,6 +45,7 @@ class RoleUserTenantControllerTests {
 
   @Mock
   private RoleUserTenantRepository roleUserTenantRepository;
+
   @Mock
   private QueryService queryService;
 
@@ -245,7 +245,8 @@ class RoleUserTenantControllerTests {
       new UserTenant(),
       new UserTenant()
     );
-    Specification mockSpecificationTwo = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecificationTwo =
+      MockCurrentUserSession.getSpecification(queryService);
     Mockito
       .when(roleUserTenantRepository.findAll(mockSpecificationTwo))
       .thenReturn(expectedTenantList);
@@ -270,7 +271,8 @@ class RoleUserTenantControllerTests {
   void testGetAllUserTenantByRole_Empty() throws Exception {
     // Arrange
     List<UserTenant> expectedTenantList = Arrays.asList();
-    Specification mockSpecificationTwo = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecificationTwo =
+      MockCurrentUserSession.getSpecification(queryService);
     Mockito
       .when(roleUserTenantRepository.findAll(mockSpecificationTwo))
       .thenReturn(expectedTenantList);
@@ -294,7 +296,8 @@ class RoleUserTenantControllerTests {
   @DisplayName("Test: case for count success")
   void testCount_Success() throws Exception {
     // Mock the behavior of roleRepository.count()
-    Specification mockSpecificationTwo = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecificationTwo =
+      MockCurrentUserSession.getSpecification(queryService);
     Mockito
       .when(roleUserTenantRepository.findAll(mockSpecificationTwo))
       .thenReturn(Arrays.asList(new UserTenant(), new UserTenant())); // Mock a count of 2
@@ -311,16 +314,15 @@ class RoleUserTenantControllerTests {
       .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(2));
 
     // Verify that roleRepository.count() was called
-    Mockito
-      .verify(roleUserTenantRepository)
-      .findAll(mockSpecificationTwo);
+    Mockito.verify(roleUserTenantRepository).findAll(mockSpecificationTwo);
   }
 
   @Test
   @DisplayName("Test case should pass for 0 count")
   void testCount_Empty() throws Exception {
     // Mock the behavior of roleRepository.count()
-    Specification mockSpecificationTwo = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecificationTwo =
+      MockCurrentUserSession.getSpecification(queryService);
     Mockito
       .when(roleUserTenantRepository.findAll(mockSpecificationTwo))
       .thenReturn(Arrays.asList()); // Mock a count of 0
@@ -352,7 +354,8 @@ class RoleUserTenantControllerTests {
       new UserTenant()
     );
 
-    Specification mockSpecificationTwo = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecificationTwo =
+      MockCurrentUserSession.getSpecification(queryService);
     Mockito
       .when(roleUserTenantRepository.findAll(mockSpecificationTwo))
       .thenReturn(userTenantArrayList);
@@ -389,7 +392,8 @@ class RoleUserTenantControllerTests {
     // Arrange
     UUID nonExistingGroupId = mockRoleId;
     UserTenant sourceUserTenant = this.mockUserTenant;
-    Specification mockSpecificationTwo = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecificationTwo =
+      MockCurrentUserSession.getSpecification(queryService);
     Mockito
       .when(roleUserTenantRepository.findAll(mockSpecificationTwo))
       .thenReturn(new ArrayList());
@@ -416,8 +420,8 @@ class RoleUserTenantControllerTests {
   @Test
   @DisplayName("Test:Delete existing Role UserTenant by Id")
   void testDeleteRoleById_Success() throws Exception {
-
-    Specification mockSpecificationTwo = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecificationTwo =
+      MockCurrentUserSession.getSpecification(queryService);
 
     Mockito
       .when(roleUserTenantRepository.delete(mockSpecificationTwo))
@@ -440,7 +444,8 @@ class RoleUserTenantControllerTests {
   @DisplayName("Delete non-existing roles UserTenant should return 404 status")
   void testDeleteRolesById_NotFound() throws Exception {
     // Mock the behavior of dependencies
-    Specification mockSpecificationTwo = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecificationTwo =
+      MockCurrentUserSession.getSpecification(queryService);
 
     Mockito
       .doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
@@ -456,8 +461,6 @@ class RoleUserTenantControllerTests {
       )
       .andExpect(MockMvcResultMatchers.status().isNotFound());
 
-    Mockito
-      .verify(roleUserTenantRepository)
-      .delete(mockSpecificationTwo);
+    Mockito.verify(roleUserTenantRepository).delete(mockSpecificationTwo);
   }
 }

@@ -10,6 +10,9 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -30,10 +33,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 @RestController
 @Slf4j
 @RequestMapping("/roles")
@@ -42,7 +41,7 @@ import java.util.UUID;
 public class RoleController {
 
   private final RoleRepository roleRepository;
-  private final QueryService  queryService;
+  private final QueryService queryService;
 
   @PostMapping
   @PreAuthorize(
@@ -60,9 +59,12 @@ public class RoleController {
     PermissionKeyConstants.VIEW_ROLES +
     "')"
   )
-  public ResponseEntity<CountResponse> countRole(@RequestParam(required = false,name = "filter") Filter filter) {
-
-    Specification<Role> roleSpecifications = queryService.getSpecifications(filter);
+  public ResponseEntity<CountResponse> countRole(
+    @RequestParam(required = false, name = "filter") Filter filter
+  ) {
+    Specification<Role> roleSpecifications = queryService.getSpecifications(
+      filter
+    );
     CountResponse count = CountResponse
       .builder()
       .count(roleRepository.count(roleSpecifications))
@@ -76,9 +78,16 @@ public class RoleController {
     PermissionKeyConstants.VIEW_ROLES +
     "')"
   )
-  public ResponseEntity<List<Role>> getAllRoles(@RequestParam(required = false,name = "filter") Filter filter) {
-    Specification<Role> roleSpecifications = queryService.getSpecifications(filter);
-    return new ResponseEntity<>(roleRepository.findAll(roleSpecifications), HttpStatus.OK);
+  public ResponseEntity<List<Role>> getAllRoles(
+    @RequestParam(required = false, name = "filter") Filter filter
+  ) {
+    Specification<Role> roleSpecifications = queryService.getSpecifications(
+      filter
+    );
+    return new ResponseEntity<>(
+      roleRepository.findAll(roleSpecifications),
+      HttpStatus.OK
+    );
   }
 
   @Transactional
@@ -89,9 +98,12 @@ public class RoleController {
     "')"
   )
   public ResponseEntity<CountResponse> updateAllRole(
-    @RequestBody Role sourceRole,@RequestParam(required = false,name = "filter") Filter filter
+    @RequestBody Role sourceRole,
+    @RequestParam(required = false, name = "filter") Filter filter
   ) {
-    Specification<Role> roleSpecifications = queryService.getSpecifications(filter);
+    Specification<Role> roleSpecifications = queryService.getSpecifications(
+      filter
+    );
 
     List<Role> updatedRoleLis = new ArrayList<>();
 

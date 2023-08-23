@@ -15,6 +15,9 @@ import com.sourcefuse.jarc.services.usertenantservice.specifications.UserGroupsS
 import com.sourcefuse.jarc.services.usertenantservice.utils.CurrentUserUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,10 +35,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -109,7 +108,8 @@ public class UserGroupController {
     "')"
   )
   public ResponseEntity<List<UserGroup>> getAllUserGroupByGroupId(
-    @PathVariable("id") UUID id,@RequestParam(required = false,name = "filter") Filter filter
+    @PathVariable("id") UUID id,
+    @RequestParam(required = false, name = "filter") Filter filter
   ) {
     /** INFO fetch value in Group against primary key also a validation
          if group table does not have the records then  it will also not be
@@ -120,14 +120,16 @@ public class UserGroupController {
       GroupSpecification.byGroupIdAndTenantId(id, currentUser.getTenantId())
     );
     if (group.isPresent()) {
-      Specification<UserGroup> userGroupSpecifications = queryService.getSpecifications(filter);
-      userGroupSpecifications=userGroupSpecifications.and(UserGroupsSpecification.byGroupIdAndTenantId(
-              id,
-              currentUser.getTenantId()
-      ));
-      userGroupList =
-        userGroupsRepo.findAll(userGroupSpecifications
+      Specification<UserGroup> userGroupSpecifications =
+        queryService.getSpecifications(filter);
+      userGroupSpecifications =
+        userGroupSpecifications.and(
+          UserGroupsSpecification.byGroupIdAndTenantId(
+            id,
+            currentUser.getTenantId()
+          )
         );
+      userGroupList = userGroupsRepo.findAll(userGroupSpecifications);
       return new ResponseEntity<>(userGroupList, HttpStatus.OK);
     } else {
       throw new ResponseStatusException(

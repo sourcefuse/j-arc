@@ -20,6 +20,13 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewReposit
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserServiceImpl;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,14 +39,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 @DisplayName("TenantUserController Unit Tests")
 class TenantUserControllerUnitTests {
@@ -72,6 +71,7 @@ class TenantUserControllerUnitTests {
 
   @Mock
   private UserGroupsRepository userGroupsRepository;
+
   @Mock
   private QueryService queryService;
 
@@ -314,12 +314,12 @@ class TenantUserControllerUnitTests {
     userViewsList.add(MockTenantUser.getUserViewObj());
     userViewsList.add(MockTenantUser.getUserViewObj());
 
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+      queryService
+    );
 
     Mockito
-      .when(
-        userViewRepository.findAll(mockSpecification)
-      )
+      .when(userViewRepository.findAll(mockSpecification))
       .thenReturn(userViewsList);
 
     MockCurrentUserSession.setCurrentLoggedInUser(
@@ -330,7 +330,8 @@ class TenantUserControllerUnitTests {
     // Act
     List<UserDto> result = tenantUserService.getUserView(
       MockTenantUser.TENANT_ID,
-      MockCurrentUserSession.getCurrentUser(),null
+      MockCurrentUserSession.getCurrentUser(),
+      null
     );
 
     // Assert
@@ -357,7 +358,12 @@ class TenantUserControllerUnitTests {
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> tenantUserService.getUserView(MockTenantUser.TENANT_ID, currentUser,new Filter())
+      () ->
+        tenantUserService.getUserView(
+          MockTenantUser.TENANT_ID,
+          currentUser,
+          new Filter()
+        )
     );
 
     // Assert
@@ -370,11 +376,11 @@ class TenantUserControllerUnitTests {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
 
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+      queryService
+    );
     Mockito
-      .when(
-        userViewRepository.findAll(mockSpecification)
-      )
+      .when(userViewRepository.findAll(mockSpecification))
       .thenReturn(userViewsList);
     MockCurrentUserSession.setCurrentLoggedInUser(
       MockTenantUser.TENANT_ID,
@@ -384,7 +390,8 @@ class TenantUserControllerUnitTests {
     // Act
     List<UserDto> result = tenantUserService.getUserView(
       MockTenantUser.TENANT_ID,
-      MockCurrentUserSession.getCurrentUser(),null
+      MockCurrentUserSession.getCurrentUser(),
+      null
     );
 
     // Assert
@@ -399,12 +406,12 @@ class TenantUserControllerUnitTests {
     userViewsList.add(MockTenantUser.getUserViewObj());
     userViewsList.add(MockTenantUser.getUserViewObj());
 
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+      queryService
+    );
 
     Mockito
-      .when(
-        userViewRepository.findAll(mockSpecification)
-      )
+      .when(userViewRepository.findAll(mockSpecification))
       .thenReturn(userViewsList);
     MockCurrentUserSession.setCurrentLoggedInUser(
       MockTenantUser.TENANT_ID,
@@ -414,7 +421,8 @@ class TenantUserControllerUnitTests {
     // Act
     List<UserDto> result = tenantUserService.getUserView(
       MockTenantUser.TENANT_ID,
-      MockCurrentUserSession.getCurrentUser(),null
+      MockCurrentUserSession.getCurrentUser(),
+      null
     );
 
     // Assert
@@ -442,7 +450,12 @@ class TenantUserControllerUnitTests {
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> tenantUserService.getUserView(MockTenantUser.TENANT_ID, currentUser,new Filter())
+      () ->
+        tenantUserService.getUserView(
+          MockTenantUser.TENANT_ID,
+          currentUser,
+          new Filter()
+        )
     );
 
     // Assert
@@ -454,11 +467,11 @@ class TenantUserControllerUnitTests {
   void testGetAllUserViewEmpty() {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+      queryService
+    );
     Mockito
-      .when(
-        userViewRepository.findAll(mockSpecification)
-      )
+      .when(userViewRepository.findAll(mockSpecification))
       .thenReturn(userViewsList);
     MockCurrentUserSession.setCurrentLoggedInUser(
       MockTenantUser.TENANT_ID,
@@ -469,7 +482,8 @@ class TenantUserControllerUnitTests {
     // Act
     List<UserDto> result = tenantUserService.getUserView(
       MockTenantUser.TENANT_ID,
-      MockCurrentUserSession.getCurrentUser(),null
+      MockCurrentUserSession.getCurrentUser(),
+      null
     );
 
     // Assert
@@ -485,12 +499,12 @@ class TenantUserControllerUnitTests {
     userViewsList.add(MockTenantUser.getUserViewObj());
     userViewsList.add(MockTenantUser.getUserViewObj());
 
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+      queryService
+    );
 
     Mockito
-      .when(
-        userViewRepository.findAll(mockSpecification)
-      )
+      .when(userViewRepository.findAll(mockSpecification))
       .thenReturn(userViewsList);
     MockCurrentUserSession.setCurrentLoggedInUser(
       MockTenantUser.TENANT_ID,
@@ -500,7 +514,8 @@ class TenantUserControllerUnitTests {
     // Act
     List<UserDto> result = tenantUserService.getUserView(
       MockTenantUser.TENANT_ID,
-      MockCurrentUserSession.getCurrentUser(),null
+      MockCurrentUserSession.getCurrentUser(),
+      null
     );
 
     // Assert
@@ -513,11 +528,11 @@ class TenantUserControllerUnitTests {
   void testCountTenantUserEmpty() {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(queryService);
+    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+      queryService
+    );
     Mockito
-      .when(
-        userViewRepository.findAll(mockSpecification)
-      )
+      .when(userViewRepository.findAll(mockSpecification))
       .thenReturn(userViewsList);
     MockCurrentUserSession.setCurrentLoggedInUser(
       MockTenantUser.TENANT_ID,
@@ -527,7 +542,8 @@ class TenantUserControllerUnitTests {
     // Act
     List<UserDto> result = tenantUserService.getUserView(
       MockTenantUser.TENANT_ID,
-      MockCurrentUserSession.getCurrentUser(),null
+      MockCurrentUserSession.getCurrentUser(),
+      null
     );
 
     // Assert
@@ -561,7 +577,12 @@ class TenantUserControllerUnitTests {
     // Act
     ResponseStatusException exception = Assertions.assertThrows(
       ResponseStatusException.class,
-      () -> tenantUserService.getUserView(MockTenantUser.TENANT_ID, currentUser,new Filter())
+      () ->
+        tenantUserService.getUserView(
+          MockTenantUser.TENANT_ID,
+          currentUser,
+          new Filter()
+        )
     );
 
     // Assert
