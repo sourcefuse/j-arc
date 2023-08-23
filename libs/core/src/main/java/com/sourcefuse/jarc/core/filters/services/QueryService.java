@@ -102,6 +102,9 @@ public class QueryService {
     From<?, T> from,
     CriteriaQuery<?> criteriaQuery
   ) {
+    if (filter == null) {
+      return new ArrayList<>();
+    }
     // Apply WHERE clause
     List<Predicate> predicates = new ArrayList<>();
 

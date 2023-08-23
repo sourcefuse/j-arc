@@ -1,6 +1,7 @@
 package com.sourcefuse.jarc.core.test.models;
 
-import com.sourcefuse.jarc.core.models.base.SoftDeleteEntity;
+import com.sourcefuse.jarc.core.models.base.UserModifiableEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +19,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "users", schema = "main")
-public class User extends SoftDeleteEntity {
+public class User extends UserModifiableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
