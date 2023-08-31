@@ -9,6 +9,7 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
 import com.sourcefuse.jarc.services.usertenantservice.repository.AuthClientsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
@@ -19,6 +20,13 @@ import com.sourcefuse.jarc.services.usertenantservice.repository.UserViewReposit
 import com.sourcefuse.jarc.services.usertenantservice.service.DeleteTenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.TenantUserServiceImpl;
 import com.sourcefuse.jarc.services.usertenantservice.service.UpdateTenantUserServiceImpl;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,14 +39,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 @DisplayName("TenantUserController Unit Tests")
 class TenantUserControllerUnitTests {
@@ -314,7 +314,7 @@ class TenantUserControllerUnitTests {
     userViewsList.add(MockTenantUser.getUserViewObj());
     userViewsList.add(MockTenantUser.getUserViewObj());
 
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+    Specification mockSpecification = MockSpecification.getSpecification(
       queryService
     );
 
@@ -376,7 +376,7 @@ class TenantUserControllerUnitTests {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
 
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+    Specification mockSpecification = MockSpecification.getSpecification(
       queryService
     );
     Mockito
@@ -406,7 +406,7 @@ class TenantUserControllerUnitTests {
     userViewsList.add(MockTenantUser.getUserViewObj());
     userViewsList.add(MockTenantUser.getUserViewObj());
 
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+    Specification mockSpecification = MockSpecification.getSpecification(
       queryService
     );
 
@@ -467,7 +467,7 @@ class TenantUserControllerUnitTests {
   void testGetAllUserViewEmpty() {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+    Specification mockSpecification = MockSpecification.getSpecification(
       queryService
     );
     Mockito
@@ -499,7 +499,7 @@ class TenantUserControllerUnitTests {
     userViewsList.add(MockTenantUser.getUserViewObj());
     userViewsList.add(MockTenantUser.getUserViewObj());
 
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+    Specification mockSpecification = MockSpecification.getSpecification(
       queryService
     );
 
@@ -528,7 +528,7 @@ class TenantUserControllerUnitTests {
   void testCountTenantUserEmpty() {
     // Arrange
     List<UserView> userViewsList = new ArrayList<>();
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+    Specification mockSpecification = MockSpecification.getSpecification(
       queryService
     );
     Mockito

@@ -3,13 +3,12 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 import com.sourcefuse.jarc.core.constants.PermissionKeyConstants;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
 import com.sourcefuse.jarc.core.filters.models.Filter;
-import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenant;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleUserTenantRepository;
-import com.sourcefuse.jarc.services.usertenantservice.specifications.UserTenantSpecification;
+import com.sourcefuse.jarc.services.usertenantservice.service.UserTenantService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +44,7 @@ public class RoleUserTenantController {
   private final RoleRepository roleRepository;
 
   private final RoleUserTenantRepository roleUserTenantRepository;
-  private final QueryService queryService;
+  private final UserTenantService userTenantService;
 
   @PostMapping("{id}/user-tenants")
   @PreAuthorize(
@@ -81,7 +80,8 @@ public class RoleUserTenantController {
     @PathVariable("id") UUID id,
     @RequestParam(required = false, name = "filter") Filter filter
   ) {
-    Specification<UserTenant> userTenantSpecifications = getUserTenantSpecification(id, filter);
+    Specification<UserTenant> userTenantSpecifications =
+      userTenantService.getUserTenantSpecification(id, filter);
 
     List<UserTenant> tenantList = roleUserTenantRepository.findAll(
       userTenantSpecifications
@@ -99,7 +99,8 @@ public class RoleUserTenantController {
     @PathVariable("id") UUID id,
     @RequestParam(required = false, name = "filter") Filter filter
   ) {
-    Specification<UserTenant> userTenantSpecifications = getUserTenantSpecification(id, filter);
+    Specification<UserTenant> userTenantSpecifications =
+      userTenantService.getUserTenantSpecification(id, filter);
 
     List<UserTenant> tenantList = roleUserTenantRepository.findAll(
       userTenantSpecifications
@@ -122,7 +123,8 @@ public class RoleUserTenantController {
     @RequestBody UserTenant sourceUserTenant,
     @RequestParam(required = false, name = "filter") Filter filter
   ) {
-    Specification<UserTenant> userTenantSpecifications = getUserTenantSpecification(id, filter);
+    Specification<UserTenant> userTenantSpecifications =
+      userTenantService.getUserTenantSpecification(id, filter);
 
     List<UserTenant> targetUserTenantArrayList = new ArrayList<>();
     List<UserTenant> userTenantArrayList = roleUserTenantRepository.findAll(
@@ -158,7 +160,8 @@ public class RoleUserTenantController {
     @PathVariable("id") UUID id,
     @RequestParam(required = false, name = "filter") Filter filter
   ) {
-    Specification<UserTenant> userTenantSpecifications = getUserTenantSpecification(id, filter);
+    Specification<UserTenant> userTenantSpecifications =
+      userTenantService.getUserTenantSpecification(id, filter);
 
     long count = roleUserTenantRepository.delete(userTenantSpecifications);
     return new ResponseEntity<>(
@@ -166,12 +169,4 @@ public class RoleUserTenantController {
       HttpStatus.OK
     );
   }
-  private Specification<UserTenant> getUserTenantSpecification(UUID id, Filter filter) {
-    Specification<UserTenant> userTenantSpecifications =
-            queryService.getSpecifications(filter);
-    userTenantSpecifications =
-            userTenantSpecifications.and(UserTenantSpecification.byRoleId(id));
-    return userTenantSpecifications;
-  }
-
 }

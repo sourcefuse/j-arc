@@ -7,14 +7,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 
 @ControllerAdvice
-public class GlobalInitBinder {
+public class GlobalWebDataBinder {
 
   @InitBinder
   public <T> void initBinder(WebDataBinder binder) {
     Class<T> targetType = (Class<T>) Filter.class;
     binder.registerCustomEditor(
       targetType,
-      new GenericEditor<T>(new ObjectMapper(), targetType)
+      new RequestParamsBinder<T>(new ObjectMapper(), targetType)
     );
   }
 }

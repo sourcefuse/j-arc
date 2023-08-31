@@ -1,11 +1,5 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.services.usertenantservice.controller.UserGroupController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
@@ -13,13 +7,10 @@ import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockGroup;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockSpecification;
 import com.sourcefuse.jarc.services.usertenantservice.repository.GroupRepository;
 import com.sourcefuse.jarc.services.usertenantservice.repository.UserGroupsRepository;
 import com.sourcefuse.jarc.services.usertenantservice.service.UserGroupServiceImpl;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,6 +30,17 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DisplayName("Create Role User Tenants Apis Integration Tests")
 @ExtendWith(MockitoExtension.class)
@@ -220,7 +222,7 @@ class UserGroupControllerTests {
     userGroupList.add(new UserGroup());
     userGroupList.add(new UserGroup());
 
-    Specification mockSpecification = MockCurrentUserSession.getSpecification(
+    Specification mockSpecification = MockSpecification.getSpecification(
       queryService
     );
     when(groupRepository.findOne(ArgumentMatchers.any(Specification.class)))
