@@ -1,11 +1,20 @@
-package com.sourcefuse.jarc.services.usertenantservice.core;
+package com.sourcefuse.jarc.core.filters.webdatabinder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sourcefuse.jarc.core.filters.models.Filter;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
-
+/**
+ *  The class is used to intercept every request with request parameters
+ *   and convert them from strings into requested objects in this case
+ *   Filter object
+ *
+ *    @InitBinder
+ *    Annotation that identifies methods that initialize the WebDataBinder
+ *    which will be used for populating command and form object
+ *    arguments of annotated handler methods.
+ */
 @ControllerAdvice
 public class GlobalWebDataBinder {
 

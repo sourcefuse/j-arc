@@ -79,7 +79,6 @@ class RoleUserTenantControllerTests {
     mockUserTenant.setId(MockTenantUser.USER_TENANT_ID);
     //Set Current LoggedIn User
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
-    Specification mockSpecificationTwo = null;
   }
 
   @Test

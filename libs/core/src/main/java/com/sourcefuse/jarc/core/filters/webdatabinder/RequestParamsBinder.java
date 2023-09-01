@@ -1,4 +1,4 @@
-package com.sourcefuse.jarc.services.usertenantservice.core;
+package com.sourcefuse.jarc.core.filters.webdatabinder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
