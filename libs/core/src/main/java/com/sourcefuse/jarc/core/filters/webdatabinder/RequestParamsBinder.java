@@ -7,12 +7,22 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.beans.PropertyEditorSupport;
 
+/**
+ * This class is used to convert request param strings into target objects.
+ *
+ * Author: Adil Shaikh
+ * */
 @Slf4j
 public class RequestParamsBinder<T> extends PropertyEditorSupport {
 
   private ObjectMapper objectMapper;
   private Class<T> targetType;
-
+  /**
+   * Constructs a RequestParamsBinder object.
+   * Params:
+   * objectMapper –It is used to read and write JSON data
+   * targetType - Target class type
+   * */
   public RequestParamsBinder(ObjectMapper objectMapper, Class<T> targetType) {
     this.objectMapper = objectMapper;
     this.targetType = targetType;
@@ -21,7 +31,12 @@ public class RequestParamsBinder<T> extends PropertyEditorSupport {
   public RequestParamsBinder(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
-
+ /**
+  * Sets the property value by parsing a given String. May raise java.lang.IllegalArgumentException
+  * if either the String is badly formatted or if this kind of property can't be expressed as text.
+  * Params:
+  * text – The string to be parsed.
+  * */
   @Override
   public void setAsText(String text) throws IllegalArgumentException {
     if (StringUtils.isEmpty(text)) {
