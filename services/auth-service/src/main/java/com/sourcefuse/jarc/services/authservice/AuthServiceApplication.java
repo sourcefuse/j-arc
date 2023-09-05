@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
   {
     "com.sourcefuse.jarc.core",
     "com.sourcefuse.jarc.authlib",
-    "com.sourcefuse.jarc.services.authservice",
+    "com.sourcefuse.jarc.services.authservice"
   }
 )
 public class AuthServiceApplication {
