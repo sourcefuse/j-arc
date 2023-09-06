@@ -15,16 +15,22 @@ public class GithubOAuth2UserInfo extends OAuth2UserInfo {
 
   @Override
   public String getName() {
-    return (String) attributes.get("name");
+    String name = (String) attributes.get("name");
+    return name != null && !name.isBlank() ? name : getLogin();
   }
 
   @Override
   public String getEmail() {
-    return (String) attributes.get("email");
+    String email = (String) attributes.get("email");
+    return email != null && !email.isBlank() ? email : getLogin();
   }
 
   @Override
   public String getImageUrl() {
     return (String) attributes.get("avatar_url");
+  }
+
+  public String getLogin() {
+    return (String) attributes.get("login");
   }
 }

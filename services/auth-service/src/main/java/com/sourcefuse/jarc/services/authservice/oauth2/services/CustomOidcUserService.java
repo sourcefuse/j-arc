@@ -29,6 +29,7 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -46,6 +47,7 @@ public class CustomOidcUserService extends OidcUserService {
   private final OAuth2PreVerifyProvider oAuth2PreVerifyProvider;
 
   @Override
+  @Transactional
   public OidcUser loadUser(OidcUserRequest oidcUserRequest)
     throws OAuth2AuthenticationException {
     OidcUser oidcUser = super.loadUser(oidcUserRequest);

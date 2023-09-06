@@ -8,6 +8,8 @@ import com.sourcefuse.jarc.services.authservice.oauth2.user.OAuth2UserInfo;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
 import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,8 +42,9 @@ public class OAuth2PreVerifyProvider {
   }
 
   public User provide(User user, OAuth2UserInfo oAuth2UserInfo) {
-    String firstName = oAuth2UserInfo.getName().split(" ")[0];
-    String lastName = oAuth2UserInfo.getName().split(" ")[1];
+    List<String> name = Arrays.asList(oAuth2UserInfo.getName().split(" "));
+    String firstName = name.size() > 0 ? name.get(0) : null;
+    String lastName = name.size() > 1 ? name.get(name.size() - 1) : null;
     if (
       (firstName != null && !user.getFirstName().equals(firstName)) ||
       (lastName != null && !user.getLastName().equals(lastName)) ||

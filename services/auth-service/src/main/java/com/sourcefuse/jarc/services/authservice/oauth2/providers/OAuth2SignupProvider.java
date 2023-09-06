@@ -13,6 +13,8 @@ import com.sourcefuse.jarc.services.authservice.repositories.TenantRepository;
 import com.sourcefuse.jarc.services.authservice.services.UserService;
 import com.sourcefuse.jarc.services.authservice.specifications.RoleSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.TenantSpecification;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,8 +50,9 @@ public class OAuth2SignupProvider {
         "Role not found"
       );
     }
-    String firstName = oAuth2UserInfo.getName().split(" ")[0];
-    String lastName = oAuth2UserInfo.getName().split(" ")[1];
+    List<String> name = Arrays.asList(oAuth2UserInfo.getName().split(" "));
+    String firstName = name.size() > 0 ? name.get(0) : null;
+    String lastName = name.size() > 1 ? name.get(name.size() - 1) : null;
     User userToCreate = new User();
     userToCreate.setUsername(oAuth2UserInfo.getEmail());
     userToCreate.setFirstName(firstName);

@@ -69,7 +69,7 @@ public class SecurityConfig {
       .userService(customOAuth2UserService)
       .oidcUserService(customOidc2UserService)
       .and()
-      .successHandler(oAuth2AuthenticationSuccessHandler) // Redirect URL after successful login
+      .successHandler(oAuth2AuthenticationSuccessHandler)
       .failureHandler(oAuth2AuthenticationFailureHandler)
       .permitAll();
 
