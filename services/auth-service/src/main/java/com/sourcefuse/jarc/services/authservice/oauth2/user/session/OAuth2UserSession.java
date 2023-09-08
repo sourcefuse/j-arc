@@ -29,7 +29,6 @@ public class OAuth2UserSession implements OidcUser {
   private User user;
   private UserTenant userTenant;
   private Role role;
-  private AuthClient authClient;
 
   Map<String, Object> attributes;
 
@@ -69,13 +68,11 @@ public class OAuth2UserSession implements OidcUser {
     User user,
     UserTenant userTenant,
     Role role,
-    AuthClient authClient,
     OAuth2User oAuth2User
   ) {
     this.user = user;
     this.userTenant = userTenant;
     this.role = role;
-    this.authClient = authClient;
     this.attributes = oAuth2User.getAttributes();
   }
 
@@ -83,13 +80,11 @@ public class OAuth2UserSession implements OidcUser {
     User user,
     UserTenant userTenant,
     Role role,
-    AuthClient authClient,
     OidcUser oidcUser
   ) {
     this.user = user;
     this.userTenant = userTenant;
     this.role = role;
-    this.authClient = authClient;
     this.attributes = oidcUser.getAttributes();
     this.userInfo = oidcUser.getUserInfo();
     this.idToken = oidcUser.getIdToken();

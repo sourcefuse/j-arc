@@ -2,7 +2,6 @@ package com.sourcefuse.jarc.services.authservice.oauth2.services;
 
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
-import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserCredential;
@@ -11,12 +10,10 @@ import com.sourcefuse.jarc.services.authservice.oauth2.providers.OAuth2PreVerify
 import com.sourcefuse.jarc.services.authservice.oauth2.providers.OAuth2SignupProvider;
 import com.sourcefuse.jarc.services.authservice.oauth2.user.OAuth2UserInfo;
 import com.sourcefuse.jarc.services.authservice.oauth2.user.session.OAuth2UserSession;
-import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserCredentialRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
-import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserCredentialSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserSpecification;
 import com.sourcefuse.jarc.services.authservice.specifications.UserTenantSpecification;
@@ -42,7 +39,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
   private final UserCredentialRepository userCredentialRepository;
   private final RoleRepository roleRepository;
   private final UserTenantRepository userTenantRepository;
-  private final AuthClientRepository authClientRepository;
 
   private final OAuth2SignupProvider oAuth2SignupProvider;
   private final OAuth2PreVerifyProvider oAuth2PreVerifyProvider;
@@ -122,21 +118,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
       this.roleRepository.findById(userTenant.getRoleId())
         .orElseThrow(this::throwUserVerificationFailed);
 
-    AuthClient authClient = authClientRepository
-      .findOne(
-        AuthClientSpecification.byClientId(
-          oAuth2UserRequest.getClientRegistration().getClientId()
-        )
-      )
-      .orElseThrow(this::throwUserVerificationFailed);
-
-    return new OAuth2UserSession(
-      user,
-      userTenant,
-      role,
-      authClient,
-      oAuth2User
-    );
+    return new OAuth2UserSession(user, userTenant, role, oAuth2User);
   }
 
   private OAuth2AuthenticationException throwUserVerificationFailed() {

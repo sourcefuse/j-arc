@@ -4,6 +4,8 @@ import com.sourcefuse.jarc.authlib.cors.CorsFilter;
 import com.sourcefuse.jarc.authlib.security.JwtAuthenticationFilter;
 import com.sourcefuse.jarc.services.authservice.oauth2.auth.handlers.OAuth2AuthenticationFailureHandler;
 import com.sourcefuse.jarc.services.authservice.oauth2.auth.handlers.OAuth2AuthenticationSuccessHandler;
+import com.sourcefuse.jarc.services.authservice.oauth2.auth.request.resolver.CustomOAuth2AuthorizationRequestResolver;
+import com.sourcefuse.jarc.services.authservice.oauth2.request.filters.OAuth2AuthorizationRequestFilter;
 import com.sourcefuse.jarc.services.authservice.oauth2.services.CustomOAuth2UserService;
 import com.sourcefuse.jarc.services.authservice.oauth2.services.CustomOidcUserService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -58,13 +62,21 @@ public class SecurityConfig {
 
   private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
+  private final ClientRegistrationRepository clientRegistrationRepository;
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http)
     throws Exception {
     http.csrf().disable();
-
     http
       .oauth2Login()
+      .authorizationEndpoint()
+      .authorizationRequestResolver(
+        new CustomOAuth2AuthorizationRequestResolver(
+          clientRegistrationRepository
+        )
+      )
+      .and()
       .userInfoEndpoint()
       .userService(customOAuth2UserService)
       .oidcUserService(customOidc2UserService)
@@ -72,6 +84,10 @@ public class SecurityConfig {
       .successHandler(oAuth2AuthenticationSuccessHandler)
       .failureHandler(oAuth2AuthenticationFailureHandler)
       .permitAll();
+    http.addFilterBefore(
+      new OAuth2AuthorizationRequestFilter(),
+      OAuth2AuthorizationRequestRedirectFilter.class
+    );
 
     http.authorizeHttpRequests().anyRequest().permitAll();
 

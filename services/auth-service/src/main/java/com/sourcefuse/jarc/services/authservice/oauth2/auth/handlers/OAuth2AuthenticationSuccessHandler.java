@@ -4,8 +4,11 @@ import com.sourcefuse.jarc.authlib.utils.Utils;
 import com.sourcefuse.jarc.core.dtos.ErrorDetails;
 import com.sourcefuse.jarc.services.authservice.dtos.CodeResponse;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
+import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.oauth2.user.session.OAuth2UserSession;
 import com.sourcefuse.jarc.services.authservice.providers.AuthCodeGeneratorProvider;
+import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
+import com.sourcefuse.jarc.services.authservice.specifications.AuthClientSpecification;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -17,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
 
 @Component
 @RequiredArgsConstructor
@@ -26,6 +30,8 @@ public class OAuth2AuthenticationSuccessHandler
 
   private final AuthCodeGeneratorProvider authCodeGeneratorProvider;
 
+  private final AuthClientRepository authClientRepository;
+
   @Override
   public void onAuthenticationSuccess(
     HttpServletRequest request,
@@ -33,19 +39,31 @@ public class OAuth2AuthenticationSuccessHandler
     Authentication authentication
   ) throws IOException {
     try {
+      String state = request.getParameter("state");
+      String authClientId = state.split("=")[1];
+
+      AuthClient authClient = authClientRepository
+        .findOne(AuthClientSpecification.byClientId(authClientId))
+        .orElseThrow(() ->
+          new HttpServerErrorException(
+            HttpStatus.UNAUTHORIZED,
+            AuthErrorKeys.CLIENT_INVALID.toString()
+          )
+        );
+
       OAuth2UserSession oAuth2UserSession =
         (OAuth2UserSession) authentication.getPrincipal();
       CodeResponse codeResponse = authCodeGeneratorProvider.provide(
         oAuth2UserSession.getUser(),
         oAuth2UserSession.getUserTenant(),
         oAuth2UserSession.getRole(),
-        oAuth2UserSession.getAuthClient()
+        authClient
       );
       response.setHeader(
         "Location",
         MessageFormat.format(
           "{0}?code={1}",
-          oAuth2UserSession.getAuthClient().getRedirectUrl(),
+          authClient.getRedirectUrl(),
           codeResponse.getCode()
         )
       );

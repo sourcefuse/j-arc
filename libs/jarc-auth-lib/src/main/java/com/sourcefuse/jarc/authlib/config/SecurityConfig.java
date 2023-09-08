@@ -3,13 +3,16 @@ package com.sourcefuse.jarc.authlib.config;
 import com.sourcefuse.jarc.authlib.cors.CorsFilter;
 import com.sourcefuse.jarc.authlib.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
@@ -18,6 +21,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+  value = "auth.security-config.enable",
+  havingValue = "false",
+  matchIfMissing = true
+)
 public class SecurityConfig {
 
   private static final String SWAGGER_ROLE = "SWAGGER";
@@ -49,9 +57,8 @@ public class SecurityConfig {
         swaggerUiPath + "/**",
         "/swagger-ui/**"
       )
-      .hasAnyRole(SWAGGER_ROLE)
-      .and()
-      .authenticationManager(authManager(http));
+      .hasAnyRole(SWAGGER_ROLE);
+
     http
       .authorizeHttpRequests()
       .anyRequest()
@@ -67,23 +74,29 @@ public class SecurityConfig {
     return http.build();
   }
 
-  public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-    AuthenticationManagerBuilder authenticationManagerBuilder =
-      http.getSharedObject(AuthenticationManagerBuilder.class);
+  @Autowired
+  public void swaggerConfigureInMemoryAuthUsers(
+    AuthenticationManagerBuilder auth
+  ) throws Exception {
+    // Get the existing authentication manager configuration and extend it
+
     if (
       swaggerUsername != null &&
       !swaggerUsername.isBlank() &&
       swaggerPassword != null &&
       !swaggerPassword.isBlank()
     ) {
-      authenticationManagerBuilder
-        .inMemoryAuthentication()
-        .withUser(swaggerUsername)
-        .password(new BCryptPasswordEncoder().encode(swaggerPassword))
+      BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+      UserDetails user = User
+        .builder()
+        .username(swaggerUsername)
+        .password(passwordEncoder.encode(swaggerPassword))
         .roles(SWAGGER_ROLE)
-        .and()
-        .passwordEncoder(new BCryptPasswordEncoder());
+        .build();
+      auth
+        .inMemoryAuthentication()
+        .passwordEncoder(passwordEncoder)
+        .withUser(user);
     }
-    return authenticationManagerBuilder.build();
   }
 }
