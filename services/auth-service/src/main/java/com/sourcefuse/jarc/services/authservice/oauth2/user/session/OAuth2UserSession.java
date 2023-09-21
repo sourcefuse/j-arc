@@ -1,6 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.oauth2.user.session;
 
-import com.sourcefuse.jarc.services.authservice.models.AuthClient;
 import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;

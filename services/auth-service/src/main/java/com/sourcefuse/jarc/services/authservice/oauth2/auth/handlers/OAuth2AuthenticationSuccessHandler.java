@@ -5,6 +5,7 @@ import com.sourcefuse.jarc.core.dtos.ErrorDetails;
 import com.sourcefuse.jarc.services.authservice.dtos.CodeResponse;
 import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.models.AuthClient;
+import com.sourcefuse.jarc.services.authservice.oauth2.auth.utils.StateUtils;
 import com.sourcefuse.jarc.services.authservice.oauth2.user.session.OAuth2UserSession;
 import com.sourcefuse.jarc.services.authservice.providers.AuthCodeGeneratorProvider;
 import com.sourcefuse.jarc.services.authservice.repositories.AuthClientRepository;
@@ -20,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpServerErrorException;
 
 @Component
 @RequiredArgsConstructor
@@ -40,15 +40,15 @@ public class OAuth2AuthenticationSuccessHandler
   ) throws IOException {
     try {
       String state = request.getParameter("state");
-      String authClientId = state.split("=")[1];
+      if (state == null || state.isBlank()) {
+        throw new IllegalArgumentException("State is missing in query params");
+      }
+      String authClientId = StateUtils.decode(state);
 
       AuthClient authClient = authClientRepository
         .findOne(AuthClientSpecification.byClientId(authClientId))
         .orElseThrow(() ->
-          new HttpServerErrorException(
-            HttpStatus.UNAUTHORIZED,
-            AuthErrorKeys.CLIENT_INVALID.toString()
-          )
+          new IllegalArgumentException(AuthErrorKeys.CLIENT_INVALID.toString())
         );
 
       OAuth2UserSession oAuth2UserSession =
@@ -68,7 +68,7 @@ public class OAuth2AuthenticationSuccessHandler
         )
       );
       response.setStatus(HttpStatus.FOUND.value());
-    } catch (ClassCastException ex) {
+    } catch (ClassCastException | IllegalArgumentException ex) {
       log.error(null, ex);
 
       ErrorDetails errorDetails = new ErrorDetails(

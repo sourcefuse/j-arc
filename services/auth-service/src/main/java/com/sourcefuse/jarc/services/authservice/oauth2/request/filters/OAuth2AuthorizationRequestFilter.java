@@ -2,7 +2,7 @@ package com.sourcefuse.jarc.services.authservice.oauth2.request.filters;
 
 import com.sourcefuse.jarc.authlib.utils.Utils;
 import com.sourcefuse.jarc.core.dtos.ErrorDetails;
-import com.sourcefuse.jarc.services.authservice.oauth2.auth.request.resolver.CustomOAuth2AuthorizationRequestResolver;
+import com.sourcefuse.jarc.services.authservice.oauth2.auth.utils.StateUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,9 +39,7 @@ public class OAuth2AuthorizationRequestFilter extends OncePerRequestFilter {
     HttpServletResponse response,
     FilterChain filterChain
   ) throws ServletException, IOException {
-    String clientId = request.getParameter(
-      CustomOAuth2AuthorizationRequestResolver.clientIdParamKey
-    );
+    String clientId = request.getParameter(StateUtils.clientIdParamKey);
     if (
       authorizationRequestMatcher.matches(request) &&
       (clientId == null || clientId.isBlank())

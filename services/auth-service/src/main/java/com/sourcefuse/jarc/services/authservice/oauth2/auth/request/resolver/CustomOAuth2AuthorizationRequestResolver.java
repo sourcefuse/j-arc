@@ -1,14 +1,16 @@
 package com.sourcefuse.jarc.services.authservice.oauth2.auth.request.resolver;
 
+import com.sourcefuse.jarc.services.authservice.oauth2.auth.utils.StateUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.MessageFormat;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -30,6 +32,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@Slf4j
 public final class CustomOAuth2AuthorizationRequestResolver
   implements OAuth2AuthorizationRequestResolver {
 
@@ -52,8 +55,6 @@ public final class CustomOAuth2AuthorizationRequestResolver
   private Consumer<
     OAuth2AuthorizationRequest.Builder
   > authorizationRequestCustomizer = customizer -> {};
-
-  public static final String clientIdParamKey = "clientId";
 
   /**
    * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the
@@ -161,9 +162,6 @@ public final class CustomOAuth2AuthorizationRequestResolver
     String registrationId,
     String redirectUriAction
   ) {
-    if (registrationId == null) {
-      return null;
-    }
     ClientRegistration clientRegistration =
       this.clientRegistrationRepository.findByRegistrationId(registrationId);
     if (clientRegistration == null) {
@@ -171,17 +169,8 @@ public final class CustomOAuth2AuthorizationRequestResolver
         "Invalid Client Registration with Id: " + registrationId
       );
     }
-    request
-      .getParameterMap()
-      .entrySet()
-      .stream()
-      .forEach(e -> {
-        System.out.println(
-          e.getKey() + "  " + request.getParameter(e.getKey())
-        );
-      });
 
-    String clientId = request.getParameter(clientIdParamKey);
+    String clientId = request.getParameter(StateUtils.clientIdParamKey);
     OAuth2AuthorizationRequest.Builder builder = getBuilder(clientRegistration);
 
     String redirectUriStr = expandRedirectUri(
@@ -189,15 +178,19 @@ public final class CustomOAuth2AuthorizationRequestResolver
       clientRegistration,
       redirectUriAction
     );
-
-    builder
-      .clientId(clientRegistration.getClientId())
-      .authorizationUri(
-        clientRegistration.getProviderDetails().getAuthorizationUri()
-      )
-      .redirectUri(redirectUriStr)
-      .scopes(clientRegistration.getScopes())
-      .state(MessageFormat.format("{0}={1}", clientIdParamKey, clientId));
+    try {
+      builder
+        .clientId(clientRegistration.getClientId())
+        .authorizationUri(
+          clientRegistration.getProviderDetails().getAuthorizationUri()
+        )
+        .redirectUri(redirectUriStr)
+        .scopes(clientRegistration.getScopes())
+        .state(StateUtils.encode(clientId));
+    } catch (IOException e) {
+      log.info(null, e);
+      throw new IllegalArgumentException(e.getMessage(), e.getCause());
+    }
 
     this.authorizationRequestCustomizer.accept(builder);
 
