@@ -50,9 +50,11 @@ public class OAuth2SignupProvider {
         "Role not found"
       );
     }
-    List<String> name = Arrays.asList(oAuth2UserInfo.getName().split(" "));
+    String fullname = oAuth2UserInfo.getName().replace("( )+", " ");
+    List<String> name = Arrays.asList(fullname.split(" "));
     String firstName = name.size() > 0 ? name.get(0) : null;
     String lastName = name.size() > 1 ? name.get(name.size() - 1) : null;
+
     User userToCreate = new User();
     userToCreate.setUsername(oAuth2UserInfo.getEmail());
     userToCreate.setFirstName(firstName);

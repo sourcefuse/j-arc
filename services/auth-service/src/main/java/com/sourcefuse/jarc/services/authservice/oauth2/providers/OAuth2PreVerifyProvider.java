@@ -42,12 +42,20 @@ public class OAuth2PreVerifyProvider {
   }
 
   public User provide(User user, OAuth2UserInfo oAuth2UserInfo) {
-    List<String> name = Arrays.asList(oAuth2UserInfo.getName().split(" "));
+    String fullname = oAuth2UserInfo.getName().replace("( )+", " ");
+    List<String> name = Arrays.asList(fullname.split(" "));
     String firstName = name.size() > 0 ? name.get(0) : null;
     String lastName = name.size() > 1 ? name.get(name.size() - 1) : null;
+
+    boolean shouldUpdateFirstName =
+      (firstName != null && !firstName.isBlank()) &&
+      !user.getFirstName().equals(firstName);
+    boolean shouldUpdateLastName =
+      (lastName != null && !lastName.isBlank()) &&
+      !user.getLastName().equals(lastName);
     if (
-      (firstName != null && !user.getFirstName().equals(firstName)) ||
-      (lastName != null && !user.getLastName().equals(lastName)) ||
+      shouldUpdateFirstName ||
+      shouldUpdateLastName ||
       !user.getUsername().equals(oAuth2UserInfo.getEmail()) ||
       !user.getEmail().equals(oAuth2UserInfo.getEmail())
     ) {
