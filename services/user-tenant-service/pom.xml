@@ -101,6 +101,10 @@
             <artifactId>jarc-auth-lib</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -115,6 +119,21 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <!--<version>9.5.1</version> --><!-- Replace with the Flyway version you are using -->
+                <configuration>
+                    <url>jdbc:postgresql://postgres:5432/userTenant</url>
+                    <user>user</user>
+                    <password>pass</password>
+                    <schemas>
+                        <schema>public</schema>
+                    </schemas>
+<!--             specify custom location if required, default location is db/migration
+<locations>services/user-tenant-service/src/main/resources/db/migration</locations>-->
                 </configuration>
             </plugin>
         </plugins>
