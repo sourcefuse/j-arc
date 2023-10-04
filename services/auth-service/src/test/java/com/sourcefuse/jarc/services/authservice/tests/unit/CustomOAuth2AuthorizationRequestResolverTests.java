@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.sourcefuse.jarc.services.authservice.oauth2.auth.request.resolver.CustomOAuth2AuthorizationRequestResolver;
+import com.sourcefuse.jarc.services.authservice.tests.mocks.MockObjects;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -21,11 +22,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
  * variables
  */
 class CustomOAuth2AuthorizationRequestResolverTests {
-
-  private String clientId = "google";
-  private String tokenURI = "/token";
-  private String authURI = "/auth";
-  private String redirectURI = "/redirect";
 
   private CustomOAuth2AuthorizationRequestResolver authRequestResolver;
   private ClientRegistrationRepository clientRegistrationRepository;
@@ -45,15 +41,7 @@ class CustomOAuth2AuthorizationRequestResolverTests {
       new CustomOAuth2AuthorizationRequestResolver(
         clientRegistrationRepository
       );
-    clientRegistration =
-      ClientRegistration
-        .withRegistrationId(clientId)
-        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-        .clientId(clientId)
-        .tokenUri(tokenURI)
-        .authorizationUri(authURI)
-        .redirectUri(redirectURI)
-        .build();
+    clientRegistration = MockObjects.createMockClientRegistration();
   }
 
   @Test
@@ -101,7 +89,7 @@ class CustomOAuth2AuthorizationRequestResolverTests {
 
     assertThrows(
       IllegalArgumentException.class,
-      () -> authRequestResolver.resolve(request, clientId)
+      () -> authRequestResolver.resolve(request, MockObjects.CLIENT_ID)
     );
   }
 
@@ -114,20 +102,20 @@ class CustomOAuth2AuthorizationRequestResolverTests {
       )
       .thenReturn(clientRegistration);
 
-    authRequestResolver.resolve(request, clientId);
+    OAuth2AuthorizationRequest authRequest = authRequestResolver.resolve(
+      request,
+      MockObjects.CLIENT_ID
+    );
+
+    assertThat(authRequest).isNotNull();
   }
 
   @Test
   void testResolveThrowErrorWhenClientRegistrationWithAuthrorizationGrantTypeIsJWTBearer() {
     clientRegistration =
-      ClientRegistration
-        .withRegistrationId(clientId)
-        .authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
-        .clientId(clientId)
-        .tokenUri("/token")
-        .authorizationUri("/auth")
-        .redirectUri("/redirect")
-        .build();
+      MockObjects.createMockClientRegistration(
+        AuthorizationGrantType.JWT_BEARER
+      );
     Mockito
       .when(
         clientRegistrationRepository.findByRegistrationId(Mockito.anyString())
@@ -136,22 +124,14 @@ class CustomOAuth2AuthorizationRequestResolverTests {
 
     assertThrows(
       IllegalArgumentException.class,
-      () -> authRequestResolver.resolve(request, clientId)
+      () -> authRequestResolver.resolve(request, MockObjects.CLIENT_ID)
     );
   }
 
   @Test
   void testResolveWithSuccessWithClientRegistrationScopeIsNonEmpty() {
     clientRegistration =
-      ClientRegistration
-        .withRegistrationId(clientId)
-        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-        .clientId(clientId)
-        .tokenUri("/token")
-        .authorizationUri("/auth")
-        .redirectUri("/redirect")
-        .scope(Arrays.asList("profile"))
-        .build();
+      MockObjects.createMockClientRegistration(Arrays.asList("profile"));
     request.addParameter("action", "authorize");
     Mockito
       .when(
@@ -159,21 +139,20 @@ class CustomOAuth2AuthorizationRequestResolverTests {
       )
       .thenReturn(clientRegistration);
 
-    authRequestResolver.resolve(request, clientId);
+    OAuth2AuthorizationRequest authRequest = authRequestResolver.resolve(
+      request,
+      MockObjects.CLIENT_ID
+    );
+
+    assertThat(authRequest).isNotNull();
   }
 
   @Test
   void testResolveWithSuccessWithClientRegistrationScopeIsNonEmptyCOntainsOpenId() {
     clientRegistration =
-      ClientRegistration
-        .withRegistrationId(clientId)
-        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-        .clientId(clientId)
-        .tokenUri("/token")
-        .authorizationUri("/auth")
-        .redirectUri("/redirect")
-        .scope(Arrays.asList("profile", "openid"))
-        .build();
+      MockObjects.createMockClientRegistration(
+        Arrays.asList("profile", "openid")
+      );
     request.addParameter("action", "authorize");
     Mockito
       .when(
@@ -181,7 +160,12 @@ class CustomOAuth2AuthorizationRequestResolverTests {
       )
       .thenReturn(clientRegistration);
 
-    authRequestResolver.resolve(request, clientId);
+    OAuth2AuthorizationRequest authRequest = authRequestResolver.resolve(
+      request,
+      MockObjects.CLIENT_ID
+    );
+
+    assertThat(authRequest).isNotNull();
   }
 
   @Test
@@ -194,7 +178,12 @@ class CustomOAuth2AuthorizationRequestResolverTests {
       )
       .thenReturn(clientRegistration);
 
-    authRequestResolver.resolve(request, clientId);
+    OAuth2AuthorizationRequest authRequest = authRequestResolver.resolve(
+      request,
+      MockObjects.CLIENT_ID
+    );
+
+    assertThat(authRequest).isNotNull();
   }
 
   @Test

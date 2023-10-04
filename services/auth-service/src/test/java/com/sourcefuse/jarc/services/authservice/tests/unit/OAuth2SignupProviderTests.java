@@ -11,6 +11,7 @@ import com.sourcefuse.jarc.services.authservice.oauth2.user.OAuth2UserInfo;
 import com.sourcefuse.jarc.services.authservice.repositories.RoleRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.TenantRepository;
 import com.sourcefuse.jarc.services.authservice.services.UserService;
+import com.sourcefuse.jarc.services.authservice.tests.mocks.MockObjects;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,15 +45,8 @@ class OAuth2SignupProviderTests {
   void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    oidcUser = Mockito.mock(OidcUser.class);
-    Mockito.when(oidcUser.getGivenName()).thenReturn("XYZ");
-    Mockito.when(oidcUser.getFamilyName()).thenReturn("PQR");
-    Mockito.when(oidcUser.getEmail()).thenReturn("user@email.com");
-    Mockito.when(oidcUser.getPreferredUsername()).thenReturn("user");
-
-    oAuth2User = Mockito.mock(OAuth2UserInfo.class);
-    Mockito.when(oAuth2User.getName()).thenReturn("XYZ PQR");
-    Mockito.when(oAuth2User.getEmail()).thenReturn("user@email.com");
+    oidcUser = MockObjects.createMockOidcUser();
+    oAuth2User = MockObjects.createMockOAuth2UserInfo();
   }
 
   @SuppressWarnings("unchecked")

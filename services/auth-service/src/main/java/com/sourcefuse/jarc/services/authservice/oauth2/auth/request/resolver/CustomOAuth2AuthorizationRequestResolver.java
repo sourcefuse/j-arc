@@ -2,10 +2,10 @@ package com.sourcefuse.jarc.services.authservice.oauth2.auth.request.resolver;
 
 import com.sourcefuse.jarc.services.authservice.oauth2.auth.utils.StateUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +54,8 @@ public final class CustomOAuth2AuthorizationRequestResolver
 
   private Consumer<
     OAuth2AuthorizationRequest.Builder
-  > authorizationRequestCustomizer = customizer -> {};
+  > authorizationRequestCustomizer =
+    (OAuth2AuthorizationRequest.Builder customizer) -> {};
 
   /**
    * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the
@@ -112,9 +113,6 @@ public final class CustomOAuth2AuthorizationRequestResolver
   @Override
   public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
     String registrationId = resolveRegistrationId(request);
-    if (registrationId == null) {
-      return null;
-    }
     String redirectUriAction = getAction(request, "login");
     return resolve(request, registrationId, redirectUriAction);
   }
@@ -124,9 +122,6 @@ public final class CustomOAuth2AuthorizationRequestResolver
     HttpServletRequest request,
     String registrationId
   ) {
-    if (registrationId == null) {
-      return null;
-    }
     String redirectUriAction = getAction(request, "authorize");
     return resolve(request, registrationId, redirectUriAction);
   }
@@ -149,7 +144,10 @@ public final class CustomOAuth2AuthorizationRequestResolver
     this.authorizationRequestCustomizer = authorizationRequestCustomizer;
   }
 
-  private String getAction(HttpServletRequest request, String defaultAction) {
+  private static String getAction(
+    HttpServletRequest request,
+    String defaultAction
+  ) {
     String action = request.getParameter("action");
     if (action == null) {
       return defaultAction;
@@ -162,6 +160,9 @@ public final class CustomOAuth2AuthorizationRequestResolver
     String registrationId,
     String redirectUriAction
   ) {
+    if (registrationId == null) {
+      return null;
+    }
     ClientRegistration clientRegistration =
       this.clientRegistrationRepository.findByRegistrationId(registrationId);
     if (clientRegistration == null) {
@@ -170,7 +171,7 @@ public final class CustomOAuth2AuthorizationRequestResolver
       );
     }
 
-    String clientId = request.getParameter(StateUtils.clientIdParamKey);
+    String clientId = request.getParameter(StateUtils.CLIENT_ID_PARAM_KEY);
     OAuth2AuthorizationRequest.Builder builder = getBuilder(clientRegistration);
 
     String redirectUriStr = expandRedirectUri(
@@ -178,26 +179,21 @@ public final class CustomOAuth2AuthorizationRequestResolver
       clientRegistration,
       redirectUriAction
     );
-    try {
-      builder
-        .clientId(clientRegistration.getClientId())
-        .authorizationUri(
-          clientRegistration.getProviderDetails().getAuthorizationUri()
-        )
-        .redirectUri(redirectUriStr)
-        .scopes(clientRegistration.getScopes())
-        .state(StateUtils.encode(clientId));
-    } catch (IOException e) {
-      log.info(null, e);
-      throw new IllegalArgumentException(e.getMessage(), e.getCause());
-    }
 
+    builder
+      .clientId(clientRegistration.getClientId())
+      .authorizationUri(
+        clientRegistration.getProviderDetails().getAuthorizationUri()
+      )
+      .redirectUri(redirectUriStr)
+      .scopes(clientRegistration.getScopes())
+      .state(StateUtils.encode(clientId));
     this.authorizationRequestCustomizer.accept(builder);
 
     return builder.build();
   }
 
-  private OAuth2AuthorizationRequest.Builder getBuilder(
+  private static OAuth2AuthorizationRequest.Builder getBuilder(
     ClientRegistration clientRegistration
   ) {
     if (
@@ -264,7 +260,10 @@ public final class CustomOAuth2AuthorizationRequestResolver
    * Null variables are provided as empty strings.
    * <p/>
    * Default redirectUri is:
-   * {@code org.springframework.security.config.oauth2.client.CommonOAuth2Provider#DEFAULT_REDIRECT_URL}
+   * {@code
+   * org.springframework.security.config.oauth2.client.CommonOAuth2Provider
+   * #DEFAULT_REDIRECT_URL
+   * }
    *
    * @return expanded URI
    */
@@ -274,7 +273,10 @@ public final class CustomOAuth2AuthorizationRequestResolver
     String action
   ) {
     Map<String, String> uriVariables = new HashMap<>();
-    uriVariables.put("registrationId", clientRegistration.getRegistrationId());
+    uriVariables.put(
+      REGISTRATION_ID_URI_VARIABLE_NAME,
+      clientRegistration.getRegistrationId()
+    );
 
     UriComponents uriComponents = UriComponentsBuilder
       .fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
@@ -289,12 +291,13 @@ public final class CustomOAuth2AuthorizationRequestResolver
     uriVariables.put("baseHost", (host != null) ? host : "");
 
     int port = uriComponents.getPort();
-    uriVariables.put("basePort", (port == -1) ? "" : ":" + port);
+    uriVariables.put(
+      "basePort",
+      (port == -1) ? "" : MessageFormat.format(":{0}", port)
+    );
     String path = uriComponents.getPath();
-    if (StringUtils.hasLength(path)) {
-      if (path.charAt(0) != PATH_DELIMITER) {
-        path = PATH_DELIMITER + path;
-      }
+    if (StringUtils.hasLength(path) && path.charAt(0) != PATH_DELIMITER) {
+      path = PATH_DELIMITER + path;
     }
     uriVariables.put("basePath", (path != null) ? path : "");
     uriVariables.put("baseUrl", uriComponents.toUriString());
@@ -321,7 +324,9 @@ public final class CustomOAuth2AuthorizationRequestResolver
       builder.additionalParameters(params ->
         params.put(OidcParameterNames.NONCE, nonceHash)
       );
-    } catch (NoSuchAlgorithmException ex) {}
+    } catch (NoSuchAlgorithmException ex) {
+      log.info(null, ex);
+    }
   }
 
   private static String createHash(String value)

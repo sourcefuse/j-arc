@@ -8,7 +8,7 @@ import com.sourcefuse.jarc.services.authservice.oauth2.user.OAuth2UserInfo;
 import java.util.Map;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
-public class OAuth2UserInfoService {
+public final class OAuth2UserInfoService {
 
   private OAuth2UserInfoService() {}
 

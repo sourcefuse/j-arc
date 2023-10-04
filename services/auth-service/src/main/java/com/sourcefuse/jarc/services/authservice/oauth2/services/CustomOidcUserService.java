@@ -1,11 +1,11 @@
 package com.sourcefuse.jarc.services.authservice.oauth2.services;
 
-import com.sourcefuse.jarc.services.authservice.enums.AuthErrorKeys;
 import com.sourcefuse.jarc.services.authservice.enums.AuthProvider;
 import com.sourcefuse.jarc.services.authservice.models.Role;
 import com.sourcefuse.jarc.services.authservice.models.User;
 import com.sourcefuse.jarc.services.authservice.models.UserCredential;
 import com.sourcefuse.jarc.services.authservice.models.UserTenant;
+import com.sourcefuse.jarc.services.authservice.oauth2.auth.utils.CommonUtils;
 import com.sourcefuse.jarc.services.authservice.oauth2.providers.OAuth2PreVerifyProvider;
 import com.sourcefuse.jarc.services.authservice.oauth2.providers.OAuth2SignupProvider;
 import com.sourcefuse.jarc.services.authservice.oauth2.user.session.OAuth2UserSession;
@@ -46,10 +46,9 @@ public class CustomOidcUserService extends OidcUserService {
   @Transactional
   public OidcUser loadUser(OidcUserRequest oidcUserRequest)
     throws OAuth2AuthenticationException {
-    OidcUser oidcUser = super.loadUser(oidcUserRequest);
-
     try {
-      return processOAuth2User(oidcUserRequest, oidcUser);
+      OidcUser oidcUser = super.loadUser(oidcUserRequest);
+      return processOidcUser(oidcUserRequest, oidcUser);
     } catch (AuthenticationException ex) {
       log.error(null, ex);
       throw ex;
@@ -64,7 +63,7 @@ public class CustomOidcUserService extends OidcUserService {
     }
   }
 
-  private OidcUser processOAuth2User(
+  public OidcUser processOidcUser(
     OidcUserRequest oidcUserRequest,
     OidcUser oidcUser
   ) {
@@ -88,36 +87,29 @@ public class CustomOidcUserService extends OidcUserService {
             AuthProvider.valueOf(provider.toUpperCase())
           );
     }
-    //    System.out.println(getClientIdFromState());
     UserCredential userCredential =
       this.userCredentialRepository.findOne(
           UserCredentialSpecification.byUserId(user.getId())
         )
-        .orElseThrow(this::throwUserVerificationFailed);
+        .orElseThrow(CommonUtils::throwUserVerificationFailed);
     if (
       !userCredential.getAuthProvider().equalsIgnoreCase(provider) ||
       (!userCredential
           .getAuthId()
           .equalsIgnoreCase(oidcUser.getPreferredUsername()))
     ) {
-      throw throwUserVerificationFailed();
+      throw CommonUtils.throwUserVerificationFailed();
     }
     UserTenant userTenant =
       this.userTenantRepository.findOne(
           UserTenantSpecification.byUserId(user.getId())
         )
-        .orElseThrow(this::throwUserVerificationFailed);
+        .orElseThrow(CommonUtils::throwUserVerificationFailed);
 
     Role role =
       this.roleRepository.findById(userTenant.getRoleId())
-        .orElseThrow(this::throwUserVerificationFailed);
+        .orElseThrow(CommonUtils::throwUserVerificationFailed);
 
     return new OAuth2UserSession(user, userTenant, role, oidcUser);
-  }
-
-  private OAuth2AuthenticationException throwUserVerificationFailed() {
-    return new OAuth2AuthenticationException(
-      AuthErrorKeys.USER_VERIFICATION_FAILED.toString()
-    );
   }
 }

@@ -39,7 +39,7 @@ public class OAuth2AuthorizationRequestFilter extends OncePerRequestFilter {
     HttpServletResponse response,
     FilterChain filterChain
   ) throws ServletException, IOException {
-    String clientId = request.getParameter(StateUtils.clientIdParamKey);
+    String clientId = request.getParameter(StateUtils.CLIENT_ID_PARAM_KEY);
     if (
       authorizationRequestMatcher.matches(request) &&
       (clientId == null || clientId.isBlank())

@@ -44,18 +44,15 @@ public class OAuth2PreVerifyProvider {
   public User provide(User user, OAuth2UserInfo oAuth2UserInfo) {
     String fullname = oAuth2UserInfo.getName().replace("( )+", " ");
     List<String> name = Arrays.asList(fullname.split(" "));
-    String firstName = name.size() > 0 ? name.get(0) : null;
-    String lastName = name.size() > 1 ? name.get(name.size() - 1) : null;
-
-    boolean shouldUpdateFirstName =
-      (firstName != null && !firstName.isBlank()) &&
-      !user.getFirstName().equals(firstName);
-    boolean shouldUpdateLastName =
-      (lastName != null && !lastName.isBlank()) &&
-      !user.getLastName().equals(lastName);
+    String firstName = (!name.isEmpty() && name.get(0) != null)
+      ? name.get(0)
+      : user.getFirstName();
+    String lastName = (name.size() > 1 && name.get(name.size() - 1) != null)
+      ? name.get(name.size() - 1)
+      : user.getLastName();
     if (
-      shouldUpdateFirstName ||
-      shouldUpdateLastName ||
+      checkNameIsValidAndNotMatches(firstName, user.getFirstName()) ||
+      checkNameIsValidAndNotMatches(lastName, user.getLastName()) ||
       !user.getUsername().equals(oAuth2UserInfo.getEmail()) ||
       !user.getEmail().equals(oAuth2UserInfo.getEmail())
     ) {
@@ -84,5 +81,12 @@ public class OAuth2PreVerifyProvider {
       userTenant.get().setStatus(UserStatus.ACTIVE);
       this.userTenantRepository.save(userTenant.get());
     }
+  }
+
+  private static boolean checkNameIsValidAndNotMatches(
+    String name,
+    String nameToMatch
+  ) {
+    return (name != null && !name.isBlank()) && !nameToMatch.equals(name);
   }
 }

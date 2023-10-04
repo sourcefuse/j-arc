@@ -9,6 +9,7 @@ import com.sourcefuse.jarc.services.authservice.oauth2.providers.OAuth2PreVerify
 import com.sourcefuse.jarc.services.authservice.oauth2.user.OAuth2UserInfo;
 import com.sourcefuse.jarc.services.authservice.repositories.UserRepository;
 import com.sourcefuse.jarc.services.authservice.repositories.UserTenantRepository;
+import com.sourcefuse.jarc.services.authservice.tests.mocks.MockObjects;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,25 +40,9 @@ class OAuth2PreVerifyProviderTests {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    user = new User();
-    user.setFirstName("ABC");
-    user.setLastName("XYZ");
-    user.setEmail("user@mail.com");
-    user.setUsername("user");
-
-    oidcUser = Mockito.mock(OidcUser.class);
-    Mockito.when(oidcUser.getGivenName()).thenReturn(user.getFirstName());
-    Mockito.when(oidcUser.getFamilyName()).thenReturn(user.getLastName());
-    Mockito.when(oidcUser.getEmail()).thenReturn(user.getEmail());
-    Mockito
-      .when(oidcUser.getPreferredUsername())
-      .thenReturn(user.getUsername());
-
-    oAuth2User = Mockito.mock(OAuth2UserInfo.class);
-    Mockito
-      .when(oAuth2User.getName())
-      .thenReturn(user.getFirstName() + " " + user.getLastName());
-    Mockito.when(oAuth2User.getEmail()).thenReturn(user.getEmail());
+    user = MockObjects.createMockUser();
+    oidcUser = MockObjects.createMockOidcUser();
+    oAuth2User = MockObjects.createMockOAuth2UserInfo();
 
     Mockito
       .when(userTenantRepository.findOne(Mockito.any(Specification.class)))
@@ -163,9 +148,9 @@ class OAuth2PreVerifyProviderTests {
   }
 
   @Test
-  void testOAuthUserProvideShouldUpdateUserSinceLastIsDiff() {
-    user.setUsername(oAuth2User.getEmail());
-    user.setLastName("lastName");
+  void testOAuthUserProvideShouldUpdateUserSinceLastNameIsDiff() {
+    Mockito.when(user.getUsername()).thenReturn(MockObjects.USER_EMAIL);
+    Mockito.when(user.getLastName()).thenReturn("lastname");
     oAuth2PreVerifyProvider.provide(user, oAuth2User);
     Mockito
       .verify(userRepository, Mockito.times(1))
@@ -174,7 +159,7 @@ class OAuth2PreVerifyProviderTests {
 
   @Test
   void testOAuthUserProvideShouldNotUpdateUserSinceNameIsEmptyInUserInfo() {
-    user.setUsername(oAuth2User.getEmail());
+    Mockito.when(user.getUsername()).thenReturn(MockObjects.USER_EMAIL);
     Mockito.when(oAuth2User.getName()).thenReturn("");
     oAuth2PreVerifyProvider.provide(user, oAuth2User);
     Mockito
@@ -184,7 +169,7 @@ class OAuth2PreVerifyProviderTests {
 
   @Test
   void testOAuthUserProvideShouldNotUpdateUserSinceNameHasSpaceInUserInfo() {
-    user.setUsername(oAuth2User.getEmail());
+    Mockito.when(user.getUsername()).thenReturn(MockObjects.USER_EMAIL);
     Mockito.when(oAuth2User.getName()).thenReturn("       ");
     oAuth2PreVerifyProvider.provide(user, oAuth2User);
     Mockito
@@ -194,7 +179,7 @@ class OAuth2PreVerifyProviderTests {
 
   @Test
   void testOAuthUserProvideShouldNotUpdateUser() {
-    user.setUsername(oAuth2User.getEmail());
+    Mockito.when(user.getUsername()).thenReturn(MockObjects.USER_EMAIL);
     oAuth2PreVerifyProvider.provide(user, oAuth2User);
     Mockito
       .verify(userRepository, Mockito.times(0))

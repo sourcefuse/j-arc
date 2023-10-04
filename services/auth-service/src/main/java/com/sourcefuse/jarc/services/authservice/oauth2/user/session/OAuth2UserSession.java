@@ -6,6 +6,7 @@ import com.sourcefuse.jarc.services.authservice.models.UserTenant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -34,35 +35,6 @@ public class OAuth2UserSession implements OidcUser {
   OidcUserInfo userInfo;
   OidcIdToken idToken;
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return this.role.getPermissions()
-      .stream()
-      .map(permission -> new SimpleGrantedAuthority(permission))
-      .toList();
-  }
-
-  @Override
-  public String getName() {
-    return String.join(
-      " ",
-      Arrays
-        .asList(
-          this.user.getFirstName(),
-          this.user.getMiddleName(),
-          this.user.getLastName()
-        )
-        .stream()
-        .filter(ele -> ele != null)
-        .toList()
-    );
-  }
-
-  @Override
-  public Map<String, Object> getClaims() {
-    return this.getAttributes();
-  }
-
   public OAuth2UserSession(
     User user,
     UserTenant userTenant,
@@ -87,5 +59,34 @@ public class OAuth2UserSession implements OidcUser {
     this.attributes = oidcUser.getAttributes();
     this.userInfo = oidcUser.getUserInfo();
     this.idToken = oidcUser.getIdToken();
+  }
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return this.role.getPermissions()
+      .stream()
+      .map(SimpleGrantedAuthority::new)
+      .toList();
+  }
+
+  @Override
+  public String getName() {
+    return String.join(
+      " ",
+      Arrays
+        .asList(
+          this.user.getFirstName(),
+          this.user.getMiddleName(),
+          this.user.getLastName()
+        )
+        .stream()
+        .filter(Objects::nonNull)
+        .toList()
+    );
+  }
+
+  @Override
+  public Map<String, Object> getClaims() {
+    return this.getAttributes();
   }
 }

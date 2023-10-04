@@ -52,7 +52,7 @@ public class OAuth2SignupProvider {
     }
     String fullname = oAuth2UserInfo.getName().replace("( )+", " ");
     List<String> name = Arrays.asList(fullname.split(" "));
-    String firstName = name.size() > 0 ? name.get(0) : null;
+    String firstName = !name.isEmpty() ? name.get(0) : null;
     String lastName = name.size() > 1 ? name.get(name.size() - 1) : null;
 
     User userToCreate = new User();

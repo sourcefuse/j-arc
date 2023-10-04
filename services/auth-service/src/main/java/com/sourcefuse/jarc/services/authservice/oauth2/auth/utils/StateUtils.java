@@ -1,6 +1,5 @@
 package com.sourcefuse.jarc.services.authservice.oauth2.auth.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -10,13 +9,13 @@ import java.util.UUID;
 
 public final class StateUtils {
 
-  public static final String clientIdParamKey = "clientId";
+  public static final String CLIENT_ID_PARAM_KEY = "clientId";
 
   private StateUtils() {}
 
-  public static String encode(String clientId) throws JsonProcessingException {
+  public static String encode(String clientId) {
     Map<String, String> dataMap = new HashMap<>();
-    dataMap.put(clientIdParamKey, clientId);
+    dataMap.put(CLIENT_ID_PARAM_KEY, clientId);
     dataMap.put("id", UUID.randomUUID().toString());
 
     // Convert the map to a JSON string
@@ -37,6 +36,6 @@ public final class StateUtils {
     Map<String, Object> dataMap = new Gson().fromJson(decodedString, Map.class);
 
     // Retrieve and return the state from the map
-    return (String) dataMap.get(clientIdParamKey);
+    return (String) dataMap.get(CLIENT_ID_PARAM_KEY);
   }
 }
