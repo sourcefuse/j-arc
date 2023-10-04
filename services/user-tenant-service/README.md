@@ -118,6 +118,51 @@ spring.jpa.show-sql=true
 | spring.liquibase.enabled | N        | true          | Whether to enable Liquibase support. |
 |spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation | Y        | false         |Is used in the Spring Framework's Hibernate integration to control the behavior of Large Object (LOB) handling|
 |spring.jpa.properties.hibernate.auto_quote_keyword| Y        | false         |The property spring.jpa.properties.hibernate.auto_quote_keyword is used to control the automatic quoting of SQL keywords in Hibernate queries.|
+
+### Migrations
+The migrations use [`flyway`](https://flywaydb.org/).
+Please fallow below steps to apply the migrations.
+1. Create a folder db/migration/ inside src/main/resources/ 
+ for eg src/main/resources/db/migration/ and put the migration file inside this folder.
+2. You may copy the migration files [here](https://github.com/sourcefuse/j-arc/tree/master/services/user-tenant-service/src/main/resources) or cherry-pick the migration files from user-tenant-service or create the migration files based on the requirement.
+3. There are multiple ways to apply the migration through flyway , here are few examples.
+- Using command line : `mvn flyway:migrate -Dflyway.url=jdbc:postgresql://localhost:5432/<yout_db_name> -Dflyway.user=<your_db_username> -Dflyway.password=<your_db_password> -Dflyway.schemas=public`
+- Using the Flyway Maven plugin: you can add the Flyway Maven plugin to your pom.xml file and run the migrate goal to apply the pending migrations.
+  Then, you can run the following command to apply the pending migrations: **mvn flyway:migrate**
+
+Environment properties
+  These are the properties defined in the os level environment variables. Such as DATABASE_URL,DATABASE_USER_NAME configured on os level…etc. For accessing the Environmental properties, add the prefix env before the variable like follows.`
+```xml
+<build>
+ <plugins>
+  <plugin>
+   <groupId>org.flywaydb</groupId>
+   <artifactId>flyway-maven-plugin</artifactId>
+   <configuration>
+    <!--suppress UnresolvedMavenProperty -->
+    <url>${env.DATABASE_URL}</url>
+    <!--suppress UnresolvedMavenProperty -->
+    <user>${env.DATABASE_USER_NAME}</user>
+    <!--suppress UnresolvedMavenProperty -->
+    <password>${env.DATABASE_USER_PASSWORD}</password>
+    <schemas>
+     <!--suppress UnresolvedMavenProperty -->
+     <schema>${env.DATABASE_SCHEMA}</schema>
+    </schemas>
+    <!--             specify custom location if required, default location is db/migration
+<locations>services/user-tenant-service/src/main/resources/db/migration</locations>-->
+   </configuration>
+  </plugin>
+ </plugins>
+</build>
+  ```
+ **NOTE :**
+ To ensure compatibility, it's advisable to have Maven (MVN) installed. For Java versions 17 and above, it's recommended to use Maven version 3.8.8 or newer. If you're working with Java 8 or later, using Maven version 3.5 or later is recommended.
+
+
+
+
+
 ### API Documentation
 
 #### Common Headers
