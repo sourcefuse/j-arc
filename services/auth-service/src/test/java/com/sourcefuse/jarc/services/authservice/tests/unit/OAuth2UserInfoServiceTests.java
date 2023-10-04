@@ -9,6 +9,8 @@ import com.sourcefuse.jarc.services.authservice.oauth2.user.GithubOAuth2UserInfo
 import com.sourcefuse.jarc.services.authservice.oauth2.user.GoogleOAuth2UserInfo;
 import com.sourcefuse.jarc.services.authservice.oauth2.user.OAuth2UserInfo;
 import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
@@ -43,12 +45,13 @@ class OAuth2UserInfoServiceTests {
 
   @Test
   void testGetOAuth2UserInfoThrowErrorWhenProviderIsNotSupported() {
+    Map<String, Object> attributes = new HashMap<>();
     assertThrows(
       OAuth2AuthenticationException.class,
       () ->
         OAuth2UserInfoService.getOAuth2UserInfo(
           "instagram",
-          new HashMap<String, Object>()
+          attributes
         )
     );
   }
