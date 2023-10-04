@@ -29,7 +29,7 @@ public final class StateUtils {
     byte[] decodedBytes = Base64
       .getUrlDecoder()
       .decode(encodedState.getBytes(StandardCharsets.UTF_8));
-    String decodedString = new String(decodedBytes);
+    String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
 
     @SuppressWarnings("unchecked")
     // Convert the JSON string to a Map
