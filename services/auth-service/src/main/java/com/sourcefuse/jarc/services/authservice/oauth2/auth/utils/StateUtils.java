@@ -10,6 +10,7 @@ import java.util.UUID;
 public final class StateUtils {
 
   public static final String CLIENT_ID_PARAM_KEY = "clientId";
+  private static final Gson gson = new Gson();
 
   private StateUtils() {}
 
@@ -33,7 +34,7 @@ public final class StateUtils {
 
     @SuppressWarnings("unchecked")
     // Convert the JSON string to a Map
-    Map<String, Object> dataMap = new Gson().fromJson(decodedString, Map.class);
+    Map<String, Object> dataMap = gson.fromJson(decodedString, Map.class);
 
     // Retrieve and return the state from the map
     return (String) dataMap.get(CLIENT_ID_PARAM_KEY);
