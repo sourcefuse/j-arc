@@ -5,6 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.services.usertenantservice.controller.TenantController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Tenant;
 import com.sourcefuse.jarc.services.usertenantservice.dto.TenantConfig;
@@ -26,6 +27,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -52,6 +54,11 @@ class TenantControllerTests {
   @Mock
   private TenantService tenantService;
 
+  @Mock
+  private QueryService queryService;
+
+  private Specification mockSpecification;
+
   @BeforeEach
   public void setup() {
     //prepare the test data
@@ -60,6 +67,7 @@ class TenantControllerTests {
     mockTenantId = MockTenantUser.TENANT_ID;
     //Set Current LoggedIn User
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
+    mockSpecification = null;
   }
 
   @Test
@@ -139,7 +147,7 @@ class TenantControllerTests {
   @Test
   @DisplayName("Test: case for count success")
   void testCount_Success() throws Exception {
-    when(tenantRepository.count()).thenReturn(5L); // Mock a count of 5
+    when(tenantRepository.count(mockSpecification)).thenReturn(5L); // Mock a count of 5
 
     // Perform the API call
     mockMvc
@@ -153,14 +161,14 @@ class TenantControllerTests {
       .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(5));
 
     // Verify that roleRepository.count() was called
-    Mockito.verify(tenantRepository).count();
+    Mockito.verify(tenantRepository).count(mockSpecification);
   }
 
   @Test
   @DisplayName("Test case should pass for 0 count")
   void testCount_Empty() throws Exception {
     // Mock the behavior of roleRepository.count()
-    when(tenantRepository.count()).thenReturn(0L); // Mock a count of 0
+    when(tenantRepository.count(mockSpecification)).thenReturn(0L); // Mock a count of 0
 
     // Perform the API call
     mockMvc
@@ -174,7 +182,7 @@ class TenantControllerTests {
       .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(0));
 
     // Verify that roleRepository.count() was called
-    Mockito.verify(tenantRepository).count();
+    Mockito.verify(tenantRepository).count(mockSpecification);
   }
 
   @Test
@@ -188,7 +196,7 @@ class TenantControllerTests {
     );
 
     // Mock the behavior of roleRepository.findAll()
-    when(tenantRepository.findAll()).thenReturn(tenants);
+    when(tenantRepository.findAll(mockSpecification)).thenReturn(tenants);
 
     // Perform the API call
     mockMvc
@@ -202,14 +210,15 @@ class TenantControllerTests {
       .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(3));
 
     // Verify that roleRepository.findAll() was called
-    Mockito.verify(tenantRepository).findAll();
+    Mockito.verify(tenantRepository).findAll(mockSpecification);
   }
 
   @Test
   @DisplayName("Test: getAllTenants Empty Response")
   void testGetAllTenants_Empty() throws Exception {
     // Mock the behavior of roleRepository.findAll()
-    when(tenantRepository.findAll()).thenReturn(Arrays.asList());
+    when(tenantRepository.findAll(mockSpecification))
+      .thenReturn(Arrays.asList());
 
     // Perform the API call
     mockMvc
@@ -222,7 +231,7 @@ class TenantControllerTests {
       .andExpect(result -> Assertions.assertNotNull(result.getResponse()))
       .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(0));
     // Verify that roleRepository.findAll() was called
-    Mockito.verify(tenantRepository).findAll();
+    Mockito.verify(tenantRepository).findAll(mockSpecification);
   }
 
   @Test
@@ -238,7 +247,8 @@ class TenantControllerTests {
     );
 
     // Mock the behavior of roleRepository.findAll()
-    when(tenantRepository.findAll()).thenReturn(targetListTenant);
+    when(tenantRepository.findAll(mockSpecification))
+      .thenReturn(targetListTenant);
 
     // Mock the behavior of roleRepository.saveAll()
     when(tenantRepository.saveAll(any())).thenReturn(targetListTenant);
@@ -256,7 +266,7 @@ class TenantControllerTests {
       .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(3));
 
     // Verify that roleRepository.findAll() was called
-    Mockito.verify(tenantRepository).findAll();
+    Mockito.verify(tenantRepository).findAll(mockSpecification);
 
     // Verify that roleRepository.saveAll() was called with the updated roles
     Mockito.verify(tenantRepository).saveAll(targetListTenant);
@@ -268,7 +278,8 @@ class TenantControllerTests {
     tenant.setName("Updated Name");
 
     // Mock the behavior of roleRepository.findAll()
-    when(tenantRepository.findAll()).thenReturn(new ArrayList<>());
+    when(tenantRepository.findAll(mockSpecification))
+      .thenReturn(new ArrayList<>());
 
     // Perform the API call
     mockMvc
@@ -282,7 +293,7 @@ class TenantControllerTests {
       .andExpect(result -> Assertions.assertNotNull(result.getResponse()))
       .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(0));
     // Verify that roleRepository.findAll() was called
-    Mockito.verify(tenantRepository).findAll();
+    Mockito.verify(tenantRepository).findAll(mockSpecification);
 
     // Verify that roleRepository.saveAll() was not called
     Mockito.verify(tenantRepository, never()).saveAll(any());

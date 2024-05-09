@@ -1,5 +1,6 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
+import com.sourcefuse.jarc.core.filters.models.Filter;
 import com.sourcefuse.jarc.services.usertenantservice.controller.TenantUserController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserDto;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserView;
@@ -226,7 +227,8 @@ class TenantUserControllerTests {
       .when(
         tenantUserService.getUserView(
           tenantId,
-          MockCurrentUserSession.getCurrentUser()
+          MockCurrentUserSession.getCurrentUser(),
+          new Filter()
         )
       )
       .thenReturn(userDtoList);
@@ -250,7 +252,12 @@ class TenantUserControllerTests {
       MockTenantUser.getUserDtoObj()
     );
     Mockito
-      .when(tenantUserService.getAllUsers(ArgumentMatchers.any()))
+      .when(
+        tenantUserService.getAllUsers(
+          ArgumentMatchers.any(),
+          ArgumentMatchers.any()
+        )
+      )
       .thenReturn(userDtoList);
 
     // Act & Assert
@@ -278,7 +285,8 @@ class TenantUserControllerTests {
       .when(
         tenantUserService.getUserView(
           tenantId,
-          MockCurrentUserSession.getCurrentUser()
+          MockCurrentUserSession.getCurrentUser(),
+          new Filter()
         )
       )
       .thenReturn(userDtoList);

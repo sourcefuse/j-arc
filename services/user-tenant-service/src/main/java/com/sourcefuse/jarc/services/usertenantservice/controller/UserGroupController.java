@@ -2,6 +2,8 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 
 import com.sourcefuse.jarc.core.constants.PermissionKeyConstants;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
+import com.sourcefuse.jarc.core.filters.models.Filter;
+import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.core.models.session.CurrentUser;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Group;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
@@ -18,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -43,6 +47,7 @@ public class UserGroupController {
 
   private final UserGroupsRepository userGroupsRepo;
   private final UserGroupService userGroupService;
+  private final QueryService queryService;
 
   @PostMapping("{id}/user-groups")
   @PreAuthorize(
@@ -103,7 +108,8 @@ public class UserGroupController {
     "')"
   )
   public ResponseEntity<List<UserGroup>> getAllUserGroupByGroupId(
-    @PathVariable("id") UUID id
+    @PathVariable("id") UUID id,
+    @RequestParam(required = false, name = "filter") Filter filter
   ) {
     /** INFO fetch value in Group against primary key also a validation
          if group table does not have the records then  it will also not be
@@ -114,13 +120,16 @@ public class UserGroupController {
       GroupSpecification.byGroupIdAndTenantId(id, currentUser.getTenantId())
     );
     if (group.isPresent()) {
-      userGroupList =
-        userGroupsRepo.findAll(
+      Specification<UserGroup> userGroupSpecifications =
+        queryService.getSpecifications(filter);
+      userGroupSpecifications =
+        userGroupSpecifications.and(
           UserGroupsSpecification.byGroupIdAndTenantId(
             id,
             currentUser.getTenantId()
           )
         );
+      userGroupList = userGroupsRepo.findAll(userGroupSpecifications);
       return new ResponseEntity<>(userGroupList, HttpStatus.OK);
     } else {
       throw new ResponseStatusException(

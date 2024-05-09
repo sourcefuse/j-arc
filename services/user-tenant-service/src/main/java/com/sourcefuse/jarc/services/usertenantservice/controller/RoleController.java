@@ -3,6 +3,8 @@ package com.sourcefuse.jarc.services.usertenantservice.controller;
 import com.sourcefuse.jarc.core.constants.CommonConstants;
 import com.sourcefuse.jarc.core.constants.PermissionKeyConstants;
 import com.sourcefuse.jarc.core.dtos.CountResponse;
+import com.sourcefuse.jarc.core.filters.models.Filter;
+import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.core.utils.CommonUtils;
 import com.sourcefuse.jarc.services.usertenantservice.dto.Role;
 import com.sourcefuse.jarc.services.usertenantservice.repository.RoleRepository;
@@ -14,6 +16,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -37,6 +41,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class RoleController {
 
   private final RoleRepository roleRepository;
+  private final QueryService queryService;
 
   @PostMapping
   @PreAuthorize(
@@ -54,10 +59,15 @@ public class RoleController {
     PermissionKeyConstants.VIEW_ROLES +
     "')"
   )
-  public ResponseEntity<CountResponse> countRole() {
+  public ResponseEntity<CountResponse> countRole(
+    @RequestParam(required = false, name = "filter") Filter filter
+  ) {
+    Specification<Role> roleSpecifications = queryService.getSpecifications(
+      filter
+    );
     CountResponse count = CountResponse
       .builder()
-      .count(roleRepository.count())
+      .count(roleRepository.count(roleSpecifications))
       .build();
     return new ResponseEntity<>(count, HttpStatus.OK);
   }
@@ -68,8 +78,16 @@ public class RoleController {
     PermissionKeyConstants.VIEW_ROLES +
     "')"
   )
-  public ResponseEntity<List<Role>> getAllRoles() {
-    return new ResponseEntity<>(roleRepository.findAll(), HttpStatus.OK);
+  public ResponseEntity<List<Role>> getAllRoles(
+    @RequestParam(required = false, name = "filter") Filter filter
+  ) {
+    Specification<Role> roleSpecifications = queryService.getSpecifications(
+      filter
+    );
+    return new ResponseEntity<>(
+      roleRepository.findAll(roleSpecifications),
+      HttpStatus.OK
+    );
   }
 
   @Transactional
@@ -80,11 +98,16 @@ public class RoleController {
     "')"
   )
   public ResponseEntity<CountResponse> updateAllRole(
-    @RequestBody Role sourceRole
+    @RequestBody Role sourceRole,
+    @RequestParam(required = false, name = "filter") Filter filter
   ) {
+    Specification<Role> roleSpecifications = queryService.getSpecifications(
+      filter
+    );
+
     List<Role> updatedRoleLis = new ArrayList<>();
 
-    List<Role> targetRoleList = roleRepository.findAll();
+    List<Role> targetRoleList = roleRepository.findAll(roleSpecifications);
 
     long count = 0;
     if (!targetRoleList.isEmpty()) {

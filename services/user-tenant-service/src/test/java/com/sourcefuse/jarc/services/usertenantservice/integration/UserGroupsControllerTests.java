@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.sourcefuse.jarc.core.filters.services.QueryService;
 import com.sourcefuse.jarc.services.usertenantservice.controller.UserGroupsController;
 import com.sourcefuse.jarc.services.usertenantservice.dto.UserGroup;
 import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
@@ -21,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -37,14 +39,19 @@ class UserGroupsControllerTests {
   @Mock
   UserGroupsRepository userGroupsRepository;
 
-  private UserGroup userGroup;
   private String basePath = "/user-groups";
+
+  @Mock
+  private QueryService queryService;
+
+  private Specification mockSpecification;
 
   @BeforeEach
   public void setup() {
     mockMvc = MockMvcBuilders.standaloneSetup(userGroupsController).build();
     //Set Current LoggedIn User
     MockCurrentUserSession.setCurrentLoggedInUser(null, null, null);
+    mockSpecification = null;
   }
 
   @Test
@@ -60,7 +67,9 @@ class UserGroupsControllerTests {
     List<UserGroup> userGroupsList = Arrays.asList(userGroup1, userGroup2);
 
     // Mock the repository
-    Mockito.when(userGroupsRepository.findAll()).thenReturn(userGroupsList);
+    Mockito
+      .when(userGroupsRepository.findAll(mockSpecification))
+      .thenReturn(userGroupsList);
 
     // Act and Assert
     mockMvc
@@ -79,7 +88,9 @@ class UserGroupsControllerTests {
     List<UserGroup> userGroupsList = new ArrayList<>();
 
     // Mock the repository
-    Mockito.when(userGroupsRepository.findAll()).thenReturn(userGroupsList);
+    Mockito
+      .when(userGroupsRepository.findAll(mockSpecification))
+      .thenReturn(userGroupsList);
 
     // Act and Assert
     mockMvc
@@ -98,7 +109,9 @@ class UserGroupsControllerTests {
     List<UserGroup> userGroupsList = Arrays.asList(userGroup1, userGroup2);
 
     // Mock the repository
-    Mockito.when(userGroupsRepository.findAll()).thenReturn(userGroupsList);
+    Mockito
+      .when(userGroupsRepository.findAll(mockSpecification))
+      .thenReturn(userGroupsList);
 
     // Act and Assert
     mockMvc
@@ -113,7 +126,9 @@ class UserGroupsControllerTests {
     List<UserGroup> userGroupsList = new ArrayList<>();
 
     // Mock the repository
-    Mockito.when(userGroupsRepository.findAll()).thenReturn(userGroupsList);
+    Mockito
+      .when(userGroupsRepository.findAll(mockSpecification))
+      .thenReturn(userGroupsList);
 
     // Act and Assert
     mockMvc

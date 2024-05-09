@@ -1,5 +1,32 @@
 package com.sourcefuse.jarc.services.usertenantservice.integration;
 
+import com.sourcefuse.jarc.core.filters.services.QueryService;
+import com.sourcefuse.jarc.services.usertenantservice.controller.UserTenantPrefsController;
+import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenantPrefs;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockSpecification;
+import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
+import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantPrefsRepository;
+import com.sourcefuse.jarc.services.usertenantservice.service.UserTenantPrefsService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -9,29 +36,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.sourcefuse.jarc.services.usertenantservice.controller.UserTenantPrefsController;
-import com.sourcefuse.jarc.services.usertenantservice.dto.UserTenantPrefs;
-import com.sourcefuse.jarc.services.usertenantservice.mocks.JsonUtils;
-import com.sourcefuse.jarc.services.usertenantservice.mocks.MockCurrentUserSession;
-import com.sourcefuse.jarc.services.usertenantservice.mocks.MockTenantUser;
-import com.sourcefuse.jarc.services.usertenantservice.repository.UserTenantPrefsRepository;
-import com.sourcefuse.jarc.services.usertenantservice.service.UserTenantPrefsService;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @DisplayName("User Tenant Prefs Controller Integration Tests")
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +56,9 @@ class UserTenantPrefsControllerTests {
   private UUID userTenantId;
 
   private String basePath = "/user-tenant-prefs";
+
+  @Mock
+  private QueryService queryService;
 
   @BeforeEach
   public void setup() {
@@ -107,10 +114,12 @@ class UserTenantPrefsControllerTests {
       userTenantPrefs1,
       userTenantPrefs2
     );
-
+    Specification mockSpecification = MockSpecification.getSpecification(
+      queryService
+    );
     // Mock the repository
     Mockito
-      .when(userTenantPrefsRepository.findAll())
+      .when(userTenantPrefsRepository.findAll(mockSpecification))
       .thenReturn(userTenantPrefsList);
 
     // Set up the mockMvc with the controller
@@ -133,10 +142,12 @@ class UserTenantPrefsControllerTests {
   void testGetAllUsTenantPrefs_Empty() throws Exception {
     // Arrange
     List<UserTenantPrefs> userTenantPrefsList = new ArrayList<>();
-
+    Specification mockSpecification = MockSpecification.getSpecification(
+      queryService
+    );
     // Mock the repository
     Mockito
-      .when(userTenantPrefsRepository.findAll())
+      .when(userTenantPrefsRepository.findAll(mockSpecification))
       .thenReturn(userTenantPrefsList);
 
     // Set up the mockMvc with the controller
