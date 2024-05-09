@@ -23,13 +23,14 @@ import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -77,6 +78,7 @@ public class User extends UserModifiableEntity {
   @Column(name = "photo_url")
   private String photoUrl;
 
+  @Column(columnDefinition = "bpchar", length = 10)
   @Enumerated(EnumType.STRING)
   private Gender gender;
 
