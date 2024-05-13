@@ -1,19 +1,28 @@
-package com.sourcefuse.jarc.authlib.config;
+package com.sourcefuse.jarc.services.authservice.config;
 
 import com.sourcefuse.jarc.authlib.cors.CorsFilter;
 import com.sourcefuse.jarc.authlib.security.JwtAuthenticationFilter;
+import com.sourcefuse.jarc.services.authservice.oauth2.auth.handlers.OAuth2AuthenticationFailureHandler;
+import com.sourcefuse.jarc.services.authservice.oauth2.auth.handlers.OAuth2AuthenticationSuccessHandler;
+import com.sourcefuse.jarc.services.authservice.oauth2.auth.request.resolver.CustomOAuth2AuthorizationRequestResolver;
+import com.sourcefuse.jarc.services.authservice.oauth2.request.filters.OAuth2AuthorizationRequestFilter;
+import com.sourcefuse.jarc.services.authservice.oauth2.services.CustomOAuth2UserService;
+import com.sourcefuse.jarc.services.authservice.oauth2.services.CustomOidcUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -23,8 +32,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @ConditionalOnProperty(
   value = "auth.security-config.enable",
-  havingValue = "false",
-  matchIfMissing = true
+  havingValue = "true"
 )
 public class SecurityConfig {
 
@@ -46,31 +54,69 @@ public class SecurityConfig {
 
   private final CorsFilter corsFilter;
 
+  private final CustomOAuth2UserService customOAuth2UserService;
+
+  private final CustomOidcUserService customOidc2UserService;
+
+  private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
+  private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+
+  private final ClientRegistrationRepository clientRegistrationRepository;
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http)
     throws Exception {
     http.csrf().disable();
     http
-      .authorizeHttpRequests()
-      .requestMatchers(
-        swaggerDocsPath + "/**",
-        swaggerUiPath + "/**",
-        "/swagger-ui/**"
+      .oauth2Login()
+      .authorizationEndpoint()
+      .authorizationRequestResolver(
+        new CustomOAuth2AuthorizationRequestResolver(
+          clientRegistrationRepository
+        )
       )
-      .hasAnyRole(SWAGGER_ROLE);
+      .and()
+      .userInfoEndpoint()
+      .userService(customOAuth2UserService)
+      .oidcUserService(customOidc2UserService)
+      .and()
+      .successHandler(oAuth2AuthenticationSuccessHandler)
+      .failureHandler(oAuth2AuthenticationFailureHandler)
+      .permitAll();
+    http.addFilterBefore(
+      new OAuth2AuthorizationRequestFilter(),
+      OAuth2AuthorizationRequestRedirectFilter.class
+    );
+
+    http.authorizeHttpRequests().anyRequest().permitAll();
 
     http
-      .authorizeHttpRequests()
-      .anyRequest()
-      .permitAll()
-      .and()
-      .httpBasic()
-      .and()
       .addFilterBefore(
         authenticationFilter,
         UsernamePasswordAuthenticationFilter.class
       )
       .addFilterBefore(corsFilter, ChannelProcessingFilter.class);
+
+    return http.build();
+  }
+
+  @Bean
+  @Order(1)
+  public SecurityFilterChain swaggerFilterChain(HttpSecurity http)
+    throws Exception {
+    http
+      .securityMatchers(e ->
+        e.requestMatchers(
+          swaggerDocsPath + "/**",
+          swaggerUiPath + "/**",
+          "/swagger-ui/**"
+        )
+      )
+      .authorizeHttpRequests(authorize ->
+        authorize.anyRequest().hasRole(SWAGGER_ROLE)
+      )
+      .httpBasic();
     return http.build();
   }
 

@@ -1,0 +1,92 @@
+package com.sourcefuse.jarc.services.authservice.oauth2.user.session;
+
+import com.sourcefuse.jarc.services.authservice.models.Role;
+import com.sourcefuse.jarc.services.authservice.models.User;
+import com.sourcefuse.jarc.services.authservice.models.UserTenant;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Data
+public class OAuth2UserSession implements OidcUser {
+
+  private User user;
+  private UserTenant userTenant;
+  private Role role;
+
+  Map<String, Object> attributes;
+
+  OidcUserInfo userInfo;
+  OidcIdToken idToken;
+
+  public OAuth2UserSession(
+    User user,
+    UserTenant userTenant,
+    Role role,
+    OAuth2User oAuth2User
+  ) {
+    this.user = user;
+    this.userTenant = userTenant;
+    this.role = role;
+    this.attributes = oAuth2User.getAttributes();
+  }
+
+  public OAuth2UserSession(
+    User user,
+    UserTenant userTenant,
+    Role role,
+    OidcUser oidcUser
+  ) {
+    this.user = user;
+    this.userTenant = userTenant;
+    this.role = role;
+    this.attributes = oidcUser.getAttributes();
+    this.userInfo = oidcUser.getUserInfo();
+    this.idToken = oidcUser.getIdToken();
+  }
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return this.role.getPermissions()
+      .stream()
+      .map(SimpleGrantedAuthority::new)
+      .toList();
+  }
+
+  @Override
+  public String getName() {
+    return String.join(
+      " ",
+      Arrays
+        .asList(
+          this.user.getFirstName(),
+          this.user.getMiddleName(),
+          this.user.getLastName()
+        )
+        .stream()
+        .filter(Objects::nonNull)
+        .toList()
+    );
+  }
+
+  @Override
+  public Map<String, Object> getClaims() {
+    return this.getAttributes();
+  }
+}

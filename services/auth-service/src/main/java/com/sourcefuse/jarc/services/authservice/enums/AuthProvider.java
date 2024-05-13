@@ -6,5 +6,6 @@ public enum AuthProvider {
   GOOGLE,
   FACEBOOK,
   APPLE,
-  INSTAGRAM;
+  INSTAGRAM,
+  GITHUB;
 }

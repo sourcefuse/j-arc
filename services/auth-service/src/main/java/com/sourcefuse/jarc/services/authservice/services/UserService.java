@@ -186,9 +186,9 @@ public class UserService {
       user = this.userRepository.save(user);
       UserCredential userCredential = new UserCredential();
       userCredential.setUserId(user.getId());
-      if (provider == AuthProvider.KEYCLOAK) {
+      if (provider != AuthProvider.INTERNAL) {
         userCredential.setAuthId(authId);
-        userCredential.setAuthProvider(AuthProvider.KEYCLOAK.toString());
+        userCredential.setAuthProvider(provider.toString());
       } else {
         userCredential.setAuthProvider(AuthProvider.INTERNAL.toString());
         userCredential.setPassword(passwordEncoder.encode(defaultPassword));
