@@ -116,8 +116,7 @@ public class SecurityConfig {
       .authorizeHttpRequests(authorize ->
         authorize.anyRequest().hasRole(SWAGGER_ROLE)
       )
-      .httpBasic()
-      .realmName("MyApp");
+      .httpBasic();
     return http.build();
   }
 
