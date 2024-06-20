@@ -1,7 +1,9 @@
 package com.sourcefuse.jarc.authlib.config;
 
+import com.sourcefuse.jarc.authlib.api.security.ApiSecurityProvider;
 import com.sourcefuse.jarc.authlib.cors.CorsFilter;
 import com.sourcefuse.jarc.authlib.security.JwtAuthenticationFilter;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +40,9 @@ public class SecurityConfig {
 
   private final CorsFilter corsFilter;
 
+  @Nullable
+  private final ApiSecurityProvider apiSecurityProvider;
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http)
     throws Exception {
@@ -64,6 +69,11 @@ public class SecurityConfig {
         UsernamePasswordAuthenticationFilter.class
       )
       .addFilterBefore(corsFilter, ChannelProcessingFilter.class);
+
+    if (apiSecurityProvider != null) {
+      apiSecurityProvider.setApiSecurity(http);
+    }
+
     return http.build();
   }
 
